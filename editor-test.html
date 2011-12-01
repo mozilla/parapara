@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>パラパラアニメーション</title>
+    <style type="text/css">
+      div.controls {
+        text-align: center;
+      }
+      button {
+        background: -moz-linear-gradient(top,  #ebebeb,  #a1a1a1);
+        background: -webkit-gradient(linear, left top, left bottom,
+                                     from(#ebebeb), to(#a1a1a1));
+        border: none;
+        border-radius: 5px 5px 5px 5px;
+        color: #FFFFFF;
+        font-weight: bold;
+        font-size: 20px;
+        letter-spacing: 1px;
+        margin: auto;
+        padding: 7px 25px;
+        text-shadow: 0 1px 1px black;
+      }
+      button:hover {
+        background: -moz-linear-gradient(top,  #04acec,  #0186ba);
+        background: -webkit-gradient(linear, left top, left bottom,
+                                     from(#04acec), to(#0186ba));
+      }
+      div.workspace {
+        text-align: center;
+      }
+      svg.canvas {
+        border: 1px solid black;
+        margin: 1em;
+      }
+      .selectionRect {
+        fill: none;
+        stroke: red;
+        stroke-width: 2.5;
+        stroke-opacity: 0.7;
+        stroke-dasharray: 2 6;
+        stroke-linecap: round;
+        pointer-events: visiblePainted;
+      }
+      g.oldFrame > * {
+        stroke: grey
+      }
+      g.oldFrame {
+        opacity: 0.5
+      }
+      .hitRegion { fill: none; }
+    </style>
+    <script type="text/javascript" src="js/parapara.js"></script>
+    <script type="text/javascript">
+      function init() {
+        svgRoot = document.getElementById("canvas");
+        ParaPara.init(svgRoot);
+      }
+      function nextFrame() {
+        ParaPara.frames.addFrame();
+      }
+      window.addEventListener("load", init, false);
+    </script>
+    <meta name="viewport" 
+      content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent">
+  </head>
+  <body>
+    <div class="workspace" style="height: 80%">
+      <!-- XXX On window resize make this the right size -->
+      <svg style="width:600px;height:600px" viewBox="0 0 300 300"
+        id="canvas" class="canvas">
+        <defs>
+          <pattern>
+          </pattern>
+        </defs>
+        <rect id="bg" width="100%" height="100%" fill="lightgrey"/>
+        <g id="anim">
+        </g>
+      </svg>
+    </div>
+    <div class="controls" style="height: 20%">
+      <button type="button" onclick="nextFrame()">つぎ</button>
+      <button type="button" onclick="finish()">おわる</button>
+    </div>
+  </body>
+</html>
