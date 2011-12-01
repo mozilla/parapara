@@ -135,15 +135,17 @@ ParaPara.MouseControls.prototype.stopDraw = function() {
   console.assert(this.shape, "No shape to draw on");
 
   var points = this.shape.points;
-  if (points.numberOfItems > 1) {
-    var path = this.createPathFromPoints(points);
-    this.shape.parentNode.appendChild(path);
-  }
+  var path = this.createPathFromPoints(points);
+  this.shape.parentNode.appendChild(path);
   this.shape.parentNode.removeChild(this.shape);
   this.shape = null;
 }
 
 ParaPara.MouseControls.prototype.createPathFromPoints = function(points) {
+  if (points.length == 1) {
+    return this.createPoint(points);
+  }
+
   var path = document.createElementNS(ParaPara.SVG_NS, "path");
   path.setAttribute("fill", "none");
   path.setAttribute("stroke-linecap", "round");
@@ -154,7 +156,7 @@ ParaPara.MouseControls.prototype.createPathFromPoints = function(points) {
   // See if I can do a better job along the lines of:
   //   http://stackoverflow.com/questions/6621518/how-to-smooth-a-freehand-drawn-svg-path
   var N = points.numberOfItems;
-  if (N >= 4) {
+  if (N > 4) {
     var curpos = points.getItem(0), prevCtlPt = null;
     var d = [];
     d.push(["M",curpos.x,",",curpos.y," C"].join(""));
@@ -188,8 +190,28 @@ ParaPara.MouseControls.prototype.createPathFromPoints = function(points) {
 
     // create new path element
     path.setAttribute("d", d);
+  } else {
+    console.assert(points.length >= 2, "Expected at least two points");
+    // XXX For now just do fixed line segments
+    var d = "M" + points.getItem(0).x + "," + points.getItem(0).y + "L";
+    for (var i = 1; i < N; ++i) {
+      var pt = points.getItem(i);
+      d += pt.x + "," + pt.y + " ";
+    }
+    path.setAttribute("d", d);
   }
 
+  return path;
+}
+
+ParaPara.MouseControls.prototype.createPoint = function(points) {
+  console.assert(points.length == 1, "Expected only one point");
+  var path = document.createElementNS(ParaPara.SVG_NS, "circle");
+  path.setAttribute("fill", "red");
+  path.setAttribute("stroke", "none");
+  path.setAttribute("r", "3");
+  path.setAttribute("cx", points.getItem(0).x);
+  path.setAttribute("cy", points.getItem(0).y);
   return path;
 }
 
@@ -274,14 +296,57 @@ ParaPara.Animator = function() {
 }
 
 ParaPara.Animator.prototype.makeAnimation = function() {
-  // Iterate over all "frame" elements
-  // Remove oldFrame class
-  // Add child animation
-  //   -- dur = this.dur
-  //   -- begin = prevAnimId.end
-  //   -- id = generate (globally unique so we can dump them right in the doc)
+  var scene = ParaPara.svgRoot.ownerDocument.getElementById("anim");
+  var frames = scene.getElementsByClassName("frame");
+  var lastId = "";
+  for (var i = 0; i < frames.length; ++i) {
+    var frame = frames[i];
+    // Remove oldFrame class
+    // XXX Probably need a shim for this when it's not available
+    frame.classList.remove("oldFrame");
+    frame.setAttribute("visibility", "hidden");
+
+    // Add an animation
+    var anim = document.createElementNS(ParaPara.SVG_NS, "set");
+    anim.setAttribute("attributeName", "visibility");
+    anim.setAttribute("to", "visible");
+    anim.setAttribute("dur", this.dur + "s");
+    var id = "anim" + ParaPara.Utils.guid();
+    anim.setAttribute("id", id);
+    if (lastId) {
+      anim.setAttribute("begin", lastId + ".end");
+    }
+    frame.appendChild(anim);
+    lastId = id;
+  }
+
+  // Make the first animation get triggered by the last
+  if (frames.length) {
+    var firstAnim = frames[0].getElementsByTagName("set")[0];
+    firstAnim.setAttribute("begin", "0; " + lastId + ".end");
+    console.log(firstAnim);
+  }
+
+  // Trigger animation
+  ParaPara.svgRoot.setCurrentTime(0);
 }
 
 ParaPara.Animator.prototype.setSpeed = function(dur) {
   // Get elementByTagName
+}
+
+// -------------------- Animator --------------------
+
+ParaPara.Utils = {};
+
+// The following two functions courtesy of:
+//   http://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid-in-javascript
+
+ParaPara.Utils.S4 = function() {
+  return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
+}
+
+ParaPara.Utils.guid = function() {
+  var S4 = ParaPara.Utils.S4;
+  return (S4()+S4()+S4()+S4()+S4()+S4()+S4()+S4());
 }
