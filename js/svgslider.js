@@ -85,6 +85,7 @@ function transform(slider) {
   var min, max, step, range, value = slider.getAttribute('value');
   var svg;
   var dragListener, dragEndListener;
+  var touchIdentifier = null;
 
   const thumbRadius = 20;
 
@@ -167,11 +168,14 @@ function transform(slider) {
       return;
     e.preventDefault();
 
-    // XXX detect multiple fingers and ignore all but the first
+    var clientX = getClientX(e);
+    if (clientX === null)
+      return;
+
     var thumb = getThumb();
     thumb.setAttribute("fill", "url(#__sliderthumb_depressed_grad__)");
     rawValue = value;
-    prevX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
+    prevX = clientX;
 
     document.addEventListener('mousemove', dragListener, true);
     document.addEventListener('touchmove', dragListener, true);
@@ -185,7 +189,11 @@ function transform(slider) {
     var multiplier = (width - thumbRadius) / range;
     if (!multiplier)
       return;
-    var clientX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
+
+    var clientX = getClientX(e);
+    if (clientX === null)
+      return;
+
     rawValue += (clientX - prevX) / multiplier;
     prevX = clientX;
     isChanged = true;
@@ -194,6 +202,19 @@ function transform(slider) {
 
   function onDragEnd(e) {
     e.preventDefault();
+
+    if (e.changedTouches) {
+      for (var i = 0; i < e.changedTouches.length; ++i) {
+        var touch = e.changedTouches[i];
+        if (touch.identifier == touchIdentifier) {
+          touchIdentifier = null;
+          break;
+        }
+      }
+      if (touchIdentifier)
+        return;
+    }
+
     var thumb = getThumb();
     thumb.setAttribute("fill", "url(#__sliderthumb_grad__)");
 
@@ -204,13 +225,15 @@ function transform(slider) {
   }
 
   function onSeekStart(e) {
-    if (e.button || !range)
+    if (e.button || !range || touchIdentifier)
       return;
     var width = parseFloat(getComputedStyle(slider, null).width);
     var multiplier = (width - thumbRadius) / range;
     if (!multiplier)
       return;
-    var clientX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
+    var clientX = getClientX(e);
+    if (clientX === null)
+      return;
     // distance between click and center of thumb
     var dev = clientX - this.getBoundingClientRect().left - thumbRadius / 2 -
               (value - min) * multiplier;
@@ -241,6 +264,35 @@ function transform(slider) {
   // determines whether value is valid number in attribute form
   function isAttrNum(value) {
     return !isNaN(value) && +value == parseFloat(value);
+  }
+
+  // Gets the clientX from either a MouseEvent or TouchEvent
+  //
+  // For TouchEvents we further check if the identifier matches the touch we're
+  // tracking. If we're not tracking any touches then we start tracking the
+  // first one in the list.
+  //
+  // If the event doesn't correspond to a touch we're tracking, returns null.
+  function getClientX(e) {
+    var clientX = null;
+    if (e.changedTouches) {
+      if (e.changedTouches.length && touchIdentifier === null) {
+        var touch = e.changedTouches[0];
+        clientX = touch.clientX;
+        touchIdentifier = touch.identifier;
+      } else {
+        for (var i = 0; i < e.changedTouches.length; ++i) {
+          var touch = e.changedTouches[i];
+          if (touch.identifier == touchIdentifier) {
+            clientX = touch.clientX;
+            break;
+          }
+        }
+      }
+    } else {
+      clientX = e.clientX;
+    }
+    return clientX;
   }
 
   function createSVG(slider) {
