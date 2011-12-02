@@ -28,9 +28,17 @@
       div.workspace {
         text-align: center;
       }
+      div.controls {
+        text-align: center;
+        padding: 0.8em;
+      }
+      body, html, div.workspace {
+        margin: 0 0;
+        padding: 0 0;
+      }
       svg.canvas {
         border: 1px solid black;
-        margin: 1em;
+        margin: 0 0;
       }
       .selectionRect {
         fill: none;
@@ -58,6 +66,7 @@
     <script type="text/javascript">
       this.animator = null;
       function init() {
+        updateLayout();
         svgRoot = document.getElementById("canvas");
         ParaPara.init(svgRoot);
       }
@@ -82,7 +91,27 @@
           return;
         this.animator.setSpeed(1 / sliderValue);
       }
+      function updateLayout() {
+        var controlsHeight = document.getElementById("controls").offsetHeight;
+        var availHeight = window.innerHeight - controlsHeight;
+        var availWidth  = window.innerWidth;
+        // The minus 8 is a fudge factor
+        var maxDim = Math.min(availHeight, availWidth) - 8;
+        var canvas = document.getElementById("canvas");
+        canvas.style.setProperty("width", maxDim + "px", "");
+        canvas.style.setProperty("height", maxDim + "px", "");
+        // XXX Need to resize the speed slider to be about 80% of maxDim
+        // If we have extra vertical space, centre vertically
+        if (availHeight > availWidth) {
+          canvas.style.setProperty("margin-top",
+            (availHeight - maxDim) / 2 + "px", "");
+        } else {
+          canvas.style.removeProperty("margin-top");
+        }
+      }
       window.addEventListener("load", init, false);
+      window.addEventListener("resize", updateLayout, false);
+      window.addEventListener("orientationchange", updateLayout, false);
     </script>
     <meta name="viewport" 
       content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -92,7 +121,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   </head>
   <body>
-    <div class="workspace" style="height: 80%">
+    <div class="workspace">
       <!-- XXX On window resize make this the right size -->
       <svg style="width:600px;height:600px" viewBox="0 0 300 300"
         id="canvas" class="canvas">
@@ -102,7 +131,7 @@
         </g>
       </svg>
     </div>
-    <div class="controls" style="height: 20%">
+    <div class="controls" id="controls">
       <div id="frameControls">
         <button type="button" onclick="nextFrame()">つぎ</button>
         <button type="button" onclick="finish()">おわる</button>
