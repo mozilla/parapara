@@ -5,7 +5,7 @@ ParaPara.XLINK_NS = "http://www.w3.org/1999/xlink";
 
 ParaPara.init = function(svgRoot) {
   ParaPara.svgRoot = svgRoot;
-  ParaPara.controls = new ParaPara.CanvasEventHandler();
+  ParaPara.drawControls = new ParaPara.DrawControls();
   ParaPara.frames = new ParaPara.FrameList();
 }
 
@@ -40,32 +40,53 @@ if (!Function.prototype.bind) {
 
 // -------------------- Canvas event handling --------------------
 
-ParaPara.CanvasEventHandler = function() {
+ParaPara.DrawControls = function() {
   this.linesInProgress = new Object;
   this.frame = null;
 
-  ParaPara.svgRoot.addEventListener("mousedown", this.mouseDown.bind(this));
-  ParaPara.svgRoot.addEventListener("mousemove", this.mouseMove.bind(this));
-  ParaPara.svgRoot.addEventListener("mouseup", this.mouseUp.bind(this));
-  ParaPara.svgRoot.addEventListener("touchstart", this.touchStart.bind(this));
-  ParaPara.svgRoot.addEventListener("touchmove", this.touchMove.bind(this));
-  ParaPara.svgRoot.addEventListener("touchend", this.touchEnd.bind(this));
-  ParaPara.svgRoot.addEventListener("touchcancel", this.touchCancel.bind(this));
+  this.mouseDownHandler   = this.mouseDown.bind(this);
+  this.mouseMoveHandler   = this.mouseMove.bind(this);
+  this.mouseUpHandler     = this.mouseUp.bind(this);
+  this.touchStartHandler  = this.touchStart.bind(this);
+  this.touchMoveHandler   = this.touchMove.bind(this);
+  this.touchEndHandler    = this.touchEnd.bind(this);
+  this.touchCancelHandler = this.touchCancel.bind(this);
+
+  ParaPara.svgRoot.addEventListener("mousedown", this.mouseDownHandler);
+  ParaPara.svgRoot.addEventListener("mousemove", this.mouseMoveHandler);
+  ParaPara.svgRoot.addEventListener("mouseup", this.mouseUpHandler);
+  ParaPara.svgRoot.addEventListener("touchstart", this.touchStartHandler);
+  ParaPara.svgRoot.addEventListener("touchmove", this.touchMoveHandler);
+  ParaPara.svgRoot.addEventListener("touchend", this.touchEndHandler);
+  ParaPara.svgRoot.addEventListener("touchcancel", this.touchCancelHandler);
 }
 
-ParaPara.CanvasEventHandler.prototype.mouseDown = function(evt) {
+ParaPara.DrawControls.prototype.disable = function() {
+  // For now we just stop listening to all events.
+  // This might not be what we really want. For example, we might want to just
+  // catch and ignore all events on this canvas (preventDefault) to avoid
+  // surprises (e.g. it's probably somewhat counterintuitive if default actions
+  // like scrolling suddenly start working).
+  ParaPara.svgRoot.removeEventListener("mousedown", this.mouseDownHandler);
+  ParaPara.svgRoot.removeEventListener("mousemove", this.mouseMoveHandler);
+  ParaPara.svgRoot.removeEventListener("mouseup", this.mouseUpHandler);
+  ParaPara.svgRoot.removeEventListener("touchstart", this.touchStartHandler);
+  ParaPara.svgRoot.removeEventListener("touchmove", this.touchMoveHandler);
+  ParaPara.svgRoot.removeEventListener("touchend", this.touchEndHandler);
+  ParaPara.svgRoot.removeEventListener("touchcancel", this.touchCancelHandler);
+}
+
+ParaPara.DrawControls.prototype.mouseDown = function(evt) {
   evt.preventDefault();
   if (evt.button || this.linesInProgress.mouseLine)
     return;
   this.frame = ParaPara.frames.getCurrentFrame();
-  if (!this.frame)
-    return;
   var pt = this.getLocalCoords(evt.clientX, evt.clientY, this.frame);
   this.linesInProgress.mouseLine =
     new ParaPara.FreehandLine(pt.x, pt.y, this.frame);
 }
 
-ParaPara.CanvasEventHandler.prototype.mouseMove = function(evt) {
+ParaPara.DrawControls.prototype.mouseMove = function(evt) {
   evt.preventDefault();
   if (!this.linesInProgress.mouseLine)
     return;
@@ -73,7 +94,7 @@ ParaPara.CanvasEventHandler.prototype.mouseMove = function(evt) {
   this.linesInProgress.mouseLine.addPoint(pt.x, pt.y);
 }
 
-ParaPara.CanvasEventHandler.prototype.mouseUp = function(evt) {
+ParaPara.DrawControls.prototype.mouseUp = function(evt) {
   evt.preventDefault();
   if (!this.linesInProgress.mouseLine)
     return;
@@ -81,11 +102,9 @@ ParaPara.CanvasEventHandler.prototype.mouseUp = function(evt) {
   delete this.linesInProgress.mouseLine;
 }
 
-ParaPara.CanvasEventHandler.prototype.touchStart = function(evt) {
+ParaPara.DrawControls.prototype.touchStart = function(evt) {
   evt.preventDefault();
   this.frame = ParaPara.frames.getCurrentFrame();
-  if (!this.frame)
-    return;
   for (var i = 0; i < evt.changedTouches.length; ++i) {
     var touch = evt.changedTouches[i];
     var pt = this.getLocalCoords(touch.clientX, touch.clientY, this.frame);
@@ -94,7 +113,7 @@ ParaPara.CanvasEventHandler.prototype.touchStart = function(evt) {
   }
 }
 
-ParaPara.CanvasEventHandler.prototype.touchMove = function(evt) {
+ParaPara.DrawControls.prototype.touchMove = function(evt) {
   evt.preventDefault();
   for (var i = 0; i < evt.changedTouches.length; ++i) {
     var touch = evt.changedTouches[i];
@@ -105,7 +124,7 @@ ParaPara.CanvasEventHandler.prototype.touchMove = function(evt) {
   }
 }
 
-ParaPara.CanvasEventHandler.prototype.touchEnd = function(evt) {
+ParaPara.DrawControls.prototype.touchEnd = function(evt) {
   evt.preventDefault();
   for (var i = 0; i < evt.changedTouches.length; ++i) {
     var touch = evt.changedTouches[i];
@@ -116,7 +135,7 @@ ParaPara.CanvasEventHandler.prototype.touchEnd = function(evt) {
   }
 }
 
-ParaPara.CanvasEventHandler.prototype.touchCancel = function(evt) {
+ParaPara.DrawControls.prototype.touchCancel = function(evt) {
   evt.preventDefault();
   for (var i = 0; i < evt.changedTouches.length; ++i) {
     var touch = evt.changedTouches[i];
@@ -127,7 +146,7 @@ ParaPara.CanvasEventHandler.prototype.touchCancel = function(evt) {
   }
 }
 
-ParaPara.CanvasEventHandler.prototype.getLocalCoords = function(x, y, elem) {
+ParaPara.DrawControls.prototype.getLocalCoords = function(x, y, elem) {
   var pt = ParaPara.svgRoot.createSVGPoint();
   pt.x = x;
   pt.y = y;
@@ -311,10 +330,6 @@ ParaPara.FrameList.prototype.addFrame = function() {
   var scene = ParaPara.svgRoot.ownerDocument.getElementById("anim");
   scene.appendChild(g);
   this.currentFrame = g;
-}
-
-ParaPara.FrameList.prototype.finish = function() {
-  this.currentFrame = null;
 }
 
 // -------------------- Animator --------------------
