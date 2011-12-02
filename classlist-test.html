@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>classList test</title>
+    <style type="text/css">
+      circle.red { fill: red; }
+    </style>
+    <script type="text/javascript" src="js/svgClassList.js"></script>
+    <script type="text/javascript">
+      function remove() {
+        circle = document.getElementById("circle");
+        circle.classList.remove("red");
+      }
+    </script>
+  </head>
+  <body>
+    <div>
+      <svg style="width:100px;height:100px" viewBox="0 0 100 100"
+        id="canvas" class="canvas">
+        <circle cx="50" cy="50" r="50" fill="blue" class="red" id="circle"/>
+      </svg>
+    </div>
+    <div class="controls" style="height: 20%">
+      <button type="button" onclick="remove()">Remove</button>
+    </div>
+  </body>
+</html>

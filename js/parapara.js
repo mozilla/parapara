@@ -42,7 +42,7 @@ if (!Function.prototype.bind) {
 
 ParaPara.CanvasEventHandler = function() {
   this.linesInProgress = new Object;
-  this.frame       = null;
+  this.frame = null;
 
   ParaPara.svgRoot.addEventListener("mousedown", this.mouseDown.bind(this));
   ParaPara.svgRoot.addEventListener("mousemove", this.mouseMove.bind(this));
@@ -58,6 +58,8 @@ ParaPara.CanvasEventHandler.prototype.mouseDown = function(evt) {
   if (evt.button || this.linesInProgress.mouseLine)
     return;
   this.frame = ParaPara.frames.getCurrentFrame();
+  if (!this.frame)
+    return;
   var pt = this.getLocalCoords(evt.clientX, evt.clientY, this.frame);
   this.linesInProgress.mouseLine =
     new ParaPara.FreehandLine(pt.x, pt.y, this.frame);
@@ -82,6 +84,8 @@ ParaPara.CanvasEventHandler.prototype.mouseUp = function(evt) {
 ParaPara.CanvasEventHandler.prototype.touchStart = function(evt) {
   evt.preventDefault();
   this.frame = ParaPara.frames.getCurrentFrame();
+  if (!this.frame)
+    return;
   for (var i = 0; i < evt.changedTouches.length; ++i) {
     var touch = evt.changedTouches[i];
     var pt = this.getLocalCoords(touch.clientX, touch.clientY, this.frame);
@@ -309,6 +313,10 @@ ParaPara.FrameList.prototype.addFrame = function() {
   this.currentFrame = g;
 }
 
+ParaPara.FrameList.prototype.finish = function() {
+  this.currentFrame = null;
+}
+
 // -------------------- Animator --------------------
 
 ParaPara.Animator = function(dur) {
@@ -329,8 +337,6 @@ ParaPara.Animator.prototype.makeAnimation = function() {
   for (var i = 0; i < frames.length; ++i) {
     var frame = frames[i];
 
-    // Remove oldFrame class
-    // XXX This doesn't seem to be working on Chrome with the classList shim
     frame.classList.remove("oldFrame");
     frame.setAttribute("visibility", "hidden");
 
