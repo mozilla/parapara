@@ -41,7 +41,10 @@
         stroke-linecap: round;
         pointer-events: visiblePainted;
       }
-      g.oldFrame > * {
+      g.oldFrame > circle {
+        fill: grey
+      }
+      g.oldFrame > path {
         stroke: grey
       }
       g.oldFrame {
@@ -50,7 +53,10 @@
       .hitRegion { fill: none; }
     </style>
     <script type="text/javascript" src="js/parapara.js"></script>
+    <script type="text/javascript" src="js/svgClassList.js"></script>
+    <script type="text/javascript" src="js/html5slider.js"></script>
     <script type="text/javascript">
+      this.animator = null;
       function init() {
         svgRoot = document.getElementById("canvas");
         ParaPara.init(svgRoot);
@@ -59,8 +65,21 @@
         ParaPara.frames.addFrame();
       }
       function finish() {
-        var animator = new ParaPara.Animator();
+        var frameControls = document.getElementById("frameControls");
+        frameControls.style.display = "none";
+        var animControls  = document.getElementById("animControls");
+        animControls.style.display = "";
+
+        var speedAdjust = document.getElementById("speedAdjust");
+        this.animator = new ParaPara.Animator(1 / speedAdjust.value);
         animator.makeAnimation();
+      }
+      // For the slider, it seems more natural that the animation gets faster as
+      // you push it to the right
+      function changeSpeed(sliderValue) {
+        if (!this.animator)
+          return;
+        this.animator.setSpeed(1 / sliderValue);
       }
       window.addEventListener("load", init, false);
     </script>
@@ -87,8 +106,14 @@
       </svg>
     </div>
     <div class="controls" style="height: 20%">
-      <button type="button" onclick="nextFrame()">つぎ</button>
-      <button type="button" onclick="finish()">おわる</button>
+      <div id="frameControls">
+        <button type="button" onclick="nextFrame()">つぎ</button>
+        <button type="button" onclick="finish()">おわる</button>
+      </div>
+      <div id="animControls" style="display:none">
+        <input type="range" min="0.65" max="12.5" value="3.3" step="0.2"
+          onchange="changeSpeed(this.value)" id="speedAdjust"/>
+      </div>
     </div>
     <div id="log">
     </div>

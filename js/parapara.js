@@ -5,11 +5,11 @@ ParaPara.XLINK_NS = "http://www.w3.org/1999/xlink";
 
 ParaPara.init = function(svgRoot) {
   ParaPara.svgRoot = svgRoot;
-  ParaPara.controls = new ParaPara.MouseControls();
+  ParaPara.controls = new ParaPara.CanvasEventHandler();
   ParaPara.frames = new ParaPara.FrameList();
 }
 
-// -------------------- Safari support --------------------
+// ------------- Javascript bind support for older browsers ------------------
 //
 // Code courtesy of:
 // https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/
@@ -38,11 +38,11 @@ if (!Function.prototype.bind) {
   };
 }
 
-// -------------------- Mouse Controls --------------------
+// -------------------- Canvas event handling --------------------
 
-ParaPara.MouseControls = function() {
-  this.shape = null;
-  this.pts   = "";
+ParaPara.CanvasEventHandler = function() {
+  this.linesInProgress = new Object;
+  this.frame       = null;
 
   ParaPara.svgRoot.addEventListener("mousedown", this.mouseDown.bind(this));
   ParaPara.svgRoot.addEventListener("mousemove", this.mouseMove.bind(this));
@@ -53,100 +53,129 @@ ParaPara.MouseControls = function() {
   ParaPara.svgRoot.addEventListener("touchcancel", this.touchCancel.bind(this));
 }
 
-ParaPara.MouseControls.prototype.mouseDown = function(evt) {
-  if (evt.button || this.shape)
-    return;
-  this.startDraw(evt.clientX, evt.clientY);
+ParaPara.CanvasEventHandler.prototype.mouseDown = function(evt) {
   evt.preventDefault();
-}
-
-ParaPara.MouseControls.prototype.mouseMove = function(evt) {
-  if (!this.shape)
+  if (evt.button || this.linesInProgress.mouseLine)
     return;
-  this.draw(evt.clientX, evt.clientY);
-  evt.preventDefault();
+  this.frame = ParaPara.frames.getCurrentFrame();
+  var pt = this.getLocalCoords(evt.clientX, evt.clientY, this.frame);
+  this.linesInProgress.mouseLine =
+    new ParaPara.FreehandLine(pt.x, pt.y, this.frame);
 }
 
-ParaPara.MouseControls.prototype.mouseUp = function(evt) {
-  if (!this.shape)
+ParaPara.CanvasEventHandler.prototype.mouseMove = function(evt) {
+  evt.preventDefault();
+  if (!this.linesInProgress.mouseLine)
     return;
-  this.stopDraw();
-  evt.preventDefault();
+  var pt = this.getLocalCoords(evt.clientX, evt.clientY, this.frame);
+  this.linesInProgress.mouseLine.addPoint(pt.x, pt.y);
 }
 
-ParaPara.MouseControls.prototype.touchStart = function(evt) {
-  if (this.shape)
+ParaPara.CanvasEventHandler.prototype.mouseUp = function(evt) {
+  evt.preventDefault();
+  if (!this.linesInProgress.mouseLine)
     return;
-  // XXX Support multiple shapes at once?
-  this.startDraw(evt.touches[0].clientX, evt.touches[0].clientY);
+  this.linesInProgress.mouseLine.finishLine();
+  delete this.linesInProgress.mouseLine;
+}
+
+ParaPara.CanvasEventHandler.prototype.touchStart = function(evt) {
   evt.preventDefault();
+  this.frame = ParaPara.frames.getCurrentFrame();
+  for (var i = 0; i < evt.changedTouches.length; ++i) {
+    var touch = evt.changedTouches[i];
+    var pt = this.getLocalCoords(touch.clientX, touch.clientY, this.frame);
+    this.linesInProgress[touch.identifier] =
+      new ParaPara.FreehandLine(pt.x, pt.y, this.frame);
+  }
 }
 
-ParaPara.MouseControls.prototype.touchMove = function(evt) {
-  if (!this.shape)
-    return;
-  this.draw(evt.touches[0].clientX, evt.touches[0].clientY);
+ParaPara.CanvasEventHandler.prototype.touchMove = function(evt) {
   evt.preventDefault();
+  for (var i = 0; i < evt.changedTouches.length; ++i) {
+    var touch = evt.changedTouches[i];
+    var pt = this.getLocalCoords(touch.clientX, touch.clientY, this.frame);
+    console.assert(this.linesInProgress[touch.identifier],
+      "Unexpected touch event");
+    this.linesInProgress[touch.identifier].addPoint(pt.x, pt.y);
+  }
 }
 
-ParaPara.MouseControls.prototype.touchEnd = function(evt) {
-  if (!this.shape)
-    return;
-  this.stopDraw();
+ParaPara.CanvasEventHandler.prototype.touchEnd = function(evt) {
   evt.preventDefault();
+  for (var i = 0; i < evt.changedTouches.length; ++i) {
+    var touch = evt.changedTouches[i];
+    console.assert(this.linesInProgress[touch.identifier],
+      "Unexpected touch event");
+    this.linesInProgress[touch.identifier].finishLine();
+    delete this.linesInProgress[touch.identifier];
+  }
 }
 
-ParaPara.MouseControls.prototype.touchCancel = function(evt) {
-  // XXX what to do here???
-  alert("touch cancel");
+ParaPara.CanvasEventHandler.prototype.touchCancel = function(evt) {
+  evt.preventDefault();
+  for (var i = 0; i < evt.changedTouches.length; ++i) {
+    var touch = evt.changedTouches[i];
+    console.assert(this.linesInProgress[touch.identifier],
+      "Unexpected touch event");
+    this.linesInProgress[touch.identifier].cancelLine();
+    delete this.linesInProgress[touch.identifier];
+  }
 }
 
-// XXX Move this drawing stuff to another class
+ParaPara.CanvasEventHandler.prototype.getLocalCoords = function(x, y, elem) {
+  var pt = ParaPara.svgRoot.createSVGPoint();
+  pt.x = x;
+  pt.y = y;
 
-ParaPara.MouseControls.prototype.startDraw = function(x, y) {
-  console.assert(!this.shape, "Starting to draw but we're already drawing?");
+  var nodeMx = elem.parentNode.getScreenCTM();
+  return pt.matrixTransform(nodeMx.inverse());
+}
 
-  this.shape = document.createElementNS(ParaPara.SVG_NS, "polyline");
-  var frame = ParaPara.frames.getCurrentFrame();
-  frame.appendChild(this.shape);
+// -------------------- Freehand line --------------------
 
-  var pt = this.getLocalCoords(x, y, this.shape);
+ParaPara.FreehandLine = function(x, y, frame) {
+  this.polyline = document.createElementNS(ParaPara.SVG_NS, "polyline");
+  frame.appendChild(this.polyline);
+
   // Once Bug 629200 lands we should use the PointList API instead
-  this.pts = pt.x + "," + pt.y + " ";
-  this.shape.setAttribute("pointer-events", "none");
-  this.shape.setAttribute("points", this.pts);
-  // XXX If we end up using SVG animation we should be able to set the linecap
-  // and fill on the root <g> and then just inherit it
-  this.shape.setAttribute("fill", "none");
-  this.shape.setAttribute("stroke-linecap", "round");
-  this.shape.setAttribute("stroke", "red");
-  this.shape.setAttribute("stroke-width", "4");
+  this.pts = x + "," + y + " ";
+  this.polyline.setAttribute("pointer-events", "none");
+  this.polyline.setAttribute("points", this.pts);
+  this.polyline.setAttribute("fill", "none");
+  this.polyline.setAttribute("stroke-linecap", "round");
+  this.polyline.setAttribute("stroke", "red");
+  this.polyline.setAttribute("stroke-width", "4");
 }
 
-ParaPara.MouseControls.prototype.draw = function(x, y) {
-  console.assert(this.shape, "No shape to draw on");
-
-  var pt = this.getLocalCoords(x, y, this.shape);
-  this.pts += pt.x + "," + pt.y + " ";
-  this.shape.setAttribute("points", this.pts);
+ParaPara.FreehandLine.prototype.addPoint = function(x, y) {
+  console.assert(this.polyline, "Adding point to finished/cancelled line?")
+  this.pts += x + "," + y + " ";
+  this.polyline.setAttribute("points", this.pts);
 }
 
-ParaPara.MouseControls.prototype.stopDraw = function() {
-  console.assert(this.shape, "No shape to draw on");
-
-  var points = this.shape.points;
+ParaPara.FreehandLine.prototype.finishLine = function() {
+  console.assert(this.polyline, "Line already finished/cancelled?")
+  var points = this.polyline.points;
   var path = this.createPathFromPoints(points);
-  this.shape.parentNode.appendChild(path);
-  this.shape.parentNode.removeChild(this.shape);
-  this.shape = null;
+  this.polyline.parentNode.appendChild(path);
+  this.polyline.parentNode.removeChild(this.polyline);
+  this.polyline = null;
 }
 
-ParaPara.MouseControls.prototype.createPathFromPoints = function(points) {
+ParaPara.FreehandLine.prototype.cancelLine = function() {
+  console.assert(this.polyline, "Line already finished/cancelled?")
+  this.polyline.parentNode.removeChild(this.polyline);
+  this.polyline = null;
+}
+
+ParaPara.FreehandLine.prototype.createPathFromPoints = function(points) {
   if (points.length == 1) {
     return this.createPoint(points);
   }
 
   var path = document.createElementNS(ParaPara.SVG_NS, "path");
+  path.setAttribute("pointer-events", "none");
   path.setAttribute("fill", "none");
   path.setAttribute("stroke-linecap", "round");
   path.setAttribute("stroke", "red");
@@ -204,9 +233,10 @@ ParaPara.MouseControls.prototype.createPathFromPoints = function(points) {
   return path;
 }
 
-ParaPara.MouseControls.prototype.createPoint = function(points) {
+ParaPara.FreehandLine.prototype.createPoint = function(points) {
   console.assert(points.length == 1, "Expected only one point");
   var path = document.createElementNS(ParaPara.SVG_NS, "circle");
+  path.setAttribute("pointer-events", "none");
   path.setAttribute("fill", "red");
   path.setAttribute("stroke", "none");
   path.setAttribute("r", "3");
@@ -215,7 +245,7 @@ ParaPara.MouseControls.prototype.createPoint = function(points) {
   return path;
 }
 
-ParaPara.MouseControls.prototype.smoothControlPoints = function(ct1, ct2, pt) {
+ParaPara.FreehandLine.prototype.smoothControlPoints = function(ct1, ct2, pt) {
   // each point must not be the origin
   var x1 = ct1.x - pt.x,
     y1 = ct1.y - pt.y,
@@ -256,15 +286,6 @@ ParaPara.MouseControls.prototype.smoothControlPoints = function(ct1, ct2, pt) {
   return undefined;
 };
 
-ParaPara.MouseControls.prototype.getLocalCoords = function(x, y, elem) {
-  var pt = ParaPara.svgRoot.createSVGPoint();
-  pt.x = x;
-  pt.y = y;
-
-  var nodeMx = elem.parentNode.getScreenCTM();
-  return pt.matrixTransform(nodeMx.inverse());
-}
-
 // -------------------- Frame List --------------------
 
 ParaPara.FrameList = function() {
@@ -277,7 +298,6 @@ ParaPara.FrameList.prototype.getCurrentFrame = function() {
 }
 
 ParaPara.FrameList.prototype.addFrame = function() {
-  // XXX Is this frame class actually needed?
   if (this.currentFrame) {
     this.currentFrame.setAttribute("class", "frame oldFrame");
   }
@@ -291,20 +311,33 @@ ParaPara.FrameList.prototype.addFrame = function() {
 
 // -------------------- Animator --------------------
 
-ParaPara.Animator = function() {
-  this.dur = 0.1;
+ParaPara.Animator = function(dur) {
+  this.dur = dur;
 }
 
 ParaPara.Animator.prototype.makeAnimation = function() {
   var scene = ParaPara.svgRoot.ownerDocument.getElementById("anim");
   var frames = scene.getElementsByClassName("frame");
   var lastId = "";
+
+  // XXX If performance becomes an issues we might get some speed by making
+  // each animation an independent infinitely repeating animation (with
+  // appropriate use of values and keyTimes)
+
+  // XXX Special case handling for a single frame (or better still--a single
+  // non-empty frame)
   for (var i = 0; i < frames.length; ++i) {
     var frame = frames[i];
+
     // Remove oldFrame class
-    // XXX Probably need a shim for this when it's not available
+    // XXX This doesn't seem to be working on Chrome with the classList shim
     frame.classList.remove("oldFrame");
     frame.setAttribute("visibility", "hidden");
+
+    // Skip empty frames
+    // XXX Should we only do this if they are at the end??
+    if (frame.childNodes.length == 0)
+      continue;
 
     // Add an animation
     var anim = document.createElementNS(ParaPara.SVG_NS, "set");
@@ -324,7 +357,6 @@ ParaPara.Animator.prototype.makeAnimation = function() {
   if (frames.length) {
     var firstAnim = frames[0].getElementsByTagName("set")[0];
     firstAnim.setAttribute("begin", "0; " + lastId + ".end");
-    console.log(firstAnim);
   }
 
   // Trigger animation
@@ -332,7 +364,13 @@ ParaPara.Animator.prototype.makeAnimation = function() {
 }
 
 ParaPara.Animator.prototype.setSpeed = function(dur) {
-  // Get elementByTagName
+  this.dur = dur;
+  var scene = ParaPara.svgRoot.ownerDocument.getElementById("anim");
+  var anims = scene.getElementsByTagName("set");
+  for (var i = 0; i < anims.length; ++i) {
+    var anim = anims[i];
+    anim.setAttribute("dur", this.dur + "s");
+  }
 }
 
 // -------------------- Animator --------------------
