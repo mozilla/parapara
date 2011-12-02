@@ -245,22 +245,6 @@ function transform(slider) {
     onDragStart(e);
   }
 
-  function onKeyDown(e) {
-    if (e.keyCode > 36 && e.keyCode < 41) { // 37-40: left, up, right, down
-      onFocus.call(this);
-      isChanged = true;
-      this.value = value + (e.keyCode == 38 || e.keyCode == 39 ? step : -step);
-    }
-  }
-
-  function onFocus() {
-    // XXX
-  }
-
-  function onBlur() {
-    this.style.boxShadow = '';
-  }
-
   // determines whether value is valid number in attribute form
   function isAttrNum(value) {
     return !isNaN(value) && +value == parseFloat(value);
@@ -369,9 +353,6 @@ function transform(slider) {
     hitTestRect.addEventListener('touchstart', onSeekStart, true);
     thumb.addEventListener('mousedown', onDragStart, true);
     thumb.addEventListener('touchstart', onDragStart, true);
-    svg.addEventListener('keydown', onKeyDown, true);
-    svg.addEventListener('focus', onFocus, true);
-    svg.addEventListener('blur', onBlur, true);
   }
 
   // The following two functions courtesy of:
