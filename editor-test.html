@@ -95,12 +95,14 @@
         var controlsHeight = document.getElementById("controls").offsetHeight;
         var availHeight = window.innerHeight - controlsHeight;
         var availWidth  = window.innerWidth;
-        // The minus 8 is a fudge factor
+        // The minus 8 is a fudge factor to get rid of scrollbars
         var maxDim = Math.min(availHeight, availWidth) - 8;
         var canvas = document.getElementById("canvas");
         canvas.style.setProperty("width", maxDim + "px", "");
         canvas.style.setProperty("height", maxDim + "px", "");
-        // XXX Need to resize the speed slider to be about 80% of maxDim
+        // Resize slider
+        var speedAdjust = document.getElementById("speedAdjust");
+        speedAdjust.style.setProperty("width", maxDim * 0.8 + "px", "");
         // If we have extra vertical space, centre vertically
         if (availHeight > availWidth) {
           canvas.style.setProperty("margin-top",

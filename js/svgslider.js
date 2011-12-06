@@ -158,6 +158,10 @@ function transform(slider) {
       update();
       areAttrsSet = true;
     }
+    else if (e.attrName == 'style') {
+      resizeSVG(slider);
+      draw(true);
+    }
   }, true);
 
   dragListener = onDrag.bind(slider);
@@ -282,8 +286,10 @@ function transform(slider) {
   function createSVG(slider) {
 
     svg = document.createElementNS(SVG_NS, 'svg');
-    var width = window.getComputedStyle(slider, null).getPropertyValue('width');
-    svg.setAttribute("style", "width:" + width + ";height:40px");
+
+    // The height of the widget is currently fixed at 40px. If we make that
+    // variable then many of the calculations below should be moved to
+    // resizeSVG.
 
     // Clipping rect for filled vs unfilled part of slider
     var defs = document.createElementNS(SVG_NS, 'defs');
@@ -292,7 +298,7 @@ function transform(slider) {
     clipPath.setAttribute("id", clipPathId);
     var clipRect = document.createElementNS(SVG_NS, 'rect');
     clipRect.setAttribute("width", "100%");
-    clipRect.setAttribute("height", "40");
+    clipRect.setAttribute("height", "100%");
     clipPath.appendChild(clipRect);
     defs.appendChild(clipPath);
     svg.appendChild(defs);
@@ -310,20 +316,19 @@ function transform(slider) {
     var trackFilled = document.createElementNS(SVG_NS, 'rect');
     trackFilled.setAttribute("x", thumbRadius);
     trackFilled.setAttribute("y", "10");
-    trackFilled.setAttribute("width", parseFloat(width) - 2 * thumbRadius);
     trackFilled.setAttribute("height", "20");
     trackFilled.setAttribute("rx", "10");
     trackFilled.setAttribute("fill", "url(#__slidertrack_filled_grad__)");
     trackFilled.setAttribute("stroke-width", "0.5");
     trackFilled.setAttribute("stroke", "navy");
     trackFilled.setAttribute("pointer-events", "none");
+    trackFilled.setAttribute("class", "track-rect");
     svg.appendChild(trackFilled);
 
     // Track (unfilled)
     var trackUnfilled = document.createElementNS(SVG_NS, 'rect');
     trackUnfilled.setAttribute("x", thumbRadius);
     trackUnfilled.setAttribute("y", "10");
-    trackUnfilled.setAttribute("width", parseFloat(width) - 2 * thumbRadius);
     trackUnfilled.setAttribute("height", "20");
     trackUnfilled.setAttribute("rx", "10");
     trackUnfilled.setAttribute("fill", "url(#__slidertrack_unfilled_grad__)");
@@ -331,6 +336,7 @@ function transform(slider) {
     trackUnfilled.setAttribute("stroke", "darkgrey");
     trackUnfilled.setAttribute("clip-path", "url(#" + clipPathId + ")");
     trackUnfilled.setAttribute("pointer-events", "none");
+    trackUnfilled.setAttribute("class", "track-rect");
     svg.appendChild(trackUnfilled);
 
     // Slider thumb
@@ -353,6 +359,35 @@ function transform(slider) {
     hitTestRect.addEventListener('touchstart', onSeekStart, true);
     thumb.addEventListener('mousedown', onDragStart, true);
     thumb.addEventListener('touchstart', onDragStart, true);
+
+    resizeSVG(slider);
+  }
+
+  function resizeSVG(slider) {
+    // Do a sort-of intrinsic size
+    if (slider.style.getPropertyValue("width") == "") {
+      slider.style.setProperty("width", "200px", "");
+    }
+    if (slider.style.getPropertyValue("height") == "") {
+      slider.style.setProperty("height", "40px", "");
+    }
+
+    var computedStyle = window.getComputedStyle(slider, null);
+    var width  = computedStyle.getPropertyValue('width');
+    var height = computedStyle.getPropertyValue('height');
+    svg.style.setProperty("width", width, "");
+    svg.style.setProperty("height", height, "");
+
+    // We don't actually resize the vertical height of the widget. All we do is
+    // stick an appropriate viewBox on the element so it ends up being
+    // vertically centred.
+    svg.setAttribute("viewBox", "0 0 " + parseInt(width) + " 40");
+
+    var trackRects = svg.getElementsByClassName("track-rect");
+    for (var i=0; i < trackRects.length; ++i) {
+      var rect = trackRects[i];
+      rect.setAttribute("width", parseFloat(width) - 2 * thumbRadius);
+    }
   }
 
   // The following two functions courtesy of:
