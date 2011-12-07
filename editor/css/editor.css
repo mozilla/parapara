@@ -57,10 +57,16 @@ button.image:hover, button.image.active {
   background: pink;
   outline: none;
 }
-button.image:hover svg, button.image.active svg {
+button.image.swell:hover svg, button.image.swell.active svg {
   width: 44px;
   height: 44px;
   margin: 1px;
+}
+div.separator {
+  font-size: 45px;
+  display: inline;
+  border-left: 1px dotted #ccc;
+  vertical-align: top;
 }
 g.oldFrame > circle {
   fill: grey
