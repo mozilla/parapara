@@ -1,0 +1,76 @@
+body, html, div {
+  margin: 0;
+  padding: 0;
+}
+div.container {
+  width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+svg.canvas {
+  border: 1px solid black;
+  margin: 0;
+}
+div.controls {
+  text-align: center;
+  padding: 0.4em 0.8em 0.2em;
+  position: relative;
+}
+button.right {
+  position: absolute;
+  right: 0;
+}
+button.text {
+  background: -moz-linear-gradient(top,  #ebebeb,  #a1a1a1);
+  background: -webkit-gradient(linear, left top, left bottom,
+                               from(#ebebeb), to(#a1a1a1));
+  border: none;
+  border-radius: 8px;
+  color: #FFFFFF;
+  font-weight: bold;
+  font-size: 20px;
+  letter-spacing: 1px;
+  margin: auto;
+  padding: 7px 25px;
+  text-shadow: 0 1px 1px black;
+}
+button.text:hover {
+  background: -moz-linear-gradient(top,  #04acec,  #0186ba);
+  background: -webkit-gradient(linear, left top, left bottom,
+                               from(#04acec), to(#0186ba));
+}
+button.image {
+  background: none;
+  border: none;
+  border-radius: 8px;
+  margin: 0;
+  padding: 0;
+}
+button.image svg {
+  width: 38px;
+  height: 38px;
+  padding: 4px;
+}
+button.image:hover, button.image.active {
+  background: pink;
+  outline: none;
+}
+button.image:hover svg, button.image.active svg {
+  width: 46px;
+  height: 46px;
+  padding: 0;
+}
+button.image:active svg {
+  width: 36px;
+  height: 36px;
+  padding: 5px;
+}
+g.oldFrame > circle {
+  fill: grey
+}
+g.oldFrame > path {
+  stroke: grey
+}
+g.oldFrame {
+  opacity: 0.5
+}
