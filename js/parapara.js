@@ -10,6 +10,16 @@ ParaPara.init = function(svgRoot) {
   ParaPara.currentStyle = new ParaPara.Style();
 }
 
+ParaPara.addFrame = function() {
+  ParaPara.frames.addFrame();
+}
+
+ParaPara.animate = function(fps) {
+  ParaPara.drawControls.disable();
+  ParaPara.animator = new ParaPara.Animator(fps);
+  ParaPara.animator.makeAnimation();
+}
+
 // ------------- Javascript bind support for older browsers ------------------
 //
 // Code courtesy of:
@@ -347,8 +357,8 @@ ParaPara.FrameList.prototype.addFrame = function() {
 
 // -------------------- Animator --------------------
 
-ParaPara.Animator = function(dur) {
-  this.dur = dur;
+ParaPara.Animator = function(fps) {
+  this.dur = 1 / fps;
 }
 
 ParaPara.Animator.prototype.makeAnimation = function() {
@@ -397,8 +407,8 @@ ParaPara.Animator.prototype.makeAnimation = function() {
   ParaPara.svgRoot.setCurrentTime(0);
 }
 
-ParaPara.Animator.prototype.setSpeed = function(dur) {
-  this.dur = dur;
+ParaPara.Animator.prototype.setSpeed = function(fps) {
+  this.dur = 1 / fps;
   var scene = ParaPara.svgRoot.ownerDocument.getElementById("anim");
   var anims = scene.getElementsByTagName("set");
   for (var i = 0; i < anims.length; ++i) {

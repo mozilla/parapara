@@ -36,6 +36,10 @@ EditorUI.initColors = function() {
 }
 
 EditorUI.changeColor = function(button) {
+  for (; button && button.tagName != "BUTTON"; button = button.parentNode);
+  if (!button)
+    return;
+
   var buttons = document.getElementsByClassName("colorButton");
   for (var i = 0; i < buttons.length; i++) {
     buttons[i].classList.remove("active");
