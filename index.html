@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>パラパラアニメーション</title>
+    <style type="text/css">
+      body, html, div {
+        margin: 0;
+        padding: 0;
+      }
+      div.container {
+        width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      svg.canvas {
+        border: 1px solid black;
+        margin: 0;
+      }
+      div.controls {
+        text-align: center;
+        padding: 0.4em 0.8em 0.2em;
+        position: relative;
+      }
+      button.right {
+        position: absolute;
+        right: 0;
+      }
+      button.text {
+        background: -moz-linear-gradient(top,  #ebebeb,  #a1a1a1);
+        background: -webkit-gradient(linear, left top, left bottom,
+                                     from(#ebebeb), to(#a1a1a1));
+        border: none;
+        border-radius: 8px;
+        color: #FFFFFF;
+        font-weight: bold;
+        font-size: 20px;
+        letter-spacing: 1px;
+        margin: auto;
+        padding: 7px 25px;
+        text-shadow: 0 1px 1px black;
+      }
+      button.text:hover {
+        background: -moz-linear-gradient(top,  #04acec,  #0186ba);
+        background: -webkit-gradient(linear, left top, left bottom,
+                                     from(#04acec), to(#0186ba));
+      }
+      button.image {
+        background: none;
+        border: none;
+        border-radius: 8px;
+        margin: 0;
+        padding: 0;
+      }
+      button.image svg {
+        width: 38px;
+        height: 38px;
+        padding: 4px;
+      }
+      button.image:hover, button.image.active {
+        background: pink;
+        outline: none;
+      }
+      button.image:hover svg, button.image.active svg {
+        width: 46px;
+        height: 46px;
+        padding: 0;
+      }
+      button.image:active svg {
+        width: 36px;
+        height: 36px;
+        padding: 5px;
+      }
+      g.oldFrame > circle {
+        fill: grey
+      }
+      g.oldFrame > path {
+        stroke: grey
+      }
+      g.oldFrame {
+        opacity: 0.5
+      }
+    </style>
+    <script type="text/javascript" src="js/parapara.js"></script>
+    <script type="text/javascript" src="js/svgClassList.js"></script>
+    <script type="text/javascript" src="js/svgslider.js"></script>
+    <script type="text/javascript">
+      this.animator = null;
+      function init() {
+        svgRoot = document.getElementById("canvas");
+        ParaPara.init(svgRoot);
+        setupColors();
+        updateLayout();
+      }
+      function nextFrame() {
+        ParaPara.frames.addFrame();
+      }
+      function finish() {
+        ParaPara.drawControls.disable();
+        var frameControls = document.getElementById("frameControls");
+        frameControls.style.display = "none";
+        var animControls  = document.getElementById("animControls");
+        animControls.style.display = "";
+
+        var speedAdjust = document.getElementById("speedAdjust");
+        this.animator = new ParaPara.Animator(1 / speedAdjust.value);
+        animator.makeAnimation();
+      }
+      function setupColors() {
+        var buttons = document.getElementsByClassName("colorButton");
+        for (var i = 0; i < buttons.length; i++) {
+          var button = buttons[i];
+          button.addEventListener("click",
+            function(evt) { changeColor(evt.target); }, false);
+        }
+        if (buttons.length) {
+          changeColor(buttons[0]);
+        }
+      }
+      function changeColor(button) {
+        var buttons = document.getElementsByClassName("colorButton");
+        for (var i = 0; i < buttons.length; i++) {
+          buttons[i].classList.remove("active");
+        }
+        button.classList.add("active");
+        button.blur(); // Get rid of outline that appears on tablets
+                       // (unfortunately outline:none doesn't seem to work)
+        ParaPara.currentStyle.currentColor = getColorFromButton(button);
+      }
+      function getColorFromButton(elem) {
+        var elemsWithAFill = elem.querySelectorAll("*[fill]");
+        if (!elemsWithAFill.length)
+          return "black";
+        return elemsWithAFill[0].getAttribute("fill");
+      }
+      function changeSpeed(sliderValue) {
+        if (!this.animator)
+          return;
+        this.animator.setSpeed(1 / sliderValue);
+      }
+      function updateLayout() {
+        var controlsHeight = 0;
+        var controls = document.getElementsByClassName("controls");
+        for (var i = 0; i < controls.length; i++) {
+          controlsHeight += controls[i].offsetHeight;
+        }
+        var availHeight = window.innerHeight - controlsHeight;
+        var availWidth  = window.innerWidth;
+        // The minus 8 is a fudge factor to get rid of scrollbars
+        var maxDim = Math.min(availHeight, availWidth) - 8;
+        // Update the width of the containing block
+        var containers = document.getElementsByClassName("container");
+        for (var i = 0; i < containers.length; i++) {
+          containers[i].style.setProperty("width", maxDim + "px", "");
+        }
+        // Set the SVG canvas size explicitly. This is mostly for WebKit
+        // compatibility. Otherwise we could just set the <svg> width/height to
+        // 100%
+        var canvas = document.getElementById("canvas");
+        canvas.style.setProperty("width", maxDim + "px", "");
+        canvas.style.setProperty("height", maxDim + "px", "");
+        // Resize slider
+        var speedAdjust = document.getElementById("speedAdjust");
+        speedAdjust.style.setProperty("width", maxDim * 0.8 + "px", "");
+        // If we have extra vertical space, centre vertically
+        if (availHeight > availWidth) {
+          canvas.style.setProperty("margin-top",
+            (availHeight - maxDim) / 2 + "px", "");
+        } else {
+          canvas.style.removeProperty("margin-top");
+        }
+      }
+      window.addEventListener("load", init, false);
+      window.addEventListener("resize", updateLayout, false);
+      window.addEventListener("orientationchange", updateLayout, false);
+    </script>
+    <meta name="viewport" 
+      content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  </head>
+  <body>
+    <div class="container">
+      <div class="controls">
+        <button type="button" class="image colorButton">
+          <svg viewBox="-1 -1 22 22">
+            <circle cx="10" cy="10" r="10" fill="red"/>
+          </svg>
+        </button>
+        <button type="button" class="image colorButton">
+          <svg viewBox="-1 -1 22 22">
+            <circle cx="10" cy="10" r="10" fill="blue"/>
+          </svg>
+        </button>
+        <button type="button" class="image colorButton">
+          <svg viewBox="-1 -1 22 22">
+            <circle cx="10" cy="10" r="10" fill="orange"/>
+          </svg>
+        </button>
+        <button type="button" class="image colorButton">
+          <svg viewBox="-1 -1 22 22">
+            <circle cx="10" cy="10" r="10" fill="green"/>
+          </svg>
+        </button>
+      </div>
+      <div class="workspace">
+        <svg style="width:600px;height:600px" viewBox="0 0 300 300"
+          id="canvas" class="canvas">
+          <!-- Fallback background -->
+          <rect width="100%" height="100%" fill="black"/>
+          <image width="100%" height="100%" xlink:href="img/space-bg.svg"/>
+          <g id="anim"/>
+        </svg>
+      </div>
+      <div class="controls">
+        <div id="frameControls">
+          <button type="button" class="text" onclick="nextFrame()">つぎ</button>
+          <button type="button" class="text right"
+            onclick="finish()">おわる</button>
+        </div>
+        <div id="animControls" style="display:none">
+          <input type="range" min="0.65" max="12.5" value="3.3" step="0.2"
+            onchange="changeSpeed(this.value)" id="speedAdjust"/>
+        </div>
+      </div>
+    </div>
+    <div id="log">
+    </div>
+  </body>
+</html>
