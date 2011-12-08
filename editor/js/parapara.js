@@ -7,6 +7,17 @@ ParaPara.init = function(svgRoot) {
   ParaPara.svgRoot = svgRoot;
   ParaPara.drawControls = new ParaPara.DrawControls();
   ParaPara.frames = new ParaPara.FrameList();
+  ParaPara.currentStyle = new ParaPara.Style();
+}
+
+ParaPara.addFrame = function() {
+  ParaPara.frames.addFrame();
+}
+
+ParaPara.animate = function(fps) {
+  ParaPara.drawControls.disable();
+  ParaPara.animator = new ParaPara.Animator(fps);
+  ParaPara.animator.makeAnimation();
 }
 
 // ------------- Javascript bind support for older browsers ------------------
@@ -163,12 +174,8 @@ ParaPara.FreehandLine = function(x, y, frame) {
 
   // Once Bug 629200 lands we should use the PointList API instead
   this.pts = x + "," + y + " ";
-  this.polyline.setAttribute("pointer-events", "none");
   this.polyline.setAttribute("points", this.pts);
-  this.polyline.setAttribute("fill", "none");
-  this.polyline.setAttribute("stroke-linecap", "round");
-  this.polyline.setAttribute("stroke", "red");
-  this.polyline.setAttribute("stroke-width", "4");
+  ParaPara.currentStyle.styleStroke(this.polyline);
 }
 
 ParaPara.FreehandLine.prototype.addPoint = function(x, y) {
@@ -198,11 +205,7 @@ ParaPara.FreehandLine.prototype.createPathFromPoints = function(points) {
   }
 
   var path = document.createElementNS(ParaPara.SVG_NS, "path");
-  path.setAttribute("pointer-events", "none");
-  path.setAttribute("fill", "none");
-  path.setAttribute("stroke-linecap", "round");
-  path.setAttribute("stroke", "red");
-  path.setAttribute("stroke-width", "4");
+  ParaPara.currentStyle.styleStroke(path);
 
   // XXX The following code is straight from SVG edit.
   // See if I can do a better job along the lines of:
@@ -259,12 +262,11 @@ ParaPara.FreehandLine.prototype.createPathFromPoints = function(points) {
 ParaPara.FreehandLine.prototype.createPoint = function(points) {
   console.assert(points.length == 1, "Expected only one point");
   var path = document.createElementNS(ParaPara.SVG_NS, "circle");
-  path.setAttribute("pointer-events", "none");
-  path.setAttribute("fill", "red");
-  path.setAttribute("stroke", "none");
-  path.setAttribute("r", "3");
+  // XXX Is this math right? Need to check when we do other stroke widths
+  path.setAttribute("r", ParaPara.currentStyle.strokeWidth / 2 + 1);
   path.setAttribute("cx", points.getItem(0).x);
   path.setAttribute("cy", points.getItem(0).y);
+  ParaPara.currentStyle.styleFill(path);
   return path;
 }
 
@@ -309,6 +311,27 @@ ParaPara.FreehandLine.prototype.smoothControlPoints = function(ct1, ct2, pt) {
   return undefined;
 };
 
+// -------------------- Styles --------------------
+
+ParaPara.Style = function() {
+  this.currentColor = "black";
+  this.strokeWidth = 4;
+}
+
+ParaPara.Style.prototype.styleStroke = function(elem) {
+  elem.setAttribute("stroke", this.currentColor);
+  elem.setAttribute("stroke-width", this.strokeWidth);
+  elem.setAttribute("stroke-linecap", "round");
+  elem.setAttribute("fill", "none");
+  elem.setAttribute("pointer-events", "none");
+}
+
+ParaPara.Style.prototype.styleFill = function(elem) {
+  elem.setAttribute("fill", this.currentColor);
+  elem.setAttribute("stroke", "none");
+  elem.setAttribute("pointer-events", "none");
+}
+
 // -------------------- Frame List --------------------
 
 ParaPara.FrameList = function() {
@@ -334,8 +357,8 @@ ParaPara.FrameList.prototype.addFrame = function() {
 
 // -------------------- Animator --------------------
 
-ParaPara.Animator = function(dur) {
-  this.dur = dur;
+ParaPara.Animator = function(fps) {
+  this.dur = 1 / fps;
 }
 
 ParaPara.Animator.prototype.makeAnimation = function() {
@@ -343,7 +366,7 @@ ParaPara.Animator.prototype.makeAnimation = function() {
   var frames = scene.getElementsByClassName("frame");
   var lastId = "";
 
-  // XXX If performance becomes an issues we might get some speed by making
+  // XXX If performance becomes an issue we might get some speed by making
   // each animation an independent infinitely repeating animation (with
   // appropriate use of values and keyTimes)
 
@@ -384,8 +407,8 @@ ParaPara.Animator.prototype.makeAnimation = function() {
   ParaPara.svgRoot.setCurrentTime(0);
 }
 
-ParaPara.Animator.prototype.setSpeed = function(dur) {
-  this.dur = dur;
+ParaPara.Animator.prototype.setSpeed = function(fps) {
+  this.dur = 1 / fps;
   var scene = ParaPara.svgRoot.ownerDocument.getElementById("anim");
   var anims = scene.getElementsByTagName("set");
   for (var i = 0; i < anims.length; ++i) {
