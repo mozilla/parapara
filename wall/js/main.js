@@ -24,8 +24,7 @@ var Main = {
 		
 		Main.planet = processing.loadImage("images/planet.png");
 		Main.planet_angle = 0;
-		
-		Main.initScenes();
+
 		Main.loadAllCharactersBeforeRestart(function() {
 			Main.processing.draw = Main.draw;
 		});
@@ -42,6 +41,9 @@ var Main = {
 		Main.drawBackground(processing);
 		Main.processing.resetMatrix();
 		Main.drawPlanet(processing);
+		
+		
+		Main.drawCharacters(processing);
 	},
 	
 	drawBackground: function(processing) {
@@ -53,7 +55,7 @@ var Main = {
 	},
 	
 	drawPlanet: function(processing) {
-		processing.translate(processing.width/2, processing.height+Main.planet.height/4);
+		processing.translate(processing.width/2, processing.height);
 		Main.planet_angle += 0.1;
 		var radian = Main.planet_angle * processing.PI/180
 		processing.rotate(radian);
@@ -61,6 +63,11 @@ var Main = {
 	},
 	
 	drawCharacters: function(processing) {
+		for (var i = 0, n = Main.characters.length; i < n; i++) {
+			var character = Main.characters[i];
+			character.angle += 1;
+			character.updateTransform();
+		}
 	},
 	
 	onResize: function() {
@@ -73,61 +80,55 @@ var Main = {
 		var url = API_DIR+"get_all_characters_before_restart.php?type="+TYPE+"&"+(new Date()).getTime();
 		$.getJSON(url, function(json) {
 			Main.characters = [];
-			for (var i = 0, n = json.length; i < n; i++) {
+			var container = $("#characters-canvas");
+//			for (var i = 0, n = json.length; i < n; i++) {
+			for (var i = 0, n = 3; i < n; i++) {
 				var characterOfJson = json[i];
 				var character = new Character();
-				character.setup(Main.processing, characterOfJson);
+				character.setup(characterOfJson);
+				character.angle = i*50;
 				Main.characters.push(character);
+				container.append(character.ui);
 			}
-			Main.start_time = (new Date()).getTime();
-			Main.current_x = 0;
 			callback();
 		});
-	},
-	
-	initScenes: function() {
-		Main.scenes = [];
-		Main.current_scene_index = 0;
-	}	
+	}
 }
 
 function Character() {
 }
 
 Character.prototype = {
-	setup: function(processing, json) {
-	}
+	setup: function(json) {
+		this.angle = 0;
+		this.x = json.appearance_x;
+		this.y = json.appearance_y;
+		this.ui = $(document.createElement("img"));
+		this.ui.attr("src", "../characters/smiley.svg");
+		this.ui.addClass("character");
+	},
+	updateTransform: function() {
+		var style = "rotate("+this.angle+"deg) translate(-"+(this.ui.width()/2)+"px, -"+(this.y+this.ui.height())+"px)";
+		StyleController.transform(this.ui, style);
+	},
 }
 
-function Scene() {
-}
-
-Scene.prototype = {
-	setupLayer1: function(processing, imagename) {
-		this.layer1 = processing.loadImage(imagename);
+var StyleController = {
+	transform: function(target, value) {
+		StyleController.apply(target, "transform", value);
 	},
-	setupLayer2: function(processing, imagename, speed) {
-		this.layer2 = processing.loadImage(imagename);
-		this.layer2_speed = speed;
+	duration: function(target, value) {
+		StyleController.apply(target, "transition-duration", value);
 	},
-	setupLayer3: function(processing, imagename, speed) {
-		this.layer3 = processing.loadImage(imagename);
-		this.layer3_speed = speed;
+	origin: function(target, value) {
+		StyleController.apply(target, "transform-origin", value);
 	},
-	
-	drawLayer1: function(processing, x) {
-		processing.image(this.layer1, x, 0);
-	},
-	
-	drawLayer2: function(processing, x) {
-		processing.image(this.layer2, x, processing.height-this.layer2.height);
-	},
-	
-	drawLayer3: function(processing, x) {
-		processing.image(this.layer3, x, processing.height-this.layer3.height);
+	apply: function(target, property, value) {
+		target.css("-moz-"+property, value);
+		target.css("-webkit-"+property, value);
+		target.css("-o-"+property, value);
+		target.css("-ms-"+property, value);
 	}
-	
-	
 }
 
 $(document).ready(function(){

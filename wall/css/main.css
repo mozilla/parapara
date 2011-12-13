@@ -7,3 +7,18 @@ body {
 	padding: 0;
 	background-color: black;
 }
+
+#characters-canvas {
+	position: absolute;
+	left: 50%;
+	top: 100%;
+}
+
+.character {
+	position: absolute;
+	-moz-transform-origin: 0% 10%;
+	-webkit-transform-origin: 0% 100%;
+	-khtml-transform-origin: 0% 100%;
+	-o-transform-origin: 0% 100%;
+	-ms-transform-origin: 0% 100%;
+}
