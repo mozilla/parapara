@@ -1,7 +1,7 @@
 var ParaPara = ParaPara || {};
 
 ParaPara.SVG_NS   = ParaPara.SVG_NS   || "http://www.w3.org/2000/svg";
-ParaPara.XLINK_NS = ParaPara.XLINK_NS ||"http://www.w3.org/1999/xlink";
+ParaPara.XLINK_NS = ParaPara.XLINK_NS || "http://www.w3.org/1999/xlink";
 
 if (typeof ParaPara.fixPrecision !== "function") {
   ParaPara.fixPrecision = function(x) { return x.toFixed(2); }
@@ -260,10 +260,17 @@ ParaPara.EraserControls.prototype.getCandidateShapes = function(x, y) {
     if (shape.className && shape.className.baseVal == "fatLine")
       continue;
 
+    // Extend the shape by the brush width
+    var shapeBBox = shape.getBBox();
+    shapeBBox.x      -= this.brushWidth / 2;
+    shapeBBox.y      -= this.brushWidth / 2;
+    shapeBBox.width  += this.brushWidth;
+    shapeBBox.height += this.brushWidth;
+
     // Theoretically, we should extend the test line by the maximum of the
     // finger width and stroke width but for now we'll see how this works
     if (ParaPara.Geometry.lineIntersectsRect([this.prevX, this.prevY, x, y],
-                                              shape.getBBox())) {
+                                              shapeBBox)) {
       hitShapes.push(shape);
     }
   }
@@ -290,6 +297,8 @@ ParaPara.Eraser = function(frame, brushWidth) {
 }
 
 ParaPara.Eraser.prototype.erase = function(x, y, candidateShapes) {
+  var brush =
+    new ParaPara.Brush(this.prevX ? [this.prevX, this.prevY, x, y] : [x, y])
   var scaledBrushWidth = this.brushWidth / this.currentScale;
   var len = candidateShapes.length;
   for (var i = 0; i < len; ++i) {
@@ -298,36 +307,15 @@ ParaPara.Eraser.prototype.erase = function(x, y, candidateShapes) {
       console.assert(shape.className && shape.className.baseVal != "fatLine",
         "Shouldn't be testing the line fattening");
 
-      // Work out the amount we should extend our test line / test point
-      // to account for the width of stroke / width of the user's "brush"
-      var strokeWidth = parseFloat(window.getComputedStyle(shape, null).
-                          getPropertyValue("stroke-width", null));
-      var tolerance = Math.max(scaledBrushWidth, strokeWidth) / 2;
-
       // Since the line will have stroke-linecap:round, we need to make
       // the brushWidth a bit larger to account for the space taken up by
       // the rounded ends of the cut line
-      var effectiveBrushWidth = scaledBrushWidth + strokeWidth / 2;
+      var strokeWidth = parseFloat(window.getComputedStyle(shape, null).
+                          getPropertyValue("stroke-width", null));
+      var effectiveBrushWidth = scaledBrushWidth + strokeWidth;
 
-      if (this.prevX === undefined) {
-        // We only have one point so make two little lines in an X and try
-        // each
-        if (this.cutPath(x-tolerance, y-tolerance,
-                         x+tolerance, y+tolerance, shape,
-                         effectiveBrushWidth))
-          continue;
-        this.cutPath(x+tolerance, y-tolerance,
-                     x-tolerance, y+tolerance, shape,
-                     effectiveBrushWidth);
-      } else {
-        // Extend the end of the path by the tolerance
-        var angle = Math.atan2(y - this.prevY, x - this.prevX);
-        var x1 = this.prevX - tolerance * Math.cos(angle);
-        var y1 = this.prevY - tolerance * Math.sin(angle);
-        var x2 = x + tolerance * Math.cos(angle);
-        var y2 = y + tolerance * Math.sin(angle);
-        this.cutPath(x1, y1, x2, y2, shape, effectiveBrushWidth);
-      }
+      brush.setWidth(effectiveBrushWidth);
+      this.cutPath(brush, shape);
     } else if (shape.tagName == "circle") {
       // XXX This is easy
       // Just work out if the distance between x,y is less than the
@@ -344,16 +332,17 @@ ParaPara.Eraser.prototype.erase = function(x, y, candidateShapes) {
   this.prevY = y;
 }
 
-ParaPara.Eraser.prototype.cutPath = function(x1, y1, x2, y2, path, brushWidth) {
-  addDebuggingLine(x1, y1, x2, y2);
+ParaPara.Eraser.prototype.cutPath = function(brush, path) {
+
   var segList = path.pathSegList;
   var currentPoint = undefined;
   var didCut = false;
   var segObjects = new Array();
+
   for (var i=0; i < segList.numberOfItems; ++i) {
     var seg = segList.getItem(i);
     var newSeg = this.getSegObject(seg, currentPoint);
-    var cutSegments = newSeg.cut([x1, y1, x2, y2], brushWidth);
+    var cutSegments = newSeg.cut(brush);
     if (cutSegments != newSeg)
       didCut = true;
     segObjects = segObjects.concat(cutSegments);
@@ -415,6 +404,148 @@ function(segment, currentPoint) {
     }
 }
 
+// ----------------------- Brush ---------------------------
+
+ParaPara.Brush = function(points)
+{
+  console.assert(points instanceof Array &&
+                 points.length == 2 || points.length == 4,
+                 "Unexpected brush dimensions");
+  this.points = points;
+  this.bbox   = null;
+  this.width  = undefined;
+  this.length = undefined;
+  this.path   = [];
+  this.mx     = null;
+  this.angle  = this.points.length == 2
+              ? 0
+              : Math.atan2(this.points[3]-this.points[1],
+                           this.points[2]-this.points[0]);
+}
+
+ParaPara.Brush.prototype.setWidth = function(width)
+{
+  if (this.width == width)
+    return;
+
+  this.width = width;
+  if (this.points.length == 2) {
+    var disp = this.width / Math.SQRT2 / 2;
+    this.path = [ this.points[0]-disp, this.points[1]-disp,
+                  this.points[0]+disp, this.points[1]-disp,
+                  this.points[0]+disp, this.points[1]+disp,
+                  this.points[0]-disp, this.points[1]+disp ];
+    this.length = disp * 2;
+  } else {
+    // Extent to extend the line's width
+    var xA = Math.cos(this.angle-Math.PI/2) * this.width / 2;
+    var yA = Math.sin(this.angle-Math.PI/2) * this.width / 2;
+    // Extent to extend the line's length
+    var xB = Math.cos(this.angle) * this.width / 2;
+    var yB = Math.sin(this.angle) * this.width / 2;
+    this.path = [];
+    this.path.push(this.points[0]+xA-xB);
+    this.path.push(this.points[1]+yA-yB);
+    this.path.push(this.points[0]-xA-xB);
+    this.path.push(this.points[1]-yA-yB);
+    this.path.push(this.points[2]-xA+xB);
+    this.path.push(this.points[3]-yA+yB);
+    this.path.push(this.points[2]+xA+xB);
+    this.path.push(this.points[3]+yA+yB);
+    this.length =
+      ParaPara.Geometry.lineLength(this.points[0], this.points[1],
+                                   this.points[2], this.points[3]) + this.width;
+  }
+  this.bbox = null;
+
+  // XXX remove
+  /*
+  var overlays = document.getElementById("overlays");
+  var path = document.createElementNS(ParaPara.SVG_NS, "path");
+  var d = "M" + this.path.slice(0,2).join(" ") +
+          "L" + this.path.slice(2).join(" ") + "Z";
+  path.setAttribute("d", d);
+  path.setAttribute("fill", "none");
+  path.setAttribute("stroke-width", "1");
+  path.setAttribute("stroke", "purple");
+  overlays.appendChild(path);
+  */
+}
+
+ParaPara.Brush.prototype.getDimensions = function(width)
+{
+  if (this.points.length == 2) {
+    // For point brushes we actually make the brush outline such that the
+    // diagonal length of the square matches the brush width.
+    // So here we return the length for both dimensions which corresponds to the
+    // width and height of the brush outline square.
+    return { width: this.length, length: this.length };
+  } else {
+    // Otherwise, the dimensions we return are width x height, which for
+    // a stroke running along the x-axis are actually length x width
+    return { width: this.width, length: this.length };
+  }
+}
+
+ParaPara.Brush.prototype.getBBox = function(width)
+{
+  if (this.bbox)
+    return this.bbox;
+
+  var x = Math.min(this.path[0], this.path[2], this.path[4], this.path[6]);
+  var y = Math.min(this.path[1], this.path[3], this.path[5], this.path[7]);
+  var maxX = Math.max(this.path[0], this.path[2], this.path[4], this.path[6]);
+  var maxY = Math.max(this.path[1], this.path[3], this.path[5], this.path[7]);
+  this.bbox = { x: x, y: y, width: maxX - x, height: maxY - y };
+  return this.bbox;
+}
+
+ParaPara.Brush.prototype.getTransform = function()
+{
+  if (this.mx)
+    return this.mx;
+
+  if (this.points.length == 2) {
+    this.mx = ParaPara.svgRoot.createSVGMatrix();
+    this.mx = this.mx.translate(-this.path[0], -this.path[1]);
+  } else {
+    var angle = this.angle * 180 / Math.PI;
+    this.mx = ParaPara.svgRoot.createSVGMatrix();
+    this.mx = this.mx.rotate(-angle, 0, 0);
+    this.mx = this.mx.translate(-this.path[0], -this.path[1]);
+  }
+  return this.mx;
+}
+
+// Transforms a two element array by the transform in getTransform
+ParaPara.Brush.prototype.transformPoint = function(point)
+{
+  var mx = this.getTransform();
+  if (!mx)
+    return point.slice();
+
+  var dx = mx.a * point[0] + mx.c * point[1] + mx.e;
+  var dy = mx.b * point[0] + mx.d * point[1] + mx.f;
+  return [dx, dy];
+}
+
+// Transforms an even numbered array of coordinates by the transform in
+// getTransform
+ParaPara.Brush.prototype.transformPoints = function(points)
+{
+  var mx = this.getTransform();
+  if (!mx) {
+    return points.slice();
+  }
+
+  var transformed = [];
+  for (var i=0; i < points.length; i+=2) {
+    var result = this.transformPoint(points.slice(i,i+2));
+    transformed.push(result[0], result[1]);
+  }
+  return transformed;
+}
+
 // ---------------------- Geometry -------------------------
 
 ParaPara.Geometry = {};
@@ -423,7 +554,7 @@ ParaPara.Geometry = {};
 // http://community.topcoder.com/tc?module=Static&d1=tutorials&d2=geometry2
 // and:
 // http://processingjs.nihongoresources.com/bezierinfo/
-ParaPara.Geometry.lineIntersectsLine = function(line1, line2) {
+ParaPara.Geometry.linesIntersect = function(line1, line2) {
   var x1 = line1[0]; var y1 = line1[1];
   var x2 = line1[2]; var y2 = line1[3];
   var x3 = line2[0]; var y3 = line2[1];
@@ -444,9 +575,9 @@ ParaPara.Geometry.lineIntersectsLine = function(line1, line2) {
   return [px, py];
 }
 
-ParaPara.Geometry.lineIntersectsLineSegment = function(line1, line2) {
+ParaPara.Geometry.segmentsIntersect = function(line1, line2) {
   var isBetween = ParaPara.Geometry.isBetween;
-  var pt = ParaPara.Geometry.lineIntersectsLine(line1, line2);
+  var pt = ParaPara.Geometry.linesIntersect(line1, line2);
   return pt && isBetween(pt[0], line1[0], line1[2]) &&
                isBetween(pt[0], line2[0], line2[2]) &&
                isBetween(pt[1], line1[1], line1[3]) &&
@@ -470,42 +601,91 @@ ParaPara.Geometry.lineIntersectsRect = function(line, rect) {
     return true;
   }
 
-  // Transform the rect so that the line runs along the x-axis
-  // (XXXperf On second thoughts, this is not the most efficient way to do
-  //  things. Should probably just call lineIntersectsLine on each of the
-  //  edges.)
-
-  // Calculate the transformation
-  var angle = Math.atan2(line[3] - line[1], line[2] - line[0]) * 180 / Math.PI;
-  var mx = ParaPara.svgRoot.createSVGMatrix();
-  mx = mx.rotate(-angle, 0, 0);
-  mx = mx.translate(-line[0], -line[1]);
-
-  // Transform the points of the box
-  var pts = [];
-  var pt = ParaPara.svgRoot.createSVGPoint();
-  for (var i = 0; i < coords.length; i += 2) {
-    pt.x = coords[i];
-    pt.y = coords[i+1];
-    pts.push(pt.matrixTransform(mx));
-  }
-
-  // Test for intersection
-  var length = ParaPara.Geometry.lineLength(line[0], line[1], line[2], line[3]);
-  for (var i = 0; i < pts.length; ++i) {
-    var a = pts[i];
-    var b = pts[i+1==pts.length ? 0 : i+1];
-    if (a.y == b.y) // Parallel to x-axis
-      continue;
-    if ((a.y<0)==(b.y<0)) // Completely above or below x-axis
-      continue;
-    var x = -a.y * (b.x - a.x) / (b.y - a.y) + a.x;
-    if (x > 0 && x < length) {
+  for (var i=0; i<4; ++i) {
+    var line2 = i < 3 ? coords.slice(i*2, i*2+4)
+                      : coords.slice(i*2, i*2+2).concat(coords.slice(0,2));
+    if (ParaPara.Geometry.segmentsIntersect(line, line2))
       return true;
+  }
+  return false;
+}
+
+// Returns intersections between line and a rectangle at (0, 0, width, height)
+ParaPara.Geometry.intersectsWithZeroedRect = function(line, width, height) {
+
+  var intercepts = [];
+  var m = (line[3] - line[1]) / (line[2] - line[0]);
+
+  // Calculate bounds for checking a potential intersection actually lies within
+  // the bounds of both segments
+  var minX, maxX, minY, maxY;
+  if (line[0] < line[2]) {
+    minX = Math.max(0, line[0]);
+    maxX = Math.min(width, line[2]);
+  } else {
+    minX = Math.max(0, line[2]);
+    maxX = Math.min(width, line[0]);
+  }
+  if (minX >= maxX)
+    return intercepts;
+  if (line[1] < line[3]) {
+    minY = Math.max(0, line[1]);
+    maxY = Math.min(height, line[3]);
+  } else {
+    minY = Math.max(0, line[3]);
+    maxY = Math.min(height, line[1]);
+  }
+  if (minY >= maxY)
+    return intercepts;
+
+  // First intercepts with the vertical edges
+  var xIntercepts = [ 0, width ];
+  for (var i = 0; m != Infinity && i < xIntercepts.length; ++i) {
+    var x = xIntercepts[i];
+    var y = m * (x-line[0]) + line[1];
+    if (x >= minX && x <= maxX && y >= minY && y <= maxY) {
+      intercepts.push([x, y]);
     }
   }
 
-  return false;
+  // Intercepts with the horizontal edges
+  var yIntercepts = [ 0, height ];
+  for (var i = 0; m != 0 && i < yIntercepts.length; ++i) {
+    var y = yIntercepts[i];
+    var x = 1.0/m * (y-line[1]) + line[0];
+    if (x >= minX && x <= maxX && y >= minY && y <= maxY) {
+      intercepts.push([x, y]);
+    }
+  }
+
+  return intercepts;
+}
+
+ParaPara.Geometry.rectsIntersect = function(rectA, rectB) {
+  return !(rectA.x + rectA.width <= rectB.x ||
+           rectA.x >= rectB.x + rectB.width ||
+           rectA.y + rectA.height <= rectB.y ||
+           rectA.y >= rectB.y + rectB.height);
+}
+
+ParaPara.Geometry.rectContainsRect = function(rectA, rectB) {
+  return rectB.x >= rectA.x &&
+         rectB.x + rectB.width <= rectA.x + rectA.width &&
+         rectB.y >= rectA.y &&
+         rectB.y + rectB.height <= rectA.y + rectA.height;
+}
+
+ParaPara.Geometry.rectContainsLine = function(rect, line) {
+  const rectContainsPoint = ParaPara.Geometry.rectContainsPoint;
+  return rectContainsPoint(rect, [line[0], line[1]]) &&
+         rectContainsPoint(rect, [line[2], line[3]]);
+}
+
+ParaPara.Geometry.rectContainsPoint = function(rect, point) {
+  return rect.x <= point[0] &&
+         point[0] <= rect.x + rect.width &&
+         rect.y <= point[1] &&
+         point[1] <= rect.y + rect.height;
 }
 
 ParaPara.Geometry.lineLength = function(x1, y1, x2, y2) {
@@ -515,6 +695,11 @@ ParaPara.Geometry.lineLength = function(x1, y1, x2, y2) {
 ParaPara.Geometry.isBetween = function (x, a, b) {
   const tolerance = 0.000001;
   return x >= Math.min(a, b) - tolerance && x <= Math.max(a, b) + tolerance;
+}
+
+ParaPara.Geometry.prettyMuchEqual = function(a, b) {
+  const floatTolerance = 0.000001;
+  return Math.abs(a-b) < floatTolerance;
 }
 
 // ==================== SEGMENT TYPES ======================
@@ -527,7 +712,7 @@ ParaPara.MoveToSegment = function(point) {
   this.point = point;
 }
 
-ParaPara.MoveToSegment.prototype.cut = function(line, brushWidth) {
+ParaPara.MoveToSegment.prototype.cut = function(brush) {
   return this;
 }
 
@@ -543,51 +728,87 @@ ParaPara.LineToSegment = function(points) {
   this.points = points;
 }
 
-ParaPara.LineToSegment.prototype.cut = function(line, brushWidth) {
-  var pt = ParaPara.Geometry.lineIntersectsLineSegment(line, this.points);
-  if (!pt)
+ParaPara.LineToSegment.prototype.cut = function(brush) {
+  const MoveToSegment   = ParaPara.MoveToSegment;
+  const LineToSegment   = ParaPara.LineToSegment;
+  const prettyMuchEqual = ParaPara.Geometry.prettyMuchEqual;
+
+  var brushBBox = brush.getBBox();
+  if (!ParaPara.Geometry.lineIntersectsRect(this.points, brushBBox))
     return this;
 
-  // We could actually do much better than this, and consider the angle between
-  // the two lines and artificially increase the brushWidth as the angle becomes
-  // more acute but for now we're not expecting to encounter straight lines
-  // much and once we fix the line smoothing, not at all.
+  // Transform line to simplify containment checks
+  var transformedLine      = brush.transformPoints(this.points);
+  var brushDimensions      = brush.getDimensions();
+  var transformedBrushBBox = { x: 0, y: 0,
+                               width: brushDimensions.length,
+                               height: brushDimensions.width };
 
-  var offset =
-    ParaPara.Geometry.lineLength(this.points[0], this.points[1], pt[0], pt[1]);
-  var initialLineLength =
-    ParaPara.Geometry.lineLength(this.points[0], this.points[1],
-               this.points[2], this.points[3]);
-  var atStart  = offset <= brushWidth / 2;
-  var atEnd    = initialLineLength - offset <= brushWidth / 2;
-  var pieces   = [];
-  var angle    = Math.atan2(this.points[3] - this.points[1],
-                            this.points[2] - this.points[0]);
-  var xDelta   = brushWidth / 2 * Math.cos(angle);
-  var yDelta   = brushWidth / 2 * Math.sin(angle);
-  var x1       = pt[0] - xDelta;
-  var y1       = pt[1] - yDelta;
-  var x2       = pt[0] + xDelta;
-  var y2       = pt[1] + yDelta;
-  var segmentA = this.points.slice(0,2).concat(x1, y1);
-  var segmentB = [x2, y2].concat(this.points.slice(2));
+  // Check for self-containment
+  if (ParaPara.Geometry.rectContainsLine(transformedBrushBBox,
+                                         transformedLine))
+    return new MoveToSegment(this.points.slice(2));
 
-  var MoveToSegment = ParaPara.MoveToSegment;
-  var LineToSegment = ParaPara.LineToSegment;
-
-  if (atStart && atEnd) {
-    pieces.push(new MoveToSegment(this.points.slice(2)));
-  } else if (atStart) {
-    pieces.push(new MoveToSegment(segmentB.slice(0,2)));
-    pieces.push(new LineToSegment(segmentB));
-  } else if (atEnd) {
-    pieces.push(new LineToSegment(segmentA));
-    pieces.push(new MoveToSegment(segmentA.slice(2)));
-  } else {
-    pieces.push(new LineToSegment(segmentA));
-    pieces.push(new MoveToSegment(segmentB.slice(0,2)));
-    pieces.push(new LineToSegment(segmentB));
+  // Get intersections
+  var intersections = [];
+  for (var i = 0; i < 4; ++i) {
+    var line = i < 3 ? brush.path.slice(i*2, i*2+4)
+                     : brush.path.slice(i*2, i*2+2).
+                         concat(brush.path.slice(0,2));
+    var pt = ParaPara.Geometry.segmentsIntersect(this.points, line);
+    if (pt) {
+      if (intersections.length &&
+          prettyMuchEqual(pt[0],intersections[intersections.length-2]) &&
+          prettyMuchEqual(pt[1],intersections[intersections.length-1]))
+        continue;
+      intersections.push(pt[0], pt[1]);
+      if (intersections.length == 4)
+        break;
+    }
   }
+
+  if (!intersections.length)
+    return this;
+
+  // Sort
+  if (intersections.length == 4) {
+    var a,b;
+    if (this.points[2] == this.points[0]) {
+      a = 3;
+      b = 1;
+    } else {
+      a = 2;
+      b = 0;
+    }
+    if ((this.points[a]-this.points[b]<0) !=
+        (intersections[a]-intersections[b]<0)) {
+      var tmp = intersections.slice(0,2);
+      intersections[0] = intersections[2];
+      intersections[1] = intersections[3];
+      intersections[2] = tmp[0];
+      intersections[3] = tmp[1];
+    }
+  }
+
+  // Check initial state
+  var inside = transformedLine[0] >= 0 &&
+               transformedLine[0] <= brushDimensions.length &&
+               transformedLine[1] >= 0 &&
+               transformedLine[1] <= brushDimensions.width;
+
+  // Generate pieces
+  var pieces = [];
+  var points =
+    this.points.slice(0,2).concat(intersections, this.points.slice(2));
+  for (var i=0; i < points.length - 2; i+=2) {
+    if (inside) {
+      pieces.push(new MoveToSegment(points.slice(i+2, i+4)));
+    } else {
+      pieces.push(new LineToSegment(points.slice(i, i+4)));
+    }
+    inside = !inside;
+  }
+
   return pieces;
 }
 
@@ -603,86 +824,127 @@ ParaPara.CurveToSegment = function(points) {
   this.points = points;
 }
 
-ParaPara.CurveToSegment.prototype.cut = function(line, brushWidth) {
-  const MoveToSegment             = ParaPara.MoveToSegment;
-  const CurveToSegment            = ParaPara.CurveToSegment;
-  const lineLength                = ParaPara.Geometry.lineLength;
-  const lineIntersectsLineSegment = ParaPara.Geometry.lineIntersectsLineSegment;
+ParaPara.CurveToSegment.prototype.cut = function(brush) {
+  const MoveToSegment     = ParaPara.MoveToSegment;
+  const CurveToSegment    = ParaPara.CurveToSegment;
+  const lineLength        = ParaPara.Geometry.lineLength;
+  const segmentsIntersect = ParaPara.Geometry.segmentsIntersect;
 
-  // XXX Try with/without this and see if it really helps.
-  var bbox = this.getBBox();
-  addDebuggingRect(bbox);
-  if (!ParaPara.Geometry.lineIntersectsRect(line, bbox)) {
+  // Check if bboxes intersect
+  var brushBBox   = brush.getBBox();
+  var segmentBBox = this.getBBox();
+  if (!ParaPara.Geometry.rectsIntersect(brushBBox, segmentBBox)) {
     return this;
   }
 
-  // If this is a short segment just drop it altogether
-  var segmentLength = lineLength(this.points[0], this.points[1],
-                                 this.points[6], this.points[7]);
-  if (segmentLength < brushWidth) {
+  // Transform this segment to lie along the first edge of the brush.
+  // This makes some of the following comparisons simpler (especially the check
+  // if the segment is fully contained in the brush outline)
+  var transformedSegment =
+    new CurveToSegment(brush.transformPoints(this.points));
+
+  // See if the segment is fully contained in the brush outline
+  // (XXXperf This isn't strictly necessary since we can detect fully contained
+  // path below---i.e. a segment that starts inside and doesn't have any
+  // intersections must be fully contained---but this *might* be faster. It
+  // needs testing but a fully contained segment is actually pretty common when
+  // you have paths with lots of small points and a big brush.)
+  // (XXXperf Try with a tight bbox and see if the cost of computing the bbox
+  // pays off)
+  var transformedSegmentBBox = transformedSegment.getBBox();
+  var brushDimensions        = brush.getDimensions();
+  var transformedBrushBBox   = { x: 0, y: 0,
+                                 width: brushDimensions.length,
+                                 height: brushDimensions.width };
+  if (ParaPara.Geometry.rectContainsRect(transformedBrushBBox,
+                                         transformedSegmentBBox))
     return new MoveToSegment(this.points.slice(6));
-  }
 
-  const steps = 8;
-  var step = 1.0 / steps;
-  var x1 = this.getX(0);
-  var y1 = this.getY(0);
+  // See if transformed boxes intersect at all
+  if (!ParaPara.Geometry.rectsIntersect(transformedSegmentBBox,
+                                        transformedBrushBBox))
+    return this;
+
+  // Number of steps used to approximate the curve---this is currently set very
+  // low based on empirical testing. Generally most hand-drawn paths seem to end
+  // up being made up of lots of tiny segments. If we adjust the smoothing
+  // algorithm to produce less points we might need to up this to get a more
+  // accurate result.
+  const steps       = 1;
+  var step          = 1.0 / steps;
+  var startPt       = transformedSegment.getValue(0);
+  var intersections = [];
+  // XXX Need to rethink this---what if they exactly coincide?
+  // If depends on the direction right?
+  var startPtIsInsideBrush = startPt[0] >= 0 &&
+                             startPt[0] <= brushDimensions.length &&
+                             startPt[1] >= 0 &&
+                             startPt[1] <= brushDimensions.width;
+
   for (var t = step; t<=1.0; t+=step) {
-    var x2 = this.getX(t);
-    var y2 = this.getY(t);
-    addDebuggingLine(x1, y1, x2, y2);
-    var pt = lineIntersectsLineSegment(line, [x1, y1, x2, y2]);
-    if (pt) {
-      var stepLength = lineLength(x1, y1, x2, y2);
-      var offset = lineLength(x1, y1, pt[0], pt[1]) / stepLength;
-      var intersectT = t-step + step * offset;
-      addDebuggingPoint(this.getX(intersectT), this.getY(intersectT));
+    var endPt = transformedSegment.getValue(t);
+    var intercepts =
+      ParaPara.Geometry.intersectsWithZeroedRect(
+        [startPt[0], startPt[1], endPt[0], endPt[1]],
+        brushDimensions.length, brushDimensions.width);
 
-      var pieces = [];
-
-      var gapWidth = step / stepLength * brushWidth;
-      var startT   = intersectT - gapWidth / 2;
-      var endT     = intersectT + gapWidth / 2;
-      var atStart  = startT <= gapWidth;
-      var atEnd    = 1.0 - endT <= gapWidth;
-
-      // XXX When we divide smaller paths, we should use a larger step
-      //     value
-      if (atStart && atEnd) {
-        pieces.push(new MoveToSegment(this.points.slice(6)));
-      } else if (atStart) {
-        var segments = this.splitPath(endT);
-        pieces.push(new MoveToSegment(segments[1].slice(0,2)));
-        var lastSegment = new CurveToSegment(segments[1]);
-        pieces = pieces.concat(lastSegment.cut(line, brushWidth));
-      } else if (atEnd) {
-        var segments = this.splitPath(startT);
-        pieces.push(new CurveToSegment(segments[0]));
-        pieces.push(new MoveToSegment(segments[1].slice(6)));
-      } else {
-        var segments = this.splitPath(startT);
-        var partA = segments[0];
-        segments = this.splitPath(endT);
-        var partB = segments[1];
-        pieces.push(new CurveToSegment(partA));
-        pieces.push(new MoveToSegment(partB.slice(0,2)));
-        var lastSegment = new CurveToSegment(partB);
-        pieces = pieces.concat(lastSegment.cut(line, brushWidth));
+    if (intercepts.length) {
+      var stepLength = lineLength(startPt[0], startPt[1], endPt[0], endPt[1]);
+      for (var i = 0; i < intercepts.length; ++i) {
+        var pt = intercepts[i];
+        // If we get an intersection right on a segment boundary we don't want
+        // to add it twice (once for each boundary) so just ignore the one that
+        // appears at the start of the segment
+        // XXX This needs testing---we probably want to actually compare
+        // intersectT to the last value in the array
+        if (pt[0] == startPt[0] && pt[1] == startPt[1])
+          continue;
+        var offset = lineLength(startPt[0], startPt[1], pt[0], pt[1])
+                     / stepLength;
+        var intersectT = t-step + step * offset;
+        intersections.push(intersectT);
       }
-      return pieces;
     }
-    x1 = x2;
-    y1 = y2;
+
+    startPt = endPt;
   }
-  return this;
+
+  if (!intersections.length && !startPtIsInsideBrush)
+    return this;
+
+  intersections.sort(function(a,b) { return a-b; });
+  var inside      = startPtIsInsideBrush;
+  var pieces      = [];
+  var lastSegment = this.points;
+  var tOffset     = 0;
+  for (var i=0; i < intersections.length; ++i) {
+    var t = intersections[i];
+    var scaledT = (t - tOffset) / (1.0 - tOffset);
+    var segments = this.splitSegment(lastSegment, scaledT);
+    if (inside) {
+      pieces.push(new MoveToSegment(segments[0].slice(6)));
+    } else {
+      pieces.push(new CurveToSegment(segments[0]));
+    }
+    lastSegment = segments[1];
+    inside = !inside;
+    tOffset = t;
+  }
+  if (inside) {
+    pieces.push(new MoveToSegment(lastSegment.slice(6)));
+  } else {
+    pieces.push(new CurveToSegment(lastSegment));
+  }
+
+  return pieces;
 }
 
-ParaPara.CurveToSegment.prototype.splitPath = function(t) {
+ParaPara.CurveToSegment.prototype.splitSegment = function(segment, t) {
   // De Casteljau's algorithm
   // 2 iterations, i is the number of segments between control points
-  var segA = [this.points[0], this.points[1]];
-  var segB = [this.points[6], this.points[7]];
-  var readPts = this.points;
+  var segA = [segment[0], segment[1]];
+  var segB = [segment[6], segment[7]];
+  var readPts = segment;
   var writePts = [];
   for (var i = 3; i >= 1; --i) {
     writePts = [];
@@ -696,6 +958,10 @@ ParaPara.CurveToSegment.prototype.splitPath = function(t) {
     readPts = writePts;
   }
   return [segA, segB];
+}
+
+ParaPara.CurveToSegment.prototype.getValue = function(t) {
+  return [this.getX(t), this.getY(t)];
 }
 
 ParaPara.CurveToSegment.prototype.getX = function(t) {

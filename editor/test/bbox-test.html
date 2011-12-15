@@ -2,6 +2,7 @@
 <html>
   <head>
     <title>Bbox intersection test</title>
+    <script type="text/javascript" src="../js/eraser.js"></script>
     <script type="text/javascript">
       const SVG_NS = "http://www.w3.org/2000/svg";
 
@@ -12,7 +13,9 @@
       var line    = null;
 
       function startLine(evt) {
-        svgRoot = document.getElementById("svg");
+        if (ParaPara.svgRoot === undefined) {
+          ParaPara.svgRoot = document.getElementById("svg");
+        }
 
         // Clean up any previous lines
         var rect = document.getElementById("rect");
@@ -24,7 +27,7 @@
         }
 
         // Add a circle where we first clicked
-        var pt = getLocalCoords(evt.clientX, evt.clientY, svgRoot);
+        var pt = getLocalCoords(evt.clientX, evt.clientY, ParaPara.svgRoot);
         addPoint(pt.x, pt.y);
 
         drawing = true;
@@ -32,10 +35,11 @@
         endPt   = null;
         line    = null;
       }
+
       function drawLine(evt) {
         if (!drawing)
           return;
-        var pt = getLocalCoords(evt.clientX, evt.clientY, svgRoot);
+        var pt = getLocalCoords(evt.clientX, evt.clientY, ParaPara.svgRoot);
 
         if (!line) {
           line = document.createElementNS(SVG_NS, 'line');
@@ -55,13 +59,13 @@
         testIntersection(startPt.x, startPt.y, pt.x, pt.y);
       }
       function finishLine(evt) {
-        var pt = getLocalCoords(evt.clientX, evt.clientY, svgRoot);
+        var pt = getLocalCoords(evt.clientX, evt.clientY, ParaPara.svgRoot);
         addPoint(pt.x, pt.y);
         drawing = false;
         testIntersection(startPt.x, startPt.y, pt.x, pt.y);
       }
       function getLocalCoords(x, y, elem) {
-        var pt = svgRoot.createSVGPoint();
+        var pt = ParaPara.svgRoot.createSVGPoint();
         pt.x = x;
         pt.y = y;
         var nodeMx = elem.getScreenCTM();
@@ -80,73 +84,28 @@
       function testIntersection(x1, y1, x2, y2) {
         var rect = document.getElementById("rect");
         var bbox = rect.getBBox();
-
-        rect.setAttribute("fill", "grey");
-        /*
-        var wireframe = document.getElementById("wireframe");
-        if (wireframe)
-          wireframe.parentNode.removeChild(wireframe);
-          */
-
-        // Convert bbox to coords
-        var coords = [ bbox.x, bbox.y,
-                       bbox.x + bbox.width, bbox.y,
-                       bbox.x + bbox.width, bbox.y + bbox.height,
-                       bbox.x, bbox.y + bbox.height ];
-
-        // Check for a point inside the box
-        if ((x1 >= coords[0] && x1 <= coords[4] &&
-             y1 >= coords[1] && y1 <= coords[5]) ||
-            (x2 >= coords[0] && x2 <= coords[4] &&
-             y2 >= coords[1] && y2 <= coords[5])) {
-          rect.setAttribute("fill", "green");
-          return;
-        }
-
-        // Transform the rect so that the line (x1,y1)->(x2,y2) runs along the
-        // x-axis
-        var angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
-        var mx = svgRoot.createSVGMatrix();
-        mx = mx.rotate(-angle, 0, 0);
-        mx = mx.translate(-x1, -y1);
-
-        var pts = [];
-        var pt = svgRoot.createSVGPoint();
-        for (var i = 0; i < coords.length; i += 2) {
-          pt.x = coords[i];
-          pt.y = coords[i+1];
-          pts.push(pt.matrixTransform(mx));
-        }
-
-        /*
-        var polygon = document.createElementNS(SVG_NS, 'polygon');
-        polygon.setAttribute("points", pts[0].x +"," + pts[0].y + " " +
-                                       pts[1].x +"," + pts[1].y + " " +
-                                       pts[2].x +"," + pts[2].y + " " +
-                                       pts[3].x +"," + pts[3].y);
-        polygon.setAttribute("fill", "none");
-        polygon.setAttribute("stroke", "black");
-        polygon.setAttribute("id", "wireframe");
-        rect.parentNode.appendChild(polygon);
-        */
-
-        var length = lineLength(x1, y1, x2, y2);
-        for (var i = 0; i < pts.length; ++i) {
-          var a = pts[i];
-          var b = pts[i+1==pts.length ? 0 : i+1];
-          if (a.y == b.y) // Parallel to x-axis
-            continue;
-          if ((a.y<0)==(b.y<0)) // Completely above or below x-axis
-            continue;
-          var x = -a.y * (b.x - a.x) / (b.y - a.y) + a.x;
-          if (x > 0 && x < length) {
-            rect.setAttribute("fill", "green");
-            return;
-          }
-        }
+        var result =
+          ParaPara.Geometry.lineIntersectsRect([x1, y1, x2, y2], bbox);
+        rect.setAttribute("fill", result ? "green" : "grey");
       }
       function lineLength(x1, y1, x2, y2) {
         return Math.sqrt((x2 -= x1)*x2 + (y2 -= y1)*y2);
+      }
+      function profile() {
+        var rect = document.getElementById("rect");
+        if (ParaPara.svgRoot === undefined) {
+          ParaPara.svgRoot = document.getElementById("svg");
+        }
+        var bbox = rect.getBBox();
+        console.profile("lineRectIntersection");
+        for (var i=0; i<1000; ++i) {
+          var x1 = Math.floor(Math.random()*300);
+          var y1 = Math.floor(Math.random()*300);
+          var x2 = Math.floor(Math.random()*300);
+          var y2 = Math.floor(Math.random()*300);
+          ParaPara.Geometry.lineIntersectsRect([x1, y1, x2, y2], bbox);
+        }
+        console.profileEnd();
       }
     </script>
   </head>
@@ -154,7 +113,8 @@
     <svg width="300" height="300" id="svg"
       onmousedown="startLine(evt)"
       onmousemove="drawLine(evt)"
-      onmouseup="finishLine(evt)">
+      onmouseup="finishLine(evt)"
+      onload="profile()">
       <rect x="100" y="100" width="100" height="180" fill="grey" id="rect"/>
     </svg>
   </body>
