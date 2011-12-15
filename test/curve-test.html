@@ -104,18 +104,18 @@
         overlays.appendChild(rect);
       }
 
-      function addDebuggingPoint(x, y) {
+      function addDebuggingPoint(point) {
         var overlays = document.getElementById("overlays");
         var circle = document.createElementNS(ParaPara.SVG_NS, "circle");
-        circle.setAttribute("cx", x);
-        circle.setAttribute("cy", y);
+        circle.setAttribute("cx", point[0]);
+        circle.setAttribute("cy", point[1]);
         circle.setAttribute("r", "5");
         circle.setAttribute("fill", "yellow");
         overlays.appendChild(circle);
       }
 
       function erasePoint(point) {
-        const brushWidth = 20;
+        const brushWidth = 25;
         var eraser = new ParaPara.Eraser(currentFrame, brushWidth);
 
         var candidateShapes = getShapes();
