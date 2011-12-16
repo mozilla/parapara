@@ -169,6 +169,7 @@ ParaPara.EraseControls.prototype.getCandidateShapes = function(x, y) {
   var hitShapes = [];
   for (var i = shapes.length-1; i >= 0; --i) {
     var shape = shapes[i];
+    // (Unfortunately WebKit doesn't seem to support 'children' for SVG content
     if (shape.nodeType != Node.ELEMENT_NODE)
       continue;
 
@@ -179,6 +180,10 @@ ParaPara.EraseControls.prototype.getCandidateShapes = function(x, y) {
     shapeBBox.width  += this.brushWidth;
     shapeBBox.height += this.brushWidth;
 
+    // Currently erasing of dots (circle elements) depends on this being pretty
+    // accurate. If we ever tweak this so that it sometimes returns circle
+    // elements that weren't actually hit then we need to update
+    // Eraser.cutCircle to do property hit testing there
     var intersects =
       this.prevX
       ? ParaPara.Geometry.lineIntersectsRect([this.prevX, this.prevY, x, y],
@@ -224,16 +229,10 @@ ParaPara.Eraser.prototype.erase = function(x, y, candidateShapes) {
       var strokeWidth = parseFloat(window.getComputedStyle(shape, null).
                           getPropertyValue("stroke-width", null));
       var effectiveBrushWidth = scaledBrushWidth + strokeWidth;
-
       brush.setWidth(effectiveBrushWidth);
       this.cutPath(brush, shape);
     } else if (shape.tagName == "circle") {
-      // XXX This is easy
-      // Just work out if the distance between x,y is less than the
-      // maximum of the circle radius and the scaledBrushWidth??
-      // That won't work if we get a fast sweep that generates one touch
-      // on each side of the circle?? Do an intersection between the line
-      // and a bounding box
+      this.cutCircle(brush, shape);
     } else {
       console.assert(false, "Got unexpected shape type: " + shape.tagName);
     }
@@ -305,6 +304,27 @@ function(segment, currentPoint) {
         segment.pathSegType);
       break;
   }
+}
+
+ParaPara.Eraser.prototype.cutCircle = function(brush, circle) {
+  // Currently getCandidateShapes does a reasonably job of only choosing circles
+  // where we have a hit so for now we just rely on it.
+  //
+  // If that changes then a couple of possible strategies are:
+  // A) Do as with getCandidateShapes---just enlarge the bbox of the circle by
+  //    the brush width and then look for an intersection with the line the
+  //    brush represents
+  // B) Just test the two long sides of the brush and see if they intersect with
+  //    the bbox of the circle.
+  //    The fastest way to do this is to position the bbox of the circle at 0,0
+  //    and use intersectsWithZeroedRect.
+  //    To do that just transform the points of the brush by the negative offset
+  //    of the top-left of the circle
+  //    var radius = parseFloat(circle.getAttribute("r")) * 2;
+  //    var xDisp = parseFloat(circle.getAttribute("cx")) - radius;
+  //    var yDisp = parseFloat(circle.getAttribute("cy")) - radius;
+  //    ...
+  circle.parentNode.removeChild(circle);
 }
 
 // ----------------------- Brush ---------------------------
