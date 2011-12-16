@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" version="1.0" xmlns:cc="http://web.resource.org/cc/" xmlns:dc="http://purl.org/dc/elements/1.1/" viewBox="0 0 235 199">
+ <g transform="translate(-319 -587)">
+  <g transform="translate(244 64.4)">
+   <path d="m111 583l122-58 74 28-107 85-89-55z" stroke="#000" stroke-linecap="round" stroke-width="4.09" fill="#fff"/>
+   <path d="m109 586v74l89 50 1-73-90-51z" stroke="#000" stroke-linecap="round" stroke-width="4.09" fill="#fff"/>
+   <path d="m201 708l107-89 1-62-110 83c0 23 1 44 2 68z" stroke="#000" stroke-linecap="round" stroke-width="4.09" fill="#fff"/>
+   <path d="m191 699l-27 19c-6 2-14 2-21 0l-56.4-30c-8-2-7.8-6-8.7-13l-0.5-48c2.4-9 9.1-13 16-16l21.6-11 75 42 1 57z" stroke="#000" stroke-linecap="round" stroke-width="4" fill="#fff"/>
+   <path d="m141 571l87 46 58-44-79-36-66 34z" stroke="#000" stroke-linecap="round" stroke-width="5" fill="#00f"/>
+   <path d="m228 619v67l55-45 3-65" stroke="#000" stroke-linecap="round" stroke-width="4.94" fill="#00f"/>
+   <path d="m148 715v-57l7 1-1 56h-6z" fill="#f2f2f2"/>
+   <path d="m150 662l-69.2-33 8.2-9 66 35-5 7z" fill="#f2f2f2"/>
+   <path d="m187 644l-32 19-2-7 32-15 2 3z" fill="#f2f2f2"/>
+  </g>
+ </g>
+</svg>

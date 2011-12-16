@@ -5,17 +5,44 @@ ParaPara.XLINK_NS = "http://www.w3.org/1999/xlink";
 
 ParaPara.init = function(svgRoot) {
   ParaPara.svgRoot = svgRoot;
-  ParaPara.drawControls = new ParaPara.DrawControls();
-  ParaPara.frames = new ParaPara.FrameList();
-  ParaPara.currentStyle = new ParaPara.Style();
+  ParaPara.drawControls  = new ParaPara.DrawControls();
+  ParaPara.eraseControls = new ParaPara.EraseControls();
+  ParaPara.frames        = new ParaPara.FrameList();
+  ParaPara.currentStyle  = new ParaPara.Style();
+  ParaPara.currentTool   = null;
 }
 
 ParaPara.addFrame = function() {
   ParaPara.frames.addFrame();
 }
 
+ParaPara.setDrawMode = function() {
+  if (ParaPara.currentTool === ParaPara.drawControls)
+    return;
+
+  if (ParaPara.currentTool) {
+    ParaPara.currentTool.disable();
+  }
+  ParaPara.drawControls.enable();
+  ParaPara.currentTool = ParaPara.drawControls;
+}
+
+ParaPara.setEraseMode = function() {
+  if (ParaPara.currentTool === ParaPara.eraseControls)
+    return;
+
+  if (ParaPara.currentTool) {
+    ParaPara.currentTool.disable();
+  }
+  ParaPara.eraseControls.startErasing(ParaPara.frames.getCurrentFrame(), 10);
+  ParaPara.currentTool = ParaPara.eraseControls;
+}
+
 ParaPara.animate = function(fps) {
-  ParaPara.drawControls.disable();
+  if (ParaPara.currentTool) {
+    ParaPara.currentTool.disable();
+    ParaPara.currentTool = null;
+  }
   ParaPara.animator = new ParaPara.Animator(fps);
   ParaPara.animator.makeAnimation();
 }
@@ -25,7 +52,6 @@ ParaPara.animate = function(fps) {
 ParaPara.DrawControls = function() {
   this.linesInProgress = new Object;
   this.frame = null;
-
   this.mouseDownHandler   = this.mouseDown.bind(this);
   this.mouseMoveHandler   = this.mouseMove.bind(this);
   this.mouseUpHandler     = this.mouseUp.bind(this);
@@ -33,7 +59,9 @@ ParaPara.DrawControls = function() {
   this.touchMoveHandler   = this.touchMove.bind(this);
   this.touchEndHandler    = this.touchEnd.bind(this);
   this.touchCancelHandler = this.touchCancel.bind(this);
+}
 
+ParaPara.DrawControls.prototype.enable = function() {
   ParaPara.svgRoot.addEventListener("mousedown", this.mouseDownHandler);
   ParaPara.svgRoot.addEventListener("mousemove", this.mouseMoveHandler);
   ParaPara.svgRoot.addEventListener("mouseup", this.mouseUpHandler);
@@ -233,8 +261,7 @@ ParaPara.FreehandLine.prototype.createPathFromPoints = function(points) {
 ParaPara.FreehandLine.prototype.createPoint = function(points) {
   console.assert(points.length == 1, "Expected only one point");
   var path = document.createElementNS(ParaPara.SVG_NS, "circle");
-  // XXX Is this math right? Need to check when we do other stroke widths
-  path.setAttribute("r", ParaPara.currentStyle.strokeWidth / 2 + 1);
+  path.setAttribute("r", ParaPara.currentStyle.strokeWidth / 2);
   path.setAttribute("cx", points.getItem(0).x);
   path.setAttribute("cy", points.getItem(0).y);
   ParaPara.currentStyle.styleFill(path);
