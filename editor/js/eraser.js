@@ -53,28 +53,6 @@ ParaPara.EraseControls.prototype.startErasing = function(frame) {
   this.prevY = undefined;
 }
 
-ParaPara.EraseControls.prototype.prepArtworkForErasing =
-function() {
-  // Get current scale for working out how thick the lines *really* are
-  // (not that we're expecting uniform scale to just the 'a' value of the
-  // transform matrix will do).
-  var currentScale = this.currentFrame.getScreenCTM().a;
-
-  var children = this.currentFrame.children;
-  for (var i = 0; i < children.length; ++i) {
-    children[i].setAttribute("pointer-events", "visiblePainted");
-  }
-}
-
-ParaPara.EraseControls.prototype.restoreArtworkFromErasing =
-function() {
-  // XXX In future we may be able to get rid of both of these steps
-  var children = this.currentFrame.children;
-  for (var i = children.length-1; i >= 0; --i) {
-    children[i].setAttribute("pointer-events", "none");
-  }
-}
-
 ParaPara.EraseControls.prototype.disable = function() {
   ParaPara.svgRoot.removeEventListener("mousedown", this.mouseDownHandler);
   ParaPara.svgRoot.removeEventListener("mousemove", this.mouseMoveHandler);
@@ -83,8 +61,6 @@ ParaPara.EraseControls.prototype.disable = function() {
   ParaPara.svgRoot.removeEventListener("touchmove", this.touchMoveHandler);
   ParaPara.svgRoot.removeEventListener("touchend", this.touchEndHandler);
   ParaPara.svgRoot.removeEventListener("touchcancel", this.touchCancelHandler);
-
-  this.restoreArtworkFromErasing();
 }
 
 ParaPara.EraseControls.prototype.setBrushWidth = function(brushWidth) {
@@ -153,21 +129,17 @@ ParaPara.EraseControls.prototype.touchEnd = function(evt) {
 ParaPara.EraseControls.prototype.eraseFromEvent = function(evt) {
   console.assert(this.eraser, "No eraser to use");
 
-  var eventTargetAndCoords = this.getTargetAndCoordsFromEvent(evt);
+  var coords = this.getCoordsFromEvent(evt);
+  if (!coords)
+    return;
 
   var candidateShapes = [];
-  var pt = this.getLocalCoords(eventTargetAndCoords.x,
-                               eventTargetAndCoords.y, this.currentFrame);
+  var pt = this.getLocalCoords(coords[0], coords[1], this.currentFrame);
 
-  if (eventTargetAndCoords.target) {
-    candidateShapes.push(eventTargetAndCoords.target);
-  } else {
-    // If we didn't get a direct hit get a list of lines to test
-    candidateShapes = this.getCandidateShapes(pt.x, pt.y);
-    var ids = [];
-    for (var i = 0; i < candidateShapes.length; i++) {
-      ids.push(candidateShapes[i].id);
-    }
+  candidateShapes = this.getCandidateShapes(pt.x, pt.y);
+  var ids = [];
+  for (var i = 0; i < candidateShapes.length; i++) {
+    ids.push(candidateShapes[i].id);
   }
 
   this.eraser.erase(pt.x, pt.y, candidateShapes);
@@ -176,40 +148,19 @@ ParaPara.EraseControls.prototype.eraseFromEvent = function(evt) {
   this.prevY = pt.y;
 }
 
-ParaPara.EraseControls.prototype.getTargetAndCoordsFromEvent = function(evt) {
-  var result = { target: null, x: undefined, y: undefined };
-  var elem = null;
-
-  // Mouse events are easy
+ParaPara.EraseControls.prototype.getCoordsFromEvent = function(evt) {
+  // Mouse events
   if (!evt.changedTouches) {
-    elem = evt.target;
-    result.x = evt.clientX;
-    result.y = evt.clientY;
-  // Touches take a little more work
+    return [ evt.clientX, evt.clientY ];
+  // Touches
   } else {
     for (var i = 0; i < evt.changedTouches.length; ++i) {
       var touch = evt.changedTouches[i];
-      if (touch.identifier == this.currentTouch) {
-        result.x = touch.clientX;
-        result.y = touch.clientY;
-        elem = document.elementFromPoint(result.x, result.y);
-        break;
-      }
+      if (touch.identifier == this.currentTouch)
+        return [ touch.clientX, touch.clientY ];
     }
   }
-  if (!elem)
-    return result;
-
-  // Check the target is part of the current frame
-  var parent = elem.parentNode;
-  while (parent && parent !== this.currentFrame) {
-    parent = parent.parentNode;
-  }
-  if (!parent)
-    return result;
-
-  result.target = elem;
-  return result;
+  return null;
 }
 
 ParaPara.EraseControls.prototype.getCandidateShapes = function(x, y) {
