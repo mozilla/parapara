@@ -60,55 +60,10 @@ function() {
   // transform matrix will do).
   var currentScale = this.currentFrame.getScreenCTM().a;
 
-  var children = this.currentFrame.childNodes;
+  var children = this.currentFrame.children;
   for (var i = 0; i < children.length; ++i) {
-    var child = children[i];
-    if (child.className && child.className.baseVal != "fatLine") {
-      child.setAttribute("pointer-events", "visiblePainted");
-    }
-    this.fattenThinLine(child, currentScale);
+    children[i].setAttribute("pointer-events", "visiblePainted");
   }
-}
-
-ParaPara.EraseControls.prototype.fattenThinLine =
-function(elem, currentScale) {
-  // XXX We really should be re-performing this operation every time the
-  // window is resized but we don't and just assume things will stay the
-  // same within the one erase operation.
-  // (Not a great assumption since it's quite conceivable someone might
-  // rotate their tablet 90 degrees to enlarge the canvas so they can more
-  // accurately erase something.)
-  // Need to work out first if this fattenning is really necessary or not
-  if (elem.tagName != "path")
-    return;
-
-  if (elem.className && elem.className.baseVal == "fatLine")
-    return;
-
-  // Lines get hard to select once they're thinner than this
-  const minWidth = 14;
-
-  var strokeWidth =
-    window.getComputedStyle(elem, null).
-      getPropertyValue("stroke-width", null);
-  var lineWidth = strokeWidth * currentScale;
-
-  if (lineWidth > minWidth)
-    return;
-
-  var clone = elem.cloneNode(false);
-  clone.setAttribute("stroke", "none");
-  clone.setAttribute("stroke-width", (minWidth / currentScale).toFixed(1));
-  clone.setAttribute("pointer-events", "stroke");
-  clone.setAttribute("class", "fatLine");
-
-  // Insert after the element
-  // (This is really important because this method is called in a loop
-  //  that iterates over a live list of child nodes of the frame. If we
-  //  insert the clone *before* elem the next iteration will visit elem
-  //  again and so on forever. If we need to insert this before then we
-  //  will have to make the node list non-live.)
-  elem.parentNode.insertBefore(clone, elem.nextSibling);
 }
 
 ParaPara.EraseControls.prototype.restoreArtworkFromErasing =
@@ -116,12 +71,7 @@ function() {
   // XXX In future we may be able to get rid of both of these steps
   var children = this.currentFrame.children;
   for (var i = children.length-1; i >= 0; --i) {
-    var child = children[i];
-    if (child.className && child.className.baseVal == "fatLine") {
-      child.parentNode.removeChild(child);
-    } else {
-      child.setAttribute("pointer-events", "none");
-    }
+    children[i].setAttribute("pointer-events", "none");
   }
 }
 
@@ -250,12 +200,6 @@ ParaPara.EraseControls.prototype.getTargetAndCoordsFromEvent = function(evt) {
   if (!elem)
     return result;
 
-  // If we have an artificially fattened line, choose the "real" line
-  // before it
-  if (elem.className && elem.className.baseVal == "fatLine") {
-    elem = elem.previousElementSibling;
-  }
-
   // Check the target is part of the current frame
   var parent = elem.parentNode;
   while (parent && parent !== this.currentFrame) {
@@ -269,20 +213,12 @@ ParaPara.EraseControls.prototype.getTargetAndCoordsFromEvent = function(evt) {
 }
 
 ParaPara.EraseControls.prototype.getCandidateShapes = function(x, y) {
-  // If this is the first mouse/touch event then just ignore it since if
-  // it was on a line we would have got a direct hit already
-  // XXX Not sure if this is what we want
-  if (!this.prevX || !this.prevY)
-    return [];
-
   // Go through shapes backwards so we return a list from top to bottom
   var shapes = this.currentFrame.childNodes;
   var hitShapes = [];
   for (var i = shapes.length-1; i >= 0; --i) {
     var shape = shapes[i];
     if (shape.nodeType != Node.ELEMENT_NODE)
-      continue;
-    if (shape.className && shape.className.baseVal == "fatLine")
       continue;
 
     // Extend the shape by the brush width
@@ -292,10 +228,12 @@ ParaPara.EraseControls.prototype.getCandidateShapes = function(x, y) {
     shapeBBox.width  += this.brushWidth;
     shapeBBox.height += this.brushWidth;
 
-    // Theoretically, we should extend the test line by the maximum of the
-    // finger width and stroke width but for now we'll see how this works
-    if (ParaPara.Geometry.lineIntersectsRect([this.prevX, this.prevY, x, y],
-                                              shapeBBox)) {
+    var intersects =
+      this.prevX
+      ? ParaPara.Geometry.lineIntersectsRect([this.prevX, this.prevY, x, y],
+                                             shapeBBox)
+      : ParaPara.Geometry.rectContainsPoint(shapeBBox, [x,y]);
+    if (intersects) {
       hitShapes.push(shape);
     }
   }
@@ -329,9 +267,6 @@ ParaPara.Eraser.prototype.erase = function(x, y, candidateShapes) {
   for (var i = 0; i < len; ++i) {
     var shape = candidateShapes[i];
     if (shape.tagName == "path") {
-      console.assert(shape.className && shape.className.baseVal != "fatLine",
-        "Shouldn't be testing the line fattening");
-
       // Since the line will have stroke-linecap:round, we need to make
       // the brushWidth a bit larger to account for the space taken up by
       // the rounded ends of the cut line
@@ -375,20 +310,12 @@ ParaPara.Eraser.prototype.cutPath = function(brush, path) {
   }
 
   if (didCut) {
-    var fattenedPath = path.nextElementSibling &&
-         path.nextElementSibling.getAttribute("class") == "fatLine"
-       ? path.nextElementSibling
-       : null;
     segObjects = segObjects.filter(ParaPara.Eraser.filterSuperfluousMoveTo);
     if (!segObjects.length) {
       path.parentNode.removeChild(path);
-      if (fattenedPath)
-        fattenedPath.parentNode.removeChild(fattenedPath);
     } else {
       var d = segObjects.join("");
       path.setAttribute("d", d);
-      if (fattenedPath)
-        fattenedPath.setAttribute("d", d);
     }
   }
 

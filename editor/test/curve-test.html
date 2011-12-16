@@ -51,8 +51,6 @@
           var node = shapes.childNodes[i];
           if (node.nodeType != Node.ELEMENT_NODE)
             continue;
-          if (node.className && node.className.baseVal == "fatLine")
-            continue;
           result.push(node);
         }
         return result;
@@ -65,8 +63,6 @@
         for (var i = shapes.length-1; i >= 0; --i) {
           var shape = shapes[i];
           if (shape.nodeType != Node.ELEMENT_NODE)
-            continue;
-          if (shape.className && shape.className.baseVal == "fatLine")
             continue;
 
           // Theoretically, we should extend the test line by the maximum of the
@@ -134,8 +130,6 @@
             fill="none"/>
       <path d="M450,750 C450,650 600,650 600,750 C600,850 750,850 750,750"
             fill="none"/>
-      <path d="M450,750 C450,650 600,650 600,750 C600,850 750,850 750,750"
-            fill="none" class="fatLine" stroke="none"/>
       <path d="M600,400L650,450" fill="none"/>
     </g>
     <g id="overlays">
