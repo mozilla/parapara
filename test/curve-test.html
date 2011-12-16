@@ -12,6 +12,7 @@
         if (ParaPara.svgRoot === undefined) {
           ParaPara.svgRoot = document.getElementById("svg");
         }
+        ParaPara.erasePrecision = 5;
 
         testData = getTestData();
         currentFrame = document.getElementById("shapes");
@@ -78,42 +79,6 @@
         return hitShapes;
       }
 
-      function addDebuggingLine(x1, y1, x2, y2) {
-        var overlays = document.getElementById("overlays");
-        var line = document.createElementNS(ParaPara.SVG_NS, "line");
-        line.setAttribute("x1", x1);
-        line.setAttribute("y1", y1);
-        line.setAttribute("x2", x2);
-        line.setAttribute("y2", y2);
-        line.setAttribute("fill", "none");
-        line.setAttribute("stroke-width", "1");
-        line.setAttribute("stroke", "green");
-        overlays.appendChild(line);
-      }
-
-      function addDebuggingRect(rectShape) {
-        var overlays = document.getElementById("overlays");
-        var rect = document.createElementNS(ParaPara.SVG_NS, "rect");
-        rect.setAttribute("x", rectShape.x);
-        rect.setAttribute("y", rectShape.y);
-        rect.setAttribute("width", rectShape.width);
-        rect.setAttribute("height", rectShape.height);
-        rect.setAttribute("fill", "none");
-        rect.setAttribute("stroke-width", "1");
-        rect.setAttribute("stroke", "orange");
-        overlays.appendChild(rect);
-      }
-
-      function addDebuggingPoint(point) {
-        var overlays = document.getElementById("overlays");
-        var circle = document.createElementNS(ParaPara.SVG_NS, "circle");
-        circle.setAttribute("cx", point[0]);
-        circle.setAttribute("cy", point[1]);
-        circle.setAttribute("r", "5");
-        circle.setAttribute("fill", "yellow");
-        overlays.appendChild(circle);
-      }
-
       function erasePoint(point) {
         const brushWidth = 25;
         var eraser = new ParaPara.Eraser(currentFrame, brushWidth);
@@ -126,6 +91,21 @@
         } else {
           eraser.erase(point[2], point[3], candidateShapes);
         }
+      }
+
+      // Add debugging brush outlines
+      var setWidthSuper = ParaPara.Brush.prototype.setWidth;
+      ParaPara.Brush.prototype.setWidth = function(width) {
+        setWidthSuper.call(this, width);
+        var overlays = document.getElementById("overlays");
+        var path = document.createElementNS(ParaPara.SVG_NS, "path");
+        var d = "M" + this.path.slice(0,2).join(" ") +
+                "L" + this.path.slice(2).join(" ") + "Z";
+        path.setAttribute("d", d);
+        path.setAttribute("fill", "none");
+        path.setAttribute("stroke-width", "1");
+        path.setAttribute("stroke", "purple");
+        overlays.appendChild(path);
       }
     </script>
   </head>

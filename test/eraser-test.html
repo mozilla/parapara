@@ -16,8 +16,8 @@
           return;
         currentFrame = frames[frames.length - 1];
 
-        var eraserControls = new ParaPara.EraserControls(currentFrame, 20);
-        eraserControls.startErasing();
+        var eraseControls = new ParaPara.EraseControls();
+        eraseControls.startErasing(currentFrame, 10);
       }
       window.addEventListener("load", init, false);
     </script>

@@ -77,3 +77,9 @@ g.oldFrame > path {
 g.oldFrame {
   opacity: 0.5
 }
+circle.eraseOutline {
+  fill: none;
+  stroke: black;
+  stroke-dasharray: 1 1.5;
+  stroke-width: 0.25;
+}

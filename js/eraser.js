@@ -7,23 +7,15 @@ if (typeof ParaPara.fixPrecision !== "function") {
   ParaPara.fixPrecision = function(x) { return x.toFixed(2); }
 }
 
-// XXXInteg When we include this in the animation thing, need to be careful to
-// switch the tool back to drawControls when we add a new frame since the eraser
-// is tied to the current frame (currently anyway).
-
 // -------------------- Eraser Controls --------------------
 
-ParaPara.EraserControls = function(frame, brushWidth) {
+ParaPara.EraseControls = function(frame, brushWidth) {
   this.eraser       = null;
   this.currentTouch = null;
-  this.currentFrame = frame;
-  this.brushWidth   = brushWidth;
+  this.currentFrame = null;
+  this.brushWidth   = undefined;
   this.prevX        = undefined;
   this.prevY        = undefined;
-}
-
-ParaPara.EraserControls.prototype.startErasing = function() {
-  console.assert(!this.eraser, "Already erasing?");
 
   this.mouseDownHandler   = this.mouseDown.bind(this);
   this.mouseMoveHandler   = this.mouseMove.bind(this);
@@ -32,6 +24,22 @@ ParaPara.EraserControls.prototype.startErasing = function() {
   this.touchMoveHandler   = this.touchMove.bind(this);
   this.touchEndHandler    = this.touchEnd.bind(this);
   this.touchCancelHandler = this.touchEnd.bind(this);
+
+  // The erase precision corresponds to the number of steps used to approximate
+  // a cubic curve when looking for intersections.
+  // This is currently set very low based on empirical testing.
+  // Generally most hand-drawn paths seem to end up being made up of lots of
+  // tiny segments. If we adjust the smoothing algorithm to produce less points
+  // we might need to up this to get a more accurate result.
+  if (ParaPara.erasePrecision === undefined) {
+    ParaPara.erasePrecision = 1;
+  }
+}
+
+ParaPara.EraseControls.prototype.startErasing = function(frame) {
+  console.assert(!this.eraser, "Already erasing?");
+  this.currentFrame = frame;
+  this.brushWidth   = 10;
 
   ParaPara.svgRoot.addEventListener("mousedown", this.mouseDownHandler);
   ParaPara.svgRoot.addEventListener("mousemove", this.mouseMoveHandler);
@@ -45,7 +53,7 @@ ParaPara.EraserControls.prototype.startErasing = function() {
   this.prevY = undefined;
 }
 
-ParaPara.EraserControls.prototype.prepArtworkForErasing =
+ParaPara.EraseControls.prototype.prepArtworkForErasing =
 function() {
   // Get current scale for working out how thick the lines *really* are
   // (not that we're expecting uniform scale to just the 'a' value of the
@@ -62,7 +70,7 @@ function() {
   }
 }
 
-ParaPara.EraserControls.prototype.fattenThinLine =
+ParaPara.EraseControls.prototype.fattenThinLine =
 function(elem, currentScale) {
   // XXX We really should be re-performing this operation every time the
   // window is resized but we don't and just assume things will stay the
@@ -103,20 +111,37 @@ function(elem, currentScale) {
   elem.parentNode.insertBefore(clone, elem.nextSibling);
 }
 
-ParaPara.EraserControls.prototype.restoreArtworkFromErasing =
+ParaPara.EraseControls.prototype.restoreArtworkFromErasing =
 function() {
-  // XXX
-  // restore pointer-events on all lines
-  // remove fattened lines
+  // XXX In future we may be able to get rid of both of these steps
+  var children = this.currentFrame.children;
+  for (var i = children.length-1; i >= 0; --i) {
+    var child = children[i];
+    if (child.className && child.className.baseVal == "fatLine") {
+      child.parentNode.removeChild(child);
+    } else {
+      child.setAttribute("pointer-events", "none");
+    }
+  }
 }
 
-ParaPara.EraserControls.prototype.finishErasing = function() {
-  // XXX
-  // remove event listeners
+ParaPara.EraseControls.prototype.disable = function() {
+  ParaPara.svgRoot.removeEventListener("mousedown", this.mouseDownHandler);
+  ParaPara.svgRoot.removeEventListener("mousemove", this.mouseMoveHandler);
+  ParaPara.svgRoot.removeEventListener("mouseup", this.mouseUpHandler);
+  ParaPara.svgRoot.removeEventListener("touchstart", this.touchStartHandler);
+  ParaPara.svgRoot.removeEventListener("touchmove", this.touchMoveHandler);
+  ParaPara.svgRoot.removeEventListener("touchend", this.touchEndHandler);
+  ParaPara.svgRoot.removeEventListener("touchcancel", this.touchCancelHandler);
+
   this.restoreArtworkFromErasing();
 }
 
-ParaPara.EraserControls.prototype.mouseDown = function(evt) {
+ParaPara.EraseControls.prototype.setBrushWidth = function(brushWidth) {
+  this.brushWidth = brushWidth;
+}
+
+ParaPara.EraseControls.prototype.mouseDown = function(evt) {
   evt.preventDefault();
   if (this.eraser)
     return;
@@ -125,14 +150,14 @@ ParaPara.EraserControls.prototype.mouseDown = function(evt) {
   this.eraseFromEvent(evt);
 }
 
-ParaPara.EraserControls.prototype.mouseMove = function(evt) {
+ParaPara.EraseControls.prototype.mouseMove = function(evt) {
   evt.preventDefault();
   if (!this.eraser)
     return;
   this.eraseFromEvent(evt);
 }
 
-ParaPara.EraserControls.prototype.mouseUp = function(evt) {
+ParaPara.EraseControls.prototype.mouseUp = function(evt) {
   evt.preventDefault();
   if (!this.eraser)
     return;
@@ -140,7 +165,7 @@ ParaPara.EraserControls.prototype.mouseUp = function(evt) {
   this.prevX = this.prevY = undefined;
 }
 
-ParaPara.EraserControls.prototype.touchStart = function(evt) {
+ParaPara.EraseControls.prototype.touchStart = function(evt) {
   evt.preventDefault();
   if (this.eraser)
     return;
@@ -149,14 +174,14 @@ ParaPara.EraserControls.prototype.touchStart = function(evt) {
   this.eraseFromEvent(evt);
 }
 
-ParaPara.EraserControls.prototype.touchMove = function(evt) {
+ParaPara.EraseControls.prototype.touchMove = function(evt) {
   evt.preventDefault();
   if (!this.eraser)
     return;
   this.eraseFromEvent(evt);
 }
 
-ParaPara.EraserControls.prototype.touchEnd = function(evt) {
+ParaPara.EraseControls.prototype.touchEnd = function(evt) {
   evt.preventDefault();
   if (!this.eraser)
     return;
@@ -175,7 +200,7 @@ ParaPara.EraserControls.prototype.touchEnd = function(evt) {
   this.prevX = this.prevY = undefined;
 }
 
-ParaPara.EraserControls.prototype.eraseFromEvent = function(evt) {
+ParaPara.EraseControls.prototype.eraseFromEvent = function(evt) {
   console.assert(this.eraser, "No eraser to use");
 
   var eventTargetAndCoords = this.getTargetAndCoordsFromEvent(evt);
@@ -201,7 +226,7 @@ ParaPara.EraserControls.prototype.eraseFromEvent = function(evt) {
   this.prevY = pt.y;
 }
 
-ParaPara.EraserControls.prototype.getTargetAndCoordsFromEvent = function(evt) {
+ParaPara.EraseControls.prototype.getTargetAndCoordsFromEvent = function(evt) {
   var result = { target: null, x: undefined, y: undefined };
   var elem = null;
 
@@ -243,7 +268,7 @@ ParaPara.EraserControls.prototype.getTargetAndCoordsFromEvent = function(evt) {
   return result;
 }
 
-ParaPara.EraserControls.prototype.getCandidateShapes = function(x, y) {
+ParaPara.EraseControls.prototype.getCandidateShapes = function(x, y) {
   // If this is the first mouse/touch event then just ignore it since if
   // it was on a line we would have got a direct hit already
   // XXX Not sure if this is what we want
@@ -278,7 +303,7 @@ ParaPara.EraserControls.prototype.getCandidateShapes = function(x, y) {
   return hitShapes;
 }
 
-ParaPara.EraserControls.prototype.getLocalCoords = function(x, y, elem) {
+ParaPara.EraseControls.prototype.getLocalCoords = function(x, y, elem) {
   var pt = ParaPara.svgRoot.createSVGPoint();
   pt.x = x;
   pt.y = y;
@@ -401,7 +426,7 @@ function(segment, currentPoint) {
       console.assert(false, "Unexpected path segment type: " +
         segment.pathSegType);
       break;
-    }
+  }
 }
 
 // ----------------------- Brush ---------------------------
@@ -457,19 +482,6 @@ ParaPara.Brush.prototype.setWidth = function(width)
                                    this.points[2], this.points[3]) + this.width;
   }
   this.bbox = null;
-
-  // XXX remove
-  /*
-  var overlays = document.getElementById("overlays");
-  var path = document.createElementNS(ParaPara.SVG_NS, "path");
-  var d = "M" + this.path.slice(0,2).join(" ") +
-          "L" + this.path.slice(2).join(" ") + "Z";
-  path.setAttribute("d", d);
-  path.setAttribute("fill", "none");
-  path.setAttribute("stroke-width", "1");
-  path.setAttribute("stroke", "purple");
-  overlays.appendChild(path);
-  */
 }
 
 ParaPara.Brush.prototype.getDimensions = function(width)
@@ -865,13 +877,7 @@ ParaPara.CurveToSegment.prototype.cut = function(brush) {
                                         transformedBrushBBox))
     return this;
 
-  // Number of steps used to approximate the curve---this is currently set very
-  // low based on empirical testing. Generally most hand-drawn paths seem to end
-  // up being made up of lots of tiny segments. If we adjust the smoothing
-  // algorithm to produce less points we might need to up this to get a more
-  // accurate result.
-  const steps       = 1;
-  var step          = 1.0 / steps;
+  var step          = 1.0 / ParaPara.erasePrecision;
   var startPt       = transformedSegment.getValue(0);
   var intersections = [];
   // XXX Need to rethink this---what if they exactly coincide?
@@ -995,18 +1001,4 @@ ParaPara.CurveToSegment.prototype.getBBox = function() {
 
 ParaPara.CurveToSegment.prototype.toString = function() {
   return "C" + this.points.slice(2).map(ParaPara.fixPrecision).join(" ");
-}
-
-/* Debugging hooks */
-if (Function.prototype.addDebuggingLine !== "function") {
-  addDebuggingLine = function() {};
-}
-if (Function.prototype.addDebuggingPoint !== "function") {
-  addDebuggingPoint = function() {};
-}
-if (Function.prototype.addDebuggingRect !== "function") {
-  addDebuggingRect = function() {};
-}
-if (Function.prototype.addDebuggingBox !== "function") {
-  addDebuggingBox = function() {};
 }

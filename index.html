@@ -5,6 +5,7 @@
     <link rel="stylesheet" href="css/editor.css" type="text/css">
     <script type="text/javascript" src="js/compat.js"></script>
     <script type="text/javascript" src="js/parapara.js"></script>
+    <script type="text/javascript" src="js/eraser.js"></script>
     <script type="text/javascript" src="js/svgClassList.js"></script>
     <script type="text/javascript" src="js/svgslider.js"></script>
     <script type="text/javascript" src="js/editor-ui.js"></script>
@@ -18,45 +19,79 @@
   <body>
     <div class="container">
       <div class="controls">
-        <button type="button" class="image strokeWidthButton">
-          <svg viewBox="-10 -10 20 20" style="width:20px"
-            preserveAspectRatio="xMidYMid slice">
-            <circle r="1.5"/>
-          </svg>
-        </button>
-        <button type="button" class="image strokeWidthButton">
-          <svg viewBox="-10 -10 20 20" style="width:20px"
-            preserveAspectRatio="xMidYMid slice">
-            <circle r="3"/>
-          </svg>
-        </button>
-        <button type="button" class="image strokeWidthButton">
-          <svg viewBox="-10 -10 20 20" style="width:30px"
-            preserveAspectRatio="xMidYMid slice">
-            <circle r="5"/>
-          </svg>
-        </button>
-        <div class="separator">&nbsp;</div>
-        <button type="button" class="image colorButton swell">
+        <button type="button" class="image toolButton swell" id="pencilTool">
           <svg viewBox="-1 -1 22 22">
-            <circle cx="10" cy="10" r="10" fill="red"/>
+            <image xlink:href="img/pencil.svg" width="20" height="20"/>
           </svg>
         </button>
-        <button type="button" class="image colorButton swell">
+        <button type="button" class="image toolButton swell" id="eraserTool">
           <svg viewBox="-1 -1 22 22">
-            <circle cx="10" cy="10" r="10" fill="blue"/>
+            <image xlink:href="img/eraser.svg" width="20" height="20"/>
           </svg>
         </button>
-        <button type="button" class="image colorButton swell">
-          <svg viewBox="-1 -1 22 22">
-            <circle cx="10" cy="10" r="10" fill="orange"/>
-          </svg>
-        </button>
-        <button type="button" class="image colorButton">
-          <svg viewBox="-1 -1 22 22">
-            <circle cx="10" cy="10" r="10" fill="green"/>
-          </svg>
-        </button>
+        <div id="drawControls" style="display:none" class="controlSet">
+          <div class="separator">&nbsp;</div>
+          <button type="button" class="image strokeWidthButton">
+            <svg viewBox="-10 -10 20 20" style="width:20px"
+              preserveAspectRatio="xMidYMid slice">
+              <circle r="1.5"/>
+            </svg>
+          </button>
+          <button type="button" class="image strokeWidthButton">
+            <svg viewBox="-10 -10 20 20" style="width:20px"
+              preserveAspectRatio="xMidYMid slice">
+              <circle r="3"/>
+            </svg>
+          </button>
+          <button type="button" class="image strokeWidthButton">
+            <svg viewBox="-10 -10 20 20" style="width:30px"
+              preserveAspectRatio="xMidYMid slice">
+              <circle r="5"/>
+            </svg>
+          </button>
+          <div class="separator">&nbsp;</div>
+          <button type="button" class="image colorButton swell">
+            <svg viewBox="-1 -1 22 22">
+              <circle cx="10" cy="10" r="10" fill="red"/>
+            </svg>
+          </button>
+          <button type="button" class="image colorButton swell">
+            <svg viewBox="-1 -1 22 22">
+              <circle cx="10" cy="10" r="10" fill="blue"/>
+            </svg>
+          </button>
+          <button type="button" class="image colorButton swell">
+            <svg viewBox="-1 -1 22 22">
+              <circle cx="10" cy="10" r="10" fill="orange"/>
+            </svg>
+          </button>
+          <button type="button" class="image colorButton">
+            <svg viewBox="-1 -1 22 22">
+              <circle cx="10" cy="10" r="10" fill="green"/>
+            </svg>
+          </button>
+        </div>
+        <div id="eraseControls" style="display:none" class="controlSet">
+          <div class="separator">&nbsp;</div>
+          <button type="button" class="image eraseWidthButton">
+            <svg viewBox="-10 -10 20 20" style="width:20px"
+              preserveAspectRatio="xMidYMid slice">
+              <circle r="1.5" class="eraseOutline"/>
+            </svg>
+          </button>
+          <button type="button" class="image eraseWidthButton">
+            <svg viewBox="-10 -10 20 20" style="width:20px"
+              preserveAspectRatio="xMidYMid slice">
+              <circle r="3" class="eraseOutline"/>
+            </svg>
+          </button>
+          <button type="button" class="image eraseWidthButton">
+            <svg viewBox="-10 -10 20 20" style="width:30px"
+              preserveAspectRatio="xMidYMid slice">
+              <circle r="6" class="eraseOutline"/>
+            </svg>
+          </button>
+        </div>
       </div>
       <div class="workspace">
         <svg style="width:600px;height:600px" viewBox="0 0 300 300"

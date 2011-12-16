@@ -3,8 +3,10 @@ var EditorUI = EditorUI || {};
 EditorUI.init = function() {
   var svgRoot = document.getElementById("canvas");
   ParaPara.init(svgRoot);
+  EditorUI.initTools();
   EditorUI.initStrokeWidths();
   EditorUI.initColors();
+  EditorUI.initEraseWidths();
   EditorUI.updateLayout();
 }
 window.addEventListener("load", EditorUI.init, false);
@@ -13,6 +15,7 @@ window.addEventListener("load", EditorUI.init, false);
 
 EditorUI.nextFrame = function() {
   ParaPara.addFrame();
+  this.changeTool(document.getElementById("pencilTool"));
 }
 
 EditorUI.finish = function() {
@@ -20,6 +23,34 @@ EditorUI.finish = function() {
   document.getElementById("animControls").style.display = "";
   var speedAdjust = document.getElementById("speedAdjust");
   ParaPara.animate(speedAdjust.value);
+}
+
+// -------------- Tools -----------
+
+EditorUI.initTools = function() {
+  EditorUI.initButtonGroup("toolButton", EditorUI.changeTool, 0);
+}
+
+EditorUI.changeTool = function(button) {
+  var button = EditorUI.selectButtonInGroup(button, "toolButton");
+  if (!button)
+    return;
+
+  var controlSets = document.getElementsByClassName("controlSet");
+  for (var i = 0; i < controlSets.length; i++) {
+    controlSets[i].style.display = "none";
+  }
+  if (button.id == "pencilTool") {
+    ParaPara.setDrawMode();
+    var drawControls = document.getElementById("drawControls");
+    drawControls.style.display = "inline";
+  } else if (button.id ="eraserTool") {
+    ParaPara.setEraseMode();
+    var eraseControls = document.getElementById("eraseControls");
+    eraseControls.style.display = "inline";
+  } else {
+    console.assert("Unknown tool selected");
+  }
 }
 
 // -------------- Stroke width -----------
@@ -60,6 +91,20 @@ EditorUI.getColorFromButton = function(elem) {
   if (!elemsWithAFill.length)
     return "black";
   return elemsWithAFill[0].getAttribute("fill");
+}
+
+// -------------- Erase width -----------
+
+EditorUI.initEraseWidths = function() {
+  EditorUI.initButtonGroup("eraseWidthButton", EditorUI.changeEraseWidth, 1);
+}
+
+EditorUI.changeEraseWidth = function(button) {
+  var button = EditorUI.selectButtonInGroup(button, "eraseWidthButton");
+  if (!button)
+    return;
+  ParaPara.eraseControls.setBrushWidth(
+    EditorUI.getStrokeWidthFromButton(button));
 }
 
 // -------------- Common button handling -----------
