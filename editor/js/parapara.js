@@ -47,6 +47,8 @@ ParaPara.animate = function(fps) {
   ParaPara.animator.makeAnimation();
 }
 
+ParaPara.fixPrecision = function(x) { return x.toFixed(2); }
+
 // -------------------- Canvas event handling --------------------
 
 ParaPara.DrawControls = function() {
@@ -172,14 +174,14 @@ ParaPara.FreehandLine = function(x, y, frame) {
   frame.appendChild(this.polyline);
 
   // Once Bug 629200 lands we should use the PointList API instead
-  this.pts = x + "," + y + " ";
+  this.pts = [x,y].map(ParaPara.fixPrecision).join(",") + " ";
   this.polyline.setAttribute("points", this.pts);
   ParaPara.currentStyle.styleStroke(this.polyline);
 }
 
 ParaPara.FreehandLine.prototype.addPoint = function(x, y) {
   console.assert(this.polyline, "Adding point to finished/cancelled line?")
-  this.pts += x + "," + y + " ";
+  this.pts += [x,y].map(ParaPara.fixPrecision).join(",") + " ";
   this.polyline.setAttribute("points", this.pts);
 }
 
@@ -206,6 +208,8 @@ ParaPara.FreehandLine.prototype.createPathFromPoints = function(points) {
   var path = document.createElementNS(ParaPara.SVG_NS, "path");
   ParaPara.currentStyle.styleStroke(path);
 
+  const fixPrecision = ParaPara.fixPrecision;
+
   // XXX The following code is straight from SVG edit.
   // See if I can do a better job along the lines of:
   //   http://stackoverflow.com/questions/6621518/how-to-smooth-a-freehand-drawn-svg-path
@@ -213,7 +217,7 @@ ParaPara.FreehandLine.prototype.createPathFromPoints = function(points) {
   if (N > 4) {
     var curpos = points.getItem(0), prevCtlPt = null;
     var d = [];
-    d.push(["M",curpos.x,",",curpos.y," C"].join(""));
+    d.push("M" + [curpos.x,curpos.y].map(fixPrecision).join(",") + "C");
     for (var i = 1; i <= (N-4); i += 3) {
       var ct1 = points.getItem(i);
       var ct2 = points.getItem(i+1);
@@ -224,13 +228,14 @@ ParaPara.FreehandLine.prototype.createPathFromPoints = function(points) {
         var newpts = this.smoothControlPoints( prevCtlPt, ct1, curpos );
         if (newpts && newpts.length == 2) {
           var prevArr = d[d.length-1].split(',');
-          prevArr[2] = newpts[0].x;
-          prevArr[3] = newpts[0].y;
+          prevArr[2] = fixPrecision(newpts[0].x);
+          prevArr[3] = fixPrecision(newpts[0].y);
           d[d.length-1] = prevArr.join(',');
           ct1 = newpts[1];
         }
       }
-      d.push([ct1.x,ct1.y,ct2.x,ct2.y,end.x,end.y].join(','));
+      d.push(
+        [ct1.x,ct1.y,ct2.x,ct2.y,end.x,end.y].map(fixPrecision).join(','));
       curpos = end;
       prevCtlPt = ct2;
     }
@@ -238,7 +243,7 @@ ParaPara.FreehandLine.prototype.createPathFromPoints = function(points) {
     d.push("L");
     for(;i < N;++i) {
       var pt = points.getItem(i);
-      d.push([pt.x,pt.y].join(","));
+      d.push([pt.x,pt.y].map(fixPrecision).join(","));
     }
     d = d.join(" ");
 
@@ -247,10 +252,13 @@ ParaPara.FreehandLine.prototype.createPathFromPoints = function(points) {
   } else {
     console.assert(points.length >= 2, "Expected at least two points");
     // XXX For now just do fixed line segments
-    var d = "M" + points.getItem(0).x + "," + points.getItem(0).y + "L";
+    var d =
+      "M" +
+      [points.getItem(0).x,points.getItem(0).y].map(fixPrecision).join(",") +
+      "L";
     for (var i = 1; i < N; ++i) {
       var pt = points.getItem(i);
-      d += pt.x + "," + pt.y + " ";
+      d += [pt.x,pt.y].map(fixPrecision).join(",") + " ";
     }
     path.setAttribute("d", d);
   }
