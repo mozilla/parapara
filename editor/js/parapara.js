@@ -81,10 +81,11 @@ ParaPara.send = function(successCallback, failureCallback, title, author) {
   // Event listeners
   req.addEventListener("load",
     function(evt) {
-      if (evt.status == 200) {
+      var xhr = evt.target;
+      if (xhr.status == 200) {
         successCallback();
       } else {
-        console.debug(evt);
+        console.debug(xhr);
         failureCallback(ParaPara.SEND_ERROR_NO_ACCESS);
       }
     }, false);
