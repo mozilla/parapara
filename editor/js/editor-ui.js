@@ -25,6 +25,65 @@ EditorUI.finish = function() {
   ParaPara.animate(speedAdjust.value);
 }
 
+EditorUI.send = function() {
+  // XXX disable animControls
+  // XXX display some sort of spinner
+  // XXX get title and author
+  var title  = "タイトル";
+  var author = "名前";
+  ParaPara.send(EditorUI.sendSuccess, EditorUI.sendFail, title, author);
+}
+
+EditorUI.sendSuccess = function() {
+  console.log("Send succeeded");
+  // XXX Display success message that fades away
+  document.getElementById("animControls").style.display = "none";
+  // XXX Re-enable animControls
+  EditorUI.reset();
+}
+
+EditorUI.sendFail = function(code) {
+  switch (code) {
+    case ParaPara.SEND_ERROR_NO_ANIMATION:
+      // XXX Message to user?
+      console.log("No animation");
+      break;
+
+    case ParaPara.SEND_ERROR_TIMEOUT:
+      // XXX Prompt to re-try
+      console.log("Timeout");
+      break;
+
+    case ParaPara.SEND_ERROR_FAILED_SEND:
+      // XXX Give up
+      console.log("Failed to send");
+      break;
+
+    case ParaPara.SEND_ERROR_NO_ACCESS:
+      // XXX Prompt to retry
+      console.log("No access");
+      break;
+
+    case ParaPara.SEND_ERROR_SERVER_ERROR:
+      // XXX Prompt to retry
+      console.log("Server error");
+      break;
+
+    default:
+      console.log("Unknown error");
+      break;
+  }
+  // XXX Display failure message that stays
+  // XXX Re-enable animControls
+}
+
+EditorUI.reset = function() {
+  document.getElementById("frameControls").style.display = "";
+  // XXX Clear canvas
+  // XXX Reset tool state? At very least, make sure the pencil is selected
+  //     Probably should reset the speed dial too
+}
+
 // -------------- Tools -----------
 
 EditorUI.initTools = function() {
