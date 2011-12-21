@@ -3,7 +3,7 @@ var ParaPara = ParaPara || {};
 ParaPara.SVG_NS   = "http://www.w3.org/2000/svg";
 ParaPara.XLINK_NS = "http://www.w3.org/1999/xlink";
 
-ParaPara.XHR_TIMEOUT = 800;
+ParaPara.XHR_TIMEOUT = 8000;
 ParaPara.UPLOAD_PATH = "../api/upload_anim.php";
 
 // Return codes for sending animation
@@ -21,6 +21,11 @@ ParaPara.init = function(svgRoot) {
   ParaPara.frames        = new ParaPara.FrameList();
   ParaPara.currentStyle  = new ParaPara.Style();
   ParaPara.currentTool   = null;
+}
+
+ParaPara.reset = function(svgRoot) {
+  ParaPara.frames.clearFrames();
+  ParaPara.init(ParaPara.svgRoot);
 }
 
 ParaPara.addFrame = function() {
@@ -59,6 +64,7 @@ ParaPara.animate = function(fps) {
 }
 
 ParaPara.send = function(successCallback, failureCallback, title, author) {
+  // Export animation
   console.assert(ParaPara.animator, "No animator found");
   var anim = ParaPara.animator.exportAnimation(title, author);
   if (!anim) {
@@ -66,15 +72,17 @@ ParaPara.send = function(successCallback, failureCallback, title, author) {
     return;
   }
 
+  // Prepare payload
   var serializer = new XMLSerializer();
   var serializedAnim = serializer.serializeToString(anim);
   var payload =
     JSON.stringify({ title: title, author: author, svg: serializedAnim });
 
+  // Create request
   var req = new XMLHttpRequest();
   req.open("POST", ParaPara.UPLOAD_PATH, true);
 
-  // Headers
+  // Set headers
   req.setRequestHeader("Content-Length", payload.length);
   req.setRequestHeader("Content-Type", "application/json");
 
@@ -429,6 +437,18 @@ ParaPara.FrameList.prototype.addFrame = function() {
   this.currentFrame = g;
 }
 
+ParaPara.FrameList.prototype.getFrames = function() {
+  var scene = ParaPara.svgRoot.ownerDocument.getElementById("anim");
+  return scene.getElementsByClassName("frame");
+}
+
+ParaPara.FrameList.prototype.clearFrames = function() {
+  var scene = ParaPara.svgRoot.ownerDocument.getElementById("anim");
+  while (scene.hasChildNodes()) {
+    scene.removeChild(scene.lastChild);
+  }
+}
+
 // -------------------- Animator --------------------
 
 ParaPara.Animator = function(fps) {
@@ -436,8 +456,7 @@ ParaPara.Animator = function(fps) {
 }
 
 ParaPara.Animator.prototype.makeAnimation = function() {
-  var scene = ParaPara.svgRoot.ownerDocument.getElementById("anim");
-  var frames = scene.getElementsByClassName("frame");
+  var frames = ParaPara.frames.getFrames();
   var lastId = "";
 
   // XXX If performance becomes an issue we might get some speed by making
@@ -516,8 +535,7 @@ ParaPara.Animator.prototype.exportAnimation = function(title, author) {
   var maxX = maxY = Number.NEGATIVE_INFINITY;
 
   // Copy frames to new doc
-  var scene = ParaPara.svgRoot.ownerDocument.getElementById("anim");
-  var frames = scene.getElementsByClassName("frame");
+  var frames = ParaPara.frames.getFrames();
   if (!frames.length)
     return null;
 
