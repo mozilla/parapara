@@ -1,15 +1,23 @@
 var EditorUI = EditorUI || {};
 
+EditorUI.INITIAL_SPEED_FPS = 3.3;
+
 EditorUI.init = function() {
   var svgRoot = document.getElementById("canvas");
   ParaPara.init(svgRoot);
+  EditorUI.initControls();
+  EditorUI.updateLayout();
+}
+window.addEventListener("load", EditorUI.init, false);
+
+EditorUI.initControls = function() {
   EditorUI.initTools();
   EditorUI.initStrokeWidths();
   EditorUI.initColors();
   EditorUI.initEraseWidths();
-  EditorUI.updateLayout();
+  var speedAdjust = document.getElementById("speedAdjust");
+  speedAdjust.value = EditorUI.INITIAL_SPEED_FPS;
 }
-window.addEventListener("load", EditorUI.init, false);
 
 // -------------- Navigation -----------
 
@@ -25,63 +33,105 @@ EditorUI.finish = function() {
   ParaPara.animate(speedAdjust.value);
 }
 
+EditorUI.reset = function() {
+  document.getElementById("frameControls").style.display = "";
+  document.getElementById("animControls").style.display = "none";
+  ParaPara.reset();
+  EditorUI.initControls();
+}
+
+// -------------- Sending -----------
+
 EditorUI.send = function() {
-  // XXX disable animControls
-  // XXX display some sort of spinner
-  // XXX get title and author
+  EditorUI.displayNote("noteSending");
+  // XXX get title and author -- leaving this until we have a design for this
   var title  = "タイトル";
   var author = "名前";
   ParaPara.send(EditorUI.sendSuccess, EditorUI.sendFail, title, author);
 }
 
 EditorUI.sendSuccess = function() {
-  console.log("Send succeeded");
-  // XXX Display success message that fades away
+  EditorUI.displayNote("noteSendingComplete");
+  EditorUI.fadeNote();
   document.getElementById("animControls").style.display = "none";
-  // XXX Re-enable animControls
   EditorUI.reset();
 }
 
 EditorUI.sendFail = function(code) {
   switch (code) {
     case ParaPara.SEND_ERROR_NO_ANIMATION:
-      // XXX Message to user?
-      console.log("No animation");
+      EditorUI.displayNote("noteNoAnimation");
+      console.debug("No animation to send");
       break;
 
     case ParaPara.SEND_ERROR_TIMEOUT:
-      // XXX Prompt to re-try
-      console.log("Timeout");
+      EditorUI.displayNote("noteSendingFailed");
+      console.debug("Timed out sending animation");
       break;
 
     case ParaPara.SEND_ERROR_FAILED_SEND:
-      // XXX Give up
-      console.log("Failed to send");
+      EditorUI.displayNote("noteSendingFailedFatal");
+      console.debug("Failed to send animation");
       break;
 
     case ParaPara.SEND_ERROR_NO_ACCESS:
-      // XXX Prompt to retry
-      console.log("No access");
+      EditorUI.displayNote("noteSendingFailed");
+      console.debug("No access to remote server");
       break;
 
     case ParaPara.SEND_ERROR_SERVER_ERROR:
-      // XXX Prompt to retry
-      console.log("Server error");
+      EditorUI.displayNote("noteSendingFailed");
+      console.debug("Server error");
       break;
 
     default:
-      console.log("Unknown error");
+      EditorUI.displayNote("noteSendingFailed");
+      console.debug("Unknown error");
       break;
   }
-  // XXX Display failure message that stays
-  // XXX Re-enable animControls
 }
 
-EditorUI.reset = function() {
-  document.getElementById("frameControls").style.display = "";
-  // XXX Clear canvas
-  // XXX Reset tool state? At very least, make sure the pencil is selected
-  //     Probably should reset the speed dial too
+EditorUI.cancelSend = function() {
+  EditorUI.clearNote();
+  EditorUI.reset();
+}
+
+// -------------- Error messages -----------
+
+EditorUI.displayNote = function(id) {
+  var notes = document.getElementsByClassName("overlay-contents");
+  for (var i = 0; i < notes.length; ++i) {
+    var note = notes[i];
+    note.style.display = note.id == id ? "block" : "none";
+  }
+  var overlay = document.getElementById("overlay");
+  overlay.style.display = "";
+}
+
+EditorUI.clearNote = function() {
+  var overlay = document.getElementById("overlay");
+  overlay.style.display = "none";
+}
+
+EditorUI.fadeNote = function() {
+  var notes = document.getElementsByClassName("overlay-contents");
+  var currentNote = null;
+  for (var i = 0; i < notes.length; ++i) {
+    var note = notes[i];
+    if (note.style.display !== "none") {
+      currentNote = note;
+      break;
+    }
+  }
+  if (!currentNote)
+    return;
+  currentNote.classList.add("fadeOut");
+  currentNote.addEventListener("animationend", EditorUI.finishFade, false);
+}
+
+EditorUI.finishFade = function(evt) {
+  evt.target.classList.remove("fadeOut");
+  EditorUI.clearNote();
 }
 
 // -------------- Tools -----------
@@ -90,8 +140,8 @@ EditorUI.initTools = function() {
   EditorUI.initButtonGroup("toolButton", EditorUI.changeTool, 0);
 }
 
-EditorUI.changeTool = function(button) {
-  var button = EditorUI.selectButtonInGroup(button, "toolButton");
+EditorUI.changeTool = function(buttonOrEvent) {
+  var button = EditorUI.selectButtonInGroup(buttonOrEvent, "toolButton");
   if (!button)
     return;
 
@@ -118,8 +168,8 @@ EditorUI.initStrokeWidths = function() {
   EditorUI.initButtonGroup("strokeWidthButton", EditorUI.changeStrokeWidth, 1);
 }
 
-EditorUI.changeStrokeWidth = function(button) {
-  var button = EditorUI.selectButtonInGroup(button, "strokeWidthButton");
+EditorUI.changeStrokeWidth = function(buttonOrEvent) {
+  var button = EditorUI.selectButtonInGroup(buttonOrEvent, "strokeWidthButton");
   if (!button)
     return;
   ParaPara.currentStyle.strokeWidth = EditorUI.getStrokeWidthFromButton(button);
@@ -138,8 +188,8 @@ EditorUI.initColors = function() {
   EditorUI.initButtonGroup("colorButton", EditorUI.changeColor, 0);
 }
 
-EditorUI.changeColor = function(button) {
-  var button = EditorUI.selectButtonInGroup(button, "colorButton");
+EditorUI.changeColor = function(buttonOrEvent) {
+  var button = EditorUI.selectButtonInGroup(buttonOrEvent, "colorButton");
   if (!button)
     return;
   ParaPara.currentStyle.currentColor = EditorUI.getColorFromButton(button);
@@ -158,8 +208,8 @@ EditorUI.initEraseWidths = function() {
   EditorUI.initButtonGroup("eraseWidthButton", EditorUI.changeEraseWidth, 1);
 }
 
-EditorUI.changeEraseWidth = function(button) {
-  var button = EditorUI.selectButtonInGroup(button, "eraseWidthButton");
+EditorUI.changeEraseWidth = function(buttonOrEvent) {
+  var button = EditorUI.selectButtonInGroup(buttonOrEvent, "eraseWidthButton");
   if (!button)
     return;
   ParaPara.eraseControls.setBrushWidth(
@@ -172,8 +222,9 @@ EditorUI.initButtonGroup = function(className, handler, selectedIndex) {
   var buttons = document.getElementsByClassName(className);
   for (var i = 0; i < buttons.length; i++) {
     var button = buttons[i];
-    button.addEventListener("click",
-      function(evt) { handler(evt.target); }, false);
+    // addEventListener detects and ignores attempts to register the same event
+    // listener twice (so long as we're not using an anonymous function)
+    button.addEventListener("click", handler, false);
   }
   if (selectedIndex <= buttons.length - 1) {
     handler(buttons[selectedIndex]);
@@ -182,6 +233,8 @@ EditorUI.initButtonGroup = function(className, handler, selectedIndex) {
 
 EditorUI.selectButtonInGroup = function(evtTarget, className) {
   var button;
+  if (evtTarget instanceof Event)
+    evtTarget = evtTarget.target;
   for (button = evtTarget;
        button && button.tagName != "BUTTON";
        button = button.parentNode);

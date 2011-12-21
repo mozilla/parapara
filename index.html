@@ -110,10 +110,38 @@
             onclick="EditorUI.finish()">おわる</button>
         </div>
         <div id="animControls" style="display:none">
-          <input type="range" min="0.65" max="12.5" value="3.3" step="0.2"
+          <input type="range" min="0.65" max="12.5" step="0.2"
             onchange="EditorUI.changeSpeed(this.value)" id="speedAdjust"/>
           <button type="button" class="text right"
             onclick="EditorUI.send()">おくる</button>
+        </div>
+      </div>
+      <div class="overlay" id="overlay" style="display:none">
+        <div class="overlay-inner">
+          <div class="overlay-contents" id="noteSending">
+            送信中<br/><br/>
+            <img src="img/loader.gif" width="43" height="11" alt="送信中">
+          </div>
+          <div class="overlay-contents error" id="noteSendingFailed">
+            送信失敗しました<br/><br/>
+            <button type="button" class="text"
+              onclick="EditorUI.cancelSend()">キャンセル</button>
+            <button type="button" class="text"
+              onclick="EditorUI.send()">再送信</button>
+          </div>
+          <div class="overlay-contents error" id="noteSendingFailedFatal">
+            送信失敗しました<br/><br/>
+            <button type="button" class="text"
+              onclick="EditorUI.cancelSend()">OK</button>
+          </div>
+          <div class="overlay-contents" id="noteSendingComplete">
+            送信しました！
+          </div>
+          <div class="overlay-contents error" id="noteNoAnimation">
+            アニメーションは見つけませんでした<br/><br/>
+            <button type="button" class="text"
+              onclick="EditorUI.cancelSend()">OK</button>
+          </div>
         </div>
       </div>
     </div>
