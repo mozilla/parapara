@@ -4,9 +4,7 @@ ParaPara.SVG_NS   = "http://www.w3.org/2000/svg";
 ParaPara.XLINK_NS = "http://www.w3.org/1999/xlink";
 
 ParaPara.XHR_TIMEOUT = 800;
-// XXX restore this
-// ParaPara.UPLOAD_PATH = "../api/upload_anim.php";
-ParaPara.UPLOAD_PATH = "http://parapara.mozlabs.jp/api/upload_anim.php";
+ParaPara.UPLOAD_PATH = "../api/upload_anim.php";
 
 // Return codes for sending animation
 ParaPara.SEND_OK                 = 0;
