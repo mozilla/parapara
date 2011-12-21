@@ -3,6 +3,19 @@ var ParaPara = ParaPara || {};
 ParaPara.SVG_NS   = "http://www.w3.org/2000/svg";
 ParaPara.XLINK_NS = "http://www.w3.org/1999/xlink";
 
+ParaPara.XHR_TIMEOUT = 800;
+// XXX restore this
+// ParaPara.UPLOAD_PATH = "../api/upload_anim.php";
+ParaPara.UPLOAD_PATH = "http://parapara.mozlabs.jp/api/upload_anim.php";
+
+// Return codes for sending animation
+ParaPara.SEND_OK                 = 0;
+ParaPara.SEND_ERROR_NO_ANIMATION = 1;
+ParaPara.SEND_ERROR_TIMEOUT      = 2;
+ParaPara.SEND_ERROR_FAILED_SEND  = 3;
+ParaPara.SEND_ERROR_NO_ACCESS    = 4; // 404, cross-domain etc.
+ParaPara.SEND_ERROR_SERVER_ERROR = 5; // Server rejects request
+
 ParaPara.init = function(svgRoot) {
   ParaPara.svgRoot = svgRoot;
   ParaPara.drawControls  = new ParaPara.DrawControls();
@@ -45,6 +58,62 @@ ParaPara.animate = function(fps) {
   }
   ParaPara.animator = new ParaPara.Animator(fps);
   ParaPara.animator.makeAnimation();
+}
+
+ParaPara.send = function(successCallback, failureCallback, title, author) {
+  console.assert(ParaPara.animator, "No animator found");
+  var anim = ParaPara.animator.exportAnimation(title, author);
+  if (!anim) {
+    failureCallback(ParaPara.SEND_ERROR_NO_ANIMATION);
+    return;
+  }
+
+  var serializer = new XMLSerializer();
+  var serializedAnim = serializer.serializeToString(anim);
+  var payload =
+    JSON.stringify({ title: title, author: author, svg: serializedAnim });
+
+  var req = new XMLHttpRequest();
+  req.open("POST", ParaPara.UPLOAD_PATH, true);
+
+  // Headers
+  req.setRequestHeader("Content-Length", payload.length);
+  req.setRequestHeader("Content-Type", "application/json");
+
+  // Event listeners
+  req.addEventListener("load",
+    function(evt) {
+      if (evt.status == 200) {
+        successCallback();
+      } else {
+        console.debug(evt);
+        failureCallback(ParaPara.SEND_ERROR_NO_ACCESS);
+      }
+    }, false);
+  req.addEventListener("error",
+    function(evt) {
+      failureCallback(ParaPara.SEND_ERROR_NO_ACCESS);
+    }, false);
+
+  // Send away
+  try {
+    req.send(payload);
+  } catch (e) {
+    console.debug(e);
+    failureCallback(ParaPara.SEND_ERROR_FAILED_SEND);
+    return;
+  }
+
+  // Add timeout
+  window.setTimeout(
+    function() {
+      if (req.readyState != 4) {
+        req.abort();
+        failureCallback(ParaPara.SEND_ERROR_TIMEOUT);
+      }
+    },
+    ParaPara.XHR_TIMEOUT
+  );
 }
 
 ParaPara.fixPrecision = function(x) { return x.toFixed(2); }
@@ -376,18 +445,27 @@ ParaPara.Animator.prototype.makeAnimation = function() {
   // each animation an independent infinitely repeating animation (with
   // appropriate use of values and keyTimes)
 
-  // XXX Special case handling for a single frame (or better still--a single
-  // non-empty frame)
-  for (var i = 0; i < frames.length; ++i) {
+  // Drop final empty frames
+  var framesLength = frames.length;
+  for (var i = framesLength - 1;
+       i >= 0 && frames[i].childNodes.length == 0;
+       --i)
+  {
+    var frame = frames[i];
+    if (frame.childNodes.length > 0)
+      break;
+    frame.parentNode.removeChild(frame);
+    --framesLength;
+  }
+
+  if (framesLength < 2)
+    return;
+
+  for (var i = 0; i < framesLength; ++i) {
     var frame = frames[i];
 
     frame.classList.remove("oldFrame");
     frame.setAttribute("visibility", "hidden");
-
-    // Skip empty frames
-    // XXX Should we only do this if they are at the end??
-    if (frame.childNodes.length == 0)
-      continue;
 
     // Add an animation
     var anim = document.createElementNS(ParaPara.SVG_NS, "set");
@@ -404,13 +482,80 @@ ParaPara.Animator.prototype.makeAnimation = function() {
   }
 
   // Make the first animation get triggered by the last
-  if (frames.length) {
+  if (framesLength) {
     var firstAnim = frames[0].getElementsByTagName("set")[0];
     firstAnim.setAttribute("begin", "0; " + lastId + ".end");
   }
 
   // Trigger animation
   ParaPara.svgRoot.setCurrentTime(0);
+}
+
+ParaPara.Animator.prototype.exportAnimation = function(title, author) {
+  // Create doc
+  var doc =
+    document.implementation.createDocument(ParaPara.SVG_NS, "svg", null);
+  var svg = doc.documentElement;
+  svg.setAttribute("width", "100%");
+  svg.setAttribute("height", "100%");
+
+  // Add metadata
+  if (title) {
+    var titleElem = doc.createElementNS(ParaPara.SVG_NS, "title");
+    titleElem.appendChild(doc.createTextNode(title));
+    svg.appendChild(titleElem);
+  }
+  if (author) {
+    var descElem = doc.createElementNS(ParaPara.SVG_NS, "desc");
+    var desc = author + "さんより"; // What should go here?
+    descElem.appendChild(doc.createTextNode(desc));
+    svg.appendChild(descElem);
+  }
+
+  // Set up bounds of animation
+  var minX = minY = Number.POSITIVE_INFINITY;
+  var maxX = maxY = Number.NEGATIVE_INFINITY;
+
+  // Copy frames to new doc
+  var scene = ParaPara.svgRoot.ownerDocument.getElementById("anim");
+  var frames = scene.getElementsByClassName("frame");
+  if (!frames.length)
+    return null;
+
+  for (var i = 0; i < frames.length; ++i) {
+    var frame = frames[i];
+    console.assert(frame.childNodes.length,
+      "Empty frames should have already been dropped");
+
+    // We really should extend this by the stroke width... but that's kind of
+    // complicated. Or we could just wait for SVG 2 ;)
+    var bbox = frame.getBBox();
+    minX = Math.floor(Math.min(minX, bbox.x));
+    maxX = Math.ceil(Math.max(maxX, bbox.x + bbox.width));
+    minY = Math.floor(Math.min(minY, bbox.y));
+    maxY = Math.ceil(Math.max(maxY, bbox.y + bbox.height));
+    // Currently we leave the minY/maxY at their current values. This way, if
+    // for example, we have some ground in the background of the editor, the
+    // author can line up their animation vertically with the ground.
+
+    svg.appendChild(doc.importNode(frame, true));
+  }
+
+  // Bound viewBox of animation by parent viewBox
+  var parentViewBox = ParaPara.svgRoot.getAttribute("viewBox");
+  console.assert(parentViewBox, "No parent viewBox");
+  var parentViewBox = parentViewBox.split(" ");
+  var minX = Math.max(minX, parentViewBox[0]);
+  var maxX = Math.min(maxX, parentViewBox[0] + parentViewBox[2]);
+  // Currently we set the y coordinates of the viewBox to those of the editor
+  // workspace. This way, if for example, we have some ground in the background
+  // of the editor, the author can line up their animation vertically with the
+  // ground.
+  var minY = parentViewBox[1];
+  var maxY = parentViewBox[1] + parentViewBox[3];
+  svg.setAttribute("viewBox", [minX, minY, maxX-minX, maxY-minY].join(" "));
+
+  return doc;
 }
 
 ParaPara.Animator.prototype.setSpeed = function(fps) {
