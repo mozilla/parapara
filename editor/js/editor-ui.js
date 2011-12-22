@@ -6,6 +6,10 @@ EditorUI.init = function() {
   var svgRoot = document.getElementById("canvas");
   ParaPara.init(svgRoot);
   EditorUI.initControls();
+  // Disabling full-screen mode for now since:
+  // a) there's no UI for it for tablets
+  // b) it prevents our overlays from appearing
+  /*
   var elem = document.getElementById("container");
   if (elem.requestFullScreen) {
     elem.requestFullScreen();
@@ -14,6 +18,7 @@ EditorUI.init = function() {
   } else if (elem.webkitRequestFullScreen) {
     elem.webkitRequestFullScreen();
   }
+  */
   EditorUI.updateLayout();
 }
 window.addEventListener("load", EditorUI.init, false);
@@ -285,8 +290,7 @@ EditorUI.updateLayout = function() {
   }
   var availHeight = window.innerHeight - controlsHeight;
   var availWidth  = window.innerWidth - controlsWidth;
-  // The minus 8 is a fudge factor to get rid of scrollbars
-  var maxDim = Math.min(availHeight, availWidth) - 8;
+  var maxDim = Math.min(availHeight, availWidth);
 
   // Set the SVG canvas size explicitly. This is mostly for WebKit
   // compatibility. Otherwise we could just set the <svg> width/height to

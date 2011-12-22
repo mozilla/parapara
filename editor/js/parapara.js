@@ -140,13 +140,15 @@ ParaPara.DrawControls = function() {
 }
 
 ParaPara.DrawControls.prototype.enable = function() {
-  ParaPara.svgRoot.addEventListener("mousedown", this.mouseDownHandler);
-  ParaPara.svgRoot.addEventListener("mousemove", this.mouseMoveHandler);
-  ParaPara.svgRoot.addEventListener("mouseup", this.mouseUpHandler);
-  ParaPara.svgRoot.addEventListener("touchstart", this.touchStartHandler);
-  ParaPara.svgRoot.addEventListener("touchmove", this.touchMoveHandler);
-  ParaPara.svgRoot.addEventListener("touchend", this.touchEndHandler);
-  ParaPara.svgRoot.addEventListener("touchcancel", this.touchCancelHandler);
+  ParaPara.svgRoot.addEventListener("mousedown", this.mouseDownHandler, false);
+  ParaPara.svgRoot.addEventListener("mousemove", this.mouseMoveHandler, false);
+  ParaPara.svgRoot.addEventListener("mouseup", this.mouseUpHandler, false);
+  ParaPara.svgRoot.addEventListener("touchstart", this.touchStartHandler,
+                                    false);
+  ParaPara.svgRoot.addEventListener("touchmove", this.touchMoveHandler, false);
+  ParaPara.svgRoot.addEventListener("touchend", this.touchEndHandler, false);
+  ParaPara.svgRoot.addEventListener("touchcancel", this.touchCancelHandler,
+                                    false);
 }
 
 ParaPara.DrawControls.prototype.disable = function() {
@@ -155,13 +157,18 @@ ParaPara.DrawControls.prototype.disable = function() {
   // catch and ignore all events on this canvas (preventDefault) to avoid
   // surprises (e.g. it's probably somewhat counterintuitive if default actions
   // like scrolling suddenly start working).
-  ParaPara.svgRoot.removeEventListener("mousedown", this.mouseDownHandler);
-  ParaPara.svgRoot.removeEventListener("mousemove", this.mouseMoveHandler);
-  ParaPara.svgRoot.removeEventListener("mouseup", this.mouseUpHandler);
-  ParaPara.svgRoot.removeEventListener("touchstart", this.touchStartHandler);
-  ParaPara.svgRoot.removeEventListener("touchmove", this.touchMoveHandler);
-  ParaPara.svgRoot.removeEventListener("touchend", this.touchEndHandler);
-  ParaPara.svgRoot.removeEventListener("touchcancel", this.touchCancelHandler);
+  ParaPara.svgRoot.removeEventListener("mousedown", this.mouseDownHandler,
+                                       false);
+  ParaPara.svgRoot.removeEventListener("mousemove", this.mouseMoveHandler,
+                                       false);
+  ParaPara.svgRoot.removeEventListener("mouseup", this.mouseUpHandler, false);
+  ParaPara.svgRoot.removeEventListener("touchstart", this.touchStartHandler,
+                                       false);
+  ParaPara.svgRoot.removeEventListener("touchmove", this.touchMoveHandler,
+                                       false);
+  ParaPara.svgRoot.removeEventListener("touchend", this.touchEndHandler, false);
+  ParaPara.svgRoot.removeEventListener("touchcancel", this.touchCancelHandler,
+                                       false);
 }
 
 ParaPara.DrawControls.prototype.mouseDown = function(evt) {
