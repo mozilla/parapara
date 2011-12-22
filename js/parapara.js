@@ -551,9 +551,6 @@ ParaPara.Animator.prototype.exportAnimation = function(title, author) {
     maxX = Math.ceil(Math.max(maxX, bbox.x + bbox.width));
     minY = Math.floor(Math.min(minY, bbox.y));
     maxY = Math.ceil(Math.max(maxY, bbox.y + bbox.height));
-    // Currently we leave the minY/maxY at their current values. This way, if
-    // for example, we have some ground in the background of the editor, the
-    // author can line up their animation vertically with the ground.
 
     svg.appendChild(doc.importNode(frame, true));
   }
