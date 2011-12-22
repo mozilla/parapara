@@ -6,6 +6,14 @@ EditorUI.init = function() {
   var svgRoot = document.getElementById("canvas");
   ParaPara.init(svgRoot);
   EditorUI.initControls();
+  var elem = document.getElementById("container");
+  if (elem.requestFullScreen) {
+    elem.requestFullScreen();
+  } else if (elem.mozRequestFullScreen) {
+    elem.mozRequestFullScreen();
+  } else if (elem.webkitRequestFullScreen) {
+    elem.webkitRequestFullScreen();
+  }
   EditorUI.updateLayout();
 }
 window.addEventListener("load", EditorUI.init, false);

@@ -7,6 +7,7 @@ div.container {
   display: table;
   position: absolute;
   left: 0; top: 0; width: 100%; height: 100%;
+  background: white; /* Needed for when we go full-screen */
 }
 div.container {
   display: table-row;
