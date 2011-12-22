@@ -753,19 +753,40 @@ ParaPara.CurveToSegment.prototype.cut = function(brush) {
   var transformedSegment =
     new CurveToSegment(brush.transformPoints(this.points));
 
+  // Special handling for short segments
+  //
+  // If a straight-line approximation of this segment is shorter than the
+  // brush-width and the bboxes intersect at all, just drop it outright, don't
+  // bother cutting it.
+  //
+  // This costs us some accuracy but it's hardly noticeable when you're using
+  // your finger anyway, and it gives us at least a 10% speedup, sometimes more.
+  var brushDimensions      = brush.getDimensions();
+  var transformedBrushBBox = { x: 0, y: 0,
+                               width: brushDimensions.length,
+                               height: brushDimensions.width };
+  var approxLineLength     = lineLength(this.points[0], this.points[1],
+                                        this.points[6], this.points[7]);
+  if (approxLineLength < brush.width * 0.75) {
+    var approxTransformedSeg =
+      [ transformedSegment.points[0], transformedSegment.points[1],
+        transformedSegment.points[6], transformedSegment.points[7]];
+    return ParaPara.Geometry.intersectsWithZeroedRect(approxTransformedSeg,
+                                                      transformedBrushBBox)
+           ? new MoveToSegment(this.points.slice(6))
+           : this;
+  }
+
   // See if the segment is fully contained in the brush outline
-  // (XXXperf This isn't strictly necessary since we can detect fully contained
+  //
+  // This isn't strictly necessary since we can detect fully contained
   // path below---i.e. a segment that starts inside and doesn't have any
-  // intersections must be fully contained---but this *might* be faster. It
-  // needs testing but a fully contained segment is actually pretty common when
-  // you have paths with lots of small points and a big brush.)
+  // intersections must be fully contained---but it's fractionally faster to do
+  // this check upfront.
+  //
   // (XXXperf Try with a tight bbox and see if the cost of computing the bbox
   // pays off)
   var transformedSegmentBBox = transformedSegment.getBBox();
-  var brushDimensions        = brush.getDimensions();
-  var transformedBrushBBox   = { x: 0, y: 0,
-                                 width: brushDimensions.length,
-                                 height: brushDimensions.width };
   if (ParaPara.Geometry.rectContainsRect(transformedBrushBBox,
                                          transformedSegmentBBox))
     return new MoveToSegment(this.points.slice(6));
