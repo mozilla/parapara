@@ -25,7 +25,9 @@ var Main = {
 		Main.planet = processing.loadImage("images/planet.png");
 		Main.planet_angle = 0;
 
+		Main.characters_canvas = $("#characters-canvas");
 		Main.loadAllCharactersBeforeRestart(function() {
+			Main.current_x = 0;
 			Main.processing.draw = Main.draw;
 		});
 	},
@@ -41,7 +43,6 @@ var Main = {
 		Main.drawBackground(processing);
 		Main.processing.resetMatrix();
 		Main.drawPlanet(processing);
-		
 		
 		Main.drawCharacters(processing);
 	},
@@ -63,10 +64,21 @@ var Main = {
 	},
 	
 	drawCharacters: function(processing) {
+		Main.current_x += 1;
+		console.log(Main.current_x);
 		for (var i = 0, n = Main.characters.length; i < n; i++) {
 			var character = Main.characters[i];
-			character.angle += 1;
-			character.updateTransform();
+			if (character.x == Main.current_x) {
+		console.log("SHOW");
+				character.angle = -180;
+				character.show(Main.characters_canvas);
+			} else if (character.x < Main.current_x && Main.current_x < character.x+360) {
+				character.angle -= 1;
+				character.updateTransform();
+			} else if (character.x+360 == Main.current_x) {
+		console.log("HIDE");
+				character.hide(Main.characters_canvas);
+			}
 		}
 	},
 	
@@ -81,12 +93,14 @@ var Main = {
 		$.getJSON(url, function(json) {
 			Main.characters = [];
 			var container = $("#characters-canvas");
-//			for (var i = 0, n = json.length; i < n; i++) {
-			for (var i = 0, n = 3; i < n; i++) {
+			for (var i = 0, n = json.length; i < n; i++) {
+//			for (var i = 0, n = 3; i < n; i++) {
 				var characterOfJson = json[i];
+				if (characterOfJson.appearance_x < 0) {
+					continue;
+				}
 				var character = new Character();
 				character.setup(characterOfJson);
-				character.angle = i*50;
 				Main.characters.push(character);
 				container.append(character.ui);
 			}
@@ -100,15 +114,26 @@ function Character() {
 
 Character.prototype = {
 	setup: function(json) {
-		this.angle = 0;
+		this.angle = -180;
 		this.x = json.appearance_x;
 		this.y = json.appearance_y;
+	},
+
+	show: function(parent) {
 		this.ui = $(document.createElement("img"));
 		this.ui.attr("src", "../characters/smiley.svg");
 		this.ui.addClass("character");
+		parent.append(this.ui);
+		this.ui.css("margin-left", (-this.ui.width()/2)+"px");
+		this.updateTransform();
 	},
+	
+	hide: function(parent) {
+		this.ui.remove();
+	},
+	
 	updateTransform: function() {
-		var style = "rotate("+this.angle+"deg) translate(-"+(this.ui.width()/2)+"px, -"+(this.y+this.ui.height())+"px)";
+		var style = "rotate("+this.angle+"deg) translate(0px,"+(-this.y)+"px)";
 		StyleController.transform(this.ui, style);
 	},
 }

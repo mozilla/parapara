@@ -1,0 +1,110 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" 
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg viewBox="0 0 1280 800"
+     xmlns="http://www.w3.org/2000/svg" version="1.1"
+     xmlns:xlink="http://www.w3.org/1999/xlink"
+     onload="Main.init();"
+>
+
+	<script xlink:href="js/jquery-1.7.1.min.js"></script>
+	<script xlink:href="js/main.js"></script>
+	<script>
+		var TYPE = 1;
+	</script>
+
+	<image xlink:href="images/stars.jpg" x="-100%" y="-100%" width="300%" height="300%">
+        <animateTransform attributeName="transform" type="rotate"
+            from="0 640 400" to="360 640 400" repeatCount="indefinite" dur="600s" />
+	</image>
+<!--
+	<g id="main-group" transform="translate(100 100) scale(0.25)" >
+-->
+	<g id="main-group" transform="translate(-640 540)" >
+	        <animateTransform id="planet-rotation" attributeName="transform" type="rotate"
+	            from="0 1280 1280" to="360 1280 1280" repeatCount="indefinite" additive="sum" dur="120s"
+	        />
+
+			<path id="path1" fill="#3BBF00" d="M2106.676,302.726c51.287-38.17,107.085-80.151,139.962-106.279
+				c72.749-57.816,140.792,0.553,172.936,124.504c46.971,181.126,88.239-61.71,25.724-172.804s-218.044,36.705-218.044,36.705
+				l-128.972,110.847C1876.432,111.066,1591.191,0,1280,0C929.151,0,611.288,141.174,380.072,369.795l-11.228-64.528l109.03-106.793
+				L326.79,176.893L258.915,40.199L191.704,177.22L40.725,199.531L150.27,305.796l-25.436,150.483l134.915-71.346l70.564,36.88
+				C125.03,648.844,0,949.816,0,1280c0,275.9,87.294,531.41,235.765,740.424L66.347,2189.842l308.097,308.097l170.168-170.168
+				C752.689,2474.081,1006.306,2560,1280,2560c353.423,0,568.659-97.982,800.287-329.572c11.963-11.961-102.867-290.802-91.384-303.226
+				c18.903-20.452,291.688,124.88,309.24,103.226C2476.433,1810.468,2560,1585.202,2560,1280
+				C2560,888.201,2383.965,537.521,2106.676,302.726z"/>
+
+	<!--
+	<image xlink:href="smiley.svg" width="100" height="100"
+  transform="translate(-80 -80)">
+		<animateMotion dur="50s" repeatCount="indefinite" rotate="auto-reverse" >
+			<mpath xlink:href="#path1"/>
+		</animateMotion>
+	</image>
+
+	<image xlink:href="smiley.svg" width="100" height="100"
+  transform="translate(-40 -80)">
+		<animateMotion dur="52s" repeatCount="indefinite" rotate="auto-reverse" >
+			<mpath xlink:href="#path1"/>
+		</animateMotion>
+	</image>
+
+	<image xlink:href="smiley.svg" width="100" height="100"
+  transform="translate(-40 -80)">
+		<animateMotion dur="54s" repeatCount="indefinite" rotate="auto-reverse" >
+			<mpath xlink:href="#path1"/>
+		</animateMotion>
+	</image>
+
+	<image xlink:href="smiley.svg" width="100" height="100"
+  transform="translate(-40 -80)">
+		<animateMotion dur="56s" repeatCount="indefinite" rotate="auto-reverse" >
+			<mpath xlink:href="#path1"/>
+		</animateMotion>
+	</image>
+
+	<image xlink:href="smiley.svg" width="100" height="100"
+  transform="translate(-40 -80)">
+		<animateMotion dur="58s" repeatCount="indefinite" rotate="auto-reverse" >
+			<mpath xlink:href="#path1"/>
+		</animateMotion>
+	</image>
+
+	<image xlink:href="smiley.svg" width="100" height="100"
+  transform="translate(-40 -80)">
+		<animateMotion dur="60s" repeatCount="indefinite" rotate="auto-reverse" >
+			<mpath xlink:href="#path1"/>
+		</animateMotion>
+	</image>
+
+	<image xlink:href="smiley.svg" width="100" height="100"
+  transform="translate(-40 -80)">
+		<animateMotion dur="62s" repeatCount="indefinite" rotate="auto-reverse" >
+			<mpath xlink:href="#path1"/>
+		</animateMotion>
+	</image>
+
+	<image xlink:href="smiley.svg" width="100" height="100"
+  transform="translate(-40 -80)">
+		<animateMotion dur="64s" repeatCount="indefinite" rotate="auto-reverse" >
+			<mpath xlink:href="#path1"/>
+		</animateMotion>
+	</image>
+
+	<image xlink:href="smiley.svg" width="100" height="100"
+  transform="translate(-40 -80)">
+		<animateMotion dur="66s" repeatCount="indefinite" rotate="auto-reverse" >
+			<mpath xlink:href="#path1"/>
+		</animateMotion>
+	</image>
+
+	<image xlink:href="smiley.svg" width="100" height="100"
+  transform="translate(-40 -80)">
+		<animateMotion dur="68s" repeatCount="indefinite" rotate="auto-reverse" >
+			<mpath xlink:href="#path1"/>
+		</animateMotion>
+	</image>
+	-->
+</g>
+</svg>
+

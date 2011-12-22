@@ -76,8 +76,8 @@ ParaPara.send = function(successCallback, failureCallback, title, author) {
   var serializer = new XMLSerializer();
   var serializedAnim = serializer.serializeToString(anim);
   var payload =
-    JSON.stringify({ title: title, author: author, svg: serializedAnim });
-
+    JSON.stringify({ title: title, author: author, svg: serializedAnim, y:0 });
+  
   // Create request
   var req = new XMLHttpRequest();
   req.open("POST", ParaPara.UPLOAD_PATH, true);
