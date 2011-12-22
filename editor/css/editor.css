@@ -1,21 +1,45 @@
+/* Page layout */
 body, html, div {
   margin: 0;
   padding: 0;
 }
 div.container {
-  width: 600px;
-  margin-left: auto;
-  margin-right: auto;
+  position: absolute;
+  left: 0; top: 0; width: 100%; height: 100%;
 }
+div.column {
+  float: left;
+}
+
 svg.canvas {
-  border: 1px solid black;
+  border: 2px solid black;
   margin: 0;
 }
+
+/* Control boxes */
 div.controls {
   text-align: center;
   padding: 0.4em 0.8em 0.2em;
   position: relative;
 }
+div.controls.vertical button {
+  display: block;
+  margin: 0.1em auto;
+}
+div.controls.vertical div.separator {
+  display: block;
+  border-top: 1px dotted #ccc;
+  border-left: none;
+  max-height: 0.2em;
+}
+div.separator {
+  font-size: 45px;
+  display: inline;
+  vertical-align: top;
+  pointer-events: none;
+}
+
+/* Buttons */
 button.right {
   position: absolute;
   right: 0;
@@ -62,12 +86,14 @@ button.image.swell:hover svg, button.image.swell.active svg {
   height: 44px;
   margin: 1px;
 }
-div.separator {
-  font-size: 45px;
-  display: inline;
-  border-left: 1px dotted #ccc;
-  vertical-align: top;
+circle.eraseOutline {
+  fill: none;
+  stroke: black;
+  stroke-dasharray: 1 1.5;
+  stroke-width: 0.25;
 }
+
+/* Previous (greyed-out) animation frames */
 g.oldFrame > circle {
   fill: grey
 }
@@ -77,12 +103,8 @@ g.oldFrame > path {
 g.oldFrame {
   opacity: 0.5
 }
-circle.eraseOutline {
-  fill: none;
-  stroke: black;
-  stroke-dasharray: 1 1.5;
-  stroke-width: 0.25;
-}
+
+/* Error/notice overlay */
 div.overlay {
   display: table;
   position: fixed;
@@ -109,6 +131,8 @@ div.overlay-contents {
   font-size: 1.5em;
   display: none;
 }
+
+/* Overlay fadeout animation */
 div.overlay-contents.fadeOut {
   -moz-animation-duration: 1s;
   -webkit-animation-duration: 1s;

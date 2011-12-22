@@ -27,15 +27,19 @@ EditorUI.nextFrame = function() {
 }
 
 EditorUI.finish = function() {
+  document.getElementById("toolBox").style.visibility = "hidden";
   document.getElementById("frameControls").style.display = "none";
   document.getElementById("animControls").style.display = "";
+  EditorUI.updateLayout();
   var speedAdjust = document.getElementById("speedAdjust");
   ParaPara.animate(speedAdjust.value);
 }
 
 EditorUI.reset = function() {
+  document.getElementById("toolBox").style.visibility = "";
   document.getElementById("frameControls").style.display = "";
   document.getElementById("animControls").style.display = "none";
+  EditorUI.updateLayout();
   ParaPara.reset();
   EditorUI.initControls();
 }
@@ -262,18 +266,28 @@ EditorUI.changeSpeed = function(sliderValue) {
 // -------------- UI layout -----------
 
 EditorUI.updateLayout = function() {
-  var controlsHeight = 0;
+  var controlsHeight = controlsWidth = 0;
   var controls = document.getElementsByClassName("controls");
   for (var i = 0; i < controls.length; i++) {
-    controlsHeight += controls[i].offsetHeight;
+    if (controls[i].classList.contains('vertical')) {
+      controlsWidth += controls[i].offsetWidth;
+    } else {
+      controlsHeight += controls[i].offsetHeight;
+    }
   }
   var availHeight = window.innerHeight - controlsHeight;
-  var availWidth  = window.innerWidth;
+  var availWidth  = window.innerWidth - controlsWidth;
   // The minus 8 is a fudge factor to get rid of scrollbars
   var maxDim = Math.min(availHeight, availWidth) - 8;
+
+  // XXX This might be needed if we later centre the block again but for now
+  // we're just waiting on the final design
+  /*
   // Update the width of the containing block
   var container = document.getElementsByClassName("container")[0];
   container.style.setProperty("width", maxDim + "px", "");
+  */
+
   // Set the SVG canvas size explicitly. This is mostly for WebKit
   // compatibility. Otherwise we could just set the <svg> width/height to
   // 100%
@@ -282,7 +296,11 @@ EditorUI.updateLayout = function() {
   canvas.style.setProperty("height", maxDim + "px", "");
   // Resize slider
   var speedAdjust = document.getElementById("speedAdjust");
-  speedAdjust.style.setProperty("width", maxDim * 0.8 + "px", "");
+  speedAdjust.style.setProperty("width", maxDim * 0.7 + "px", "");
+
+  // XXX This might be needed if we later vertically centre the block again but
+  // for now just leave it in the corner
+  /*
   // If we have extra vertical space, centre vertically
   if (availHeight > availWidth) {
     container.style.setProperty("padding-top",
@@ -290,6 +308,7 @@ EditorUI.updateLayout = function() {
   } else {
     container.style.removeProperty("padding-top");
   }
+  */
   EditorUI.updateStrokeWidth(maxDim);
 }
 window.addEventListener("resize", EditorUI.updateLayout, false);
