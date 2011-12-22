@@ -2,6 +2,7 @@
 body, html, div {
   margin: 0;
   padding: 0;
+  overflow: hidden;
 }
 div.container {
   display: table;
@@ -35,7 +36,7 @@ div.controls.vertical button.image {
   margin: 0.1em auto;
 }
 div.controls.vertical button.text {
-  margin: 2em 0 0.1em;
+  margin: 2em 0 1em;
 }
 div.controls.vertical div.separator {
   display: block;
