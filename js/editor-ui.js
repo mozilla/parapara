@@ -280,14 +280,6 @@ EditorUI.updateLayout = function() {
   // The minus 8 is a fudge factor to get rid of scrollbars
   var maxDim = Math.min(availHeight, availWidth) - 8;
 
-  // XXX This might be needed if we later centre the block again but for now
-  // we're just waiting on the final design
-  /*
-  // Update the width of the containing block
-  var container = document.getElementsByClassName("container")[0];
-  container.style.setProperty("width", maxDim + "px", "");
-  */
-
   // Set the SVG canvas size explicitly. This is mostly for WebKit
   // compatibility. Otherwise we could just set the <svg> width/height to
   // 100%
@@ -298,17 +290,6 @@ EditorUI.updateLayout = function() {
   var speedAdjust = document.getElementById("speedAdjust");
   speedAdjust.style.setProperty("width", maxDim * 0.7 + "px", "");
 
-  // XXX This might be needed if we later vertically centre the block again but
-  // for now just leave it in the corner
-  /*
-  // If we have extra vertical space, centre vertically
-  if (availHeight > availWidth) {
-    container.style.setProperty("padding-top",
-      (availHeight - maxDim) / 2 + "px", "");
-  } else {
-    container.style.removeProperty("padding-top");
-  }
-  */
   EditorUI.updateStrokeWidth(maxDim);
 }
 window.addEventListener("resize", EditorUI.updateLayout, false);

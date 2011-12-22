@@ -18,6 +18,7 @@
   </head>
   <body>
     <div class="container">
+      <div class="container-row">
       <div class="controls vertical column" id="toolBox">
         <button type="button" class="image toolButton swell" id="pencilTool">
           <svg viewBox="-1 -1 22 22">
@@ -111,11 +112,13 @@
             onclick="EditorUI.send()">おくる</button>
         </div>
       </div>
-      <div class="controls vertical column" id="frameControls">
+      <div class="controls vertical column" id="frameControls"
+        style="vertical-align: bottom">
         <button type="button" class="text"
           onclick="EditorUI.nextFrame()">つぎ</button>
         <button type="button" class="text"
           onclick="EditorUI.finish()">おわる</button>
+      </div>
       </div>
     </div>
     <div class="overlay" id="overlay" style="display:none">
