@@ -29,19 +29,20 @@ var Main = {
 		var time4character = currentTime/simpleDuration*CHARACTER_DURATION;
 		for (var i = 0, n = Main.characters.length; i < n; i++) {
 			var character = Main.characters[i];
-			if (character.x < currentTime && true != character.isAppended) {
+			if (character.x/10 < currentTime && true != character.isAppended) {
 				var image = document.createElementNS("http://www.w3.org/2000/svg", "image");
 				image.setAttribute("id", character.id);
 				image.setAttributeNS("http://www.w3.org/1999/xlink", "href", CHARACTERS_DIR+character.id+".svg");
 				image.setAttribute("width", CHARACTER_WIDTH);
 				image.setAttribute("height", CHARACTER_HEIGHT);
-				image.setAttribute("transform", "translate(-40 -160)");
+				image.setAttribute("transform", "translate(-40 -130)");
 				var animationMotion = document.createElementNS("http://www.w3.org/2000/svg", "animateMotion");
-				animationMotion.setAttribute("dur", CHARACTER_DURATION+"s");
+				var duration = 5+CHARACTER_DURATION*Math.random();
+				animationMotion.setAttribute("dur", duration+"s");
 				animationMotion.setAttribute("rotate", "auto-reverse");
 				animationMotion.setAttribute("fill", "freeze");
 				animationMotion.setAttribute("begin", "indefinite");
-				animationMotion.setAttribute("repeatDur", (CHARACTER_DURATION+time4character)+"s");
+				animationMotion.setAttribute("repeatDur", (duration+time4character)+"s");
 				animationMotion.addEventListener("endEvent", function(e) {
 					var imageElement = e.originalTarget.parentNode;
 					var id = imageElement.getAttribute("id");
