@@ -50,12 +50,12 @@ var Main = {
 					for (var j = 0, m = Main.characters.length; j < m; j++) {
 						var ch = Main.characters[j];
 						if (ch.id == id) {
-							console.log(id);
+//							console.log(id);
 							ch.isAppended = false;
 							break;
 						}
 					}
-_				}, true);
+				}, true);
 				var mpath = document.createElementNS("http://www.w3.org/2000/svg", "mpath");
 				mpath.setAttributeNS("http://www.w3.org/1999/xlink", "href", "#path1");
 				animationMotion.appendChild(mpath);
@@ -101,7 +101,7 @@ function Character() {
 Character.prototype = {
 	setup: function(json) {
 		this.x = json.x;
-		console.log(this.x);
+//		console.log(this.x);
 		this.id = json.id;
 	},
 
