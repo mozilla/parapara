@@ -1,0 +1,73 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" 
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg viewBox="0 0 1280 800"
+     xmlns="http://www.w3.org/2000/svg" version="1.1"
+     xmlns:xlink="http://www.w3.org/1999/xlink"
+     onload="Main.init();"
+>
+  <style type="text/css"><![CDATA[
+  	svg {background-color: black}
+    #back-layer-path { fill:#bbbbbb; stroke:none; stroke-width:1 }
+/*    #main-layer-path { fill:none; stroke:orange; stroke-width:1 } */
+    #main-layer-path { fill:none; stroke:none }
+    #front-layer-path { fill:#cccccc; stroke:none; stroke-width:1 }
+    .shadow {fill-opacity: 0.3; fill:black;}
+  ]]></style>
+
+	<script xlink:href="js/jquery-1.7.1.min.js"></script>
+	<script xlink:href="js/main.js"></script>
+	<script>
+		var TYPE = 1;
+	</script>
+	<defs>
+		<filter id="shadow" width="100%" height="100%">
+			<feGaussianBlur in="SourceAlpha" result="blur" stdDeviation="8"/>
+			<feOffset in="blur" result="offsetBlur"  dx="0" dy="110"/>
+			<feBlend in="SourceGraphic" in2="offsetBlur" mode="normal"/>
+		</filter>
+	</defs>
+	
+	<image xlink:href="images/back01.jpg" width="2560" height="1024">
+        <animateTransform attributeName="transform" type="translate"
+            from="-2555 -200" to="2555 -200" begin="-10s" repeatCount="indefinite" dur="20s" />
+	</image>
+	<image xlink:href="images/back02.jpg" width="2560" height="1024">
+        <animateTransform id="time-base" attributeName="transform" type="translate"
+            from="-2555 -200" to="2555 -200" repeatCount="indefinite" dur="20s" />
+	</image>
+	<g id="back-layer">
+		<!--
+        <path id="back-layer-path" d="M-200,800 C300,500 980,500 1480,800"></path>
+        -->
+        <path id="back-layer-path" d="M1480,800 C980,500 300,500 -200,800"></path>
+		<rect width="100" height="100" transform="translate(-50 0)" fill="#cccccc">
+			<animateMotion dur="30s" repeatCount="indefinite" rotate="auto" >
+				<mpath xlink:href="#back-layer-path"/>
+			</animateMotion>
+		</rect>      
+	</g>
+	<g id="main-layer">
+        <path id="main-layer-path" d="M-200,800 C300,550 980,550 1480,800"></path>
+        <!--
+		<image filter="url(#shadow)" xlink:href="../characters/8.svg" width="300" height="300"
+			transform="translate(-150 -280)">
+			<animateMotion dur="20s" repeatCount="indefinite" rotate="auto" >
+				<mpath xlink:href="#main-layer-path"/>
+			</animateMotion>
+		</image>
+		-->
+	</g>
+	<g id="front-layer">
+		<!--
+        <path id="front-layer-path" d="M-200,800 C300,650 980,650 1480,800"></path>
+        -->
+        <path id="front-layer-path" d="M1480,800 C980,620 300,620 -200,800"></path>
+		<rect width="300" height="300" transform="translate(-150 0)" fill="#cccccc">
+			<animateMotion dur="10s" repeatCount="indefinite" rotate="auto" >
+				<mpath xlink:href="#front-layer-path"/>
+			</animateMotion>
+		</rect>      
+  	</g>
+</svg>
+
