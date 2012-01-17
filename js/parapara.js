@@ -38,11 +38,15 @@ ParaPara.reset = function() {
 }
 
 ParaPara.prevFrame = function() {
-  ParaPara.frames.prevFrame();
+  var result = ParaPara.frames.prevFrame();
+  ParaPara.currentTool.targetFrame(ParaPara.frames.getCurrentFrame());
+  return result;
 }
 
 ParaPara.nextFrame = function() {
-  ParaPara.frames.nextFrame();
+  var result = ParaPara.frames.nextFrame();
+  ParaPara.currentTool.targetFrame(ParaPara.frames.getCurrentFrame());
+  return result;
 }
 
 ParaPara.setDrawMode = function() {
@@ -494,6 +498,7 @@ ParaPara.FrameList.prototype.nextFrame = function() {
   }
 
   // Get next frame
+  var addedFrame = false;
   var nextFrames = this.getNextFrames();
   if (nextFrames) {
     this.currentFrame = nextFrames.firstChild;
@@ -504,7 +509,12 @@ ParaPara.FrameList.prototype.nextFrame = function() {
     }
   } else {
     this.addFrame();
+    addedFrame = true;
   }
+
+  var result = this.getFrameIndexAndCount();
+  result.added = addedFrame;
+  return result;
 }
 
 ParaPara.FrameList.prototype.addFrame = function() {
@@ -517,7 +527,7 @@ ParaPara.FrameList.prototype.addFrame = function() {
 ParaPara.FrameList.prototype.prevFrame = function() {
   var prevFrame = this.getPrevFrame();
   if (!prevFrame)
-    return;
+    return { index: 0, count: this.getFrames().length };
 
   // Move current frame to next frames group
   var nextFrames = this.getOrMakeNextFrames();
@@ -539,6 +549,7 @@ ParaPara.FrameList.prototype.prevFrame = function() {
       "Previous frames group has child nodes somehow");
     this.scene.removeChild(this.getPrevFrames());
   }
+  return this.getFrameIndexAndCount();
 }
 
 ParaPara.FrameList.prototype.getFrames = function() {
@@ -546,6 +557,14 @@ ParaPara.FrameList.prototype.getFrames = function() {
 }
 
 // --------------- FrameList, internal helpers -------------
+
+ParaPara.FrameList.prototype.getFrameIndexAndCount = function() {
+  var index = this.getOldFrames()
+            ? this.getOldFrames().childNodes.length + 1
+            : this.getPrevFrame() ? 1 : 0;
+  var numFrames = this.getFrames().length;
+  return { index: index, count: numFrames };
+}
 
 ParaPara.FrameList.prototype.getPrevFrame = function() {
   var prevFrames = this.getPrevFrames();

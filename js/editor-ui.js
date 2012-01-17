@@ -36,12 +36,12 @@ EditorUI.initControls = function() {
 
 EditorUI.prevFrame = function() {
   ParaPara.prevFrame();
-  this.changeTool(document.getElementById("pencilTool"));
 }
 
 EditorUI.nextFrame = function() {
-  ParaPara.nextFrame();
-  this.changeTool(document.getElementById("pencilTool"));
+  var result = ParaPara.nextFrame();
+  if (result.added)
+    this.changeTool(document.getElementById("pencilTool"));
 }
 
 EditorUI.finish = function() {
