@@ -118,6 +118,9 @@ g.prevFrames {
 g.oldFrames {
   opacity: 0.4
 }
+g.nextFrames {
+  display: none
+}
 
 /* Error/notice overlay */
 div.overlay {
