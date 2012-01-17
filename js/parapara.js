@@ -423,6 +423,37 @@ ParaPara.Style.prototype.styleFill = function(elem) {
 
 // -------------------- Frame List --------------------
 
+// Frame hierarchy:
+//
+// <g id="anim">
+//   <!-- Previous frames -->
+//   <g class="prevFrames">
+//     <!-- 0..n Old frames -->
+//     <g class="oldFrames">
+//       <g class="frame">..</g>
+//       ..
+//       <g class="frame">..</g>
+//     </g>
+//     <!-- 0..1 Previous frame -->
+//     <g class="frame">..</g>
+//   </g>
+//   <!-- 0..1 Current frame -->
+//   <g class="frame">..</g>
+//   <g class="nextFrames">
+//     <!-- 0..n Future frames -->
+//     <g class="frame">..</g>
+//     ..
+//     <g class="frame">..</g>
+//  </g>
+// </g>
+//
+// At initialisation all that exists is:
+//
+// <g id="anim"/>
+//
+// The arrangement of previous frames is complex but it allows use of group
+// opacity to produce a more subtle background.
+
 ParaPara.FrameList = function() {
   this.currentFrame = null;
   this.addFrame();
@@ -432,10 +463,59 @@ ParaPara.FrameList.prototype.getCurrentFrame = function() {
   return this.currentFrame;
 }
 
+ParaPara.FrameList.prototype.getPrevFrame = function() {
+  var prevFrames = this.getPrevFrames();
+  return prevFrames ? prevFrames.lastElementChild : null;
+}
+
+ParaPara.FrameList.prototype.getPrevFrames = function() {
+  return this._getPrevFrames(false);
+}
+
+ParaPara.FrameList.prototype.getOrMakePrevFrames = function() {
+  return this._getPrevFrames(true);
+}
+
+ParaPara.FrameList.prototype._getPrevFrames = function(make) {
+  var scene = ParaPara.svgRoot.ownerDocument.getElementById("anim");
+  var candidate = scene.firstElementChild;
+  if (candidate && candidate.classList.contains("prevFrames"))
+    return candidate;
+  if (!make)
+    return null;
+
+  var g = document.createElementNS(ParaPara.SVG_NS, "g");
+  g.setAttribute("class", "prevFrames");
+  scene.insertBefore(g, scene.firstChild);
+  return g;
+}
+
+ParaPara.FrameList.prototype.getOrMakeOldFrames = function() {
+  var prevFrames = this.getOrMakePrevFrames();
+  var candidate = prevFrames.firstElementChild;
+  if (candidate && candidate.classList.contains("oldFrames"))
+    return candidate;
+
+  var g = document.createElementNS(ParaPara.SVG_NS, "g");
+  g.setAttribute("class", "oldFrames");
+  prevFrames.insertBefore(g, prevFrames.firstChild);
+
+  return g;
+}
+
 ParaPara.FrameList.prototype.addFrame = function() {
-  if (this.currentFrame) {
-    this.currentFrame.setAttribute("class", "frame oldFrame");
+  // Move previous frame to oldFrames group
+  var prevFrame = this.getPrevFrame();
+  if (prevFrame) {
+    this.getOrMakeOldFrames().appendChild(prevFrame);
   }
+
+  // Make current frame to prevFrame
+  if (this.currentFrame) {
+    this.getOrMakePrevFrames().appendChild(this.currentFrame);
+  }
+
+  // Create new frame
   var g = document.createElementNS(ParaPara.SVG_NS, "g");
   g.setAttribute("class", "frame");
 
