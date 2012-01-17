@@ -12,7 +12,7 @@ if (typeof ParaPara.fixPrecision !== "function") {
 ParaPara.EraseControls = function(frame, brushWidth) {
   this.eraser       = null;
   this.currentTouch = null;
-  this.currentFrame = null;
+  this.frame        = null;
   this.brushWidth   = undefined;
   this.prevX        = undefined;
   this.prevY        = undefined;
@@ -36,9 +36,9 @@ ParaPara.EraseControls = function(frame, brushWidth) {
   }
 }
 
-ParaPara.EraseControls.prototype.startErasing = function(frame) {
+ParaPara.EraseControls.prototype.targetFrame = function(frame) {
   console.assert(!this.eraser, "Already erasing?");
-  this.currentFrame = frame;
+  this.frame = frame;
   this.brushWidth   = 10;
 
   ParaPara.svgRoot.addEventListener("mousedown", this.mouseDownHandler);
@@ -72,7 +72,7 @@ ParaPara.EraseControls.prototype.mouseDown = function(evt) {
   if (this.eraser)
     return;
 
-  this.eraser = new ParaPara.Eraser(this.currentFrame, this.brushWidth);
+  this.eraser = new ParaPara.Eraser(this.frame, this.brushWidth);
   this.eraseFromEvent(evt);
 }
 
@@ -96,7 +96,7 @@ ParaPara.EraseControls.prototype.touchStart = function(evt) {
   if (this.eraser)
     return;
   this.currentTouch = evt.changedTouches[0].identifier;
-  this.eraser = new ParaPara.Eraser(this.currentFrame, this.brushWidth);
+  this.eraser = new ParaPara.Eraser(this.frame, this.brushWidth);
   this.eraseFromEvent(evt);
 }
 
@@ -134,7 +134,7 @@ ParaPara.EraseControls.prototype.eraseFromEvent = function(evt) {
     return;
 
   var candidateShapes = [];
-  var pt = this.getLocalCoords(coords[0], coords[1], this.currentFrame);
+  var pt = this.getLocalCoords(coords[0], coords[1], this.frame);
 
   candidateShapes = this.getCandidateShapes(pt.x, pt.y);
   var ids = [];
@@ -165,7 +165,7 @@ ParaPara.EraseControls.prototype.getCoordsFromEvent = function(evt) {
 
 ParaPara.EraseControls.prototype.getCandidateShapes = function(x, y) {
   // Go through shapes backwards so we return a list from top to bottom
-  var shapes = this.currentFrame.childNodes;
+  var shapes = this.frame.childNodes;
   var hitShapes = [];
   for (var i = shapes.length-1; i >= 0; --i) {
     var shape = shapes[i];

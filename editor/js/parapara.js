@@ -46,35 +46,39 @@ ParaPara.nextFrame = function() {
 }
 
 ParaPara.setDrawMode = function() {
-  if (ParaPara.currentTool === ParaPara.drawControls)
-    return;
-
   if (ParaPara.currentTool) {
     ParaPara.currentTool.disable();
   }
-  ParaPara.drawControls.enable();
+  ParaPara.drawControls.targetFrame(ParaPara.frames.getCurrentFrame());
   ParaPara.currentTool = ParaPara.drawControls;
 }
 
 ParaPara.setEraseMode = function() {
-  if (ParaPara.currentTool === ParaPara.eraseControls)
-    return;
-
   if (ParaPara.currentTool) {
     ParaPara.currentTool.disable();
   }
-  ParaPara.eraseControls.startErasing(ParaPara.frames.getCurrentFrame(), 10);
+  ParaPara.eraseControls.targetFrame(ParaPara.frames.getCurrentFrame());
   ParaPara.currentTool = ParaPara.eraseControls;
 }
 
 ParaPara.animate = function(fps) {
   if (ParaPara.currentTool) {
     ParaPara.currentTool.disable();
-    ParaPara.currentTool = null;
   }
   ParaPara.editContent.setAttribute("display", "none");
   ParaPara.animator = new ParaPara.Animator(fps, ParaPara.contentGroup);
   ParaPara.animator.makeAnimation();
+}
+
+ParaPara.removeAnimation = function(fps) {
+  if (ParaPara.animator) {
+    ParaPara.animator.removeAnimation();
+    ParaPara.animator = null;
+  }
+  ParaPara.editContent.removeAttribute("display");
+  if (ParaPara.currentTool) {
+    ParaPara.currentTool.targetFrame(ParaPara.frames.getCurrentFrame());
+  }
 }
 
 ParaPara.send = function(successCallback, failureCallback, title, author) {
@@ -153,7 +157,8 @@ ParaPara.DrawControls = function() {
   this.touchCancelHandler = this.touchCancel.bind(this);
 }
 
-ParaPara.DrawControls.prototype.enable = function() {
+ParaPara.DrawControls.prototype.targetFrame = function(frame) {
+  this.frame = frame;
   ParaPara.svgRoot.addEventListener("mousedown", this.mouseDownHandler, false);
   ParaPara.svgRoot.addEventListener("mousemove", this.mouseMoveHandler, false);
   ParaPara.svgRoot.addEventListener("mouseup", this.mouseUpHandler, false);
@@ -189,7 +194,6 @@ ParaPara.DrawControls.prototype.mouseDown = function(evt) {
   evt.preventDefault();
   if (evt.button || this.linesInProgress.mouseLine)
     return;
-  this.frame = ParaPara.frames.getCurrentFrame();
   var pt = this.getLocalCoords(evt.clientX, evt.clientY, this.frame);
   this.linesInProgress.mouseLine =
     new ParaPara.FreehandLine(pt.x, pt.y, this.frame);
@@ -213,7 +217,6 @@ ParaPara.DrawControls.prototype.mouseUp = function(evt) {
 
 ParaPara.DrawControls.prototype.touchStart = function(evt) {
   evt.preventDefault();
-  this.frame = ParaPara.frames.getCurrentFrame();
   for (var i = 0; i < evt.changedTouches.length; ++i) {
     var touch = evt.changedTouches[i];
     var pt = this.getLocalCoords(touch.clientX, touch.clientY, this.frame);
