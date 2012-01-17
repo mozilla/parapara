@@ -53,6 +53,14 @@ EditorUI.finish = function() {
   ParaPara.animate(speedAdjust.value);
 }
 
+EditorUI.returnToEditing = function() {
+  ParaPara.removeAnimation();
+  document.getElementById("toolBox").style.visibility = "";
+  document.getElementById("frameControls").style.display = "";
+  document.getElementById("animControls").style.display = "none";
+  EditorUI.updateLayout();
+}
+
 EditorUI.reset = function() {
   document.getElementById("toolBox").style.visibility = "";
   document.getElementById("frameControls").style.display = "";
