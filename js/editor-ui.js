@@ -3,8 +3,8 @@ var EditorUI = EditorUI || {};
 EditorUI.INITIAL_SPEED_FPS = 3.3;
 
 EditorUI.init = function() {
-  var svgRoot = document.getElementById("canvas");
-  ParaPara.init(svgRoot);
+  var paraparaRoot = document.getElementById("parapara");
+  ParaPara.init(paraparaRoot);
   EditorUI.initControls();
   // Disabling full-screen mode for now since:
   // a) there's no UI for it for tablets
@@ -34,8 +34,13 @@ EditorUI.initControls = function() {
 
 // -------------- Navigation -----------
 
+EditorUI.prevFrame = function() {
+  ParaPara.prevFrame();
+  this.changeTool(document.getElementById("pencilTool"));
+}
+
 EditorUI.nextFrame = function() {
-  ParaPara.addFrame();
+  ParaPara.nextFrame();
   this.changeTool(document.getElementById("pencilTool"));
 }
 
