@@ -23,7 +23,7 @@ var Main = {
 	start: function() {
 		Main.loadAllCharacters(function() {
 			Main.idle();
-//			Main.loadUncompletedCharacters();
+			Main.loadUncompletedCharacters();
 		});
 	},
 	
