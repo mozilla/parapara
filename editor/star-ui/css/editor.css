@@ -30,6 +30,10 @@ div.controlPanel .panelContents {
   position: relative;
   width: 100%;
 }
+div.controlPanel #widths {
+  width: 80%;
+  padding: 0 10%;
+}
 div.controlPanel #clear {
   position: absolute;
   bottom: 5px;
