@@ -81,6 +81,7 @@ EditorUI.returnToEditing = function() {
 EditorUI.reset = function() {
   document.getElementById("animControls").classList.remove("active");
   document.getElementById("editControls").classList.add("active");
+  document.forms[0].reset();
   ParaPara.reset();
   EditorUI.initControls();
 }
@@ -89,10 +90,20 @@ EditorUI.reset = function() {
 
 EditorUI.send = function() {
   EditorUI.displayNote("noteSending");
-  // XXX get title and author -- leaving this until we have a design for this
-  var title  = "タイトル";
-  var author = "名前";
-  ParaPara.send(EditorUI.sendSuccess, EditorUI.sendFail, title, author);
+  var metadata = {};
+  metadata.title  = document.forms[0].title.value.trim();
+  metadata.author = document.forms[0].name.value.trim();
+  metadata.sex    = EditorUI.getRadioValue(document.forms[0].sex);
+  metadata.age    = document.forms[0].age.value.trim();
+  ParaPara.send(EditorUI.sendSuccess, EditorUI.sendFail, metadata);
+}
+
+EditorUI.getRadioValue = function(radio) {
+  for (var i = 0; i < radio.length; ++i) {
+    if (radio[i].checked)
+      return radio[i].value;
+  }
+  return undefined;
 }
 
 EditorUI.sendSuccess = function() {
@@ -331,6 +342,8 @@ EditorUI.initNavControls = function() {
   animate.addEventListener("click", EditorUI.animate, false);
   var returnToEditing = document.getElementById("return");
   returnToEditing.addEventListener("click", EditorUI.returnToEditing, false);
+  var send = document.getElementById("send");
+  send.addEventListener("click", EditorUI.send, false);
 }
 
 // -------------- Common button handling -----------
