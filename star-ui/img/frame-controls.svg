@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 480 255" width="100%" height="100%">
+ <defs>
+  <radialGradient id="radialGradient4792" gradientUnits="userSpaceOnUse" cy="140" cx="58" gradientTransform="matrix(1 0 0 1.01 0 -1.78)" r="42.5">
+   <stop stop-color="#e1d279" offset="0"/>
+   <stop stop-color="#c99e03" offset="1"/>
+  </radialGradient>
+  <radialGradient id="radialGradient4871" gradientUnits="userSpaceOnUse" cy="88.7" cx="193" r="200">
+   <stop stop-color="#fff" offset="0"/>
+   <stop stop-color="#c490bf" offset="1"/>
+  </radialGradient>
+ </defs>
+ <path d="m490 158a234 51 0 1 1 -468 0 234 51 0 1 1 468 0z" transform="matrix(.924 -.383 .383 .924 -58.8 66.6)" stroke="#d5b227" stroke-width="6" fill="none"/>
+ <path d="m346 143a99.3 99.3 0 1 1 -199 0 99.3 99.3 0 1 1 199 0z" fill="url(#radialGradient4871)"/>
+ <path d="m490 158a234 51 0 0 1 -468 2" transform="matrix(.924 -.383 .383 .924 -58.8 66.6)" stroke="#d5b227" stroke-width="6" fill="none"/>
+ <path d="m120 151a42.5 43 0 1 1 -85 0 42.5 43 0 1 1 85 0z" fill="url(#radialGradient4792)"/>
+ <path d="m120 151a42.5 43 0 1 1 -85 0 42.5 43 0 1 1 85 0z" transform="translate(336 -75.3)" fill="url(#radialGradient4792)"/>
+ <rect rx="7.86" ry="7.86" height="14" width="48.6" y="147" x="52.9" fill="#fff"/>
+ <rect rx="7.86" ry="7.86" height="14" width="49" y="71" x="390" fill="#fff"/>
+ <rect rx="7.86" ry="7.86" height="49" width="14" y="53.6" x="408" fill="#fff"/>
+ <style>
+  @font-face {
+   font-family: 'SF_Wonder_Comic_Bold_Italic';
+   src: url('../fonts/SF_Wonder_Comic_Bold_Italic.ttf') format('truetype');
+  }
+ </style>
+ <g style="fill:#196199; font-family: 'SF_Wonder_Comic_Bold_Italic';
+           text-anchor: middle">
+   <text x="217" y="146" font-size="110px" id="numerator">1</text>
+   <text x="270" y="223" font-size="70px" id="denominator">1</text>
+ </g>
+ <g fill="none" pointer-events="all">
+  <rect height="255" width="240" class="hitRegion" id="prev"/>
+  <rect height="255" width="240" x="240" class="hitRegion" id="next"/>
+ </g>
+</svg>
