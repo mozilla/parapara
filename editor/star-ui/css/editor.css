@@ -30,6 +30,11 @@ div.controlPanel .panelContents {
   position: relative;
   width: 100%;
 }
+div.controlPanel #clear {
+  position: absolute;
+  bottom: 5px;
+  left: 1em;
+}
 div.controlPanel #animate {
   position: absolute;
   bottom: -1px;

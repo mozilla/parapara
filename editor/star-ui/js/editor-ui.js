@@ -351,6 +351,8 @@ EditorUI.updateFrameDisplay = function(currentFrame, numFrames) {
 // -------------- Init nav controls -----------
 
 EditorUI.initNavControls = function() {
+  var clear = document.getElementById("clear");
+  clear.addEventListener("click", EditorUI.reset, false);
   var animate = document.getElementById("animate");
   animate.addEventListener("click", EditorUI.animate, false);
   var returnToEditing = document.getElementById("return");
