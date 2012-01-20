@@ -9,7 +9,7 @@ if (typeof ParaPara.fixPrecision !== "function") {
 
 // -------------------- Eraser Controls --------------------
 
-ParaPara.EraseControls = function(frame, brushWidth) {
+ParaPara.EraseControls = function() {
   this.eraser       = null;
   this.currentTouch = null;
   this.frame        = null;
@@ -39,7 +39,7 @@ ParaPara.EraseControls = function(frame, brushWidth) {
 ParaPara.EraseControls.prototype.targetFrame = function(frame) {
   console.assert(!this.eraser, "Already erasing?");
   this.frame = frame;
-  this.brushWidth   = 10;
+  this.brushWidth = 10;
 
   ParaPara.svgRoot.addEventListener("mousedown", this.mouseDownHandler);
   ParaPara.svgRoot.addEventListener("mousemove", this.mouseMoveHandler);

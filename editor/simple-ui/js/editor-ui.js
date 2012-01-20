@@ -242,8 +242,7 @@ EditorUI.changeEraseWidth = function(buttonOrEvent) {
   var button = EditorUI.selectButtonInGroup(buttonOrEvent, "eraseWidthButton");
   if (!button)
     return;
-  ParaPara.eraseControls.setBrushWidth(
-    EditorUI.getStrokeWidthFromButton(button));
+  ParaPara.currentStyle.eraseWidth = EditorUI.getStrokeWidthFromButton(button);
 }
 
 // -------------- Common button handling -----------
