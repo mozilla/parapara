@@ -32,7 +32,7 @@ ParaPara.init = function(contentGroup) {
 
 ParaPara.reset = function() {
   while (ParaPara.contentGroup.hasChildNodes()) {
-   ParaPara.contentGroup.removeChild(lastChild);
+    ParaPara.contentGroup.removeChild(ParaPara.contentGroup.lastChild);
   }
   ParaPara.init(ParaPara.contentGroup);
 }
@@ -50,19 +50,25 @@ ParaPara.nextFrame = function() {
 }
 
 ParaPara.setDrawMode = function() {
+  if (ParaPara.currentTool === ParaPara.drawControls)
+    return false;
   if (ParaPara.currentTool) {
     ParaPara.currentTool.disable();
   }
   ParaPara.drawControls.targetFrame(ParaPara.frames.getCurrentFrame());
   ParaPara.currentTool = ParaPara.drawControls;
+  return true;
 }
 
 ParaPara.setEraseMode = function() {
+  if (ParaPara.currentTool === ParaPara.eraseControls)
+    return false;
   if (ParaPara.currentTool) {
     ParaPara.currentTool.disable();
   }
   ParaPara.eraseControls.targetFrame(ParaPara.frames.getCurrentFrame());
   ParaPara.currentTool = ParaPara.eraseControls;
+  return true;
 }
 
 ParaPara.animate = function(fps) {
@@ -83,6 +89,18 @@ ParaPara.removeAnimation = function(fps) {
   if (ParaPara.currentTool) {
     ParaPara.currentTool.targetFrame(ParaPara.frames.getCurrentFrame());
   }
+}
+
+// Returns "draw" | "erase" | "animate"
+ParaPara.getMode = function(fps) {
+  if (ParaPara.currentTool === ParaPara.drawControls)
+    return "draw";
+  if (ParaPara.currentTool === ParaPara.eraseControls)
+    return "erase";
+  if (ParaPara.animator)
+    return "animate";
+  // Must be still initialising, go to draw
+  return "draw";
 }
 
 ParaPara.send = function(successCallback, failureCallback, title, author) {
@@ -426,6 +444,7 @@ ParaPara.FreehandLine.prototype.smoothControlPoints = function(ct1, ct2, pt) {
 ParaPara.Style = function() {
   this.currentColor = "black";
   this.strokeWidth = 4;
+  this._eraseWidth = 4;
 }
 
 ParaPara.Style.prototype.styleStroke = function(elem) {
@@ -441,6 +460,15 @@ ParaPara.Style.prototype.styleFill = function(elem) {
   elem.setAttribute("stroke", "none");
   elem.setAttribute("pointer-events", "none");
 }
+
+ParaPara.Style.prototype.__defineSetter__("eraseWidth", function(width) {
+  this._eraseWidth = width;
+  ParaPara.eraseControls.setBrushWidth(this._eraseWidth);
+});
+
+ParaPara.Style.prototype.__defineGetter__("eraseWidth", function() {
+  return this._eraseWidth;
+});
 
 // -------------------- Frame List --------------------
 

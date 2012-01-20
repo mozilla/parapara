@@ -1,0 +1,16 @@
+/* Previous (greyed-out) animation frames */
+g.prevFrames circle {
+  fill: grey
+}
+g.prevFrames path {
+  stroke: grey
+}
+g.prevFrames {
+  opacity: 0.5
+}
+g.oldFrames {
+  opacity: 0.4
+}
+g.nextFrames {
+  display: none
+}
