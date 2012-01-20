@@ -42,7 +42,7 @@ div.controlPanel #animate {
 }
 div.controlPanel #send {
   position: absolute;
-  bottom: 3px;
+  bottom: 0;
   right: 3px;
 }
 div.controlPanel #return {
@@ -130,6 +130,33 @@ div.canvas {
 div.canvas > svg {
   border: 2px solid black;
   margin: 0;
+}
+
+/* Buttons */
+button.right {
+  position: absolute;
+  right: 0;
+}
+button.text {
+  background: -moz-linear-gradient(top,  #ebebeb,  #a1a1a1);
+  background: -o-linear-gradient(top,  #ebebeb,  #a1a1a1);
+  background: -webkit-gradient(linear, left top, left bottom,
+                               from(#ebebeb), to(#a1a1a1));
+  border: none;
+  border-radius: 8px;
+  color: #FFFFFF;
+  font-weight: bold;
+  font-size: 20px;
+  letter-spacing: 1px;
+  margin: auto;
+  padding: 7px 25px;
+  text-shadow: 0 1px 1px black;
+}
+button.text:hover {
+  background: -moz-linear-gradient(top,  #04acec,  #0186ba);
+  background: -o-linear-gradient(top,  #04acec,  #0186ba);
+  background: -webkit-gradient(linear, left top, left bottom,
+                               from(#04acec), to(#0186ba));
 }
 
 /* Error/notice overlay */

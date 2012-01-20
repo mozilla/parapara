@@ -352,13 +352,17 @@ EditorUI.updateFrameDisplay = function(currentFrame, numFrames) {
 
 EditorUI.initNavControls = function() {
   var clear = document.getElementById("clear");
-  clear.addEventListener("click", EditorUI.reset, false);
+  clear.addEventListener("click", EditorUI.confirmClear, false);
   var animate = document.getElementById("animate");
   animate.addEventListener("click", EditorUI.animate, false);
   var returnToEditing = document.getElementById("return");
   returnToEditing.addEventListener("click", EditorUI.returnToEditing, false);
   var send = document.getElementById("send");
   send.addEventListener("click", EditorUI.send, false);
+}
+
+EditorUI.confirmClear = function() {
+  EditorUI.displayNote("noteConfirmDelete");
 }
 
 // -------------- Common button handling -----------
