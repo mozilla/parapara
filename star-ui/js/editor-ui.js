@@ -204,6 +204,7 @@ EditorUI.changeColor = function(color) {
   var color =
     window.getComputedStyle(elem, null).getPropertyValue("fill", null);
   ParaPara.currentStyle.currentColor = color;
+  EditorUI.changeTool("pencil");
 }
 
 // -------------- Widths -----------
