@@ -63,6 +63,11 @@ EditorUI.nextFrame = function() {
   EditorUI.updateFrameDisplay(result.index+1, result.count);
 }
 
+EditorUI.deleteFrame = function() {
+  var result = ParaPara.deleteFrame();
+  EditorUI.updateFrameDisplay(result.index+1, result.count);
+}
+
 EditorUI.animate = function() {
   document.getElementById("editControls").classList.remove("active");
   document.getElementById("animControls").classList.add("active");
