@@ -14,8 +14,15 @@ ParaPara.SEND_ERROR_FAILED_SEND  = 3;
 ParaPara.SEND_ERROR_NO_ACCESS    = 4; // 404, cross-domain etc.
 ParaPara.SEND_ERROR_SERVER_ERROR = 5; // Server rejects request
 
-ParaPara.init = function(svgRoot) {
-  ParaPara.svgRoot = svgRoot;
+// contentGroup is an empty <g> where ParaPara can add its content
+ParaPara.init = function(contentGroup) {
+  console.assert(!contentGroup.hasChildNodes(),
+                 "Content group should be empty");
+  ParaPara.contentGroup  = contentGroup;
+  ParaPara.svgRoot       = ParaPara.contentGroup.ownerSVGElement;
+  ParaPara.editContent   = document.createElementNS(ParaPara.SVG_NS, "g");
+  ParaPara.contentGroup.appendChild(ParaPara.editContent);
+
   ParaPara.drawControls  = new ParaPara.DrawControls();
   ParaPara.eraseControls = new ParaPara.EraseControls();
   ParaPara.frames        = new ParaPara.FrameList();
@@ -23,44 +30,77 @@ ParaPara.init = function(svgRoot) {
   ParaPara.currentTool   = null;
 }
 
-ParaPara.reset = function(svgRoot) {
-  ParaPara.frames.clearFrames();
-  ParaPara.init(ParaPara.svgRoot);
+ParaPara.reset = function() {
+  while (ParaPara.contentGroup.hasChildNodes()) {
+    ParaPara.contentGroup.removeChild(ParaPara.contentGroup.lastChild);
+  }
+  ParaPara.init(ParaPara.contentGroup);
 }
 
-ParaPara.addFrame = function() {
-  ParaPara.frames.addFrame();
+ParaPara.prevFrame = function() {
+  var result = ParaPara.frames.prevFrame();
+  ParaPara.currentTool.targetFrame(ParaPara.frames.getCurrentFrame());
+  return result;
+}
+
+ParaPara.nextFrame = function() {
+  var result = ParaPara.frames.nextFrame();
+  ParaPara.currentTool.targetFrame(ParaPara.frames.getCurrentFrame());
+  return result;
 }
 
 ParaPara.setDrawMode = function() {
   if (ParaPara.currentTool === ParaPara.drawControls)
-    return;
-
+    return false;
   if (ParaPara.currentTool) {
     ParaPara.currentTool.disable();
   }
-  ParaPara.drawControls.enable();
+  ParaPara.drawControls.targetFrame(ParaPara.frames.getCurrentFrame());
   ParaPara.currentTool = ParaPara.drawControls;
+  return true;
 }
 
 ParaPara.setEraseMode = function() {
   if (ParaPara.currentTool === ParaPara.eraseControls)
-    return;
-
+    return false;
   if (ParaPara.currentTool) {
     ParaPara.currentTool.disable();
   }
-  ParaPara.eraseControls.startErasing(ParaPara.frames.getCurrentFrame(), 10);
+  ParaPara.eraseControls.targetFrame(ParaPara.frames.getCurrentFrame());
   ParaPara.currentTool = ParaPara.eraseControls;
+  return true;
 }
 
 ParaPara.animate = function(fps) {
   if (ParaPara.currentTool) {
     ParaPara.currentTool.disable();
-    ParaPara.currentTool = null;
   }
-  ParaPara.animator = new ParaPara.Animator(fps);
+  ParaPara.editContent.setAttribute("display", "none");
+  ParaPara.animator = new ParaPara.Animator(fps, ParaPara.contentGroup);
   ParaPara.animator.makeAnimation();
+}
+
+ParaPara.removeAnimation = function(fps) {
+  if (ParaPara.animator) {
+    ParaPara.animator.removeAnimation();
+    ParaPara.animator = null;
+  }
+  ParaPara.editContent.removeAttribute("display");
+  if (ParaPara.currentTool) {
+    ParaPara.currentTool.targetFrame(ParaPara.frames.getCurrentFrame());
+  }
+}
+
+// Returns "draw" | "erase" | "animate"
+ParaPara.getMode = function(fps) {
+  if (ParaPara.currentTool === ParaPara.drawControls)
+    return "draw";
+  if (ParaPara.currentTool === ParaPara.eraseControls)
+    return "erase";
+  if (ParaPara.animator)
+    return "animate";
+  // Must be still initialising, go to draw
+  return "draw";
 }
 
 ParaPara.send = function(successCallback, failureCallback, title, author) {
@@ -77,7 +117,7 @@ ParaPara.send = function(successCallback, failureCallback, title, author) {
   var serializedAnim = serializer.serializeToString(anim);
   var payload =
     JSON.stringify({ title: title, author: author, svg: serializedAnim, y:0 });
-  
+
   // Create request
   var req = new XMLHttpRequest();
   req.open("POST", ParaPara.UPLOAD_PATH, true);
@@ -139,7 +179,8 @@ ParaPara.DrawControls = function() {
   this.touchCancelHandler = this.touchCancel.bind(this);
 }
 
-ParaPara.DrawControls.prototype.enable = function() {
+ParaPara.DrawControls.prototype.targetFrame = function(frame) {
+  this.frame = frame;
   ParaPara.svgRoot.addEventListener("mousedown", this.mouseDownHandler, false);
   ParaPara.svgRoot.addEventListener("mousemove", this.mouseMoveHandler, false);
   ParaPara.svgRoot.addEventListener("mouseup", this.mouseUpHandler, false);
@@ -175,7 +216,6 @@ ParaPara.DrawControls.prototype.mouseDown = function(evt) {
   evt.preventDefault();
   if (evt.button || this.linesInProgress.mouseLine)
     return;
-  this.frame = ParaPara.frames.getCurrentFrame();
   var pt = this.getLocalCoords(evt.clientX, evt.clientY, this.frame);
   this.linesInProgress.mouseLine =
     new ParaPara.FreehandLine(pt.x, pt.y, this.frame);
@@ -199,7 +239,6 @@ ParaPara.DrawControls.prototype.mouseUp = function(evt) {
 
 ParaPara.DrawControls.prototype.touchStart = function(evt) {
   evt.preventDefault();
-  this.frame = ParaPara.frames.getCurrentFrame();
   for (var i = 0; i < evt.changedTouches.length; ++i) {
     var touch = evt.changedTouches[i];
     var pt = this.getLocalCoords(touch.clientX, touch.clientY, this.frame);
@@ -405,6 +444,7 @@ ParaPara.FreehandLine.prototype.smoothControlPoints = function(ct1, ct2, pt) {
 ParaPara.Style = function() {
   this.currentColor = "black";
   this.strokeWidth = 4;
+  this._eraseWidth = 4;
 }
 
 ParaPara.Style.prototype.styleStroke = function(elem) {
@@ -421,10 +461,51 @@ ParaPara.Style.prototype.styleFill = function(elem) {
   elem.setAttribute("pointer-events", "none");
 }
 
+ParaPara.Style.prototype.__defineSetter__("eraseWidth", function(width) {
+  this._eraseWidth = width;
+  ParaPara.eraseControls.setBrushWidth(this._eraseWidth);
+});
+
+ParaPara.Style.prototype.__defineGetter__("eraseWidth", function() {
+  return this._eraseWidth;
+});
+
 // -------------------- Frame List --------------------
+
+// Frame hierarchy:
+//
+// <g id="anim">
+//   <!-- Previous frames -->
+//   <g class="prevFrames">
+//     <!-- 0..n Old frames -->
+//     <g class="oldFrames">
+//       <g class="frame">..</g>
+//       ..
+//       <g class="frame">..</g>
+//     </g>
+//     <!-- 0..1 Previous frame -->
+//     <g class="frame">..</g>
+//   </g>
+//   <!-- 0..1 Current frame -->
+//   <g class="frame">..</g>
+//   <g class="nextFrames">
+//     <!-- 0..n Future frames -->
+//     <g class="frame">..</g>
+//     ..
+//     <g class="frame">..</g>
+//  </g>
+// </g>
+//
+// At initialisation all that exists is:
+//
+// <g id="anim"/>
+//
+// The arrangement of previous frames is complex but it allows use of group
+// opacity to produce a more subtle background.
 
 ParaPara.FrameList = function() {
   this.currentFrame = null;
+  this.scene = ParaPara.editContent;
   this.addFrame();
 }
 
@@ -432,64 +513,186 @@ ParaPara.FrameList.prototype.getCurrentFrame = function() {
   return this.currentFrame;
 }
 
-ParaPara.FrameList.prototype.addFrame = function() {
-  if (this.currentFrame) {
-    this.currentFrame.setAttribute("class", "frame oldFrame");
+ParaPara.FrameList.prototype.nextFrame = function() {
+  // Move previous frame to oldFrames group
+  var prevFrame = this.getPrevFrame();
+  if (prevFrame) {
+    this.getOrMakeOldFrames().appendChild(prevFrame);
   }
+
+  // Make current frame to prevFrame
+  if (this.currentFrame) {
+    this.getOrMakePrevFrames().appendChild(this.currentFrame);
+  }
+
+  // Get next frame
+  var addedFrame = false;
+  var nextFrames = this.getNextFrames();
+  if (nextFrames) {
+    this.currentFrame = nextFrames.firstChild;
+    // Move to before nextFrames group
+    this.scene.insertBefore(this.currentFrame, nextFrames);
+    if (!nextFrames.hasChildNodes()) {
+      nextFrames.parentNode.removeChild(nextFrames);
+    }
+  } else {
+    this.addFrame();
+    addedFrame = true;
+  }
+
+  var result = this.getFrameIndexAndCount();
+  result.added = addedFrame;
+  return result;
+}
+
+ParaPara.FrameList.prototype.addFrame = function() {
   var g = document.createElementNS(ParaPara.SVG_NS, "g");
   g.setAttribute("class", "frame");
-
-  var scene = ParaPara.svgRoot.ownerDocument.getElementById("anim");
-  scene.appendChild(g);
+  this.scene.insertBefore(g, this.getNextFrames());
   this.currentFrame = g;
 }
 
-ParaPara.FrameList.prototype.getFrames = function() {
-  var scene = ParaPara.svgRoot.ownerDocument.getElementById("anim");
-  return scene.getElementsByClassName("frame");
+ParaPara.FrameList.prototype.prevFrame = function() {
+  var prevFrame = this.getPrevFrame();
+  if (!prevFrame)
+    return { index: 0, count: this.getFrames().length };
+
+  // Move current frame to next frames group
+  var nextFrames = this.getOrMakeNextFrames();
+  nextFrames.insertBefore(this.currentFrame, nextFrames.firstChild);
+
+  // Make prevFrame the currentFrame
+  this.scene.insertBefore(prevFrame, nextFrames);
+  this.currentFrame = prevFrame;
+
+  // Move last oldFrames to prevFrame pos
+  var oldFrames = this.getOldFrames();
+  if (oldFrames) {
+    var prevFrames = this.getPrevFrames();
+    prevFrames.appendChild(oldFrames.lastChild);
+    if (!oldFrames.hasChildNodes())
+      oldFrames.parentNode.removeChild(oldFrames);
+  } else {
+    console.assert(!this.getPrevFrames().hasChildNodes(),
+      "Previous frames group has child nodes somehow");
+    this.scene.removeChild(this.getPrevFrames());
+  }
+  return this.getFrameIndexAndCount();
 }
 
-ParaPara.FrameList.prototype.clearFrames = function() {
-  var scene = ParaPara.svgRoot.ownerDocument.getElementById("anim");
-  while (scene.hasChildNodes()) {
-    scene.removeChild(scene.lastChild);
-  }
+ParaPara.FrameList.prototype.getFrames = function() {
+  return this.scene.getElementsByClassName("frame");
+}
+
+// --------------- FrameList, internal helpers -------------
+
+ParaPara.FrameList.prototype.getFrameIndexAndCount = function() {
+  var index = this.getOldFrames()
+            ? this.getOldFrames().childNodes.length + 1
+            : this.getPrevFrame() ? 1 : 0;
+  var numFrames = this.getFrames().length;
+  return { index: index, count: numFrames };
+}
+
+ParaPara.FrameList.prototype.getPrevFrame = function() {
+  var prevFrames = this.getPrevFrames();
+  return prevFrames ? prevFrames.lastChild : null;
+}
+
+// prevFrames group
+
+ParaPara.FrameList.prototype.getPrevFrames = function() {
+  return this._getPrevFrames(false);
+}
+
+ParaPara.FrameList.prototype.getOrMakePrevFrames = function() {
+  return this._getPrevFrames(true);
+}
+
+ParaPara.FrameList.prototype._getPrevFrames = function(make) {
+  return this._getOrMakeGroup(this.scene, true, "prevFrames", make);
+}
+
+// oldFrames group
+
+ParaPara.FrameList.prototype.getOldFrames = function() {
+  var prevFrames = this.getPrevFrames();
+  if (!prevFrames)
+    return null;
+  return this._getOrMakeGroup(prevFrames, true, "oldFrames", false);
+}
+
+ParaPara.FrameList.prototype.getOrMakeOldFrames = function() {
+  var prevFrames = this.getOrMakePrevFrames();
+  return this._getOrMakeGroup(prevFrames, true, "oldFrames", true);
+}
+
+// nextFrames group
+
+ParaPara.FrameList.prototype.getNextFrames = function() {
+  return this._getNextFrames(false);
+}
+
+ParaPara.FrameList.prototype.getOrMakeNextFrames = function() {
+  return this._getNextFrames(true);
+}
+
+ParaPara.FrameList.prototype._getNextFrames = function(make) {
+  return this._getOrMakeGroup(this.scene, false, "nextFrames", make);
+}
+
+// Generic group handling
+//
+// Look for a child of 'parent' that is either the first or last child
+// (depending on 'first') and has class 'className'. If not found and 'make' is
+// true, create a <g> to match the criteria; otherwise return null
+ParaPara.FrameList.prototype._getOrMakeGroup =
+  function(parent, first, className, make) {
+  var candidate = first ? parent.firstChild : parent.lastChild;
+  if (candidate && candidate.classList.contains(className))
+    return candidate;
+  if (!make)
+    return null;
+
+  var g = document.createElementNS(ParaPara.SVG_NS, "g");
+  g.setAttribute("class", className);
+  return parent.insertBefore(g, first ? parent.firstChild : null);
 }
 
 // -------------------- Animator --------------------
 
-ParaPara.Animator = function(fps) {
+ParaPara.Animator = function(fps, parent) {
   this.dur = 1 / fps;
+  this.animation = document.createElementNS(ParaPara.SVG_NS, "g");
+  parent.appendChild(this.animation);
 }
 
 ParaPara.Animator.prototype.makeAnimation = function() {
   var frames = ParaPara.frames.getFrames();
   var lastId = "";
 
-  // XXX If performance becomes an issue we might get some speed by making
-  // each animation an independent infinitely repeating animation (with
-  // appropriate use of values and keyTimes)
-
-  // Drop final empty frames
-  var framesLength = frames.length;
-  for (var i = framesLength - 1;
-       i >= 0 && frames[i].childNodes.length == 0;
-       --i)
-  {
+  // Copy frames to animation
+  for (var i = 0; i < frames.length; ++i) {
     var frame = frames[i];
-    if (frame.childNodes.length > 0)
-      break;
-    frame.parentNode.removeChild(frame);
-    --framesLength;
-  }
 
-  if (framesLength < 2)
+    // Skip any final empty frames
+    if (!frame.hasChildNodes())
+      continue;
+
+    this.animation.appendChild(frame.cloneNode(true));
+  }
+  frames = this.animation.childNodes;
+
+  // We need at least 2 frames for animation
+  if (frames.length < 2)
     return;
 
-  for (var i = 0; i < framesLength; ++i) {
+  for (var i = 0; i < frames.length; ++i) {
     var frame = frames[i];
 
-    frame.classList.remove("oldFrame");
+    // Remove any styles due to a stylesheet since there won't be a stylesheet
+    // in the combined animation
+    frame.removeAttribute("class");
     frame.setAttribute("visibility", "hidden");
 
     // Add an animation
@@ -507,13 +710,16 @@ ParaPara.Animator.prototype.makeAnimation = function() {
   }
 
   // Make the first animation get triggered by the last
-  if (framesLength) {
-    var firstAnim = frames[0].getElementsByTagName("set")[0];
-    firstAnim.setAttribute("begin", "0; " + lastId + ".end");
-  }
+  var firstAnim = frames[0].getElementsByTagName("set")[0];
+  firstAnim.setAttribute("begin", "0; " + lastId + ".end");
 
   // Trigger animation
   ParaPara.svgRoot.setCurrentTime(0);
+}
+
+ParaPara.Animator.prototype.removeAnimation = function() {
+  this.animation.parentNode.removeChild(this.animation);
+  this.animation = null;
 }
 
 ParaPara.Animator.prototype.exportAnimation = function(title, author) {
@@ -542,7 +748,7 @@ ParaPara.Animator.prototype.exportAnimation = function(title, author) {
   var maxX = maxY = Number.NEGATIVE_INFINITY;
 
   // Copy frames to new doc
-  var frames = ParaPara.frames.getFrames();
+  var frames = this.animation.childNodes;
   if (!frames.length)
     return null;
 
@@ -581,15 +787,14 @@ ParaPara.Animator.prototype.exportAnimation = function(title, author) {
 
 ParaPara.Animator.prototype.setSpeed = function(fps) {
   this.dur = 1 / fps;
-  var scene = ParaPara.svgRoot.ownerDocument.getElementById("anim");
-  var anims = scene.getElementsByTagName("set");
+  var anims = this.animation.getElementsByTagName("set");
   for (var i = 0; i < anims.length; ++i) {
     var anim = anims[i];
     anim.setAttribute("dur", this.dur + "s");
   }
 }
 
-// -------------------- Animator --------------------
+// -------------------- Utils --------------------
 
 ParaPara.Utils = {};
 

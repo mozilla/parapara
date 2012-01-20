@@ -3,8 +3,8 @@ var EditorUI = EditorUI || {};
 EditorUI.INITIAL_SPEED_FPS = 3.3;
 
 EditorUI.init = function() {
-  var svgRoot = document.getElementById("canvas");
-  ParaPara.init(svgRoot);
+  var paraparaRoot = document.getElementById("parapara");
+  ParaPara.init(paraparaRoot);
   EditorUI.initControls();
   // Disabling full-screen mode for now since:
   // a) there's no UI for it for tablets
@@ -34,9 +34,14 @@ EditorUI.initControls = function() {
 
 // -------------- Navigation -----------
 
+EditorUI.prevFrame = function() {
+  ParaPara.prevFrame();
+}
+
 EditorUI.nextFrame = function() {
-  ParaPara.addFrame();
-  this.changeTool(document.getElementById("pencilTool"));
+  var result = ParaPara.nextFrame();
+  if (result.added)
+    this.changeTool(document.getElementById("pencilTool"));
 }
 
 EditorUI.finish = function() {
@@ -46,6 +51,14 @@ EditorUI.finish = function() {
   EditorUI.updateLayout();
   var speedAdjust = document.getElementById("speedAdjust");
   ParaPara.animate(speedAdjust.value);
+}
+
+EditorUI.returnToEditing = function() {
+  ParaPara.removeAnimation();
+  document.getElementById("toolBox").style.visibility = "";
+  document.getElementById("frameControls").style.display = "";
+  document.getElementById("animControls").style.display = "none";
+  EditorUI.updateLayout();
 }
 
 EditorUI.reset = function() {
@@ -229,8 +242,7 @@ EditorUI.changeEraseWidth = function(buttonOrEvent) {
   var button = EditorUI.selectButtonInGroup(buttonOrEvent, "eraseWidthButton");
   if (!button)
     return;
-  ParaPara.eraseControls.setBrushWidth(
-    EditorUI.getStrokeWidthFromButton(button));
+  ParaPara.currentStyle.eraseWidth = EditorUI.getStrokeWidthFromButton(button);
 }
 
 // -------------- Common button handling -----------

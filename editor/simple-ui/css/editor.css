@@ -106,14 +106,20 @@ circle.eraseOutline {
 }
 
 /* Previous (greyed-out) animation frames */
-g.oldFrame > circle {
+g.prevFrames circle {
   fill: grey
 }
-g.oldFrame > path {
+g.prevFrames path {
   stroke: grey
 }
-g.oldFrame {
+g.prevFrames {
   opacity: 0.5
+}
+g.oldFrames {
+  opacity: 0.4
+}
+g.nextFrames {
+  display: none
 }
 
 /* Error/notice overlay */
