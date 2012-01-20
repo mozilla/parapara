@@ -225,7 +225,7 @@ EditorUI.initWidths = function() {
   EditorUI.addHitRegionListeners(widths.contentDocument, EditorUI.changeWidth,
                                  1);
   // Set the initial erase width to match the initial stroke width
-  ParaPara.currentStyle.eraseWidth = EditorUI.widthTable["large"];
+  ParaPara.currentStyle.eraseWidth = EditorUI.widthTable["medium"];
 }
 
 // width = <width> | <hit element> | <event>
@@ -271,10 +271,9 @@ EditorUI.changeWidth = function(width) {
 }
 
 EditorUI.widthTable = new Array();
-EditorUI.widthTable["small"] = 2;
-EditorUI.widthTable["medium"] = 4;
-EditorUI.widthTable["large"] = 8;
-EditorUI.widthTable["xLarge"] = 12;
+EditorUI.widthTable["small"] = 4;
+EditorUI.widthTable["medium"] = 8;
+EditorUI.widthTable["large"] = 12;
 
 EditorUI.getWidthFromString = function(str) {
   return EditorUI.widthTable[str];
