@@ -35,6 +35,11 @@ div.controlPanel #animate {
   bottom: 3px;
   right: 3px;
 }
+div.controlPanel #send {
+  position: absolute;
+  bottom: 3px;
+  right: 3px;
+}
 div.controlPanel #return {
   position: absolute;
   bottom: 3px;

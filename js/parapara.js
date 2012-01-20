@@ -103,20 +103,22 @@ ParaPara.getMode = function(fps) {
   return "draw";
 }
 
-ParaPara.send = function(successCallback, failureCallback, title, author) {
+ParaPara.send = function(successCallback, failureCallback, metadata) {
   // Export animation
   console.assert(ParaPara.animator, "No animator found");
-  var anim = ParaPara.animator.exportAnimation(title, author);
+  var anim = ParaPara.animator.exportAnimation(metadata.title, metadata.author);
   if (!anim) {
     failureCallback(ParaPara.SEND_ERROR_NO_ANIMATION);
     return;
   }
 
   // Prepare payload
+  var payloadObject = metadata;
   var serializer = new XMLSerializer();
   var serializedAnim = serializer.serializeToString(anim);
-  var payload =
-    JSON.stringify({ title: title, author: author, svg: serializedAnim, y:0 });
+  payloadObject.svg = serializedAnim;
+  payloadObject.y   = 0;
+  var payload = JSON.stringify(payloadObject);
 
   // Create request
   var req = new XMLHttpRequest();
