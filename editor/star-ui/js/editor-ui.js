@@ -66,10 +66,8 @@ EditorUI.nextFrame = function() {
 EditorUI.animate = function() {
   document.getElementById("editControls").classList.remove("active");
   document.getElementById("animControls").classList.add("active");
-  /*
-  var speedAdjust = document.getElementById("speedAdjust");
-  */
-  ParaPara.animate(5);
+  var speed = EditorUI.meter.getValue();
+  ParaPara.animate(speed);
 }
 
 EditorUI.returnToEditing = function() {
