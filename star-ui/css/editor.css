@@ -65,20 +65,7 @@ div.controlPanel .controlSet {
   height:100%;
 }
 div.controlPanel .controlSet.active {
-  -moz-animation-name: fadein;
-  -moz-animation-duration: 0.5s;
-  -moz-animation-fill-mode: forwards;
-}
-
-@-moz-keyframes fadein {
-  from {
-    visibility: visible;
-    opacity: 0;
-  }
-  to {
-    visibility: visible;
-    opacity: 1;
-  }
+  visibility:visible;
 }
 
 /* Credit form */
