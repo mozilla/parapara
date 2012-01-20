@@ -220,6 +220,8 @@ EditorUI.initWidths = function() {
   var widths = document.getElementById("widths");
   EditorUI.addHitRegionListeners(widths.contentDocument, EditorUI.changeWidth,
                                  1);
+  // Set the initial erase width to match the initial stroke width
+  ParaPara.currentStyle.eraseWidth = EditorUI.widthTable["large"];
 }
 
 // width = <width> | <hit element> | <event>
