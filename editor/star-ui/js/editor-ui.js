@@ -205,6 +205,13 @@ EditorUI.changeColor = function(color) {
     window.getComputedStyle(elem, null).getPropertyValue("fill", null);
   ParaPara.currentStyle.currentColor = color;
   EditorUI.changeTool("pencil");
+  EditorUI.updateBrushPreviewColor(color);
+}
+
+EditorUI.updateBrushPreviewColor = function(color) {
+  var widths = document.getElementById("widths");
+  var starGroup = widths.contentDocument.getElementById("starGroup");
+  starGroup.setAttribute("fill", color);
 }
 
 // -------------- Widths -----------
@@ -310,6 +317,12 @@ EditorUI.changeTool = function(tool) {
                                : ParaPara.currentStyle.eraseWidth;
   EditorUI.changeWidth(width);
 
+  // Update color
+  EditorUI.updateBrushPreviewColor(tool == "pencil"
+                                   ? ParaPara.currentStyle.currentColor
+                                   : "white");
+
+  // Animate selection
   var tools = document.getElementById("tools");
   var anim = tools.contentDocument.getElementById(tool + "SelectAnim");
   anim.beginElement();
