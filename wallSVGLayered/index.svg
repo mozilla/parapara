@@ -49,19 +49,19 @@
 	
 		<image xlink:href="images/oku.png" width="3400" height="3400">
 	        <animateTransform attributeName="transform" type="rotate"
-	            from="0 1700 1700" to="360 1700 1700" repeatCount="indefinite" additive="sum" dur="240s"
+	            from="0 1700 1700" to="360 1700 1700" repeatCount="indefinite" additive="sum" dur="300s"
 	        />
 		</image>
 
 		<image xlink:href="images/naka.png" width="3400" height="3400">
 	        <animateTransform id="time-base" attributeName="transform" type="rotate"
-	            from="0 1700 1700" to="360 1700 1700" repeatCount="indefinite" additive="sum" dur="120s"
+	            from="0 1700 1700" to="360 1700 1700" repeatCount="indefinite" additive="sum" dur="240s"
 	        />
 		</image>
 
 		<g id="main-layer">
 	        <animateTransform id="time-base" attributeName="transform" type="rotate"
-	            from="0 1700 1700" to="360 1700 1700" repeatCount="indefinite" additive="sum" dur="120s"
+	            from="0 1700 1700" to="360 1700 1700" repeatCount="indefinite" additive="sum" dur="240s"
 	        />
 			<path id="main-layer-path" pathLength="1" style="fill:none;stroke:none;stroke-width:2;" d="M2560.75,993.206C2655.477,1008.112,2737,1061,2769,1109
 				c156.546-24.52,148,4,100,116c116,156-55.213,271.946-55.213,271.946s7.713,148.378,7.713,211.054
@@ -91,7 +91,7 @@
 	
 		<image xlink:href="images/temae.png" width="3400" height="3400">
 	        <animateTransform id="time-base" attributeName="transform" type="rotate"
-	            from="0 1700 1700" to="360 1700 1700" repeatCount="indefinite" additive="sum" dur="60s"
+	            from="0 1700 1700" to="360 1700 1700" repeatCount="indefinite" additive="sum" dur="200s"
 	        />
 		</image>
 	</g>
