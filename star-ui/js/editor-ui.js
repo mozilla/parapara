@@ -107,7 +107,6 @@ EditorUI.getRadioValue = function(radio) {
 EditorUI.sendSuccess = function() {
   EditorUI.displayNote("noteSendingComplete");
   EditorUI.fadeNote();
-  document.getElementById("animControls").style.display = "none";
   EditorUI.reset();
 }
 
