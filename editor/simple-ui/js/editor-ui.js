@@ -75,9 +75,10 @@ EditorUI.reset = function() {
 EditorUI.send = function() {
   EditorUI.displayNote("noteSending");
   // XXX get title and author -- leaving this until we have a design for this
-  var title  = "タイトル";
-  var author = "名前";
-  ParaPara.send(EditorUI.sendSuccess, EditorUI.sendFail, title, author);
+  var metadata = {};
+  metadata.title  = "タイトル";
+  metadata.author = "名前";
+  ParaPara.send(EditorUI.sendSuccess, EditorUI.sendFail, title, metadata);
 }
 
 EditorUI.sendSuccess = function() {
