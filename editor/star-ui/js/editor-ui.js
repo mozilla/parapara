@@ -196,8 +196,12 @@ EditorUI.finishFade = function(evt) {
 
 EditorUI.initColors = function() {
   var picker = document.getElementById("picker");
+  // Randomly choose a color from index 1 to 6. We skip 0 because it's dark blue
+  // and similar to the background color making the width selection hard to
+  // notice.
+  var initialColor = Math.floor(Math.random()*6+1);
   EditorUI.addHitRegionListeners(picker.contentDocument, EditorUI.changeColor,
-                                 5);
+                                 initialColor);
 }
 
 // color = <hit element> | <event>
