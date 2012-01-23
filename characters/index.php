@@ -19,7 +19,7 @@ $connection = getConnection();
   while ($row = mysql_fetch_array($result, MYSQL_NUM)) {
     $url = $base_url . $row[0] . ".svg";
     echo "<tr>";
-    echo "<td>" . ($row[0] ? "&#x25cb;" : "&nbsp;") . "</td>";
+    echo "<td>" . ($row[3] ? "&#x25cb;" : "&nbsp;") . "</td>";
     echo "<td>" . $row[1] . "</td>";
     echo "<td>" . $row[2] . "</td>";
     echo "<td><a href=\"$url\">$url</a></td>";
