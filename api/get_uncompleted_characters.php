@@ -10,7 +10,7 @@ $x = $_GET["x"];
 $list = array();
 try {
 
-	$query = "SELECT id,title,author,y FROM characters WHERE x IS NULL";
+	$query = "SELECT id,title,author,y FROM characters WHERE x IS NULL AND active = 1";
 	$resultset = mysql_query($query, $connection) or throwException(mysql_error());
 
 	$ids = "";

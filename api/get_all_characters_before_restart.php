@@ -7,7 +7,7 @@ $connection = getConnection();
 
 $list = array();
 try {
-	$query = "SELECT id,x,y FROM characters WHERE x IS NOT NULL ORDER BY x";
+	$query = "SELECT id,x,y FROM characters WHERE x IS NOT NULL AND active = 1 ORDER BY x";
 	$resultset = mysql_query($query, $connection) or throwException(mysql_error());
 
 	while ($row = mysql_fetch_array($resultset)) {
