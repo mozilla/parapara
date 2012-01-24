@@ -2,14 +2,14 @@
 <html>
   <head>
     <title>パラパラアニメーション</title>
-    <link rel="stylesheet" href="star-ui/css/editor.css" type="text/css">
-    <link rel="stylesheet" href="css/parapara.css" type="text/css">
+    <link rel="stylesheet" href="ui/css/editor.css" type="text/css">
+    <link rel="stylesheet" href="ui/css/parapara.css" type="text/css">
     <script type="text/javascript" src="js/compat.js"></script>
     <script type="text/javascript" src="js/parapara.js"></script>
     <script type="text/javascript" src="js/eraser.js"></script>
     <script type="text/javascript" src="js/svgClassList.js"></script>
-    <script type="text/javascript" src="star-ui/js/editor-ui.js"></script>
-    <script type="text/javascript" src="star-ui/js/meter.js"></script>
+    <script type="text/javascript" src="ui/js/editor-ui.js"></script>
+    <script type="text/javascript" src="ui/js/meter.js"></script>
     <meta name="viewport" 
       content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -20,21 +20,21 @@
   <body>
     <div class="container" id="container">
       <div class="controlPanel vertical">
-        <img src="star-ui/img/space_plate.jpg" alt="" class="starBackground">
+        <img src="ui/img/space_plate.jpg" alt="" class="starBackground">
         <div id="editControls" class="controlSet active">
-          <object data="star-ui/img/picker.svg" class="panelContents"
+          <object data="ui/img/picker.svg" class="panelContents"
             id="picker"></object>
-          <object data="star-ui/img/widths.svg" class="panelContents"
+          <object data="ui/img/widths.svg" class="panelContents"
             id="widths"></object>
-          <object data="star-ui/img/tools.svg" class="panelContents"
+          <object data="ui/img/tools.svg" class="panelContents"
             id="tools"></object>
-          <object data="star-ui/img/frame-controls.svg" class="panelContents"
+          <object data="ui/img/frame-controls.svg" class="panelContents"
             id="frameControls"></object>
-          <img src="star-ui/img/clear.svg" id="clear" width="60">
-          <img src="star-ui/img/next.svg" id="animate" width="80">
+          <img src="ui/img/clear.svg" id="clear" width="60">
+          <img src="ui/img/next.svg" id="animate" width="80">
         </div>
         <div id="animControls" class="controlSet">
-          <img src="star-ui/img/picker.svg" class="wheelBackground">
+          <img src="ui/img/picker.svg" class="wheelBackground">
           <form>
           <div class="field">
             <label for="title">タイトル</label>
@@ -61,10 +61,10 @@
             <span class="units"> さい</span>
           </div>
           </form>
-          <object data="star-ui/img/meter.svg" class="panelContents"
+          <object data="ui/img/meter.svg" class="panelContents"
             id="speedDial"></object>
-          <img src="star-ui/img/prev.svg" id="return" width="90">
-          <img src="star-ui/img/send.svg" id="send" width="100">
+          <img src="ui/img/prev.svg" id="return" width="90">
+          <img src="ui/img/send.svg" id="send" width="100">
         </div>
       </div>
       <div class="canvas">
@@ -72,13 +72,11 @@
           <defs>
             <pattern patternUnits="userSpaceOnUse"
               width="95" height="300" viewBox="0 -856 300 941" id="jimen">
-              <image width="300" height="85"
-                xlink:href="star-ui/img/jimen.png"/>
+              <image width="300" height="85" xlink:href="ui/img/jimen.png"/>
             </pattern>
           </defs>
           <rect width="100%" height="100%" fill="black"/>
-          <image width="600" height="300"
-            xlink:href="star-ui/img/space-bg.jpg"/>
+          <image width="600" height="300" xlink:href="ui/img/space-bg.jpg"/>
           <rect width="100%" height="100%" fill="url(#jimen)"/>
           <g id="parapara"/>
         </svg>
@@ -88,7 +86,7 @@
       <div class="overlay-inner">
         <div class="overlay-contents" id="noteSending">
           送信中<br/><br/>
-          <img src="img/loader.gif" width="43" height="11" alt="送信中">
+          <img src="ui/img/loader.gif" width="43" height="11" alt="送信中">
         </div>
         <div class="overlay-contents error" id="noteSendingFailed">
           送信失敗しました<br/><br/>

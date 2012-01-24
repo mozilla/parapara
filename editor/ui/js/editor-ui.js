@@ -78,7 +78,7 @@ EditorUI.send = function() {
   var metadata = {};
   metadata.title  = "タイトル";
   metadata.author = "名前";
-  ParaPara.send(EditorUI.sendSuccess, EditorUI.sendFail, title, metadata);
+  ParaPara.send(EditorUI.sendSuccess, EditorUI.sendFail, metadata);
 }
 
 EditorUI.sendSuccess = function() {

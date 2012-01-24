@@ -2,13 +2,14 @@
 <html>
   <head>
     <title>パラパラアニメーション</title>
-    <link rel="stylesheet" href="simple-ui/css/editor.css" type="text/css">
+    <link rel="stylesheet" href="ui/css/editor.css" type="text/css">
+    <link rel="stylesheet" href="ui/css/parapara.css" type="text/css">
     <script type="text/javascript" src="js/compat.js"></script>
     <script type="text/javascript" src="js/parapara.js"></script>
     <script type="text/javascript" src="js/eraser.js"></script>
     <script type="text/javascript" src="js/svgClassList.js"></script>
-    <script type="text/javascript" src="simple-ui/js/editor-ui.js"></script>
-    <script type="text/javascript" src="simple-ui/js/svgslider.js"></script>
+    <script type="text/javascript" src="ui/js/editor-ui.js"></script>
+    <script type="text/javascript" src="ui/js/svgslider.js"></script>
     <meta name="viewport" 
       content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -22,14 +23,12 @@
       <div class="controls vertical column" id="toolBox">
         <button type="button" class="image toolButton swell" id="pencilTool">
           <svg viewBox="-1 -1 22 22">
-            <image xlink:href="simple-ui/img/pencil.svg" width="20"
-              height="20"/>
+            <image xlink:href="ui/img/pencil.svg" width="20" height="20"/>
           </svg>
         </button>
         <button type="button" class="image toolButton swell" id="eraserTool">
           <svg viewBox="-1 -1 22 22">
-            <image xlink:href="simple-ui/img/eraser.svg" width="20"
-              height="20"/>
+            <image xlink:href="ui/img/eraser.svg" width="20" height="20"/>
           </svg>
         </button>
         <div id="drawControls" style="display:none" class="controlSet">
@@ -104,8 +103,7 @@
           id="canvas" class="canvas">
           <!-- Fallback background -->
           <rect width="100%" height="100%" fill="black"/>
-          <image width="101%" height="101%"
-            xlink:href="simple-ui/img/space-bg.svg"/>
+          <image width="101%" height="101%" xlink:href="ui/img/space-bg.svg"/>
           <g id="parapara"/>
         </svg>
         <div class="controls" id="animControls" style="display:none">
@@ -132,7 +130,7 @@
       <div class="overlay-inner">
         <div class="overlay-contents" id="noteSending">
           送信中<br/><br/>
-          <img src="img/loader.gif" width="43" height="11" alt="送信中">
+          <img src="ui/img/loader.gif" width="43" height="11" alt="送信中">
         </div>
         <div class="overlay-contents error" id="noteSendingFailed">
           送信失敗しました<br/><br/>
