@@ -1,6 +1,7 @@
 var EditorUI = EditorUI || {};
 
 EditorUI.INITIAL_SPEED_FPS = 3.3;
+EditorUI.UPLOAD_PATH       = "server/upload-success";
 
 EditorUI.init = function() {
   var paraparaRoot = document.getElementById("parapara");
@@ -78,7 +79,8 @@ EditorUI.send = function() {
   var metadata = {};
   metadata.title  = "タイトル";
   metadata.author = "名前";
-  ParaPara.send(EditorUI.sendSuccess, EditorUI.sendFail, metadata);
+  ParaPara.send(EditorUI.UPLOAD_PATH, EditorUI.sendSuccess, EditorUI.sendFail,
+                metadata);
 }
 
 EditorUI.sendSuccess = function() {
