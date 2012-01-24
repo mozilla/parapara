@@ -96,7 +96,7 @@ var Main = {
 		g.appendChild(animateMotion);
 		Main.main_layer.appendChild(g);
 
-		var timedif = 3000+Math.random()*3000;
+		var timedif = 4500+Math.random()*3000;
 		setTimeout(Main.next, timedif, index+1);
 	},
 
