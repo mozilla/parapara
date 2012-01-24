@@ -1,6 +1,7 @@
 var EditorUI = EditorUI || {};
 
 EditorUI.INITIAL_SPEED_FPS = 3.3;
+EditorUI.UPLOAD_PATH       = "../api/upload_anim.php";
 
 EditorUI.init = function() {
   var paraparaRoot = document.getElementById("parapara");
@@ -98,7 +99,8 @@ EditorUI.send = function() {
   metadata.author = document.forms[0].name.value.trim();
   metadata.sex    = EditorUI.getRadioValue(document.forms[0].sex);
   metadata.age    = document.forms[0].age.value.trim();
-  ParaPara.send(EditorUI.sendSuccess, EditorUI.sendFail, metadata);
+  ParaPara.send(EditorUI.UPLOAD_PATH, EditorUI.sendSuccess, EditorUI.sendFail,
+                metadata);
 }
 
 EditorUI.getRadioValue = function(radio) {

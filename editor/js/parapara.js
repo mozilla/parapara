@@ -4,7 +4,6 @@ ParaPara.SVG_NS   = "http://www.w3.org/2000/svg";
 ParaPara.XLINK_NS = "http://www.w3.org/1999/xlink";
 
 ParaPara.XHR_TIMEOUT = 8000;
-ParaPara.UPLOAD_PATH = "../api/upload_anim.php";
 
 // Return codes for sending animation
 ParaPara.SEND_OK                 = 0;
@@ -109,7 +108,8 @@ ParaPara.getMode = function(fps) {
   return "draw";
 }
 
-ParaPara.send = function(successCallback, failureCallback, metadata) {
+ParaPara.send = function(uploadPath, successCallback, failureCallback, metadata)
+{
   // Export animation
   console.assert(ParaPara.animator, "No animator found");
   var anim = ParaPara.animator.exportAnimation(metadata.title, metadata.author);
@@ -128,7 +128,7 @@ ParaPara.send = function(successCallback, failureCallback, metadata) {
 
   // Create request
   var req = new XMLHttpRequest();
-  req.open("POST", ParaPara.UPLOAD_PATH, true);
+  req.open("POST", uploadPath, true);
 
   // Set headers
   req.setRequestHeader("Content-Length", payload.length);
@@ -138,7 +138,12 @@ ParaPara.send = function(successCallback, failureCallback, metadata) {
   req.addEventListener("load",
     function(evt) {
       var xhr = evt.target;
-      if (xhr.status == 200) {
+      // 200 is for HTTP request, 0 is for local files (this allows us to test
+      // without running a local webserver)
+      if (xhr.status == 200 || xhr.status == 0) {
+        // XXX Parse response---it might be an error description
+        // Or just pass on the response and let the callback deal with it since
+        // error codes will probably differ between different setups?
         successCallback();
       } else {
         console.debug(xhr);
