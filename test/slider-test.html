@@ -1,0 +1,22 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Slider test</title>
+<script type="text/javascript">
+  function changeSliderSize() {
+    var slider = document.getElementById("slider");
+    slider.style.setProperty("width", "500px", "");
+    slider.style.setProperty("height", "300px", "");
+  }
+  window.setTimeout(changeSliderSize, 1000);
+</script>
+<script src="../js/svgslider.js"> </script>
+</head>
+<body style="background:#ccc">
+  <input type="range" min="0" max="30" value="10"
+    id="slider"></input>
+  <div id="log">
+  </div>
+</body>
+</html>
