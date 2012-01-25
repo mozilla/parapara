@@ -13,7 +13,10 @@ $connection = getConnection();
 <table cellpadding="5" style="font-size: 1.2em">
 <tr><th>&nbsp;</td><th>名前</th><th>タイトル</th><th>URL</th></tr>
 <?php
-  $base_url = "http://parapara.mozlabs.jp/characters/";
+  $self = $_SERVER['PHP_SELF'];
+  $base_url = $_SERVER['HTTPS'] == 'on' ? "https://" : "http://";
+  $base_url .= $_SERVER['HTTP_HOST'];
+  $base_url .= substr($self, 0, strrpos($self, '/') + 1);
   $query = "SELECT id, author, title, active FROM characters";
   $result = mysql_query($query, $connection) or throwException(mysql_error());
   while ($row = mysql_fetch_array($result, MYSQL_NUM)) {
