@@ -141,10 +141,20 @@ ParaPara.send = function(uploadPath, successCallback, failureCallback, metadata)
       // 200 is for HTTP request, 0 is for local files (this allows us to test
       // without running a local webserver)
       if (xhr.status == 200 || xhr.status == 0) {
-        // XXX Parse response---it might be an error description
-        // Or just pass on the response and let the callback deal with it since
-        // error codes will probably differ between different setups?
-        successCallback();
+        try {
+          var response = JSON.parse(xhr.responseText);
+          if (response.error_key) {
+            console.log("Error sending to server, key: " + response.error_key
+              + ", detail: \"" + response.error_detail + "\"");
+            failureCallback(ParaPara.SEND_ERROR_SERVER_ERROR);
+          } else {
+            successCallback(response);
+          }
+        } catch (e if e instanceof SyntaxError) {
+          console.log("Error sending to server, could not parse response: "
+            + xhr.responseText);
+          failureCallback(ParaPara.SEND_ERROR_SERVER_ERROR);
+        }
       } else {
         console.debug(xhr);
         failureCallback(ParaPara.SEND_ERROR_NO_ACCESS);
