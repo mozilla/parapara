@@ -1,5 +1,13 @@
 <?php
+require_once("CONSTANTS.inc");
+require_once("db.inc");
+
 header("Content-Type: text/plain; charset=UTF-8");
+
+if (!ACCEPT_CHARACTERS) {
+  print "{\"error_key\":\"not_live\"}\n\n";
+  exit;
+}
 
 $handle = fopen('php://input','r');
 $jsonString = fgets($handle);
@@ -11,8 +19,6 @@ $author = $json["author"];
 $y = $json["y"];
 $svg = $json["svg"];
 
-require_once("CONSTANTS.inc");
-require_once("db.inc");
 $connection = getConnection();
 
 try {
