@@ -6,12 +6,13 @@ ParaPara.XLINK_NS = "http://www.w3.org/1999/xlink";
 ParaPara.XHR_TIMEOUT = 8000;
 
 // Return codes for sending animation
-ParaPara.SEND_OK                 = 0;
-ParaPara.SEND_ERROR_NO_ANIMATION = 1;
-ParaPara.SEND_ERROR_TIMEOUT      = 2;
-ParaPara.SEND_ERROR_FAILED_SEND  = 3;
-ParaPara.SEND_ERROR_NO_ACCESS    = 4; // 404, cross-domain etc.
-ParaPara.SEND_ERROR_SERVER_ERROR = 5; // Server rejects request
+ParaPara.SEND_OK                    = 0;
+ParaPara.SEND_ERROR_NO_ANIMATION    = 1;
+ParaPara.SEND_ERROR_TIMEOUT         = 2;
+ParaPara.SEND_ERROR_FAILED_SEND     = 3;
+ParaPara.SEND_ERROR_NO_ACCESS       = 4; // 404, cross-domain etc.
+ParaPara.SEND_ERROR_SERVER_ERROR    = 5; // Server rejects request
+ParaPara.SEND_ERROR_SERVER_NOT_LIVE = 6; // Server not accepting submissions
 
 // contentGroup is an empty <g> where ParaPara can add its content
 ParaPara.init = function(contentGroup) {
@@ -144,9 +145,18 @@ ParaPara.send = function(uploadPath, successCallback, failureCallback, metadata)
         try {
           var response = JSON.parse(xhr.responseText);
           if (response.error_key) {
-            console.log("Error sending to server, key: " + response.error_key
-              + ", detail: \"" + response.error_detail + "\"");
-            failureCallback(ParaPara.SEND_ERROR_SERVER_ERROR);
+            switch (response.error_key) {
+              case "not_live":
+                failureCallback(ParaPara.SEND_ERROR_SERVER_NOT_LIVE);
+                break;
+
+              default:
+                console.log("Error sending to server, key: "
+                  + response.error_key
+                  + ", detail: \"" + response.error_detail + "\"");
+                failureCallback(ParaPara.SEND_ERROR_SERVER_ERROR);
+                break;
+            }
           } else {
             successCallback(response);
           }
