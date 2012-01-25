@@ -100,6 +100,13 @@
           <button type="button" class="text"
             onclick="EditorUI.cancelSend()">OK</button>
         </div>
+        <div class="overlay-contents error" id="noteNotLive">
+          ただいま、このエベントが終了となりました<br/><br/>
+          <button type="button" class="text"
+            onclick="EditorUI.cancelSend()">キャンセル</button>
+          <button type="button" class="text"
+            onclick="EditorUI.send()">再送信</button>
+        </div>
         <div class="overlay-contents" id="noteSendingComplete">
           送信しました！
         </div>

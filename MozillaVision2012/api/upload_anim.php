@@ -37,15 +37,16 @@ try {
 
 	$svgfile = @fopen($svgfilename, 'w');
 	if ($svgfile == false) {
-		print "このファイルには書き込みできません。<br>\n";
+    print '{"error_key":"failed_to_write",'
+      . '"error_detail":"このファイルには書き込みできません"}' . "\n\n";
 	} else {
 		fwrite($svgfile, $svg);
 		fclose($svgfile);
-		print $id;
+    print "{\"id\":$id}\n\n";
 	}
 } catch (Exception $e) {
 	$message = $e->getMessage();
-	print "error=$message";
+  print "{\"error_key\":\"db_error\",\"error_detail\":\"$message\"}\n\n";
 }
 mysql_close($connection);
 ?>

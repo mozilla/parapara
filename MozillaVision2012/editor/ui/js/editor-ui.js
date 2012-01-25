@@ -144,6 +144,11 @@ EditorUI.sendFail = function(code) {
       console.debug("Server error");
       break;
 
+    case ParaPara.SEND_ERROR_SERVER_NOT_LIVE:
+      EditorUI.displayNote("noteNotLive");
+      console.debug("Server error");
+      break;
+
     default:
       EditorUI.displayNote("noteSendingFailed");
       console.debug("Unknown error");
