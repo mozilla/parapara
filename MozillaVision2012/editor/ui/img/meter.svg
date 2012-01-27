@@ -41,8 +41,8 @@
  <![CDATA[
   // Add methods to document to control the SVG file
 
-  const MIN_ANGLE = -55;
-  const MAX_ANGLE = 55;
+  /*const*/ var MIN_ANGLE = -55;
+  /*const*/ var MAX_ANGLE = 55;
 
   document.getLeft = function() {
     return document.documentElement.getBBox().x;

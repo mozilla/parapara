@@ -586,7 +586,7 @@ ParaPara.Geometry.rectContainsRect = function(rectA, rectB) {
 }
 
 ParaPara.Geometry.rectContainsLine = function(rect, line) {
-  const rectContainsPoint = ParaPara.Geometry.rectContainsPoint;
+  /*const*/ var rectContainsPoint = ParaPara.Geometry.rectContainsPoint;
   return rectContainsPoint(rect, [line[0], line[1]]) &&
          rectContainsPoint(rect, [line[2], line[3]]);
 }
@@ -603,12 +603,12 @@ ParaPara.Geometry.lineLength = function(x1, y1, x2, y2) {
 }
 
 ParaPara.Geometry.isBetween = function (x, a, b) {
-  const tolerance = 0.000001;
+  /*const*/ var tolerance = 0.000001;
   return x >= Math.min(a, b) - tolerance && x <= Math.max(a, b) + tolerance;
 }
 
 ParaPara.Geometry.prettyMuchEqual = function(a, b) {
-  const floatTolerance = 0.000001;
+  /*const*/ var floatTolerance = 0.000001;
   return Math.abs(a-b) < floatTolerance;
 }
 
@@ -639,9 +639,9 @@ ParaPara.LineToSegment = function(points) {
 }
 
 ParaPara.LineToSegment.prototype.cut = function(brush) {
-  const MoveToSegment   = ParaPara.MoveToSegment;
-  const LineToSegment   = ParaPara.LineToSegment;
-  const prettyMuchEqual = ParaPara.Geometry.prettyMuchEqual;
+  /*const*/ var MoveToSegment   = ParaPara.MoveToSegment;
+  /*const*/ var LineToSegment   = ParaPara.LineToSegment;
+  /*const*/ var prettyMuchEqual = ParaPara.Geometry.prettyMuchEqual;
 
   var brushBBox = brush.getBBox();
   if (!ParaPara.Geometry.lineIntersectsRect(this.points, brushBBox))
@@ -735,10 +735,10 @@ ParaPara.CurveToSegment = function(points) {
 }
 
 ParaPara.CurveToSegment.prototype.cut = function(brush) {
-  const MoveToSegment     = ParaPara.MoveToSegment;
-  const CurveToSegment    = ParaPara.CurveToSegment;
-  const lineLength        = ParaPara.Geometry.lineLength;
-  const segmentsIntersect = ParaPara.Geometry.segmentsIntersect;
+  /*const*/ var MoveToSegment     = ParaPara.MoveToSegment;
+  /*const*/ var CurveToSegment    = ParaPara.CurveToSegment;
+  /*const*/ var lineLength        = ParaPara.Geometry.lineLength;
+  /*const*/ var segmentsIntersect = ParaPara.Geometry.segmentsIntersect;
 
   // Check if bboxes intersect
   var brushBBox   = brush.getBBox();

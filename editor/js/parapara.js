@@ -367,7 +367,7 @@ ParaPara.FreehandLine.prototype.createPathFromPoints = function(points) {
   var path = document.createElementNS(ParaPara.SVG_NS, "path");
   ParaPara.currentStyle.styleStroke(path);
 
-  const fixPrecision = ParaPara.fixPrecision;
+  /*const*/ var fixPrecision = ParaPara.fixPrecision;
 
   // XXX The following code is straight from SVG edit.
   // See if I can do a better job along the lines of:
