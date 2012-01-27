@@ -17,7 +17,10 @@
  */
 
 if (typeof document !== "undefined" &&
-  !("classList" in document.createElementNS("http://www.w3.org/2000/svg", "g")))
+    !("classList" in document.createElement("a") &&
+      "classList" in document.createElementNS("http://www.w3.org/2000/svg", "g")
+     )
+   )
 {
 
 (function (view) {
@@ -25,9 +28,9 @@ if (typeof document !== "undefined" &&
 "use strict";
 
 var
-      classListProp = "classList"
+      svgNamespace = "http://www.w3.org/2000/svg"
+    , classListProp = "classList"
     , protoProp = "prototype"
-    , elemCtrProto = view.SVGElement[protoProp]
     , objCtr = Object
     , strTrim = String[protoProp].trim || function () {
         return this.replace(/^\s+|\s+$/g, "");
@@ -67,7 +70,9 @@ var
     }
     , ClassList = function (elem) {
         var
-              trimmedClasses = strTrim.call(elem.className.baseVal)
+              className = typeof elem.className.baseVal !== "undefined"
+                        ? elem.className.baseVal : elem.className
+            , trimmedClasses = strTrim.call(className)
             , classes = trimmedClasses ? trimmedClasses.split(/\s+/) : []
             , i = 0
             , len = classes.length
@@ -76,12 +81,64 @@ var
             this.push(classes[i]);
         }
         this._updateClassName = function () {
-            elem.className.baseVal = this.toString();
+            typeof elem.className.baseVal !== "undefined"
+              ? elem.className.baseVal = this.toString()
+              : elem.className = this.toString();
         };
     }
     , classListProto = ClassList[protoProp] = []
     , classListGetter = function () {
         return new ClassList(this);
+    }
+    , addClassList = function (elemCtr) {
+      if (objCtr.defineProperty) {
+          var classListPropDesc = {
+                get: classListGetter
+              , enumerable: true
+              , configurable: true
+          };
+          try {
+              objCtr.defineProperty(elemCtr[protoProp], classListProp, classListPropDesc);
+          } catch (ex) { // IE 8 doesn't support enumerable:true
+              if (ex.number === -0x7FF5EC54) {
+                  classListPropDesc.enumerable = false;
+                  objCtr.defineProperty(elemCtr[protoProp], classListProp, classListPropDesc);
+              }
+          }
+      } else if (objCtr[protoProp].__defineGetter__) {
+          elemCtrl[protoProp].__defineGetter__(classListProp, classListGetter);
+      }
+    }
+    , addClassListToDoc = function (doc, view) {
+      if (!("classList" in doc.createElement("a"))) {
+          addClassList(view.HTMLElement || view.Element);
+      }
+      if (!("classList" in doc.createElementNS(svgNamespace, "g"))) {
+          addClassList(view.SVGElement);
+      }
+    }
+    , addClassListToObj = function (object) {
+      if (object.contentDocument &&
+          object.contentDocument.readyState == "complete") {
+        var win = object.contentWindow || object.contentDocument.defaultView;
+        addClassListToDoc(object.contentDocument, win);
+      }
+      // else we just wait for the load event handler to call this later
+    }
+    , addClassListToAllObjs = function () {
+      var objects = document.getElementsByTagName('object');
+      for (var i = 0; i < objects.length; ++i) {
+        addClassListToObj(objects[i]);
+      }
+    }
+    , initialize = function () {
+      addClassListToAllObjs();
+      document.addEventListener('DOMNodeInserted', onNodeInserted, true);
+    }
+    , onNodeInserted = function(e) {
+      addClassListToObj(e.srcElement);
+      // Catch-all for IE
+      e.srcElement.addEventListener("load", addClassListToAllObjs, true);
     }
 ;
 // Most DOMException implementations don't allow calling DOMException's toString()
@@ -121,22 +178,24 @@ classListProto.toString = function () {
     return this.join(" ");
 };
 
-if (objCtr.defineProperty) {
-    var classListPropDesc = {
-          get: classListGetter
-        , enumerable: true
-        , configurable: true
-    };
-    try {
-        objCtr.defineProperty(elemCtrProto, classListProp, classListPropDesc);
-    } catch (ex) { // IE 8 doesn't support enumerable:true
-        if (ex.number === -0x7FF5EC54) {
-            classListPropDesc.enumerable = false;
-            objCtr.defineProperty(elemCtrProto, classListProp, classListPropDesc);
-        }
-    }
-} else if (objCtr[protoProp].__defineGetter__) {
-    elemCtrProto.__defineGetter__(classListProp, classListGetter);
+addClassListToDoc(document, view);
+
+if (document.readyState != 'complete') {
+  document.addEventListener('DOMContentLoaded', initialize, true);
+  // When we get the DOMContentLoaded event in IE the object might still not
+  // have a contentDocument.
+  //
+  // However, I can't find any event supported by IE9 that will tell us when the
+  // contentDocument is available *AND* which fires before the window load event
+  // (when other scripts might be wanting to interact with the document).
+  //
+  // However, in IE9 event handlers seem to be called in the order they are
+  // registered so we just register our own window.load handler and, if this
+  // file has been included before other scripts that depend on it, we should
+  // have time to add the classList before those other scripts get called.
+  window.addEventListener('load', addClassListToAllObjs, true);
+} else {
+  initialize();
 }
 
 }(self));
