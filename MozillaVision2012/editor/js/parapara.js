@@ -160,10 +160,14 @@ ParaPara.send = function(uploadPath, successCallback, failureCallback, metadata)
           } else {
             successCallback(response);
           }
-        } catch (e if e instanceof SyntaxError) {
-          console.log("Error sending to server, could not parse response: "
-            + xhr.responseText);
-          failureCallback(ParaPara.SEND_ERROR_SERVER_ERROR);
+        } catch (e) {
+          if (e instanceof SyntaxError) {
+            console.log("Error sending to server, could not parse response: "
+              + xhr.responseText);
+            failureCallback(ParaPara.SEND_ERROR_SERVER_ERROR);
+          } else {
+            throw e;
+          }
         }
       } else {
         console.debug(xhr);
