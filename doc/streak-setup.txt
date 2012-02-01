@@ -1,0 +1,8 @@
+Mozilla Vision 2012 - Dell Streak セットアップ
+
+- 自動回転を無効にする
+- Firefoxをインストールする
+- Full Screenというアドオンをインストールする
+- ファイアフォクスを再起動
+（もしFull Screenが動かなければ、一応無効にしてから有効にする）
+- about:configの画面でdom.w3c_touch_events.safetyXとdom.w3c_touch_events.safetyYの設定を0（ゼロ）にする
