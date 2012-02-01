@@ -405,11 +405,7 @@ EditorUI.getHitTarget = function(src) {
   // Search upwards for an element with class "hitRegion"
   var elem;
   for (elem = src;
-       // I really want to use classList.contains("hitRegion") here but
-       // WebKit doesn't support classList for SVG elements and my
-       // svgClassList.js compatibility shim doesn't work for contentDocuments
-       // of <object>s.
-       elem && elem.getAttribute("class") != "hitRegion";
+       elem && elem.classList.contains("hitRegion");
        elem = elem.parentNode);
   return elem;
 }
