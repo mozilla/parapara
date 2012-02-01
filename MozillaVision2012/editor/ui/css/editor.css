@@ -142,10 +142,10 @@ button.right {
   right: 0;
 }
 button.text {
-  background: -moz-linear-gradient(top,  #ebebeb,  #a1a1a1);
-  background: -o-linear-gradient(top,  #ebebeb,  #a1a1a1);
-  background: -webkit-gradient(linear, left top, left bottom,
-                               from(#ebebeb), to(#a1a1a1));
+  background: -moz-linear-gradient(top, #ebebeb, #a1a1a1);
+  background: -o-linear-gradient(top, #ebebeb, #a1a1a1);
+  background: -webkit-linear-gradient(top, #ebebeb, #a1a1a1);
+  background: -ms-linear-gradient(top, #ebebeb, #a1a1a1);
   border: none;
   border-radius: 8px;
   color: #FFFFFF;
@@ -159,8 +159,8 @@ button.text {
 button.text:hover {
   background: -moz-linear-gradient(top,  #04acec,  #0186ba);
   background: -o-linear-gradient(top,  #04acec,  #0186ba);
-  background: -webkit-gradient(linear, left top, left bottom,
-                               from(#04acec), to(#0186ba));
+  background: -webkit-linear-gradient(top,  #04acec,  #0186ba);
+  background: -ms-linear-gradient(top,  #04acec,  #0186ba);
 }
 
 /* Error/notice overlay */
