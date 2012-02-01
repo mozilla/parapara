@@ -405,7 +405,7 @@ EditorUI.getHitTarget = function(src) {
   // Search upwards for an element with class "hitRegion"
   var elem;
   for (elem = src;
-       elem && elem.classList.contains("hitRegion");
+       elem && !elem.classList.contains("hitRegion");
        elem = elem.parentNode);
   return elem;
 }
