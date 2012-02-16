@@ -369,56 +369,21 @@ ParaPara.FreehandLine.prototype.createPathFromPoints = function(points) {
 
   /*const*/ var fixPrecision = ParaPara.fixPrecision;
 
-  // XXX The following code is straight from SVG edit.
-  // See if I can do a better job along the lines of:
-  //   http://stackoverflow.com/questions/6621518/how-to-smooth-a-freehand-drawn-svg-path
-  var N = points.numberOfItems;
-  if (N > 4) {
-    var curpos = points.getItem(0), prevCtlPt = null;
-    var d = [];
-    d.push("M" + [curpos.x,curpos.y].map(fixPrecision).join(",") + "C");
-    for (var i = 1; i <= (N-4); i += 3) {
-      var ct1 = points.getItem(i);
-      var ct2 = points.getItem(i+1);
-      var end = points.getItem(i+2);
-      // if the previous segment had a control point, we want to smooth out
-      // the control points on both sides
-      if (prevCtlPt) {
-        var newpts = this.smoothControlPoints( prevCtlPt, ct1, curpos );
-        if (newpts && newpts.length == 2) {
-          var prevArr = d[d.length-1].split(',');
-          prevArr[2] = fixPrecision(newpts[0].x);
-          prevArr[3] = fixPrecision(newpts[0].y);
-          d[d.length-1] = prevArr.join(',');
-          ct1 = newpts[1];
-        }
-      }
-      d.push(
-        [ct1.x,ct1.y,ct2.x,ct2.y,end.x,end.y].map(fixPrecision).join(','));
-      curpos = end;
-      prevCtlPt = ct2;
-    }
-    // handle remaining line segments
-    d.push("L");
-    for(;i < N;++i) {
-      var pt = points.getItem(i);
-      d.push([pt.x,pt.y].map(fixPrecision).join(","));
-    }
-    d = d.join(" ");
-
-    // create new path element
+  if (points.numberOfItems == 2) {
+    // Just make a straight-line segment
+    var pt0 = points.getItem(0);
+    var pt1 = points.getItem(1);
+    var d = "M" + [pt0.x,pt0.y].map(fixPrecision).join(" ") +
+            "L" + [pt1.x,pt1.y].map(fixPrecision).join(" ");
     path.setAttribute("d", d);
   } else {
-    console.assert(points.length >= 2, "Expected at least two points");
-    // XXX For now just do fixed line segments
+    // Filter down the number of points
+    points = this.prunePoints(points);
+    // Then make it into a curve
+    var pt0 = points[0];
     var d =
-      "M" +
-      [points.getItem(0).x,points.getItem(0).y].map(fixPrecision).join(",") +
-      "L";
-    for (var i = 1; i < N; ++i) {
-      var pt = points.getItem(i);
-      d += [pt.x,pt.y].map(fixPrecision).join(",") + " ";
-    }
+      "M" + [pt0.x,pt0.y].map(fixPrecision).join(" ") +
+      "C" + this.smoothPoints(points).map(fixPrecision).join(" ");
     path.setAttribute("d", d);
   }
 
@@ -435,46 +400,62 @@ ParaPara.FreehandLine.prototype.createPoint = function(points) {
   return path;
 }
 
-ParaPara.FreehandLine.prototype.smoothControlPoints = function(ct1, ct2, pt) {
-  // each point must not be the origin
-  var x1 = ct1.x - pt.x,
-    y1 = ct1.y - pt.y,
-    x2 = ct2.x - pt.x,
-    y2 = ct2.y - pt.y;
-
-  if ( (x1 != 0 || y1 != 0) && (x2 != 0 || y2 != 0) ) {
-    var anglea = Math.atan2(y1,x1),
-      angleb = Math.atan2(y2,x2),
-      r1 = Math.sqrt(x1*x1+y1*y1),
-      r2 = Math.sqrt(x2*x2+y2*y2),
-      nct1 = ParaPara.svgRoot.createSVGPoint(),
-      nct2 = ParaPara.svgRoot.createSVGPoint();
-    if (anglea < 0) { anglea += 2*Math.PI; }
-    if (angleb < 0) { angleb += 2*Math.PI; }
-
-    var angleBetween = Math.abs(anglea - angleb),
-      angleDiff = Math.abs(Math.PI - angleBetween)/2;
-
-    var new_anglea, new_angleb;
-    if (anglea - angleb > 0) {
-      new_anglea = angleBetween < Math.PI ? (anglea + angleDiff) : (anglea - angleDiff);
-      new_angleb = angleBetween < Math.PI ? (angleb - angleDiff) : (angleb + angleDiff);
-    }
-    else {
-      new_anglea = angleBetween < Math.PI ? (anglea - angleDiff) : (anglea + angleDiff);
-      new_angleb = angleBetween < Math.PI ? (angleb + angleDiff) : (angleb - angleDiff);
-    }
-
-    // rotate the points
-    nct1.x = r1 * Math.cos(new_anglea) + pt.x;
-    nct1.y = r1 * Math.sin(new_anglea) + pt.y;
-    nct2.x = r2 * Math.cos(new_angleb) + pt.x;
-    nct2.y = r2 * Math.sin(new_angleb) + pt.y;
-
-    return [nct1, nct2];
+/*
+ * Filters out points in the array according to a crude step function so
+ * that arrays with few points are untouched by arrays with many points
+ * are more aggressively pruned.
+ */
+ParaPara.FreehandLine.prototype.prunePoints = function(points) {
+  var len = points.numberOfItems;
+  // Step function:
+  // < 10 items, don't prune
+  // < 20 items, skip every second point
+  // < 30 items, skip every 3rd
+  var increment = (len < 20)
+                ? (len < 10) ? 1 : 2 : 3;
+  var filtered = [];
+  for (var i=0; i < len-increment; i+=increment) {
+    var pt = points.getItem(i);
+    filtered.push( { x: pt.x, y: pt.y } );
   }
-  return undefined;
-};
+  // Always include the last point
+  var last = points.getItem(len-1);
+  filtered.push( { x: last.x, y: last.y } );
+  return filtered;
+}
+
+ParaPara.FreehandLine.prototype.smoothPoints = function(points) {
+  var pt0 = points[0];
+  var curve = [pt0.x, pt0.y];
+  var len = points.length;
+  for (var i=1; i < len; i++) {
+    var prev = points[i-1];
+    var pt   = points[i];
+    var next = points[(i < len-1) ? i+1 : i];
+
+    var anglea = Math.atan2(prev.y-pt.y,prev.x-pt.x);
+    var angleb = Math.atan2(next.y-pt.y,next.x-pt.x);
+    var tangent = (anglea + angleb) / 2 + Math.PI / 2;
+    var smoothness =
+      ParaPara.Geometry.lineLength(pt.x, pt.y, next.x, next.y) / 3;
+    if (anglea - angleb < 0) {
+      tangent += Math.PI;
+    }
+    var cosR = Math.cos(tangent) * smoothness;
+    var sinR = Math.sin(tangent) * smoothness;
+
+    curve[curve.length] = pt.x+cosR;
+    curve[curve.length] = pt.y+sinR;
+    curve[curve.length] = pt.x;
+    curve[curve.length] = pt.y;
+
+    if (i < len-1) {
+      curve[curve.length] = pt.x-cosR;
+      curve[curve.length] = pt.y-sinR;
+    }
+  }
+  return curve;
+}
 
 // -------------------- Styles --------------------
 
