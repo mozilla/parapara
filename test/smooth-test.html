@@ -295,35 +295,46 @@
             path.setAttribute("d", d);
           } else {
             points = filter(points);
-            var len = points.length;
-            var firstPoint =
-              [points[0].x,points[0].y].map(fixPrecision).join(" ");
-            var d = "M" + firstPoint + "C" + firstPoint + " ";
-            for (var i=1; i < len-1; i++) {
-              d += SO_smoothPoint(points[i-1], points[i], points[i+1]).
-                   map(fixPrecision).join(" ") + " ";
-            }
-            d += SO_smoothPoint(points[len-2], points[len-1], points[len-1]).
-                 slice(0,4).map(fixPrecision).join(" ");
+            var pt0 = points[0];
+            var d =
+              "M" + [pt0.x,pt0.y].map(fixPrecision).join(" ") +
+              "C" + SO_smoothPoint(points).map(fixPrecision).join(" ");
             path.setAttribute("d", d);
           }
 
           return path;
         }
 
-        function SO_smoothPoint(prev, pt, next) {
-          var anglea = Math.atan2(prev.y-pt.y,prev.x-pt.x);
-          var angleb = Math.atan2(next.y-pt.y,next.x-pt.x);
-          var tangent = (anglea + angleb) / 2 + Math.PI / 2;
-          var smoothness
-            = Math.sqrt(Math.pow(pt.x-next.x,2)+Math.pow(pt.y-next.y,2))
-              / 3;
-          if (anglea - angleb < 0) {
-            tangent += Math.PI;
+        function SO_smoothPoint(points) {
+          var pt0 = points[0];
+          var curve = [pt0.x, pt0.y];
+          var len = points.length;
+          for (var i=1; i < len; i++) {
+            var prev = points[i-1];
+            var pt   = points[i];
+            var next = points[(i < len-1) ? i+1 : i];
+
+            var anglea = Math.atan2(prev.y-pt.y,prev.x-pt.x);
+            var angleb = Math.atan2(next.y-pt.y,next.x-pt.x);
+            var tangent = (anglea + angleb) / 2 + Math.PI / 2;
+            var smoothness = getDist(pt, next) / 3;
+            if (anglea - angleb < 0) {
+              tangent += Math.PI;
+            }
+            var cosR = Math.cos(tangent) * smoothness;
+            var sinR = Math.sin(tangent) * smoothness;
+
+            curve[curve.length] = pt.x+cosR;
+            curve[curve.length] = pt.y+sinR;
+            curve[curve.length] = pt.x;
+            curve[curve.length] = pt.y;
+
+            if (i < len-1) {
+              curve[curve.length] = pt.x-cosR;
+              curve[curve.length] = pt.y-sinR;
+            }
           }
-          var cosR = Math.cos(tangent) * smoothness;
-          var sinR = Math.sin(tangent) * smoothness;
-          return [pt.x+cosR, pt.y+sinR, pt.x, pt.y, pt.x-cosR, pt.y-sinR];
+          return curve;
         }
 
         function CR_smoothPoints(points, filter) {
