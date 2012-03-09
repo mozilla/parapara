@@ -2,6 +2,7 @@ var EditorUI = EditorUI || {};
 
 EditorUI.INITIAL_SPEED_FPS = 3.3;
 EditorUI.UPLOAD_PATH       = "server/upload-success";
+EditorUI.EMAIL_UPLOAD_PATH = "server/email-success";
 
 EditorUI.init = function() {
   var paraparaRoot = document.getElementById("parapara");
@@ -83,11 +84,27 @@ EditorUI.send = function() {
                 metadata);
 }
 
-EditorUI.sendSuccess = function() {
-  EditorUI.displayNote("noteSendingComplete");
-  EditorUI.fadeNote();
-  document.getElementById("animControls").style.display = "none";
-  EditorUI.reset();
+EditorUI.sendSuccess = function(response) {
+  if (response.url) {
+    var parts = [];
+    if (response.qrcode) {
+      parts.push("<img src=\"" + response.qrcode + "\" class=\"qrcode\">");
+    }
+    // We deliberately DON'T wrap the URL in an <a> element since we don't
+    // really want users following the link and navigating away from the editor.
+    // It's just there so they can copy it down into a notepad as a last resort.
+    parts.push("<div class=\"url\">" + response.url + "</div>");
+    parts.push("<input type=\"hidden\" name=\"animation-id\" value=\"" +
+      response.id + "\">");
+    var linkBlock = document.getElementById("animation-link");
+    linkBlock.innerHTML = parts.join("");
+    EditorUI.clearEmailForm();
+    EditorUI.displayNote("noteSendingCompleteWithURL");
+  } else {
+    EditorUI.displayNote("noteSendingComplete");
+    EditorUI.fadeNote();
+    EditorUI.reset();
+  }
 }
 
 EditorUI.sendFail = function(code) {
@@ -170,6 +187,92 @@ EditorUI.fadeNote = function() {
 EditorUI.finishFade = function(evt) {
   evt.target.classList.remove("fadeOut");
   EditorUI.clearNote();
+}
+
+// -------------- Sending email -----------
+
+EditorUI.clearEmailForm = function() {
+  var form = document.forms["email-form"];
+  form.reset();
+  form.email.classList.add("placeholder");
+  EditorUI.toggleEmailPlaceholder();
+  EditorUI.clearEmailStatus();
+}
+
+EditorUI.toggleEmailPlaceholder = function() {
+  var emailField = document.forms["email-form"].email;
+  if (document.activeElement == emailField) {
+    if (emailField.classList.contains("placeholder")) {
+      emailField.value = "";
+      emailField.classList.remove("placeholder");
+    }
+  } else if (!emailField.value) {
+    emailField.classList.add("placeholder");
+    emailField.value = "例：parapara@yahoo.co.jp";
+    emailField.validity.valid = true;
+  }
+}
+
+EditorUI.sendEmail = function() {
+  EditorUI.clearEmailStatus();
+
+  // If no email, ignore
+  var emailField = document.forms["email-form"].email;
+  var email = emailField.value.trim();
+  if (!email || emailField.classList.contains("placeholder"))
+    return;
+
+  // Email address validation: For UAs that support HTML5 form validation, we
+  // won't get this far if the address isn't valid. For other UAs, we'll just
+  // rely on the server to do the validation.
+
+  // Get ID for animation (stored in a hidden field)
+  // (We send the ID rather than the animation URL so that people don't
+  // commandeer the server to send arbitrary URLs)
+  var animationId =
+    parseInt(document.forms["email-form"].elements["animation-id"].value);
+  if (!animationId) {
+    EditorUI.setEmailStatus("failed");
+    return;
+  }
+
+  // Disable submit button so we don't get double-submits from those who like to
+  // double-click everything
+  document.getElementById("email-button").disabled = true;
+
+  // Send away
+  EditorUI.setEmailStatus("waiting");
+  ParaPara.sendEmail(email, animationId, EditorUI.EMAIL_UPLOAD_PATH,
+                     EditorUI.sendEmailSuccess, EditorUI.sendEmailFail);
+}
+
+EditorUI.clearEmailStatus = function() {
+  EditorUI.setEmailStatus("");
+}
+
+EditorUI.setEmailStatus = function(statusClass) {
+  var progressIcon = document.getElementById("email-progress");
+  progressIcon.classList.remove("waiting");
+  progressIcon.classList.remove("failed");
+  progressIcon.classList.remove("ok");
+  if (statusClass) {
+    progressIcon.classList.add(statusClass);
+  }
+}
+
+EditorUI.sendEmailSuccess = function() {
+  // Clear email field for sending another email
+  EditorUI.clearEmailForm();
+  document.getElementById("email-button").disabled = false;
+
+  // Update status
+  EditorUI.setEmailStatus("ok");
+}
+
+EditorUI.sendEmailFail = function() {
+  // Update status
+  EditorUI.setEmailStatus("failed");
+  document.getElementById("email-button").disabled = false;
 }
 
 // -------------- Tools -----------

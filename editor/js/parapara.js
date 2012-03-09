@@ -127,12 +127,42 @@ ParaPara.send = function(uploadPath, successCallback, failureCallback, metadata)
   payloadObject.y   = 0;
   var payload = JSON.stringify(payloadObject);
 
+  // Prepare custom failure handler to translate "not_live" codes
+  var paraparaFailureCallback = function(code, detail) {
+    if (code == ParaPara.SEND_ERROR_SERVER_ERROR &&
+        typeof(detail) != "undefined" &&
+        detail.error_key == "not_live") {
+      failureCallback(ParaPara.SEND_ERROR_SERVER_NOT_LIVE);
+    } else {
+      failureCallback(code);
+    }
+  }
+
+  // Send
+  ParaPara.sendAsyncRequest(uploadPath, payload, successCallback,
+                            paraparaFailureCallback);
+
+}
+
+ParaPara.sendEmail = function(email, animationId, uploadPath, successCallback,
+                              failureCallback) {
+  // Prepare payload
+  var payloadObject = { address: email, id: animationId };
+  var payload = JSON.stringify(payloadObject);
+
+  // Send
+  ParaPara.sendAsyncRequest(uploadPath, payload, successCallback,
+                            failureCallback);
+}
+
+ParaPara.sendAsyncRequest = function(url, json, successCallback,
+                                     failureCallback) {
   // Create request
   var req = new XMLHttpRequest();
-  req.open("POST", uploadPath, true);
+  req.open("POST", url, true);
 
   // Set headers
-  req.setRequestHeader("Content-Length", payload.length);
+  req.setRequestHeader("Content-Length", json.length);
   req.setRequestHeader("Content-Type", "application/json");
 
   // Event listeners
@@ -181,7 +211,7 @@ ParaPara.send = function(uploadPath, successCallback, failureCallback, metadata)
 
   // Send away
   try {
-    req.send(payload);
+    req.send(json);
   } catch (e) {
     console.debug(e);
     failureCallback(ParaPara.SEND_ERROR_FAILED_SEND);
