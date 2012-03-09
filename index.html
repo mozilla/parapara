@@ -154,6 +154,28 @@
         <div class="overlay-contents" id="noteSendingComplete">
           送信しました！
         </div>
+        <div class="overlay-contents" id="noteSendingCompleteWithURL">
+          送信しました！<br/><br/>
+          シェアーしましょう！
+          <form id="email-form" action="javascript:EditorUI.sendEmail()">
+            <div id="animation-link">
+              <!-- The content here is dynamically inserted -->
+            </div>
+            <div class="field-row">
+              <input type="email" name="email" id="email" size="25"
+                style="ime-mode: inactive" autocomplete="off"
+                onblur="EditorUI.toggleEmailPlaceholder()"
+                onfocus="EditorUI.toggleEmailPlaceholder()"
+                oninput="EditorUI.clearEmailStatus()">
+              <button type="submit" class="text" id="email-button">
+                <img src="ui/img/email.png" width="16" height="16">
+              </button>
+              <div id="email-progress" class="async-progress"></div>
+            </div>
+          </form>
+          <button type="button" class="text"
+            onclick="EditorUI.cancelSend()">OK</button>
+        </div>
         <div class="overlay-contents error" id="noteNoAnimation">
           アニメーションは見つけませんでした<br/><br/>
           <button type="button" class="text"
