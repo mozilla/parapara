@@ -1,8 +1,8 @@
 var EditorUI = EditorUI || {};
 
 EditorUI.INITIAL_SPEED_FPS = 3.3;
-EditorUI.UPLOAD_PATH       = "server/upload-success";
-EditorUI.EMAIL_UPLOAD_PATH = "server/email-success";
+EditorUI.UPLOAD_PATH       = "../api/upload_anim.php";
+EditorUI.EMAIL_UPLOAD_PATH = "../api/email_anim.php";
 
 EditorUI.init = function() {
   var paraparaRoot = document.getElementById("parapara");
