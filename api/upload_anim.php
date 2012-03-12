@@ -74,7 +74,7 @@ mysql_close($connection);
 // a more thoroughgoing implementation (BSD license).
 function rel2abs($rel, $base)
 {
-  // return if already absolute URL 
+  // return if already absolute URL
   if (parse_url($rel, PHP_URL_SCHEME) != '') return $rel;
 
   // queries and anchors
@@ -121,7 +121,7 @@ function shortenUrl($url) {
     "&apiKey=" . BITLY_API_KEY . "&uri=" . urlencode($url) . "&format=txt";
   $shortened = curl_get_result($shorten_url);
   // If there is an error, return the original url
-  return $shortened ? $shortened : $url;
+  return $shortened ? trim($shortened) : $url;
 }
 
 function curl_get_result($url) {
