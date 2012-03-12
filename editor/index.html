@@ -139,28 +139,27 @@
         <div class="overlay-contents error" id="noteSendingFailed">
           送信失敗しました<br/><br/>
           <button type="button" class="text"
-            onclick="EditorUI.cancelSend()">キャンセル</button>
+            onclick="EditorUI.clearNoteAndReset()">キャンセル</button>
           <button type="button" class="text"
             onclick="EditorUI.send()">再送信</button>
         </div>
         <div class="overlay-contents error" id="noteSendingFailedFatal">
           送信失敗しました<br/><br/>
           <button type="button" class="text"
-            onclick="EditorUI.cancelSend()">OK</button>
+            onclick="EditorUI.clearNoteAndReset()">OK</button>
         </div>
         <div class="overlay-contents error" id="noteNotLive">
           ただいま、このエベントは終了となりました<br/><br/>
           <button type="button" class="text"
-            onclick="EditorUI.cancelSend()">キャンセル</button>
+            onclick="EditorUI.clearNoteAndReset()">キャンセル</button>
           <button type="button" class="text"
             onclick="EditorUI.send()">再送信</button>
         </div>
         <div class="overlay-contents" id="noteSendingComplete">
           送信しました！
         </div>
-        <div class="overlay-contents" id="noteSendingCompleteWithURL">
-          送信しました！<br/><br/>
-          シェアーしましょう！
+        <div class="overlay-contents" id="noteShare">
+          作品をシェアーしましょう！
           <form id="email-form" action="javascript:EditorUI.sendEmail()">
             <div id="animation-link">
               <!-- The content here is dynamically inserted -->
@@ -177,13 +176,13 @@
               <div id="email-progress" class="async-progress"></div>
             </div>
           </form>
-          <button type="button" class="text"
-            onclick="EditorUI.cancelSend()">OK</button>
+          <button type="button" class="text" style="margin-top: 0.8em"
+            onclick="EditorUI.clearNoteAndReset()">OK</button>
         </div>
         <div class="overlay-contents error" id="noteNoAnimation">
           アニメーションは見つけませんでした<br/><br/>
           <button type="button" class="text"
-            onclick="EditorUI.cancelSend()">OK</button>
+            onclick="EditorUI.clearNoteAndReset()">OK</button>
         </div>
       </div>
     </div>

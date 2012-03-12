@@ -85,7 +85,10 @@ EditorUI.send = function() {
 }
 
 EditorUI.sendSuccess = function(response) {
+  EditorUI.displayNote("noteSendingComplete");
   if (response.url) {
+    // If we have a URL, prepare the sharing screen to be shown after the
+    // success screen
     var parts = [];
     if (response.qrcode) {
       parts.push("<img src=\"" + response.qrcode + "\" class=\"qrcode\">");
@@ -108,9 +111,14 @@ EditorUI.sendSuccess = function(response) {
     var linkBlock = document.getElementById("animation-link");
     linkBlock.innerHTML = parts.join("");
     EditorUI.clearEmailForm();
-    EditorUI.displayNote("noteSendingCompleteWithURL");
+    // Sharing screen is ready, queue it to display after the success note has
+    // ended
+    EditorUI.fadeNote(
+      function() { EditorUI.displayNote("noteShare"); }
+    );
+    // EditorUI.reset() will be called when the sharing screen is dismissed
   } else {
-    EditorUI.displayNote("noteSendingComplete");
+    // No URL, just show success message
     EditorUI.fadeNote();
     EditorUI.reset();
   }
@@ -155,7 +163,7 @@ EditorUI.sendFail = function(code) {
   }
 }
 
-EditorUI.cancelSend = function() {
+EditorUI.clearNoteAndReset = function() {
   EditorUI.clearNote();
   EditorUI.reset();
 }
@@ -177,7 +185,7 @@ EditorUI.clearNote = function() {
   overlay.style.display = "none";
 }
 
-EditorUI.fadeNote = function() {
+EditorUI.fadeNote = function(callback) {
   var notes = document.getElementsByClassName("overlay-contents");
   var currentNote = null;
   for (var i = 0; i < notes.length; ++i) {
@@ -190,7 +198,10 @@ EditorUI.fadeNote = function() {
   if (!currentNote)
     return;
   currentNote.classList.add("fadeOut");
-  currentNote.addEventListener("animationend", EditorUI.finishFade, false);
+  var onend = callback
+    ? function(evt) { EditorUI.finishFade(evt); callback(); }
+    : EditorUI.finishFade;
+  currentNote.addEventListener("animationend", onend, false);
 }
 
 EditorUI.finishFade = function(evt) {
