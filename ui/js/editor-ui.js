@@ -89,6 +89,15 @@ EditorUI.sendSuccess = function(response) {
     var parts = [];
     if (response.qrcode) {
       parts.push("<img src=\"" + response.qrcode + "\" class=\"qrcode\">");
+    } else {
+      var qr = new QRCode(0, QRCode.QRErrorCorrectLevel.M);
+      qr.addData(response.url);
+      qr.make();
+      var image = qr.getImage(6 /*cell size*/);
+      parts.push("<img src=\"" + image.data +
+                 "\" width=\"" + image.width +
+                 "\" height\"" + image.height +
+                 "\" alt=\"" + response.url + "\">");
     }
     // We deliberately DON'T wrap the URL in an <a> element since we don't
     // really want users following the link and navigating away from the editor.
