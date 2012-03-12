@@ -443,7 +443,7 @@ EditorUI.updateLayout = function() {
   canvas.style.setProperty("height", maxDim + "px", "");
   // Resize slider
   var speedAdjust = document.getElementById("speedAdjust");
-  speedAdjust.style.setProperty("width", maxDim * 0.7 + "px", "");
+  speedAdjust.style.setProperty("width", maxDim * 0.65 + "px", "");
 
   EditorUI.updateStrokeWidth(maxDim);
 }
