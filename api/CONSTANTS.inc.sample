@@ -1,0 +1,7 @@
+<?php
+define("DB_USER", "");
+define("DB_PASS", "");
+define("DB_NAME", "parapara");
+define("CHARACTERS_DIR", "../characters/");
+define("ACCEPT_CHARACTERS", true);
+?>
