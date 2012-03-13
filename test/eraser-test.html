@@ -2,8 +2,8 @@
 <html>
   <head>
     <title>Eraser test</title>
-    <script type="text/javascript" src="../js/compat.js"></script>
-    <script type="text/javascript" src="../js/eraser.js"></script>
+    <script type="text/javascript" src="../src/js/compat.js"></script>
+    <script type="text/javascript" src="../src/js/eraser.js"></script>
     <script type="text/javascript">
       function init() {
         svgRoot = document.getElementById("canvas");
@@ -17,7 +17,7 @@
         currentFrame = frames[frames.length - 1];
 
         var eraseControls = new ParaPara.EraseControls();
-        eraseControls.startErasing(currentFrame);
+        eraseControls.targetFrame(currentFrame);
       }
       window.addEventListener("load", init, false);
     </script>
