@@ -307,8 +307,8 @@ function(segment, currentPoint) {
 }
 
 ParaPara.Eraser.prototype.cutCircle = function(brush, circle) {
-  // Currently getCandidateShapes does a reasonably job of only choosing circles
-  // where we have a hit so for now we just rely on it.
+  // Currently getCandidateShapes does a reasonably good job of only choosing
+  // circles where we have a hit so for now we just rely on it.
   //
   // If that changes then a couple of possible strategies are:
   // A) Do as with getCandidateShapes---just enlarge the bbox of the circle by
