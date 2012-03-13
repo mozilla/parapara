@@ -68,37 +68,31 @@ try {
 mysql_close($connection);
 
 // Source:
-//  http://nashruddin.com/PHP_Script_for_Converting_Relative_to_Absolute_URL
+// http://bsd-noobz.com/blog/php-script-for-converting-relative-to-absolute-url
 //
-// If this proves inadequate, see: http://publicmind.in/blog/urltoabsolute/ for 
+// If this proves inadequate, see: http://publicmind.in/blog/urltoabsolute/ for
 // a more thoroughgoing implementation (BSD license).
+/**
+ * Function to convert relative URL to absolute given a base URL
+ *
+ * @param   string   the relative URL
+ * @param   string   the base URL
+ * @return  string   the absolute URL
+ */
 function rel2abs($rel, $base)
 {
-  // return if already absolute URL
-  if (parse_url($rel, PHP_URL_SCHEME) != '') return $rel;
+  if (parse_url($rel, PHP_URL_SCHEME) != '')
+    return $rel;
+  else if ($rel[0] == '#' || $rel[0] == '?')
+    return $base.$rel;
 
-  // queries and anchors
-  if ($rel[0]=='#' || $rel[0]=='?') return $base.$rel;
-
-  // parse base URL and convert to local variables:
-  // $scheme, $host, $path
   extract(parse_url($base));
 
-  // remove non-directory element from path
-  $path = preg_replace('#/[^/]*$#', '', $path);
+  $abs = ($rel[0] == '/' ? '' : preg_replace('#/[^/]*$#', '', $path))."/$rel";
+  $re  = array('#(/\.?/)#', '#/(?!\.\.)[^/]+/\.\./#');
 
-  // destroy path if relative url points to root
-  if ($rel[0] == '/') $path = '';
-
-  // dirty absolute URL
-  $abs = "$host$path/$rel";
-
-  // replace '//' or '/./' or '/foo/../' with '/'
-  $re = array('#(/\.?/)#', '#/(?!\.\.)[^/]+/\.\./#');
-  for($n=1; $n>0; $abs=preg_replace($re, '/', $abs, -1, $n)) {}
-
-  // absolute URL is ready!
-  return $scheme.'://'.$abs;
+  for ($n = 1; $n > 0; $abs = preg_replace($re, '/', $abs, -1, $n));
+  return $scheme.'://'.$host.str_replace('../', '', $abs);
 }
 
 // Based on: http://webcheatsheet.com/php/get_current_page_url.php

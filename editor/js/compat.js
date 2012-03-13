@@ -3,6 +3,7 @@
 // Code courtesy of:
 // https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/
 // Function/bind
+// (Public domain)
 
 if (!Function.prototype.bind) {
   Function.prototype.bind = function (oThis) {
