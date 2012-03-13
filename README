@@ -1,1 +1,13 @@
-Parapara
+Parapara Animation
+
+Parapara Animation is a workshop to produce a collaborative animation by drawing
+pictures on mobile devices such as smart phones or tablets. The objective is not
+only to know how animation is produced but also to experience the open-ness of
+creating & sharing on the web.
+
+Currently the project consists of two parts:
+
+1. An (client-side) editor for creating individual animations to be added to the
+   master.
+2. A "wall" feature (server-side) which collects and displays the individual
+   animations in one master presentation. 
