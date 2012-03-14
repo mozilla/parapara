@@ -1,12 +1,4 @@
 /*
- * SVG version of Frank Yan's html5slider
- *
- * The key difference, apart from the SVG UI is that this version should work
- * well with Firefox Android and touch events. Otherwise it is largely the same.
- *
- * License for html5slider is as follows:
- */
-/*
 html5slider - a JS implementation of <input type=range> for Firefox 4 and up
 https://github.com/fryn/html5slider
 
@@ -30,6 +22,14 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
+
+//---------------------------------------------------------------------
+// 2012-03-12 Brian Birtles <birtles@gmail.com>, Mozilla Japan
+//
+// * Created SVG version
+//
+// The key difference, apart from the SVG UI, is that this version should work
+// well with Firefox Android and touch events. Otherwise it is largely the same.
 
 (function() {
 

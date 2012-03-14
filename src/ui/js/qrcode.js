@@ -23,15 +23,15 @@
 //   https://github.com/jeromeetienne/jquery-qrcode/blob/master/src/qrcode.js
 //
 //   However, there is no comment to indicate what the original source or
-//   purpose of the modifications were.
+//   purpose of the modifications were. These modifications also removed the GIF
+//   generating feature (again, for unknown reasons).
 //
-//   These modifications also removed the GIF generating feature (again, for
-//   unknown reasons). This version here re-introduces the GIF generating
-//   features and removes some dead code.
+//   This version here re-introduces the GIF generating features and removes
+//   some dead code.
 //
 //   One caveat is that this version also uses the ES5's bind which is not
 //   supported in all modes in all browsers. You'll either need a compatibility
-//   shim or to rewrite the once instance where bind is used.
+//   shim or to rewrite the one instance where bind is used.
 //
 //---------------------------------------------------------------------
 
