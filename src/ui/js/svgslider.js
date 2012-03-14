@@ -294,7 +294,7 @@ function transform(slider) {
     // Clipping rect for filled vs unfilled part of slider
     var defs = document.createElementNS(SVG_NS, 'defs');
     var clipPath = document.createElementNS(SVG_NS, 'clipPath');
-    var clipPathId = "__slidertrack_clip_" + guid() + "__";
+    var clipPathId = "__slidertrack_clip_" + UUID.generate() + "__";
     clipPath.setAttribute("id", clipPathId);
     var clipRect = document.createElementNS(SVG_NS, 'rect');
     clipRect.setAttribute("width", "100%");
@@ -388,16 +388,6 @@ function transform(slider) {
       var rect = trackRects[i];
       rect.setAttribute("width", parseFloat(width) - 2 * thumbRadius);
     }
-  }
-
-  // The following two functions courtesy of John Millikin on Stack Overflow:
-  //   http://stackoverflow.com/questions/105034
-  function S4() {
-    return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
-  }
-
-  function guid() {
-    return (S4()+S4()+S4()+S4()+S4()+S4()+S4()+S4());
   }
 
   // validates min, max, and step attributes and redraws
