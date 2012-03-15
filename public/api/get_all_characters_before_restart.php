@@ -5,14 +5,14 @@
 
 header("Content-Type: text/plain; charset=UTF-8");
 
-require_once("CONSTANTS.inc");
-require_once("db.inc");
+require_once("../../lib/CONSTANTS.inc");
+require_once("../../lib/db.inc");
 $connection = getConnection();
 
 $list = array();
 try {
   $query =
-    "SELECT id,x,y FROM characters WHERE x IS NOT NULL AND active = 1" +
+    "SELECT id,x,y FROM characters WHERE x IS NOT NULL AND active = 1" .
     " ORDER BY x";
   $resultset = mysql_query($query, $connection) or
                throwException(mysql_error());
