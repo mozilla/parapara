@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 var ParaPara = ParaPara || {};
 
 ParaPara.SVG_NS   = ParaPara.SVG_NS   || "http://www.w3.org/2000/svg";
@@ -460,10 +464,10 @@ ParaPara.Brush.prototype.transformPoints = function(points)
 
 ParaPara.Geometry = {};
 
-// Based on:
-// http://community.topcoder.com/tc?module=Static&d1=tutorials&d2=geometry2
-// and:
-// http://processingjs.nihongoresources.com/bezierinfo/
+// Based on intersectsLineLine from:
+//   http://processingjs.nihongoresources.com/bezierinfo/
+// by Mike "Pomax" Kamermans, 2011
+// Permission granted to license as MPL 2.0
 ParaPara.Geometry.linesIntersect = function(line1, line2) {
   var x1 = line1[0]; var y1 = line1[1];
   var x2 = line1[2]; var y2 = line1[3];
