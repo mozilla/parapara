@@ -1,0 +1,105 @@
+<?php
+require_once("CONSTANTS.inc");
+
+function getFilenameForId($id)
+{
+  return CHARACTERS_DIR . $id . ".svg";
+}
+
+function getGalleryUrlForId($id)
+{
+  // XXX gallery function not yet implemented
+  return getRawUrlForId($id);
+}
+
+function getRawUrlForId($id)
+{
+  return fileToUrl(getFilenameForId($id));
+}
+
+function shortenUrl($url)
+{
+  if (!defined('BITLY_LOGIN') || !defined('BITLY_API_KEY'))
+    return $url;
+  $shorten_url = "http://api.bit.ly/v3/shorten?login=" . BITLY_LOGIN .
+    "&apiKey=" . BITLY_API_KEY . "&uri=" . urlencode($url) . "&format=txt";
+  $shortened = fetchUrl($shorten_url);
+  // If there is an error, return the original url
+  return $shortened ? trim($shortened) : $url;
+}
+
+function fetchUrl($url) {
+  $ch = curl_init();
+  curl_setopt($ch, CURLOPT_URL, $url);
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+  curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+  $data = curl_exec($ch);
+  $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+  curl_close($ch);
+  return $httpCode == 200 ? $data : null;
+}
+
+// Take a path (relative or absolute) and generate a corresponding absolute URL
+// This isn't perfect. Symlinks can trip it up but it should work for simple 
+// cases.
+//
+// It works by comparing SCRIPT_FILENAME and SCRIPT_NAME to find how files map 
+// to urls and then appends the base URL path to the given file.
+function fileToUrl($file)
+{
+  // Get full path for $file
+  $filePath = realpath($file);
+  if (!$filePath)
+    return false; // File not found
+
+  // Get full path for script
+  $scriptPath = realpath($_SERVER['SCRIPT_FILENAME']);
+  if (!$scriptPath)
+    return false; // Script not found
+
+  // Find common part of paths
+  $len = min(strlen($filePath), strlen($scriptPath));
+  if ($len < 1)
+    return false; // One of the paths is empty
+  $i = 0;
+  for (; $i < $len; $i++) {
+    if ($filePath[$i] !== $scriptPath[$i])
+      break;
+  }
+  if ($i == 0)
+    return false; // Paths share nothing in common
+
+  // Remove common part
+  $filePath   = substr($filePath, $i);
+  $scriptPath = substr($scriptPath, $i);
+
+  // Convert directory separator to url syntax
+  if (DIRECTORY_SEPARATOR != '/') {
+    $filePath = strtr($filePath, DIRECTORY_SEPARATOR, '/');
+    $scriptPath = strtr($scriptPath, DIRECTORY_SEPARATOR, '/');
+  }
+
+  // Check we're not going below the doc root
+  if (strlen($scriptPath) > strlen($_SERVER['SCRIPT_NAME']))
+    return false;
+
+  // Remove non-common part of url
+  if ($scriptPath) {
+    $basePath = substr($_SERVER['SCRIPT_NAME'], 0, -strlen($scriptPath));
+  } else {
+    $basePath = $_SERVER['SCRIPT_NAME'];
+  }
+
+  // Append file path
+  $path = $basePath . $filePath;
+
+  // Make up url append the scheme, hostname, port, etc.
+  $scheme      = $_SERVER['HTTPS'] ? 'https://' : 'http://';
+  $defaultPort = $_SERVER['HTTPS'] ? '443' : '80';
+  $port        = $_SERVER['SERVER_PORT'] != $defaultPort
+               ? ':' + $_SERVER['SERVER_PORT']
+               : '';
+  $url         = $scheme . $_SERVER['SERVER_NAME'] . $port . $path;
+
+  return $url;
+}
