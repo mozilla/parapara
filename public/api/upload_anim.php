@@ -3,9 +3,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-require_once("CONSTANTS.inc");
-require_once("db.inc");
-require_once("UriUtils.inc");
+require_once("../../lib/CONSTANTS.inc");
+require_once("../../lib/db.inc");
+require_once("../../lib/UriUtils.inc");
 
 header("Content-Type: text/plain; charset=UTF-8");
 

@@ -1,6 +1,6 @@
 <?
-require_once("../api/CONSTANTS.inc");
-require_once("../api/db.inc");
+require_once("../../lib/CONSTANTS.inc");
+require_once("../../lib/db.inc");
 $connection = getConnection();
 ?>
 <!DOCTYPE html>
