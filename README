@@ -14,3 +14,8 @@ Currently the project consists of two parts:
 
 The first part is maintained in a separate parapara-editor repository. This
 repository contains the second, server-side, part.
+
+LICENSE
+
+This code is subject to the terms of the Mozilla Public License, v. 2.0
+(http://mozilla.org/MPL/2.0/)
