@@ -260,7 +260,7 @@ EditorUI.toggleEmailPlaceholder = function() {
     }
   } else if (!emailField.value) {
     emailField.classList.add("placeholder");
-    emailField.value = "ó·ÅFparapara@yahoo.co.jp";
+    emailField.value = "‰æãÔºöparapara@yahoo.co.jp";
     emailField.validity.valid = true;
   }
 }
