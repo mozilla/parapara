@@ -116,7 +116,7 @@ EditorUI.getRadioValue = function(radio) {
   return undefined;
 }
 
-EditorUI.sendSuccess = function() {
+EditorUI.sendSuccess = function(response) {
   EditorUI.displayNote("noteSendingComplete");
   if (response.url) {
     // If we have a URL, prepare the sharing screen to be shown after the
