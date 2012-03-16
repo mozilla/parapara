@@ -13,6 +13,10 @@
     <script type="text/javascript" src="js/svgClassList.js"></script>
     <script type="text/javascript" src="space-ui/js/editor-ui.js"></script>
     <script type="text/javascript" src="space-ui/js/meter.js"></script>
+    <!-- The following QRCode library is only used as a fallback in case the
+         server doesn't send a QR Code. If we know the server will always
+         provide a QR code we can leave the following library out. -->
+    <script type="text/javascript" src="ui/js/qrcode.js"></script>
     <meta name="viewport" 
       content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -115,6 +119,27 @@
         </div>
         <div class="overlay-contents" id="noteSendingComplete">
           送信しました！
+        </div>
+        <div class="overlay-contents" id="noteShare">
+          作品をシェアーしましょう！
+          <form id="email-form" action="javascript:EditorUI.sendEmail()">
+            <div id="animation-link">
+              <!-- The content here is dynamically inserted -->
+            </div>
+            <div class="field-row">
+              <input type="email" name="email" id="email" size="25"
+                style="ime-mode: inactive" autocomplete="off"
+                onblur="EditorUI.toggleEmailPlaceholder()"
+                onfocus="EditorUI.toggleEmailPlaceholder()"
+                oninput="EditorUI.clearEmailStatus()">
+              <button type="submit" class="text" id="email-button">
+                <img src="ui/img/email.png" width="16" height="16">
+              </button>
+              <div id="email-progress" class="async-progress"></div>
+            </div>
+          </form>
+          <button type="button" class="text" style="margin-top: 0.8em"
+            onclick="EditorUI.clearNoteAndReset()">OK</button>
         </div>
         <div class="overlay-contents error" id="noteNoAnimation">
           アニメーションがありません<br/><br/>

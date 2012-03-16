@@ -6,6 +6,7 @@ var EditorUI = EditorUI || {};
 
 EditorUI.INITIAL_SPEED_FPS = 3.3;
 EditorUI.UPLOAD_PATH       = "../api/upload_anim.php";
+EditorUI.EMAIL_UPLOAD_PATH = "../api/email_anim.php";
 
 EditorUI.init = function() {
   var paraparaRoot = document.getElementById("parapara");
@@ -117,8 +118,42 @@ EditorUI.getRadioValue = function(radio) {
 
 EditorUI.sendSuccess = function() {
   EditorUI.displayNote("noteSendingComplete");
+  if (response.url) {
+    // If we have a URL, prepare the sharing screen to be shown after the
+    // success screen
+    var parts = [];
+    if (response.qrcode) {
+      parts.push("<img src=\"" + response.qrcode + "\" class=\"qrcode\">");
+    } else {
+      var qr = new QRCode(0, QRCode.QRErrorCorrectLevel.M);
+      qr.addData(response.url);
+      qr.make();
+      var image = qr.getImage(6 /*cell size*/);
+      parts.push("<img src=\"" + image.data +
+                 "\" width=\"" + image.width +
+                 "\" height\"" + image.height +
+                 "\" alt=\"" + response.url + "\">");
+    }
+    // We deliberately DON'T wrap the URL in an <a> element since we don't
+    // really want users following the link and navigating away from the editor.
+    // It's just there so they can copy it down into a notepad as a last resort.
+    parts.push("<div class=\"url\">" + response.url + "</div>");
+    parts.push("<input type=\"hidden\" name=\"animation-id\" value=\"" +
+      response.id + "\">");
+    var linkBlock = document.getElementById("animation-link");
+    linkBlock.innerHTML = parts.join("");
+    EditorUI.clearEmailForm();
+    // Sharing screen is ready, queue it to display after the success note has
+    // ended
+    EditorUI.fadeNote(
+      function() { EditorUI.displayNote("noteShare"); }
+    );
+    // EditorUI.reset() will be called when the sharing screen is dismissed
+  } else {
+    // No URL, just show success message
   EditorUI.fadeNote();
   EditorUI.reset();
+  }
 }
 
 EditorUI.sendFail = function(code) {
@@ -182,7 +217,7 @@ EditorUI.clearNote = function() {
   overlay.style.display = "none";
 }
 
-EditorUI.fadeNote = function() {
+EditorUI.fadeNote = function(callback) {
   var notes = document.getElementsByClassName("overlay-contents");
   var currentNote = null;
   for (var i = 0; i < notes.length; ++i) {
@@ -195,12 +230,101 @@ EditorUI.fadeNote = function() {
   if (!currentNote)
     return;
   currentNote.classList.add("fadeOut");
-  currentNote.addEventListener("animationend", EditorUI.finishFade, false);
+  var onend = callback
+    ? function(evt) { EditorUI.finishFade(evt); callback(); }
+    : EditorUI.finishFade;
+  currentNote.addEventListener("animationend", onend, false);
 }
 
 EditorUI.finishFade = function(evt) {
   evt.target.classList.remove("fadeOut");
   EditorUI.clearNote();
+}
+
+// -------------- Sending email -----------
+
+EditorUI.clearEmailForm = function() {
+  var form = document.forms["email-form"];
+  form.reset();
+  form.email.classList.add("placeholder");
+  EditorUI.toggleEmailPlaceholder();
+  EditorUI.clearEmailStatus();
+}
+
+EditorUI.toggleEmailPlaceholder = function() {
+  var emailField = document.forms["email-form"].email;
+  if (document.activeElement == emailField) {
+    if (emailField.classList.contains("placeholder")) {
+      emailField.value = "";
+      emailField.classList.remove("placeholder");
+    }
+  } else if (!emailField.value) {
+    emailField.classList.add("placeholder");
+    emailField.value = "—áFparapara@yahoo.co.jp";
+    emailField.validity.valid = true;
+  }
+}
+
+EditorUI.sendEmail = function() {
+  EditorUI.clearEmailStatus();
+
+  // If no email, ignore
+  var emailField = document.forms["email-form"].email;
+  var email = emailField.value.trim();
+  if (!email || emailField.classList.contains("placeholder"))
+    return;
+
+  // Email address validation: For UAs that support HTML5 form validation, we
+  // won't get this far if the address isn't valid. For other UAs, we'll just
+  // rely on the server to do the validation.
+
+  // Get ID for animation (stored in a hidden field)
+  // (We send the ID rather than the animation URL so that people don't
+  // commandeer the server to send arbitrary URLs)
+  var animationId =
+    parseInt(document.forms["email-form"].elements["animation-id"].value);
+  if (!animationId) {
+    EditorUI.setEmailStatus("failed");
+    return;
+  }
+
+  // Disable submit button so we don't get double-submits from those who like to
+  // double-click everything
+  document.getElementById("email-button").disabled = true;
+
+  // Send away
+  EditorUI.setEmailStatus("waiting");
+  ParaPara.sendEmail(email, animationId, EditorUI.EMAIL_UPLOAD_PATH,
+                     EditorUI.sendEmailSuccess, EditorUI.sendEmailFail);
+}
+
+EditorUI.clearEmailStatus = function() {
+  EditorUI.setEmailStatus("");
+}
+
+EditorUI.setEmailStatus = function(statusClass) {
+  var progressIcon = document.getElementById("email-progress");
+  progressIcon.classList.remove("waiting");
+  progressIcon.classList.remove("failed");
+  progressIcon.classList.remove("ok");
+  if (statusClass) {
+    progressIcon.classList.add(statusClass);
+  }
+}
+
+EditorUI.sendEmailSuccess = function() {
+  // Clear email field for sending another email
+  EditorUI.clearEmailForm();
+  document.getElementById("email-button").disabled = false;
+
+  // Update status
+  EditorUI.setEmailStatus("ok");
+}
+
+EditorUI.sendEmailFail = function() {
+  // Update status
+  EditorUI.setEmailStatus("failed");
+  document.getElementById("email-button").disabled = false;
 }
 
 // -------------- Colors -----------

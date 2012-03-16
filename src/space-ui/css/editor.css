@@ -166,6 +166,12 @@ button.text:hover {
   background: -webkit-linear-gradient(top,  #04acec,  #0186ba);
   background: -ms-linear-gradient(top,  #04acec,  #0186ba);
 }
+button.text:disabled:hover {
+  background: -moz-linear-gradient(top, #ebebeb, #a1a1a1);
+  background: -o-linear-gradient(top, #ebebeb, #a1a1a1);
+  background: -webkit-linear-gradient(top, #ebebeb, #a1a1a1);
+  background: -ms-linear-gradient(top, #ebebeb, #a1a1a1);
+}
 
 /* Error/notice overlay */
 div.overlay {
@@ -195,6 +201,37 @@ div.overlay-contents {
   text-align: center;
   font-size: 1.5em;
   display: none;
+}
+div.overlay-contents input {
+  font-size: 1em;
+}
+div.overlay-contents input.placeholder {
+  color: lightgrey;
+}
+div.overlay-contents input.placeholder:-moz-ui-invalid {
+  box-shadow: none;
+}
+div.overlay-contents div.field-row {
+  margin: 0.5em 0;
+}
+div.async-progress {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin-right: -16px;
+}
+.async-progress.waiting {
+  background: url('../img/little-spinner.gif') no-repeat bottom left;
+}
+.async-progress.failed {
+  background: url('../img/cross.png') no-repeat bottom left;
+}
+.async-progress.ok {
+  background: url('../img/tick.png') no-repeat bottom left;
+}
+img.qrcode {
+  display: block;
+  margin: 0 auto;
 }
 
 /* Overlay fadeout animation */
