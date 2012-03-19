@@ -813,7 +813,7 @@ ParaPara.Animator.prototype.makeAnimation = function() {
     anim.setAttribute("attributeName", "visibility");
     anim.setAttribute("to", "visible");
     anim.setAttribute("dur", this.dur + "s");
-    var id = "anim" + ParaPara.Utils.guid();
+    var id = "anim" + ParaPara.Utils.uuid();
     anim.setAttribute("id", id);
     if (lastId) {
       anim.setAttribute("begin", lastId + ".end");
@@ -911,14 +911,8 @@ ParaPara.Animator.prototype.setSpeed = function(fps) {
 
 ParaPara.Utils = {};
 
-// The following two functions courtesy of:
-//   http://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid-in-javascript
-
-ParaPara.Utils.S4 = function() {
-  return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
-}
-
-ParaPara.Utils.guid = function() {
-  var S4 = ParaPara.Utils.S4;
-  return (S4()+S4()+S4()+S4()+S4()+S4()+S4()+S4());
+ParaPara.Utils.uuid = function() {
+  // Strip -'s since they just make the id longer and also need to be escaped if
+  // we put them in syncbase timing specs like "abc\-def.end"
+  return UUID.generate().replace(/-/g,'');
 }
