@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this file,
+   - You can obtain one at http://mozilla.org/MPL/2.0/.  -->
+<html>
+  <head>
+    <title>パラパラアニメーション</title>
+    <link rel="stylesheet" href="space-ui/css/editor.css" type="text/css">
+    <link rel="stylesheet" href="space-ui/css/parapara.css" type="text/css">
+    <script type="text/javascript" src="js/compat.js"></script>
+    <script type="text/javascript" src="js/parapara.js"></script>
+    <script type="text/javascript" src="js/eraser.js"></script>
+    <script type="text/javascript" src="js/svgClassList.js"></script>
+    <script type="text/javascript" src="space-ui/js/editor-ui.js"></script>
+    <script type="text/javascript" src="space-ui/js/meter.js"></script>
+    <meta name="viewport" 
+      content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  </head>
+  <body>
+    <div class="container" id="container">
+      <div class="controlPanel vertical">
+        <img src="space-ui/img/space_plate.jpg" alt="" class="starBackground">
+        <div id="editControls" class="controlSet active">
+          <object data="space-ui/img/picker.svg" class="panelContents"
+            id="picker"></object>
+          <object data="space-ui/img/widths.svg" class="panelContents"
+            id="widths"></object>
+          <object data="space-ui/img/tools.svg" class="panelContents"
+            id="tools"></object>
+          <object data="space-ui/img/frame-controls.svg" class="panelContents"
+            id="frameControls"></object>
+          <img src="space-ui/img/clear.svg" id="clear" width="60">
+          <img src="space-ui/img/next.svg" id="animate" width="80">
+        </div>
+        <div id="animControls" class="controlSet">
+          <img src="space-ui/img/picker.svg" class="wheelBackground">
+          <form>
+          <div class="field">
+            <label for="title">タイトル</label>
+            <input type="text" name="title" id="title" size="10"
+              style="ime-mode: active" class="fullWidthField">
+          </div>
+          <div class="field">
+            <label for="name">おなまえ</label>
+            <input type="text" name="name" id="name" size="10"
+              style="ime-mode: active" class="fullWidthField">
+          </div>
+          <div class="field">
+            <label>せいべつ</label>
+            <div class="radioGroup">
+              <input type="radio" name="sex" value="0" id="otoko" checked>
+              <label for="otoko">おとこ</label>
+              <input type="radio" name="sex" value="1" id="onna">
+              <label for="onna">おんな</label>
+            </div>
+          </div>
+          <div class="field">
+            <label for="age">ねんれい</label>
+            <input type="number" name="age" id="age" size="3">
+            <span class="units"> さい</span>
+          </div>
+          </form>
+          <object data="space-ui/img/meter.svg" class="panelContents"
+            id="speedDial"></object>
+          <img src="space-ui/img/prev.svg" id="return" width="90">
+          <img src="space-ui/img/send.svg" id="send" width="100">
+        </div>
+      </div>
+      <div class="canvas">
+        <svg viewBox="0 0 300 300" id="canvas">
+          <defs>
+            <pattern patternUnits="userSpaceOnUse"
+              width="95" height="300" viewBox="0 -856 300 941" id="jimen">
+              <image width="300" height="85"
+                xlink:href="space-ui/img/jimen.png"/>
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="black"/>
+          <image width="600" height="300"
+            xlink:href="space-ui/img/space-bg.jpg"/>
+          <rect width="100%" height="100%" fill="url(#jimen)"/>
+          <g id="parapara"/>
+        </svg>
+      </div>
+    </div>
+    <div class="overlay" id="overlay" style="display:none">
+      <div class="overlay-inner">
+        <div class="overlay-contents" id="noteSending">
+          送信中<br/><br/>
+          <img src="space-ui/img/loader.gif" width="43" height="11"
+            alt="送信中">
+        </div>
+        <div class="overlay-contents error" id="noteSendingFailed">
+          送信失敗しました<br/><br/>
+          <button type="button" class="text"
+            onclick="EditorUI.clearNoteAndReset()">キャンセル</button>
+          <button type="button" class="text"
+            onclick="EditorUI.send()">再送信</button>
+        </div>
+        <div class="overlay-contents error" id="noteSendingFailedFatal">
+          送信失敗しました<br/><br/>
+          <button type="button" class="text"
+            onclick="EditorUI.clearNoteAndReset()">OK</button>
+        </div>
+        <div class="overlay-contents error" id="noteNotLive">
+          ただいま、このエベントは終了となりました<br/><br/>
+          <button type="button" class="text"
+            onclick="EditorUI.clearNoteAndReset()">キャンセル</button>
+          <button type="button" class="text"
+            onclick="EditorUI.send()">再送信</button>
+        </div>
+        <div class="overlay-contents" id="noteSendingComplete">
+          送信しました！
+        </div>
+        <div class="overlay-contents error" id="noteNoAnimation">
+          アニメーションがありません<br/><br/>
+          <button type="button" class="text"
+            onclick="EditorUI.clearNoteAndReset()">OK</button>
+        </div>
+        <div class="overlay-contents" id="noteConfirmDelete">
+          このフレームを削除してよろしいですか<br/><br/>
+          <button type="button" class="text"
+            onclick="EditorUI.deleteFrame(); EditorUI.clearNote()">削除</button>
+          <button type="button" class="text"
+            onclick="EditorUI.clearNote()">キャンセル</button>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

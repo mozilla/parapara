@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this file,
+   - You can obtain one at http://mozilla.org/MPL/2.0/.  -->
+<html>
+  <head>
+    <title>Smoothing test</title>
+    <style>
+      .testLine {
+        stroke: red;
+        stroke-width: 3px;
+        stroke-linecap: round;
+        stroke-opacity: 0.5;
+        fill: none;
+        pointer-events: none;
+      }
+      .smoothed {
+        stroke: blue;
+        stroke-width: 3px;
+        stroke-linecap: round;
+        stroke-opacity: 0.5;
+        fill: none;
+        pointer-events: none;
+      }
+    </style>
+    <script type="text/javascript">
+      var polyline = null;
+      var pts = "";
+      var frame = null;
+      var ParaPara = ParaPara || {};
+
+      function init() {
+        svgRoot = document.getElementById("canvas");
+        if (ParaPara.svgRoot === undefined) {
+          ParaPara.svgRoot = svgRoot;
+        }
+        ParaPara.SVG_NS = "http://www.w3.org/2000/svg";
+        frame = document.getElementById("frame");
+        addHandlers();
+        smoothAllPaths();
+      }
+
+      function addHandlers() {
+        ParaPara.svgRoot.addEventListener("mousedown", mouseDown, false);
+        ParaPara.svgRoot.addEventListener("mousemove", mouseMove, false);
+        ParaPara.svgRoot.addEventListener("mouseup", mouseUp, false);
+
+        document.getElementById("strategy").addEventListener("change",
+          smoothAllPaths, false);
+      }
+
+      function mouseDown(evt) {
+        evt.preventDefault();
+        if (evt.button || polyline)
+          return;
+        var pt = getLocalCoords(evt.clientX, evt.clientY, frame);
+        startLine(pt.x, pt.y, frame);
+      }
+
+      function mouseMove(evt) {
+        evt.preventDefault();
+        if (!polyline)
+          return;
+        var pt = getLocalCoords(evt.clientX, evt.clientY, frame);
+        addPoint(pt.x, pt.y);
+      }
+
+      function mouseUp(evt) {
+        evt.preventDefault();
+        if (!polyline)
+          return;
+        finishLine();
+      }
+
+      function getLocalCoords(x, y, elem) {
+        var pt = ParaPara.svgRoot.createSVGPoint();
+        pt.x = x;
+        pt.y = y;
+
+        var nodeMx = elem.parentNode.getScreenCTM();
+        return pt.matrixTransform(nodeMx.inverse());
+      }
+
+      function fixPrecision(x) { return x.toFixed(2); }
+
+      function startLine(x, y, frame) {
+        polyline = document.createElementNS(ParaPara.SVG_NS, "polyline");
+        frame.appendChild(polyline);
+
+        pts = [x,y].map(fixPrecision).join(",") + " ";
+        polyline.setAttribute("points", pts);
+        polyline.setAttribute("class", "testLine");
+      }
+
+      function addPoint(x, y) {
+        console.assert(polyline, "Adding point to finished/cancelled line?")
+        pts += [x,y].map(fixPrecision).join(",") + " ";
+        polyline.setAttribute("points", pts);
+      }
+
+      function finishLine() {
+        console.assert(polyline, "Line already finished/cancelled?")
+        if (polyline.points.numberOfItems == 1) {
+          var circle = createPoint(polyline.points.getItem(0));
+          polyline.parentNode.appendChild(circle);
+          polyline.parentNode.removeChild(polyline);
+        }
+        polyline = null;
+        smoothAllPaths();
+      }
+
+      function cancelLine() {
+        console.assert(polyline, "Line already finished/cancelled?")
+        polyline.parentNode.removeChild(polyline);
+        polyline = null;
+      }
+
+      function createPoint(pt) {
+        var circle = document.createElementNS(ParaPara.SVG_NS, "circle");
+        circle.setAttribute("r", 2);
+        circle.setAttribute("cx", fixPrecision(pt.x));
+        circle.setAttribute("cy", fixPrecision(pt.y));
+        circle.setAttribute("fill", "red");
+        return circle;
+      }
+
+      function smoothAllPaths() {
+        // Remove old outlines
+        var oldOutlines = frame.getElementsByClassName("smoothed");
+        for (var i = oldOutlines.length - 1; i >= 0; --i)
+          oldOutlines[i].parentNode.removeChild(oldOutlines[i]);
+
+        // Filter strategies
+        var crudeFilter = prunePoints;
+        var distFilter =
+          function(points) { return filterPointsByDistance(points, 6); };
+
+        // Determine smoothing strategy to use
+        var strategyKey = document.getElementById("strategy").value;
+        var strategy = {
+          'orig': SE_smoothPoints,
+          'new':
+            function(points) { return SO_smoothPoints(points, crudeFilter); },
+          'new-adaptive':
+            function(points) { return SO_smoothPoints(points, distFilter); },
+          'catmull-rom':
+            function(points) { return CR_smoothPoints(points, crudeFilter); },
+          'catmull-rom-adaptive':
+            function(points) { return CR_smoothPoints(points, distFilter); },
+        }[strategyKey];
+
+        // Fetch test lines
+        var testLines = frame.querySelectorAll("polyline.testLine");
+
+        // Start timer
+        var start = +new Date;
+
+        // Iterate over each polyline
+        for (var i = 0; i < testLines.length; ++i) {
+          var pts = testLines[i].points;
+          var smoothed;
+          // Run smoothing 50x
+          for (var j = 0; j < 50; ++j) {
+            smoothed = strategy(pts);
+          }
+          // Display smoothed path
+          smoothed.setAttribute("class", "smoothed");
+          frame.appendChild(smoothed);
+        }
+
+        // End timer
+        var diff = (+new Date) - start;
+        document.getElementById("timing").textContent =
+          "Performed smoothing of all shapes 50 times in " + diff + "ms";
+      }
+
+      /*
+       * Based on SVG-Edit:
+       * http://code.google.com/p/svg-edit/
+       */
+      function SE_smoothPoints(points) {
+        if (points.numberOfItems == 1) {
+          return createPoint(points.getItem(0));
+        }
+
+        var path = document.createElementNS(ParaPara.SVG_NS, "path");
+
+        var N = points.numberOfItems;
+        if (N > 4) {
+          var curpos = points.getItem(0), prevCtlPt = null;
+          var d = [];
+          d.push("M" + [curpos.x,curpos.y].map(fixPrecision).join(",") + "C");
+          for (var i = 1; i <= (N-4); i += 3) {
+            var ct1 = points.getItem(i);
+            var ct2 = points.getItem(i+1);
+            var end = points.getItem(i+2);
+            // if the previous segment had a control point, we want to smooth
+            // out the control points on both sides
+            if (prevCtlPt) {
+              var newpts = SE_smoothControlPoints(prevCtlPt, ct1, curpos);
+              if (newpts && newpts.numberOfItems == 2) {
+                var prevArr = d[d.length-1].split(',');
+                prevArr[2] = fixPrecision(newpts[0].x);
+                prevArr[3] = fixPrecision(newpts[0].y);
+                d[d.length-1] = prevArr.join(',');
+                ct1 = newpts[1];
+              }
+            }
+            d.push(
+             [ct1.x,ct1.y,ct2.x,ct2.y,end.x,end.y].map(fixPrecision).join(','));
+            curpos = end;
+            prevCtlPt = ct2;
+          }
+          // handle remaining line segments
+          d.push("L");
+          for(;i < N;++i) {
+            var pt = points.getItem(i);
+            d.push([pt.x,pt.y].map(fixPrecision).join(","));
+          }
+          d = d.join(" ");
+
+          // create new path element
+          path.setAttribute("d", d);
+        } else {
+          console.assert(points.numberOfItems >= 2,
+                         "Expected at least two points");
+          // XXX For now just do fixed line segments
+          var d = "M" + [points.getItem(0).x,points.getItem(0).y].map(fixPrecision).join(",") +
+            "L";
+          for (var i = 1; i < N; ++i) {
+            var pt = points.getItem(i);
+            d += [pt.x,pt.y].map(fixPrecision).join(",") + " ";
+          }
+          path.setAttribute("d", d);
+        }
+
+        return path;
+      }
+
+      function SE_smoothControlPoints(ct1, ct2, pt) {
+        // each point must not be the origin
+        var x1 = ct1.x - pt.x,
+          y1 = ct1.y - pt.y,
+          x2 = ct2.x - pt.x,
+          y2 = ct2.y - pt.y;
+
+        if ( (x1 != 0 || y1 != 0) && (x2 != 0 || y2 != 0) ) {
+          var anglea = Math.atan2(y1,x1),
+            angleb = Math.atan2(y2,x2),
+            r1 = Math.sqrt(x1*x1+y1*y1),
+            r2 = Math.sqrt(x2*x2+y2*y2),
+            nct1 = { x:0, y:0 }
+            nct2 = { x:0, y:0 }
+          if (anglea < 0) { anglea += 2*Math.PI; }
+          if (angleb < 0) { angleb += 2*Math.PI; }
+
+          var angleBetween = Math.abs(anglea - angleb),
+            angleDiff = Math.abs(Math.PI - angleBetween)/2;
+
+          var new_anglea, new_angleb;
+          if (anglea - angleb > 0) {
+            new_anglea = angleBetween < Math.PI ? (anglea + angleDiff) : (anglea - angleDiff);
+            new_angleb = angleBetween < Math.PI ? (angleb - angleDiff) : (angleb + angleDiff);
+          }
+          else {
+            new_anglea = angleBetween < Math.PI ? (anglea - angleDiff) : (anglea + angleDiff);
+            new_angleb = angleBetween < Math.PI ? (angleb + angleDiff) : (angleb - angleDiff);
+          }
+
+          // rotate the points
+          nct1.x = r1 * Math.cos(new_anglea) + pt.x;
+          nct1.y = r1 * Math.sin(new_anglea) + pt.y;
+          nct2.x = r2 * Math.cos(new_angleb) + pt.x;
+          nct2.y = r2 * Math.sin(new_angleb) + pt.y;
+
+          return [nct1, nct2];
+        }
+        return undefined;
+      }
+
+      /*
+       * This approach is based on the advice given here:
+       * http://stackoverflow.com/questions/6621518/how-to-smooth-a-freehand-drawn-svg-path
+       */
+      function SO_smoothPoints(points, filter) {
+        if (points.numberOfItems == 1) {
+          return createPoint(points.getItem(0));
+        }
+
+        var path = document.createElementNS(ParaPara.SVG_NS, "path");
+
+        if (points.numberOfItems == 2) {
+          // Just make a straight-line segment
+          var pt0 = points.getItem(0);
+          var pt1 = points.getItem(1);
+          var d = "M" + [pt0.x,pt0.y].map(fixPrecision).join(",") +
+            "L" + [pt1.x,pt1.y].map(fixPrecision).join(",");
+          path.setAttribute("d", d);
+        } else {
+          points = filter(points);
+          var pt0 = points[0];
+          var d =
+            "M" + [pt0.x,pt0.y].map(fixPrecision).join(" ") +
+            "C" + SO_smoothPoint(points).map(fixPrecision).join(" ");
+          path.setAttribute("d", d);
+        }
+
+        return path;
+      }
+
+      function SO_smoothPoint(points) {
+        var pt0 = points[0];
+        var curve = [pt0.x, pt0.y];
+        var len = points.length;
+        for (var i=1; i < len; i++) {
+          var prev = points[i-1];
+          var pt   = points[i];
+          var next = points[(i < len-1) ? i+1 : i];
+
+          var anglea = Math.atan2(prev.y-pt.y,prev.x-pt.x);
+          var angleb = Math.atan2(next.y-pt.y,next.x-pt.x);
+          var tangent = (anglea + angleb) / 2 + Math.PI / 2;
+          var smoothness = getDist(pt, next) / 3;
+          if (anglea - angleb < 0) {
+            tangent += Math.PI;
+          }
+          var cosR = Math.cos(tangent) * smoothness;
+          var sinR = Math.sin(tangent) * smoothness;
+
+          curve[curve.length] = pt.x+cosR;
+          curve[curve.length] = pt.y+sinR;
+          curve[curve.length] = pt.x;
+          curve[curve.length] = pt.y;
+
+          if (i < len-1) {
+            curve[curve.length] = pt.x-cosR;
+            curve[curve.length] = pt.y-sinR;
+          }
+        }
+        return curve;
+      }
+
+      function CR_smoothPoints(points, filter) {
+        if (points.numberOfItems == 1) {
+          return createPoint(points.getItem(0));
+        }
+
+        var path = document.createElementNS(ParaPara.SVG_NS, "path");
+        if (points.numberOfItems == 2) {
+          // Just make a straight-line segment
+          var pt0 = points.getItem(0);
+          var pt1 = points.getItem(1);
+          var d = "M" + [pt0.x,pt0.y].map(fixPrecision).join(",") +
+            "L" + [pt1.x,pt1.y].map(fixPrecision).join(",");
+          path.setAttribute("d", d);
+        } else {
+          points = filter(points);
+          var pt0 = points[0];
+          var d =
+            "M" + [pt0.x,pt0.y].map(fixPrecision).join(" ") +
+            "C" + catmullRom2bezier(points).map(fixPrecision).join(" ");
+          path.setAttribute("d", d);
+        }
+        return path;
+      }
+
+      /*
+       * Based on Doug Scheper's work at:
+       * http://schepers.cc/getting-to-the-point
+       */
+      function catmullRom2bezier(points) {
+        var curve = [];
+        for (var i = 0, len = points.length; i < len - 1; ++i) {
+          var p = [];
+          if (i == 0) {
+            p[p.length] = points[i];
+            p[p.length] = points[i];
+            p[p.length] = points[i+1];
+            p[p.length] = points[i+2];
+          } else if (i == len - 2) {
+            p[p.length] = points[i-1];
+            p[p.length] = points[i];
+            p[p.length] = points[i+1];
+            p[p.length] = points[i+1];
+          } else {
+            p[p.length] = points[i-1];
+            p[p.length] = points[i];
+            p[p.length] = points[i+1];
+            p[p.length] = points[i+2];
+          }
+          
+          // Catmull-Rom to Cubic Bezier conversion matrix 
+          //    0       1       0       0
+          //  -1/t      1      1/t      0
+          //    0      1/t      1     -1/t
+          //    0       0       1       0
+
+          // Tension parameter--smaller is more curvy
+          var t = 4;
+          curve[curve.length] = (-p[0].x + t*p[1].x + p[2].x) / t;
+          curve[curve.length] = (-p[0].y + t*p[1].y + p[2].y) / t;
+          curve[curve.length] = (p[1].x + t*p[2].x - p[3].x) / t;
+          curve[curve.length] = (p[1].y + t*p[2].y - p[3].y) / t;
+          curve[curve.length] = p[2].x;
+          curve[curve.length] = p[2].y;
+        }
+        return curve;
+      }
+
+      // Filters out points in the array according to a crude step function so
+      // that arrays with few points are untouched by arrays with many points
+      // are more aggressively pruned
+      function prunePoints(points) {
+        var len = points.numberOfItems;
+        // Step function:
+        // < 10 items, don't prune
+        // < 20 items, skip every second point
+        // < 30 items, skip every 3rd
+        var increment = (len < 20)
+                      ? (len < 10) ? 1 : 2 : 3;
+        var filtered = [];
+        for (var i=0; i < len-increment; i+=increment) {
+          var pt = points.getItem(i);
+          filtered.push( { x: pt.x, y: pt.y } );
+        }
+        // Always include the last point
+        var last = points.getItem(len-1);
+        filtered.push( { x: last.x, y: last.y } );
+        return filtered;
+      }
+
+      // Filters out points in the array such there is at least minDist
+      // between all points
+      function filterPointsByDistance(points, minDist) {
+        if (!points.numberOfItems)
+          return [];
+
+        var filtered = [ points.getItem(0) ];
+        var prev = points.getItem(0);
+        var len = points.numberOfItems;
+        for (var i=1; i < len-1; i++) {
+          var pt = points.getItem(i);
+          if (getDist(pt, prev) > minDist) {
+            filtered.push( { x: pt.x, y: pt.y } );
+            prev = pt;
+          }
+        }
+        // Always include the last point
+        var last = points.getItem(len-1);
+        filtered.push( { x: last.x, y: last.y } );
+        return filtered;
+      }
+
+      function getDist(a, b) {
+        return Math.sqrt(Math.pow(a.x-b.x,2)+Math.pow(a.y-b.y,2));
+      }
+
+      window.addEventListener("load", init, false);
+    </script>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  </head>
+  <body>
+    <table>
+      <tr>
+        <td>
+          <select size="1" name="strategy" id="strategy">
+            <option value="orig">Tweaked SVG Edit algorithm</option>
+            <option value="new">New algorithm</option>
+            <option value="new-adaptive">New algorithm
+              (adaptive simplification)</option>
+            <option value="catmull-rom">Catmull-Rom</option>
+            <option value="catmull-rom-adaptive">Catmull-Rom
+              (adaptive simplification)</option>
+          </select>
+        </td>
+        <td id="timing"></td>
+      </tr>
+    </table>
+    <div class="workspace">
+      <svg style="width: 836px; height: 836px"
+        viewBox="0 0 300 300" id="canvas">
+        <rect width="100%" height="100%" fill="grey"></rect>
+        <g id="frame">
+          <polyline class="testLine" points="14.72,57.06,45.93,16.51"/>
+          <polyline class="testLine"
+            points="84.69,59.93,112.68,19.37,137.80,59.93"/>
+          <polyline class="testLine"
+            points="175.11,59.93,192.69,21.53,232.17,58.13,249.75,22.6,270,60"/>
+          <polyline class="testLine"
+            points="12.19,102.2,36.95,100.12,58.84,100.12"/>
+          <polyline class="testLine"
+            points="109.80,101.19,142.82,99.40,172.97,96.88,174.03,120.93"/>
+          <polyline class="testLine"
+            points="228.94,98.33,214.58,110.88,244.38,86.83"/>
+          <polyline class="testLine"
+            points="25.84,124.51,30.13,124.87,34.45,124.87"/>
+          <polyline class="testLine" points="11.48,189.11 11.84,188.04
+          12.20,187.32 12.56,186.60 12.56,186.24 12.92,185.89 12.92,185.53
+          13.28,184.81 13.28,184.45 14.00,183.73 15.07,181.94 17.22,178.35
+          17.58,177.63 17.94,177.27 19.38,175.48 19.74,175.12 20.45,174.40
+          20.81,174.04 21.17,173.68 21.53,173.33 21.89,173.33 22.25,173.33
+          22.61,172.97 22.61,172.61 22.97,172.25 23.33,172.25 24.04,171.53
+          24.40,171.53 24.76,171.17 25.48,170.81 25.84,170.81 26.20,170.81
+          26.56,170.81 26.91,170.81 27.27,170.81 27.99,171.17 27.99,171.53
+          28.71,171.89 29.43,172.25 29.43,172.61 29.78,172.97 30.50,173.68
+          30.50,174.04 30.50,174.40 30.86,174.76 30.86,175.12 30.86,175.84
+          31.22,175.84 31.22,176.56 31.58,177.27 31.58,177.63 31.94,177.99
+          31.94,178.71 31.94,179.78 31.94,180.14 31.94,180.50 31.94,181.58
+          31.94,182.30 31.94,182.66 31.94,183.01 32.30,184.81 32.30,185.53
+          32.66,186.60 32.66,187.32 33.01,188.40 33.01,188.76 33.37,189.11
+          33.37,189.83 33.73,190.55 33.73,190.91 34.09,191.99 34.09,192.70
+          34.09,193.06 34.45,193.78 34.81,194.14 35.17,194.50 35.53,194.50
+          35.53,194.86 35.89,194.86 36.24,195.22 36.24,195.57 36.60,195.57
+          36.96,195.57 37.32,195.93 38.40,196.29 38.76,196.29 39.11,196.29
+          39.83,196.29 40.19,196.65 40.55,196.65 40.91,196.65 41.27,196.65
+          41.63,196.65 42.70,196.29 43.42,195.93 44.50,195.22 44.86,195.22
+          44.86,194.50 45.57,194.50 45.93,193.78 46.29,193.78 46.29,193.42
+          46.65,192.70 47.01,191.63 47.37,190.91 47.73,190.55 47.73,190.19
+          48.09,189.11 48.80,188.40 49.16,187.68 50.24,185.89 50.60,185.53
+          50.96,184.81 51.67,184.09 52.39,183.01 52.75,182.66 52.75,182.30
+          52.75,181.94 52.75,181.58 53.11,181.58 53.47,181.58 53.83,180.86
+          55.62,177.63 55.62,177.27 55.62,176.91"/>
+          <polyline class="testLine" points="89.71,192.70 89.71,192.34
+          90.43,191.27 91.15,190.55 91.87,190.19 94.02,188.04 94.74,187.32
+          95.10,186.60 96.89,185.17 97.97,184.45 98.33,183.73 100.12,182.30
+          100.84,181.58 101.20,180.86 102.99,179.43 102.99,179.07 103.71,178.71
+          105.14,177.99 105.86,177.63 106.22,177.27 106.94,176.91 108.01,176.56
+          108.37,176.56 108.37,176.20 108.73,176.20 109.09,176.20 109.81,176.91
+          109.81,177.99 110.53,178.35 112.32,180.86 113.04,182.66 113.76,184.09
+          115.91,188.04 116.99,189.11 117.70,190.55 118.06,191.63 118.78,193.06
+          119.14,193.78 119.50,194.14 119.50,194.50 119.86,195.22 119.86,195.57
+          119.86,195.93 120.22,195.93 120.57,195.93 120.93,195.93 121.65,195.93
+          122.37,195.93 122.73,195.57 123.80,194.86 124.52,194.14 125.24,193.42
+          127.39,190.55 128.11,189.47 128.83,188.04 129.55,185.53 129.55,184.45
+          129.90,183.73 129.90,181.58 129.90,180.50 129.90,179.78 129.90,179.07
+          129.90,178.71 129.90,178.35"/>
+          <polyline class="testLine" points="166.15,172.25 166.51,172.25
+          166.87,172.25 167.94,171.17 168.66,170.81 170.45,170.10 171.17,169.38
+          172.25,169.02 175.12,168.30 176.56,168.30 177.63,167.94 179.07,167.58
+          179.78,167.22 181.58,166.15 182.30,165.79 182.66,165.79 183.01,165.79
+          179.43,167.94 177.63,169.38 173.68,172.61 172.25,174.04 170.45,175.12
+          169.74,176.20 168.30,177.63 167.94,177.99 167.94,178.35 168.30,178.35
+          169.02,178.35 169.38,177.99 170.45,177.27 172.97,176.56 174.04,175.84
+          176.56,174.04 180.50,172.25 181.58,171.17 183.01,170.10 186.96,166.87
+          188.04,165.79 188.76,165.07 189.47,164.71 190.19,164.00 190.19,164.35
+          190.19,165.07 189.11,167.58 189.11,167.94 188.04,169.02 186.24,171.17
+          185.53,171.89 184.81,172.97 182.66,174.76 182.30,175.12 181.58,175.84
+          180.50,176.91 174.76,180.14 173.68,180.86 172.25,181.58 170.10,183.01
+          169.38,183.01 169.02,183.37 169.38,183.37 170.10,182.66 171.53,181.22
+          172.61,180.50 174.04,179.43 175.84,178.71 179.78,175.12 181.22,174.40
+          182.66,173.68 185.53,171.53 186.24,171.53 187.68,170.81 187.68,170.45
+          185.89,172.25 185.17,172.97 184.09,174.04 180.14,176.56 178.71,177.63
+          177.27,178.71 171.17,183.37 170.45,184.09 170.10,184.45 170.10,184.81
+          170.81,184.45 172.97,183.01 174.04,182.30 179.78,179.43 181.94,178.71
+          184.45,177.63 190.19,175.84 191.99,174.76 194.14,174.04 196.29,172.61
+          197.01,172.61 197.37,172.61 196.29,172.61 195.93,173.33 194.86,174.04
+          193.42,174.76 188.76,178.35 186.60,179.43 183.73,181.58 175.12,186.24
+          172.25,188.04 165.79,191.63 164.00,192.70 173.33,186.60 175.84,185.17
+          178.71,184.45 183.01,183.01 184.09,182.66 184.81,182.30 184.09,182.66
+          183.73,182.66 183.37,183.37 180.14,185.53 178.71,186.60 176.56,188.04
+          172.97,191.27 171.89,192.34 171.53,193.06 171.17,193.78 171.89,193.42
+          172.97,192.70 174.40,191.99 176.20,190.91 180.14,188.40 182.30,186.96
+          183.73,185.89 188.76,182.66 190.91,181.58 194.86,179.07 195.93,177.99
+          196.29,177.63 195.93,177.99 194.14,179.07 193.42,179.78 192.70,180.50
+          191.63,181.22 188.04,183.73 186.60,184.45 184.81,185.53 180.86,188.04
+          179.43,188.76 178.35,189.47 176.56,191.27 175.84,191.63 176.20,191.63
+          176.91,191.63 177.63,191.63 180.50,189.83 181.58,188.76 183.37,188.04
+          186.60,185.53 188.04,184.81 189.83,183.73 194.14,181.58 195.22,181.22
+          195.93,180.86 195.57,180.86 193.42,182.66 192.70,183.73 190.91,184.81
+          184.81,189.83 183.01,191.27 181.58,192.34 176.20,196.65 175.84,197.37
+          175.48,197.37 175.48,197.73 176.20,197.37 176.91,196.65 177.63,195.93
+          181.94,193.42 184.09,191.99 186.60,190.19 189.47,188.76 197.01,185.17
+          200.24,184.09 202.39,182.66 208.85,179.43 209.57,179.07 207.78,181.22
+          206.70,181.94 205.62,183.01 201.67,186.60 200.24,187.68 198.09,189.11
+          186.60,194.50 185.53,195.22 184.45,195.93 183.73,196.29 184.09,196.29
+          184.81,196.29 185.89,195.93 189.47,194.14 191.63,193.06 193.06,191.63
+          197.01,189.47 199.16,188.40 200.24,187.68 201.67,187.32 203.83,186.24
+          204.19,186.24 204.55,185.89 203.83,185.89 202.39,186.24 199.88,187.68
+          195.93,190.19 194.50,191.27 191.99,193.06 190.19,194.86 189.83,195.57
+          189.83,195.93 190.55,195.93 191.63,195.93 192.70,195.93 193.42,195.93
+          195.93,195.22 196.29,194.86 197.37,194.50 199.52,193.42 199.52,193.06
+          198.80,193.78 196.29,194.86 193.42,196.29 187.32,199.88 185.89,200.60
+          184.09,201.67 184.81,201.32 186.24,200.60 186.96,200.60 189.11,200.24
+          191.99,199.16 193.42,198.80 196.65,197.37 198.80,196.65 199.52,196.29
+          199.16,196.29 198.80,196.65 196.65,197.37 195.93,197.73 195.22,198.44
+          193.78,198.80 190.91,199.88 190.19,200.60 189.11,200.96 188.76,202.03
+          188.76,202.39 189.47,202.39 191.63,202.39 195.57,201.67 197.01,201.32
+          199.88,200.96 201.32,200.60 202.39,200.24 202.75,200.24 203.47,199.88
+          201.67,199.88 200.96,199.88 199.88,199.88 197.01,201.32 195.93,201.67
+          194.50,201.67 192.34,202.39 191.99,202.39 191.63,202.39 191.27,202.75
+          191.99,202.75 192.70,202.75 193.42,202.39 194.86,202.39 195.22,202.03
+          195.57,202.03 196.65,201.67 196.65,201.32 195.57,201.32"/>
+          <polyline class="testLine" points="235.77,194.14 235.77,193.78
+          235.77,193.06 235.77,191.63 235.77,189.83 235.77,189.11 235.77,188.40
+          235.77,185.89 235.77,185.17 235.05,183.01 234.69,182.30 234.69,181.58
+          234.33,180.14 234.33,179.43 234.33,179.07 234.33,177.99 234.33,176.56
+          234.33,175.84 234.69,175.12 235.05,173.68 235.05,172.97 235.41,172.61
+          235.41,171.89 235.41,171.53 235.41,171.17 235.41,170.45 235.41,169.74
+          235.41,168.30 235.41,167.94 235.41,167.22 235.41,166.87 235.77,166.87
+          236.84,166.87 237.56,166.87 239.35,166.87 240.43,166.87 242.58,166.87
+          243.30,166.87 244.38,166.87 245.10,166.87 247.25,166.87 247.97,166.87
+          249.04,166.87 249.76,166.87 251.56,167.22 252.27,167.22 252.63,167.22
+          253.35,167.22 253.71,167.22 254.07,167.22 254.78,166.87 255.50,166.87
+          255.86,166.87 256.22,166.87 256.58,166.87 256.94,166.87 257.30,166.87
+          257.66,166.87 258.37,166.87 259.09,166.87 260.17,166.87 260.89,166.87
+          261.60,166.87 261.96,166.87 262.32,166.87 262.68,166.87 263.04,166.87
+          263.40,166.87 263.76,166.87 263.76,167.22 263.76,167.94 263.76,168.30
+          263.76,170.10 263.76,171.17 263.40,172.25 263.40,175.84 263.40,178.35
+          263.40,180.50 264.83,184.09 265.55,185.89 266.63,188.40 267.70,190.55
+          268.06,191.99 268.06,193.06 268.42,193.42 268.42,193.78 268.42,194.86
+          268.42,195.57 268.42,195.93 268.42,196.29 268.42,197.01 268.42,197.37
+          268.78,198.09 268.78,198.44 268.78,198.80 268.78,199.16 268.78,199.52
+          268.78,199.88 268.78,200.96 268.78,201.32 268.78,201.67 268.42,201.67
+          268.06,201.67 267.70,201.67 267.34,201.67 266.99,201.67 266.27,201.67
+          265.91,201.67 265.19,201.32 263.04,200.96 262.32,200.60 260.53,200.24
+          258.01,200.24 255.86,199.88 252.27,199.88 251.20,199.52 250.12,199.52
+          249.40,199.52 246.89,199.16 245.81,199.16 245.10,198.80 244.02,198.80
+          243.30,198.44 242.94,198.44 242.22,198.44 241.51,198.44 240.79,198.09
+          240.07,198.09 239.71,198.09 239.00,198.09 238.28,198.09 237.92,198.09
+          237.20,198.09 236.84,198.09 236.12,198.09 235.05,198.09 234.69,198.09
+          234.33,198.09 233.61,198.09 233.25,198.09"/>
+          <polyline class="testLine" points="30.14,282.42 30.14,282.06
+          30.14,281.70 29.43,281.34 28.35,280.26 27.63,279.55 25.12,276.67
+          24.76,275.96 24.04,274.52 23.33,271.29 22.61,269.50 22.25,268.78
+          21.53,266.99 20.10,263.40 20.10,262.32 20.10,261.60 19.74,259.81
+          19.74,259.09 19.74,258.73 19.38,257.66 19.38,256.94 19.38,256.22
+          20.45,256.22 21.17,256.94 22.25,257.66 24.76,259.81 26.20,261.24
+          29.07,265.91 30.50,268.42 31.94,271.29 35.53,280.62 37.32,284.93
+          38.04,288.16 39.47,294.26 39.47,295.69 39.47,296.77 39.47,297.85
+          39.11,297.85 38.76,297.85 38.04,297.85 36.24,296.77 35.17,295.69
+          33.73,293.54 30.50,287.80 27.99,282.42 20.45,264.83 18.66,261.60
+          14.35,251.20 12.92,248.33 11.84,245.10 11.48,243.30 11.12,239.35
+          11.12,238.28 11.12,237.20 11.12,236.48 12.20,235.05 13.28,234.69
+          14.00,234.69 15.79,234.69 16.51,234.69 17.22,235.05 17.58,236.84
+          17.94,238.28 17.94,239.35 17.94,244.02 17.94,246.53 17.94,249.04
+          15.79,255.50 14.35,258.73 11.48,263.40 10.77,264.47 8.97,265.55
+          8.97,265.19 8.97,264.83 8.97,263.76 8.97,260.89 8.97,258.73
+          10.05,256.94 12.56,252.27 14.71,250.48 17.58,248.68 20.81,247.61
+          31.94,243.30 34.45,242.58 36.24,242.22 39.47,241.87 39.83,243.30
+          39.83,245.81 39.83,247.25 35.53,257.66 33.37,260.53 31.58,263.04
+          26.20,268.78 23.33,270.57 21.17,271.65 19.02,273.09 16.51,273.80
+          15.07,272.73 15.07,270.93 15.07,268.78 15.43,262.32 16.15,259.45
+          19.38,253.71 20.81,251.56 23.33,249.76 29.07,247.25 31.58,246.89
+          34.45,246.17 39.83,246.53 41.27,246.89 42.34,247.61 43.06,248.33
+          44.14,250.12 44.14,251.20 44.14,252.63 44.14,256.94 44.14,259.81
+          43.42,263.04 36.24,280.62 33.73,284.57 31.58,287.44 26.20,291.03
+          24.76,291.39 24.40,291.39 22.97,290.67 22.61,289.59 22.61,287.08
+          22.61,284.93 22.61,277.39 22.61,274.88 22.61,273.09 22.61,268.06
+          22.97,265.55 23.68,263.76 27.63,260.89 30.50,259.45 33.01,259.09
+          39.83,259.09 42.70,259.09 45.93,259.09 50.96,261.96 52.75,263.40
+          53.47,264.83 54.55,268.78 54.55,272.01 54.55,273.44 53.11,274.88
+          49.88,277.75 47.37,278.83 46.29,279.55 41.27,281.34 38.04,281.70
+          35.17,281.70 21.17,281.70 18.66,281.70 15.79,280.62 13.64,279.55
+          10.05,277.03 9.33,275.96 8.61,274.88 8.61,271.65 9.33,270.57
+          10.41,268.78 15.43,265.91 18.30,264.83 21.89,264.11 31.22,264.11
+          34.45,264.11 37.32,264.11 43.06,266.27 44.86,267.34 45.93,268.78
+          46.29,270.22 46.65,275.96 46.29,277.75 41.99,284.21 39.47,286.36
+          34.45,289.95 31.58,291.39 26.20,292.82 24.40,292.82 22.97,292.82
+          19.38,290.31 19.02,288.52 19.02,287.08 19.02,284.57 20.81,279.19
+          22.61,276.32 24.76,274.16 31.94,268.06 35.17,266.63 38.40,265.19
+          48.44,263.40 52.03,263.04 55.26,263.04 59.93,263.04 61.36,263.04
+          61.36,263.40 61.36,264.83 61.00,264.83 61.00,265.19 60.29,265.19
+          57.42,265.19 54.90,265.19 51.32,265.19 39.83,264.11 34.45,263.40
+          28.71,262.32 10.77,257.30 4.67,255.50 1.44,239.35 7.89,237.20
+          14.71,236.48 26.91,236.48 31.58,236.48 36.60,237.56 50.24,240.79
+          54.19,242.94 57.42,244.38 63.52,249.40 64.95,251.56 66.03,253.71
+          69.26,262.68 69.62,264.83 69.62,265.91 69.26,267.70 68.90,267.70
+          68.54,267.70 66.75,266.99 66.03,265.91 64.95,264.47 60.65,258.37
+          59.21,256.22 58.85,254.78 58.13,250.48 57.78,249.04 57.78,246.89
+          57.78,246.17 59.93,242.58 61.72,242.22 70.69,243.66 72.85,244.74
+          75.00,246.17 78.59,251.20 79.67,254.07 80.02,256.58 79.67,262.68
+          78.59,264.83 76.44,266.63 70.33,270.93 63.16,274.52 59.93,275.60
+          55.98,275.96 45.93,276.67 41.99,276.67 38.40,276.32 31.22,274.16
+          29.43,272.37 27.99,271.29 26.56,267.34 26.56,266.27 26.91,264.11
+          30.86,260.53 33.01,258.73 36.24,257.30 47.01,254.78 51.32,254.43
+          55.26,254.07 58.85,254.07 64.95,254.78 66.75,255.50 67.46,256.58
+          69.62,260.89 68.90,264.11 66.03,266.99 64.23,267.70 61.36,268.78
+          54.55,269.86 52.03,269.86 49.52,269.86 44.50,269.50 42.70,268.78
+          40.91,267.70 39.83,265.91 37.68,262.32 37.32,260.17 37.32,258.37
+          37.68,254.07 38.04,252.63 39.11,250.84 42.34,248.33 44.50,247.97
+          46.65,247.61 51.32,247.97 55.98,249.76 57.06,250.84 59.21,254.43
+          59.57,255.86 59.57,256.94 59.57,258.37 58.49,261.96 56.70,263.04
+          55.26,264.11 50.24,264.83 47.73,264.83 45.22,264.83 40.19,262.32
+          38.40,260.53 36.96,258.37 35.53,252.63 35.17,250.12 35.17,247.61
+          35.17,245.81 37.68,240.43 39.83,238.64 41.99,237.92 57.06,235.77
+          61.00,235.77 73.92,241.87 75.36,243.30 77.51,246.17 80.74,252.99
+          81.46,256.22 81.46,259.09 81.46,265.91 80.74,268.06 78.95,270.22
+          77.15,271.29 71.77,273.80 67.11,274.52 59.57,273.09 54.19,266.99
+          53.47,265.55 50.60,258.37 49.88,256.58 49.52,253.71 49.16,251.56
+          49.16,251.20 49.16,250.84 50.24,250.84 54.19,251.56 56.34,252.27
+          58.85,253.35 65.67,258.01 68.18,260.53 69.98,263.40 73.56,270.93
+          73.92,273.44 73.92,276.67 72.49,283.85 71.41,286.00 65.31,289.59
+          62.08,290.67 54.19,291.75 51.32,291.75 47.37,291.39 39.11,287.80
+          35.89,285.65 33.01,283.13 28.71,274.88 28.35,270.93 27.63,267.70
+          27.63,260.53 27.63,258.01 28.35,255.86 30.50,252.27 32.30,251.56
+          34.81,251.56 37.68,251.56 45.57,252.27 48.09,253.35 50.24,254.07
+          53.83,256.58 54.55,257.30 55.26,258.37 56.34,262.68 56.34,263.76
+          55.62,264.47 53.11,266.27 51.67,266.63 49.52,266.99 44.14,267.70
+          42.34,267.70 40.91,267.70 39.47,267.70 36.60,267.70 35.53,267.70
+          35.17,267.70 34.81,266.99 34.45,266.27 34.45,265.91 34.81,263.04
+          35.17,261.96 36.24,260.53 39.47,256.94 40.91,255.86 45.93,253.71
+          52.03,253.35 56.34,253.35 57.78,254.07 62.08,257.30 63.16,258.73
+          63.88,260.17 64.95,263.40 65.31,264.83 65.31,265.91 65.31,267.70
+          65.31,268.42 64.95,268.78 63.16,270.93 62.08,271.65 61.36,272.37
+          59.57,273.09 55.26,273.44 53.47,273.44 52.03,273.44 45.93,272.37
+          44.50,271.65 40.91,268.42 40.91,268.06 40.91,267.34 40.91,266.99
+          41.27,266.63 41.99,266.63"/>
+          <polyline class="testLine" points="128.11,273.80 127.75,273.09
+          127.39,272.73 125.60,269.50 124.88,268.06 123.09,266.27 119.14,260.53
+          118.06,258.37 116.99,256.22 115.91,254.43 114.47,250.12 114.11,249.04
+          113.76,247.61 113.76,244.02 113.76,242.58 113.76,241.51 115.91,238.64
+          119.14,235.77 121.29,234.69 125.24,232.54 126.67,231.82 128.83,231.10
+          133.85,230.38 136.36,229.67 138.16,229.67 140.67,229.67 146.77,229.67
+          148.56,229.67 150.00,229.67 154.67,231.46 156.10,231.82 157.54,232.54
+          160.41,233.61 160.77,234.69 161.48,235.41 163.64,238.28 164.35,240.07
+          165.07,241.51 165.79,243.30 167.58,247.97 167.94,249.76 169.02,254.43
+          170.81,258.73 171.53,261.96 171.53,265.19 171.53,265.91 171.53,266.99
+          169.74,270.57 168.66,271.65 167.22,272.73 162.56,275.24 159.69,276.67
+          157.18,277.03 154.67,278.11 146.77,279.19 143.90,279.19 140.67,279.19
+          134.57,279.19 132.42,278.83 130.62,278.11 127.75,276.32 124.88,273.44
+          123.80,272.37 122.73,270.93 133.13,250.12 134.57,248.68 136.72,247.61
+          140.67,245.10 142.11,244.74 144.26,244.38 146.05,244.38 149.64,244.02
+          151.08,244.02 152.15,244.02 156.10,245.45 157.18,246.17 158.25,246.89
+          158.25,247.25 158.97,247.97 158.97,248.33 158.97,249.04 158.97,249.76
+          159.33,251.56 159.33,252.63 159.33,254.07 159.33,256.22 159.33,256.94
+          159.33,258.01 159.33,258.73 159.33,259.09 159.33,259.45 158.97,260.17
+          157.89,260.53 157.18,260.89 156.82,261.24 155.74,261.24 155.38,261.24
+          155.02,261.24 153.95,261.24 153.23,261.24 152.87,261.24 151.08,261.24
+          150.36,260.89 149.64,260.53 147.85,260.17 146.77,259.81 146.05,259.81
+          145.33,259.45 145.33,259.09 144.98,259.09"/>
+        </g>
+      </svg>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this file,
+   - You can obtain one at http://mozilla.org/MPL/2.0/.  -->
+<html>
+  <head>
+    <title>Curve splitting test</title>
+    <script type="text/javascript" src="../src/js/eraser.js"></script>
+    <script type="text/javascript">
+      var prevX = undefined;
+      var prevY = undefined;
+      var currentFrame;
+
+      function cut() {
+        if (ParaPara.svgRoot === undefined) {
+          ParaPara.svgRoot = document.getElementById("svg");
+        }
+        ParaPara.erasePrecision = 5;
+
+        testData = getTestData();
+        currentFrame = document.getElementById("shapes");
+
+        for (var i = 0; i < testData.length; ++i) {
+          erasePoint(testData[i]);
+        }
+      }
+
+      function getTestData() {
+        var overlays = document.getElementById("overlays");
+        var points = [];
+        for (var i = 0; i < overlays.childNodes.length; ++i) {
+          var node = overlays.childNodes[i];
+          if (node.nodeType != Node.ELEMENT_NODE)
+            continue;
+          if (node.tagName == "circle") {
+            var cx = parseFloat(node.getAttribute("cx"));
+            var cy = parseFloat(node.getAttribute("cy"));
+            points.push([undefined, undefined, cx, cy]);
+          } else if (node.tagName == "line") {
+            var x1 = parseFloat(node.getAttribute("x1"));
+            var y1 = parseFloat(node.getAttribute("y1"));
+            var x2 = parseFloat(node.getAttribute("x2"));
+            var y2 = parseFloat(node.getAttribute("y2"));
+            points.push([x1, y1, x2, y2]);
+          }
+        }
+        return points;
+      }
+
+      function getShapes() {
+        var shapes = document.getElementById("shapes");
+        var result = [];
+        for (var i = 0; i < shapes.childNodes.length; ++i) {
+          var node = shapes.childNodes[i];
+          if (node.nodeType != Node.ELEMENT_NODE)
+            continue;
+          result.push(node);
+        }
+        return result;
+      }
+
+      function getCandidateShapes(line) {
+        // Go through shapes backwards so we return a list from top to bottom
+        var shapes = currentFrame.childNodes;
+        var hitShapes = [];
+        for (var i = shapes.length-1; i >= 0; --i) {
+          var shape = shapes[i];
+          if (shape.nodeType != Node.ELEMENT_NODE)
+            continue;
+
+          // Theoretically, we should extend the test line by the maximum of the
+          // finger width and stroke width but for now we'll see how this works
+          if (ParaPara.Geometry.lineIntersectsRect(line, shape.getBBox())) {
+            hitShapes.push(shape);
+          }
+        }
+
+        return hitShapes;
+      }
+
+      function erasePoint(point) {
+        const brushWidth = 25;
+        var eraser = new ParaPara.Eraser(currentFrame, brushWidth);
+
+        var candidateShapes = getShapes();
+        if (point[0] !== undefined) {
+          eraser.erase(point[0], point[1], candidateShapes);
+          candidateShapes = getCandidateShapes(point);
+          eraser.erase(point[2], point[3], candidateShapes);
+        } else {
+          eraser.erase(point[2], point[3], candidateShapes);
+        }
+      }
+
+      // Add debugging brush outlines
+      var setWidthSuper = ParaPara.Brush.prototype.setWidth;
+      ParaPara.Brush.prototype.setWidth = function(width) {
+        setWidthSuper.call(this, width);
+        var overlays = document.getElementById("overlays");
+        var path = document.createElementNS(ParaPara.SVG_NS, "path");
+        var d = "M" + this.path.slice(0,2).join(" ") +
+                "L" + this.path.slice(2).join(" ") + "Z";
+        path.setAttribute("d", d);
+        path.setAttribute("fill", "none");
+        path.setAttribute("stroke-width", "1");
+        path.setAttribute("stroke", "purple");
+        overlays.appendChild(path);
+      }
+    </script>
+  </head>
+  <body>
+    <svg width="800" height="850" id="svg" onload="cut()">
+    <rect width="100%" height="100%" fill="lightgrey"/>
+    <g stroke-width="5" stroke="red" id="underlay" opacity="0.3">
+      <path d="M100,200 C100,100 250,100 250,200 C250,300 400,300 400,200"
+            fill="none"/>
+      <path d="M100,500 C25,400 475,400 400,500L500,500L500,600"
+            fill="none"/>
+      <path d="M600,100L750,250" fill="none"/>
+      <path d="M100,750 C100,650 250,650 250,750 C250,850 400,850 400,750"
+            fill="none"/>
+      <path d="M450,750 C450,650 600,650 600,750 C600,850 750,850 750,750"
+            fill="none"/>
+      <path d="M600,400L650,450" fill="none"/>
+    </g>
+    <g stroke-width="5" stroke="red" id="shapes" stroke-linecap="round">
+      <path d="M100,200 C100,100 250,100 250,200 C250,300 400,300 400,200"
+            fill="none"/>
+      <path d="M100,500 C25,400 475,400 400,500L500,500L500,600"
+            fill="none"/>
+      <path d="M600,100L750,250" fill="none"/>
+      <path d="M100,750 C100,650 250,650 250,750 C250,850 400,850 400,750"
+            fill="none"/>
+      <path d="M450,750 C450,650 600,650 600,750 C600,850 750,850 750,750"
+            fill="none"/>
+      <path d="M600,400L650,450" fill="none"/>
+    </g>
+    <g id="overlays">
+      <circle class="temp" fill="blue" cx="741" cy="234" r="3"/>
+      <circle class="temp" fill="blue" cx="680" cy="180" r="3"/>
+      <circle class="temp" fill="blue" cx="601" cy="101" r="3"/>
+      <circle class="temp" fill="blue" cx="214" cy="134" r="3"/>
+      <circle class="temp" fill="blue" cx="385" cy="253" r="3"/>
+      <line class="temp" fill="none" x1="107" y1="142" x2="121" y2="158"
+        stroke="blue" stroke-width="3"/>
+      <line class="temp" fill="none" x1="628" y1="118" x2="620" y2="131"
+        stroke="blue" stroke-width="3"/>
+      <line class="temp" fill="none" x1="443" y1="490" x2="482" y2="489"
+        stroke="blue" stroke-width="3"/>
+      <line class="temp" fill="none" x1="482" y1="489" x2="482" y2="489"
+        stroke="blue" stroke-width="3"/>
+      <line class="temp" fill="none" x1="387" y1="509" x2="420" y2="487"
+        stroke="blue" stroke-width="3"/>
+      <line class="temp" fill="none" x1="480" y1="598" x2="522" y2="598"
+        stroke="blue" stroke-width="3"/>
+      <line class="temp" fill="none" x1="522" y1="598" x2="522" y2="598"
+        stroke="blue" stroke-width="3"/>
+      <line class="temp" fill="none" x1="104" y1="488" x2="90" y2="510"
+        stroke="blue" stroke-width="3"/>
+      <line class="temp" fill="none" x1="203" y1="456" x2="213" y2="425"
+        stroke="blue" stroke-width="3"/>
+      <line class="temp" fill="none" x1="100" y1="680" x2="250" y2="680"
+        stroke="blue" stroke-width="3"/>
+      <line class="temp" fill="none" x1="230" y1="760" x2="420" y2="760"
+        stroke="blue" stroke-width="3"/>
+      <line class="temp" fill="none" x1="450" y1="700" x2="750" y2="800"
+        stroke="blue" stroke-width="3"/>
+      <line class="temp" fill="none" x1="550" y1="400" x2="650" y2="400"
+        stroke="blue" stroke-width="3"/>
+      <line class="temp" fill="none" x1="560" y1="410" x2="660" y2="410"
+        stroke="blue" stroke-width="3"/>
+      <line class="temp" fill="none" x1="570" y1="420" x2="670" y2="420"
+        stroke="blue" stroke-width="3"/>
+      <line class="temp" fill="none" x1="580" y1="430" x2="680" y2="430"
+        stroke="blue" stroke-width="3"/>
+      <line class="temp" fill="none" x1="590" y1="440" x2="690" y2="440"
+        stroke="blue" stroke-width="3"/>
+      <line class="temp" fill="none" x1="600" y1="450" x2="700" y2="450"
+        stroke="blue" stroke-width="3"/>
+    </g>
+    </svg>
+  </body>
+</html>

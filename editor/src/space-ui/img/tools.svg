@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this file,
+   - You can obtain one at http://mozilla.org/MPL/2.0/.  -->
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 481 170" width="100%" height="100%">
+ <defs>
+  <radialGradient id="toolGlow" r="0.5">
+   <stop stop-color="#ffff91" offset="0"/>
+   <stop stop-color="#ffff91" offset=".065"/>
+   <stop stop-color="#fff" stop-opacity="0.1" offset="0.85"/>
+   <stop stop-color="#fff" stop-opacity="0" offset="1"/>
+  </radialGradient>
+ </defs>
+ <circle cx="238" cy="85" r="83" fill="url(#toolGlow)" fill-opacity="0.8">
+  <animateTransform attributeName="transform" type="translate"
+    to="-97 0" keySplines="0 0 0 1" calcMode="spline" fill="freeze"
+    dur="0.2s" begin="indefinite" restart="whenNotActive"
+    id="pencilSelectAnim"/>
+  <animateTransform attributeName="transform" type="translate"
+    to="97 0" keySplines="0 0 0 1" calcMode="spline" fill="freeze"
+    dur="0.2s" begin="indefinite" restart="whenNotActive"
+    id="eraserSelectAnim"/>
+ </circle>
+ <g transform="translate(141 77)">
+  <path fill="#1a6099" d="m25.2-51.6-57.8 71.7 21.5 16.7 57.1-72z"/>
+  <path fill="#e8decb" d="m-32.6 20.1-9.43 28.5 5.63 3.92 25.3-15.8z"/>
+  <path fill="#231815" d="m-42 48.6-4.02 9.46 9.64-5.54z"/>
+  <rect height="143" width="199" y="-67" x="-103"
+    fill="none" pointer-events="all" id="pencil" class="hitRegion"/>
+ </g>
+ <g transform="translate(334 75)">
+  <path fill="#1a6099" d="m3.35-53.1-47.1 68.9 58.6 33.5 48-68.9z"/>
+  <path fill="#fff" d="m-43.7 15.8c-31.5 40.3 35.9 74.9 58.5 33.5z"/>
+  <rect height="143" width="200" y="-64" x="-83"
+    fill="none" pointer-events="all" id="eraser" class="hitRegion"/>
+ </g>
+</svg>
