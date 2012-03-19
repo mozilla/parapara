@@ -5,8 +5,8 @@
 
 header("Content-Type: text/plain; charset=UTF-8");
 
-require_once("../../lib/CONSTANTS.inc");
-require_once("../../lib/db.inc");
+require_once("../../lib/parapara.inc");
+require_once("db.inc");
 $connection = getConnection();
 
 $x = $_GET["x"];
