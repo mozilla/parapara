@@ -7,6 +7,7 @@ require_once("../../lib/parapara.inc");
 require_once("db.inc");
 require_once("UriUtils.inc");
 require_once("PEAR/Mail.php");
+require_once("template.inc");
 
 header("Content-Type: text/plain; charset=UTF-8");
 
@@ -44,18 +45,17 @@ $address = $json["address"];
 // Get URL
 $url = shortenUrl(getGalleryUrlForId($id));
 
-// make up email template
-// XXX In future, make this a separate file and use some template syntax
-// XXX Also, choose the file by current lang? Pass lang as a param?
-$subject = "Emailing $url";
-$body = <<<EOB
-Emailing $url
-EOB;
+// Make up email template
+$template = compileEmailTemplate("email_anim.inc", array("url" => $url));
+if (!$template) {
+  print "{\"error_key\":\"template_failed\"}\n\n";
+  return;
+}
  
 // Set up mail
 $headers['From']    = "no-reply@mozilla-japan.org";
 $headers['To']      = $address;
-$headers['Subject'] = $subject;
+$headers['Subject'] = $template['subject'];
 $mail_object =& Mail::factory("mail");
 if (!$mail_object) {
   print "{\"error_key\":\"sending_failed\",\"error_detail\":\"$result\"}\n\n";
@@ -63,7 +63,7 @@ if (!$mail_object) {
 }
 
 // Send
-$result = $mail_object->send($address, $headers, $body);
+$result = $mail_object->send($address, $headers, $template['body']);
 if (!$result) {
   print "{\"error_key\":\"sending_failed\",\"error_detail\":\"$result\"}\n\n";
   return;

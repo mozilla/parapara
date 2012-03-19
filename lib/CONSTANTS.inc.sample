@@ -7,6 +7,7 @@ define("DB_USER", "");
 define("DB_PASS", "");
 define("DB_NAME", "parapara");
 define("CHARACTERS_DIR", "../characters/");
+define("TEMPLATE_DIR", "../../templates/");
 define("ACCEPT_CHARACTERS", true);
 define("BITLY_LOGIN", "");
 define("BITLY_API_KEY", "");
