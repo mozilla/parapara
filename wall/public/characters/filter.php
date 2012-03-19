@@ -1,4 +1,4 @@
-<?
+<?php
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -59,7 +59,7 @@ function error($title, $message) {
     </style>
   </head>
 <body>
-<?
+<?php
 // Get id
 $id = $_REQUEST['id'];
 if (!$id) {
@@ -87,17 +87,17 @@ if (!$found) {
 ?>
 <center>
 <table>
-<tr><th>タイトル：</th><td><?= $title ?></td></tr>
-<tr><th>名前：</th><td><?= $author ?></td></tr>
+<tr><th>タイトル：</th><td><?php echo $title ?></td></tr>
+<tr><th>名前：</th><td><?php echo $author ?></td></tr>
 </table>
-<img src="<?= $filename ?>" height="500"/><br/>
-<form action="<?= $_SERVER['PHP_SELF'] ?>" method="post">
+<img src="<?php echo $filename ?>" height="500"/><br/>
+<form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="post">
 <label><input type="checkbox" name="active"/>アクティブファールのみ処理</label><br/>
-<input type="hidden" name="id" value="<?= $id ?>"/>
+<input type="hidden" name="id" value="<?php echo $id ?>"/>
 <input type="hidden" name="action" value="update"/>
-<button name="makeInactive" class="inactive<?=
+<button name="makeInactive" class="inactive<?php echo
   $active ? "" : " current"?>" accesskey="1">インアクティブ</input>
-<button name="makeActive" class="active<?=
+<button name="makeActive" class="active<?php echo
   $active ? " current" : "" ?>" accesskey="2">アクティブ</input>
 </form>
 </center>
