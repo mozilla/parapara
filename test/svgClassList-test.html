@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this file,
+   - You can obtain one at http://mozilla.org/MPL/2.0/.  -->
+<html>
+  <head>
+    <title>classList test</title>
+    <style type="text/css">
+      p, svg, object {
+        width: 100px;
+        height: 100px;
+        display: block;
+        padding: 0;
+        margin: 0.5em;
+      }
+      p { background: black; color: yellow; }
+      p.green { background: green; }
+      rect.green { fill: green; }
+    </style>
+    <script type="text/javascript" src="../src/js/svgClassList.js"></script>
+    <script type="text/javascript">
+      function tryToAddClass() {
+        // WebKit won't work until the object's document has loaded (which isn't
+        // guaranteed to be the case when the document's load event fires).
+        // Until that happens however it will report that the root tag name of
+        // the object is "HTML". So we just poll until it is "svg".
+        var rootTag
+          = document.getElementById("object").contentDocument.
+            documentElement.tagName;
+        if (rootTag == "svg") {
+          addClass();
+        } else {
+          window.setTimeout(addClass, 100);
+        }
+      }
+      function addClass() {
+        // HTML element
+        var p = document.getElementById("p");
+        if (!p.classList) {
+          console.log("No classList object on HTML <p>");
+        } else {
+          p.classList.add("green");
+        }
+
+        // Inline SVG element
+        var svg = document.getElementById("svg");
+        var rect = svg.getElementsByTagName("rect")[0];
+        if (!rect.classList) {
+          console.log("No classList object on inline SVG <rect>");
+        } else {
+          rect.classList.add("green");
+        }
+
+        // External SVG element referenced by <object>
+        var object = document.getElementById("object");
+        rect = object.contentDocument.getElementsByTagName("rect")[0];
+        if (!rect.classList) {
+          console.log("No classList object on external SVG <rect>");
+        } else {
+          rect.classList.add("green");
+        }
+
+        // Dynamically added SVG element referenced by <object>
+        var newObject = document.createElement("object");
+        newObject.setAttribute("data", "svgClassList-test-ext-svg.svg");
+        newObject.setAttribute("width", "100");
+        newObject.setAttribute("height", "100");
+        object.parentNode.insertBefore(newObject, null);
+        newObject.addEventListener("load",
+          function() { updateClass(newObject); }, false);
+      }
+      function updateClass(object) {
+        var rect = object.contentDocument.getElementsByTagName("rect")[0];
+        if (!rect.classList) {
+          console.log("No classList object on dynamically added external "
+            + "SVG <rect>");
+        } else {
+          rect.classList.add("green");
+        }
+      }
+      window.addEventListener("load", tryToAddClass, false);
+    </script>
+  </head>
+  <body>
+    <div>
+      <p id="p">Paragraph</p>
+      <svg id="svg" viewBox="0 0 100 100">
+        <rect width="100" height="100"/>
+        <text fill="yellow" y="1em">Inline SVG</text>
+      </svg>
+      <object id="object" data="svgClassList-test-ext-svg.svg"
+        width="100" height="100"></object>
+    </div>
+  </body>
+</html>

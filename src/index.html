@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this file,
+   - You can obtain one at http://mozilla.org/MPL/2.0/.  -->
+<html>
+  <head>
+    <title>パラパラアニメーション</title>
+    <link rel="stylesheet" href="ui/css/editor.css" type="text/css">
+    <link rel="stylesheet" href="ui/css/parapara.css" type="text/css">
+    <script type="text/javascript" src="js/compat.js"></script>
+    <script type="text/javascript" src="js/parapara.js"></script>
+    <script type="text/javascript" src="js/eraser.js"></script>
+    <script type="text/javascript" src="js/svgClassList.js"></script>
+    <script type="text/javascript" src="js/uuid.core.js"></script>
+    <script type="text/javascript" src="ui/js/editor-ui.js"></script>
+    <script type="text/javascript" src="ui/js/svgslider.js"></script>
+    <!-- The following QRCode library is only used as a fallback in case the
+         server doesn't send a QR Code. If we know the server will always
+         provide a QR code we can leave the following library out. -->
+    <script type="text/javascript" src="ui/js/qrcode.js"></script>
+    <meta name="viewport" 
+      content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  </head>
+  <body>
+    <div class="container" id="container">
+      <div class="container-row">
+      <div class="controls vertical column" id="toolBox">
+        <button type="button" class="image toolButton swell" id="pencilTool">
+          <svg viewBox="-1 -1 22 22">
+            <image xlink:href="ui/img/pencil.svg" width="20" height="20"/>
+          </svg>
+        </button>
+        <button type="button" class="image toolButton swell" id="eraserTool">
+          <svg viewBox="-1 -1 22 22">
+            <image xlink:href="ui/img/eraser.svg" width="20" height="20"/>
+          </svg>
+        </button>
+        <div id="drawControls" style="display:none" class="controlSet">
+          <div class="separator">&nbsp;</div>
+          <button type="button" class="image strokeWidthButton">
+            <svg viewBox="-10 -10 20 20" style="width:20px"
+              preserveAspectRatio="xMidYMid slice">
+              <circle r="1.5"/>
+            </svg>
+          </button>
+          <button type="button" class="image strokeWidthButton">
+            <svg viewBox="-10 -10 20 20" style="width:20px"
+              preserveAspectRatio="xMidYMid slice">
+              <circle r="3"/>
+            </svg>
+          </button>
+          <button type="button" class="image strokeWidthButton">
+            <svg viewBox="-10 -10 20 20" style="width:30px"
+              preserveAspectRatio="xMidYMid slice">
+              <circle r="5"/>
+            </svg>
+          </button>
+          <div class="separator">&nbsp;</div>
+          <button type="button" class="image colorButton swell">
+            <svg viewBox="-1 -1 22 22">
+              <circle cx="10" cy="10" r="10" fill="red"/>
+            </svg>
+          </button>
+          <button type="button" class="image colorButton swell">
+            <svg viewBox="-1 -1 22 22">
+              <circle cx="10" cy="10" r="10" fill="blue"/>
+            </svg>
+          </button>
+          <button type="button" class="image colorButton swell">
+            <svg viewBox="-1 -1 22 22">
+              <circle cx="10" cy="10" r="10" fill="orange"/>
+            </svg>
+          </button>
+          <!-- Disabled for the time being since it doesn't fit on the screen of
+               small DELL tablets
+          <button type="button" class="image colorButton">
+            <svg viewBox="-1 -1 22 22">
+              <circle cx="10" cy="10" r="10" fill="green"/>
+            </svg>
+          </button>
+          -->
+        </div>
+        <div id="eraseControls" style="display:none" class="controlSet">
+          <div class="separator">&nbsp;</div>
+          <button type="button" class="image eraseWidthButton">
+            <svg viewBox="-10 -10 20 20" style="width:20px"
+              preserveAspectRatio="xMidYMid slice">
+              <circle r="1.5" class="eraseOutline"/>
+            </svg>
+          </button>
+          <button type="button" class="image eraseWidthButton">
+            <svg viewBox="-10 -10 20 20" style="width:20px"
+              preserveAspectRatio="xMidYMid slice">
+              <circle r="3" class="eraseOutline"/>
+            </svg>
+          </button>
+          <button type="button" class="image eraseWidthButton">
+            <svg viewBox="-10 -10 20 20" style="width:30px"
+              preserveAspectRatio="xMidYMid slice">
+              <circle r="6" class="eraseOutline"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div class="column">
+        <svg style="width:600px;height:600px" viewBox="0 0 300 300"
+          id="canvas" class="canvas">
+          <!-- Fallback background -->
+          <rect width="100%" height="100%" fill="black"/>
+          <image width="101%" height="101%" xlink:href="ui/img/space-bg.svg"/>
+          <g id="parapara"/>
+        </svg>
+        <div class="controls" id="animControls" style="display:none">
+          <input type="range" min="0.65" max="12.5" step="0.2"
+            onchange="EditorUI.changeSpeed(this.value)" id="speedAdjust"/>
+          <button type="button" class="text left"
+            onclick="EditorUI.returnToEditing()">もどる</button>
+          <button type="button" class="text right"
+            onclick="EditorUI.send()">おくる</button>
+        </div>
+      </div>
+      <div class="controls vertical column" id="frameControls"
+        style="vertical-align: bottom">
+        <button type="button" class="text"
+          onclick="EditorUI.prevFrame()">もどる</button>
+        <button type="button" class="text"
+          onclick="EditorUI.nextFrame()">つぎ</button>
+        <button type="button" class="text"
+          onclick="EditorUI.finish()">おわる</button>
+      </div>
+      </div>
+    </div>
+    <div class="overlay" id="overlay" style="display:none">
+      <div class="overlay-inner">
+        <div class="overlay-contents" id="noteSending">
+          送信中<br/><br/>
+          <img src="ui/img/loader.gif" width="43" height="11" alt="送信中">
+        </div>
+        <div class="overlay-contents error" id="noteSendingFailed">
+          送信失敗しました<br/><br/>
+          <button type="button" class="text"
+            onclick="EditorUI.clearNoteAndReset()">キャンセル</button>
+          <button type="button" class="text"
+            onclick="EditorUI.send()">再送信</button>
+        </div>
+        <div class="overlay-contents error" id="noteSendingFailedFatal">
+          送信失敗しました<br/><br/>
+          <button type="button" class="text"
+            onclick="EditorUI.clearNoteAndReset()">OK</button>
+        </div>
+        <div class="overlay-contents error" id="noteNotLive">
+          ただいま、このエベントは終了となりました<br/><br/>
+          <button type="button" class="text"
+            onclick="EditorUI.clearNoteAndReset()">キャンセル</button>
+          <button type="button" class="text"
+            onclick="EditorUI.send()">再送信</button>
+        </div>
+        <div class="overlay-contents" id="noteSendingComplete">
+          送信しました！
+        </div>
+        <div class="overlay-contents" id="noteShare">
+          作品をシェアーしましょう！
+          <form id="email-form" action="javascript:EditorUI.sendEmail()">
+            <div id="animation-link">
+              <!-- The content here is dynamically inserted -->
+            </div>
+            <div class="field-row">
+              <input type="email" name="email" id="email" size="25"
+                style="ime-mode: inactive" autocomplete="off"
+                onblur="EditorUI.toggleEmailPlaceholder()"
+                onfocus="EditorUI.toggleEmailPlaceholder()"
+                oninput="EditorUI.clearEmailStatus()">
+              <button type="submit" class="text" id="email-button">
+                <img src="ui/img/email.png" width="16" height="16">
+              </button>
+              <div id="email-progress" class="async-progress"></div>
+            </div>
+          </form>
+          <button type="button" class="text" style="margin-top: 0.8em"
+            onclick="EditorUI.clearNoteAndReset()">OK</button>
+        </div>
+        <div class="overlay-contents error" id="noteNoAnimation">
+          アニメーションは見つけませんでした<br/><br/>
+          <button type="button" class="text"
+            onclick="EditorUI.clearNoteAndReset()">OK</button>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
