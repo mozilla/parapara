@@ -1,0 +1,29 @@
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this file,
+   - You can obtain one at http://mozilla.org/MPL/2.0/.  -->
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=Utf-8">
+		<script type="text/javascript" src="../src/js/compat.js"></script>
+		<script type="text/javascript" src="../src/ui/js/qrcode.js"></script>
+    <script type="text/javascript">
+      function updateCode() {
+        var url = "http://bit.ly/w9FZGb";
+        var qr = new QRCode(0, QRCode.QRErrorCorrectLevel.M);
+        qr.addData(url);
+        qr.make();
+        var image = qr.getImage(7);
+        var div = document.getElementById("qr");
+        div.innerHTML =
+          "<img src=\"" + image.data +
+          "\" width=\"" + image.width +
+          "\" height\"" + image.height +
+          "\" alt=\"" + url + "\">";
+      }
+    </script>
+		<title>QR Code for JavaScript</title>
+	</head>
+	<body onload="updateCode()">
+    <div id="qr"></div>
+	</body>
+</html>
