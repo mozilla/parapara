@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-require_once("../../lib/CONSTANTS.inc");
-require_once("../../lib/db.inc");
+require_once("../../lib/parapara.inc");
+require_once("db.inc");
 $connection = getConnection();
 
 if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'update') {
