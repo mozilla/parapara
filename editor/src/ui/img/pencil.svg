@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this file,
+   - You can obtain one at http://mozilla.org/MPL/2.0/.  -->
+<svg xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 75.4 73.1" xmlns:dc="http://purl.org/dc/elements/1.1/">
+ <defs>
+  <linearGradient id="b" y2="508" gradientUnits="userSpaceOnUse" x2="299" y1="488" x1="280">
+   <stop stop-color="#f09092" offset="0"/>
+   <stop stop-color="#f2acac" offset=".25"/>
+   <stop stop-color="#f5c8c7" offset=".5"/>
+   <stop stop-color="#cf8885" offset=".75"/>
+   <stop stop-color="#aa4944" offset="1"/>
+  </linearGradient>
+  <linearGradient id="a" y2="550" gradientUnits="userSpaceOnUse" x2="247" y1="539" x1="236">
+   <stop stop-color="#ddb090" offset="0"/>
+   <stop stop-color="#ebd1bf" offset=".5"/>
+   <stop stop-color="#ce8d60" offset="1"/>
+  </linearGradient>
+ </defs>
+ <g transform="translate(-229 -483)">
+  <path d="m230 555 3.26-9.27 6.92-19.7s42.3-41.7 44.5-42.8c2.23-1.1 4.57 0.57 4.57 0.57s4.64 2.08 8.88 6.96c4.25 4.88 6.38 7.57 6.23 10.1-0.148 2.53-44.5 43-44.5 43l-19.7 7.33-10.1 3.76z" stroke="#000" stroke-width="1px" fill="url(#b)"/>
+  <path d="m239 530 0.388 3.27 7.11-2.19 1.38 9.04 7.98 0.429 0.718 5.15 3.12-1.01 18.5-17.2s-3.92-6.16-9.32-11.5c-5.36-5.3-9.81-7.94-9.81-7.94l-19.1 18.7-1.01 3.2z" stroke="#000" stroke-width="1px" fill="#fba635"/>
+  <path d="m246 531 19.1-18.2s1.16 0.584 4.73 4.48 4.78 5.49 4.78 5.49l-19.2 17.7-7.98-0.429-1.38-9.04z" fill="#f5b25f"/>
+  <path fill="#b54d0e" d="m257 545 3.12-1.01 18.5-17.2-3.1-4.67-19.2 17.7 0.718 5.15z"/>
+  <path d="m233 546 6.23 5.82-9.82 3.85 3.59-9.68z"/>
+  <path d="m239 530 0.388 3.27 7.11-2.19 1.38 9.04 7.98 0.429 0.718 5.15 3.12-1.01 18.5-17.2s-3.92-6.16-9.32-11.5c-5.36-5.3-9.81-7.94-9.81-7.94l-19.1 18.7-1.01 3.2z" stroke="#000" stroke-width="1px" fill="none"/>
+  <path d="m233 546 6.23 5.82 16.9-6.22-0.718-5.15-7.98-0.429-1.38-9.04-7.11 2.19-0.388-3.27-5.59 16.1z" stroke="#000" stroke-width="1px" fill="url(#a)"/>
+  <path fill="#7e5f56" d="m273 495s6.42 2.39 10.7 7.02c4.23 4.63 8.96 11.9 8.96 11.9l-14.6 13.6s-6.34-9.6-9.47-12.1c-3.14-2.52-9.65-7.31-9.65-7.31l14.1-13.1z"/>
+  <path fill="#d6c8c6" d="m259 508 6.52 4.79 14.6-14-6.98-3.88-14.1 13.1"/>
+  <path d="m266 512 3.87 3.28 5.64 6.69 14.4-13.1s-1.69-4.1-3.67-6.17-5.63-4.7-5.63-4.7" fill="#ece4e2"/>
+  <path d="m273 495s6.42 2.39 10.7 7.02c4.23 4.63 8.96 11.9 8.96 11.9l-14.6 13.6s-5.7-8.27-8.74-11.4c-2.82-2.88-10.4-8.06-10.4-8.06l14.1-13.1z" stroke="#000" stroke-width="1px" fill="none"/>
+ </g>
+</svg>

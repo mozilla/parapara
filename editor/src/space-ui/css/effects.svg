@@ -1,0 +1,12 @@
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this file,
+   - You can obtain one at http://mozilla.org/MPL/2.0/.  -->
+<svg xmlns="http://www.w3.org/2000/svg">
+  <filter id="glow">
+    <feMorphology in="SourceAlpha" radius="2" operator="dilate"/>
+    <feGaussianBlur stdDeviation="1.5" result="blur"/>
+    <feFlood flood-color="#ffffbe" flood-opacity="0.8" result="colour"/>
+    <feComposite in="colour" in2="blur" operator="in"/>
+    <feBlend in="SourceGraphic" mode="normal"/>
+  </filter>
+</svg>
