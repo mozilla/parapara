@@ -40,8 +40,11 @@ function compileEmailTemplate($file, $vars)
   if (!preg_match('/^\s*Subject:\s*(.*)$/i', $parts[0], $matches))
     return null;
 
-  return array('subject' => trim($matches[1]),
-               'body'    => $parts[1]);
+  $subject = trim($matches[1]);
+  // Normalize line breaks to CRLF
+  $body = preg_replace("/((?<!\r)\n)|(\r(?!\n))/", "\r\n", $parts[1]);
+
+  return array('subject' => $subject, 'body' => $body);
 }
 
 ?>
