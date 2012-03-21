@@ -98,8 +98,8 @@ function fileToUrl($file)
   $path = $basePath . $filePath;
 
   // Make up url append the scheme, hostname, port, etc.
-  $scheme      = $_SERVER['HTTPS'] ? 'https://' : 'http://';
-  $defaultPort = $_SERVER['HTTPS'] ? '443' : '80';
+  $scheme      = @$_SERVER['HTTPS'] ? 'https://' : 'http://';
+  $defaultPort = @$_SERVER['HTTPS'] ? '443' : '80';
   $port        = $_SERVER['SERVER_PORT'] != $defaultPort
                ? ':' + $_SERVER['SERVER_PORT']
                : '';

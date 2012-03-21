@@ -52,20 +52,16 @@ if (!$template) {
   return;
 }
  
-// Set up mail
-$headers['From']    = "no-reply@mozilla-japan.org";
-$headers['To']      = $address;
-$headers['Subject'] = $template['subject'];
-$mail_object =& Mail::factory("mail");
-if (!$mail_object) {
-  print "{\"error_key\":\"sending_failed\",\"error_detail\":\"$result\"}\n\n";
-  return;
-}
-
-// Send
-$result = $mail_object->send($address, $headers, $template['body']);
-if (!$result) {
-  print "{\"error_key\":\"sending_failed\",\"error_detail\":\"$result\"}\n\n";
+// Send mail
+$from = MAIL_SENDER;
+$headers =
+  "MIME-Version: 1.0\r\n" .
+  "Content-type: text/plain; charset=UTF-8\r\n" .
+  "From: $from\r\n";
+$mail_result =
+  mail($address, $template['subject'], $template['body'], $headers, "-f $from");
+if (!$mail_result) {
+  print "{\"error_key\":\"sending_failed\"}\n\n";
   return;
 }
 

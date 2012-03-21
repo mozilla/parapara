@@ -26,7 +26,7 @@ $title = $json["title"];
 $author = $json["author"];
 $y = $json["y"];
 $svg = $json["svg"];
-$id = $json["id"];
+$id = @$json["id"];
 
 $connection = getConnection();
 
