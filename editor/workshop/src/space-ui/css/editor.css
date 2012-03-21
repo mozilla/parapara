@@ -75,14 +75,14 @@ div.controlPanel .controlSet.active {
 /* Credit form */
 div.controlSet div.field {
   display: block;
-  margin: 0 0.3em;
+  margin: 1.5em 0.3em;
   color: green;
 }
 div.controlSet label:first-child {
   display: block;
   /* bullet image is 35x33 */
   padding-top: 0.1em;
-  padding-bottom: 0.1em;
+  padding-bottom: 0.3em;
   padding-left: 35px;
   background-image: url(../img/star-bullet.png);
   background-repeat: no-repeat;
@@ -107,7 +107,7 @@ div.field input.fullWidthField {
   width: -moz-calc(100% - 35px - 1em);
 }
 div.controlSet input[type=text], div.controlSet input[type=number] {
-  font-size: 20px;
+  font-size: 24px;
 }
 div.field input[type=radio] {
   display: none;
