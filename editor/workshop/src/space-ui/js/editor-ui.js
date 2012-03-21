@@ -102,8 +102,6 @@ EditorUI.send = function() {
   var metadata = {};
   metadata.title  = document.forms[0].title.value.trim();
   metadata.author = document.forms[0].name.value.trim();
-  metadata.sex    = EditorUI.getRadioValue(document.forms[0].sex);
-  metadata.age    = document.forms[0].age.value.trim();
   ParaPara.send(EditorUI.UPLOAD_PATH, EditorUI.sendSuccess, EditorUI.sendFail,
                 metadata);
 }
