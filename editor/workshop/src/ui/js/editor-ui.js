@@ -6,7 +6,7 @@ var EditorUI = EditorUI || {};
 
 EditorUI.INITIAL_SPEED_FPS = 3.3;
 EditorUI.UPLOAD_PATH       = "../api/upload_anim.php";
-EditorUI.EMAIL_UPLOAD_PATH = "../api/email_anim.php";
+EditorUI.SEND_EMAIL_PATH   = "../api/email_anim.php";
 
 EditorUI.init = function() {
   var paraparaRoot = document.getElementById("parapara");
@@ -266,7 +266,7 @@ EditorUI.sendEmail = function() {
 
   // Send away
   EditorUI.setEmailStatus("waiting");
-  ParaPara.sendEmail(email, animationId, EditorUI.EMAIL_UPLOAD_PATH,
+  ParaPara.sendEmail(email, animationId, EditorUI.SEND_EMAIL_PATH,
                      EditorUI.sendEmailSuccess, EditorUI.sendEmailFail);
 }
 
