@@ -16,18 +16,21 @@ $jsonString = fgets($handle);
 $json = json_decode($jsonString,true);
 fclose($handle);
 
-// Validate ID
-$id = $json["id"];
+// Validate ID and get metadata
+$id     = $json["id"];
+$title  = "";
+$author = "";
 $connection = getConnection();
 try {
-  $query = "SELECT count(*) FROM characters WHERE id = $id";
+  $query = "SELECT id, title, author FROM characters WHERE id = $id";
   $result = mysql_query($query, $connection) or throwException(mysql_error());
-  $row = mysql_fetch_array($result,MYSQL_NUM);
-  $count = floor($row[0]);
-  if ($count == 0) {
+  $row = mysql_fetch_array($result, MYSQL_ASSOC);
+  if (!$row) {
     print "{\"error_key\":\"anim_not_found\",\"error_detail\":\"".$id."\"}\n\n";
     return;
   }
+  $title  = $row['title'];
+  $author = $row['author'];
 } catch (Exception $e) {
   $message = $e->getMessage();
   print "{\"error_key\":\"db_error\",\"error_detail\":\"$message\"}\n\n";
@@ -45,7 +48,8 @@ $address = $json["address"];
 $url = shortenUrl(getGalleryUrlForId($id));
 
 // Make up email template
-$template = compileEmailTemplate("email_anim.inc", array("url" => $url));
+$template = compileEmailTemplate("email_anim.inc",
+  array("url" => $url, "author" => $author, "title" => $title));
 if (!$template) {
   print "{\"error_key\":\"template_failed\"}\n\n";
   return;
