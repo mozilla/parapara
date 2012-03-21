@@ -6,7 +6,6 @@
 require_once("../../lib/parapara.inc");
 require_once("db.inc");
 require_once("UriUtils.inc");
-require_once("PEAR/Mail.php");
 require_once("template.inc");
 
 header("Content-Type: text/plain; charset=UTF-8");
