@@ -11,4 +11,5 @@ define("TEMPLATE_DIR", "../../templates/");
 define("ACCEPT_CHARACTERS", true);
 define("BITLY_LOGIN", "");
 define("BITLY_API_KEY", "");
+define("MAIL_SENDER", "");
 ?>
