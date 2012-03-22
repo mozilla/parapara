@@ -12,8 +12,7 @@ function getFilenameForId($id)
 
 function getGalleryUrlForId($id)
 {
-  // XXX gallery function not yet implemented
-  return getRawUrlForId($id);
+  return fileToUrl(CHARACTERS_DIR . "gallery.php") . "?id=$id";
 }
 
 function getRawUrlForId($id)
