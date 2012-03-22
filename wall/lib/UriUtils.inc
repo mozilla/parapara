@@ -7,13 +7,12 @@ require_once("CONSTANTS.inc");
 
 function getFilenameForId($id)
 {
-  return CHARACTERS_DIR . $id . ".svg";
+  return CHARACTERS_DIR . $id;
 }
 
 function getGalleryUrlForId($id)
 {
-  // XXX gallery function not yet implemented
-  return getRawUrlForId($id);
+  return fileToUrl(CHARACTERS_DIR . "gallery.php") . "?id=$id";
 }
 
 function getRawUrlForId($id)
