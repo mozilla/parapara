@@ -89,10 +89,15 @@ mysql_close($connection);
 </head>
 <body>
 	<div id="content">
-		<div id="title"><?php print $title; ?> - <?php print $author; ?>さん作</div>
+    <div id="title"><?php
+    echo $title;
+    if ($title && $author)
+      echo " - ";
+    if ($author)
+      echo $author . "さん作";
+    ?></div>
 		<center>
-		<object id="character" width="400" data="<?php print $id; ?>.svg">
-		</object>
+		<img id="character" width="400" height="400" src="<?php print $id; ?>.svg">
 		</center>
 		<div id="description">
 			<div id="date"><?php print $createdtime; ?></div>
