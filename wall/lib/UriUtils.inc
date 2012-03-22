@@ -7,7 +7,7 @@ require_once("CONSTANTS.inc");
 
 function getFilenameForId($id)
 {
-  return CHARACTERS_DIR . $id . ".svg";
+  return CHARACTERS_DIR . $id;
 }
 
 function getGalleryUrlForId($id)
