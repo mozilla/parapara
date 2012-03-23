@@ -3,10 +3,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+require_once("parapara.inc");
+
 // Very simplistic template management
 function compileTemplate($file, $vars)
 {
-  $file = TEMPLATE_DIR . $file;
+  global $config;
+  $file = $config['templates']['path'] . $file;
   // Check file exists and is readable
   if (!is_readable($file) || !is_file($file))
     return null;

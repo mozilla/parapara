@@ -3,10 +3,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+require_once("parapara.inc");
+
 function getConnection() {
+  global $config;
   $connection =
-    mysql_connect("127.0.0.1", DB_USER, DB_PASS) or die(mysql_error());
-  mysql_select_db(DB_NAME, $connection) or die(mysql_error());
+    mysql_connect("127.0.0.1", $config['db']['user'], $config['db']['password'])
+    or die(mysql_error());
+  mysql_select_db($config['db']['database'], $connection) or die(mysql_error());
   return $connection;
 }
 

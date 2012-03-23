@@ -9,5 +9,5 @@ set_include_path(implode(PATH_SEPARATOR, array(
     get_include_path()
 )));
 
-require_once("CONSTANTS.inc");
+require_once("config.inc");
 ?>
