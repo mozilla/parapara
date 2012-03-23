@@ -22,6 +22,9 @@ $config = array(
   ),
   'mail' => array(
     'from' => ''
+    // The values for 'transport' and 'params' are passed directly onto PEAR 
+    // Mail and are documented there:
+    // http://pear.php.net/manual/en/package.mail.mail.factory.php
     'transport' => 'mail',
     'params' => ''
   )
