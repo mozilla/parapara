@@ -177,6 +177,16 @@ div.overlay-contents input.placeholder:-moz-ui-invalid {
 div.overlay-contents div.field-row {
   margin: 0.5em 0;
 }
+div.overlay-contents div.field-note {
+  color: grey;
+  font-size: 0.6em;
+  text-align: center;
+  width: 80%;
+  margin: 0 auto 0.5em;
+}
+div.field-row + div.field-note {
+  margin-top: -0.3em;
+}
 div.async-progress {
   display: inline-block;
   width: 16px;
