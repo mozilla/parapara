@@ -22,6 +22,8 @@ $config = array(
   ),
   'mail' => array(
     'from' => ''
+    'transport' => 'mail',
+    'params' => ''
   )
 );
 ?>

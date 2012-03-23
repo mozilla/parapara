@@ -6,6 +6,7 @@
 // Add this folder to the include path
 set_include_path(implode(PATH_SEPARATOR, array(
     dirname(__FILE__),
+    dirname(__FILE__).DIRECTORY_SEPARATOR."PEAR",
     get_include_path()
 )));
 
