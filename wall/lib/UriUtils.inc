@@ -3,16 +3,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-require_once("CONSTANTS.inc");
+require_once("parapara.inc");
 
 function getFilenameForId($id)
 {
-  return CHARACTERS_DIR . $id . ".svg";
+  global $config;
+  return $config['characters']['path'] . $id . ".svg";
 }
 
 function getGalleryUrlForId($id)
 {
-  return fileToUrl(CHARACTERS_DIR . "gallery.php") . "?id=$id";
+  global $config;
+  return fileToUrl($config['characters']['path'] . "gallery.php") . "?id=$id";
 }
 
 function getRawUrlForId($id)
@@ -22,10 +24,15 @@ function getRawUrlForId($id)
 
 function shortenUrl($url)
 {
-  if (!defined('BITLY_LOGIN') || !defined('BITLY_API_KEY'))
+  global $config;
+  if (!isset($config['bitly']) ||
+      !@$config['bitly']['login'] ||
+      !@$config['bitly']['apiKey'])
     return $url;
-  $shorten_url = "http://api.bit.ly/v3/shorten?login=" . BITLY_LOGIN .
-    "&apiKey=" . BITLY_API_KEY . "&uri=" . urlencode($url) . "&format=txt";
+  $login  = $config['bitly']['login'];
+  $apiKey = $config['bitly']['apiKey'];
+  $shorten_url = "http://api.bit.ly/v3/shorten?login=$login&apiKey=$apiKey" .
+    "&uri=" . urlencode($url) . "&format=txt";
   $shortened = fetchUrl($shorten_url);
   // If there is an error, return the original url
   return $shortened ? trim($shortened) : $url;

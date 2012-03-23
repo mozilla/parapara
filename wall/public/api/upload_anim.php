@@ -10,7 +10,7 @@ require_once("UriUtils.inc");
 header("Content-Type: text/plain; charset=UTF-8");
 
 // Check if event is over
-if (!ACCEPT_CHARACTERS) {
+if (!$config['characters']['accept_new']) {
   print "{\"error_key\":\"not_live\"}\n\n";
   exit;
 }

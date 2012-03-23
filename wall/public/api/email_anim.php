@@ -56,7 +56,7 @@ if (!$template) {
 }
  
 // Send mail
-$from = MAIL_SENDER;
+$from = $config['mail']['from'];
 $headers =
   "MIME-Version: 1.0\r\n" .
   "Content-type: text/plain; charset=UTF-8\r\n" .

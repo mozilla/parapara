@@ -17,7 +17,7 @@ try {
 		$rtime = $row["rtime"];
 		$createdtime = date('Y-m-d H:i:s', intval($rtime)/1000);
 	} else {
-		$error = $e->getMessage();
+		$error = "Not found";
 	}
 	mysql_free_result($result);
 } catch (Exception $e) {
