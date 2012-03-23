@@ -7,6 +7,7 @@ require_once("../../lib/parapara.inc");
 require_once("db.inc");
 require_once("UriUtils.inc");
 require_once("template.inc");
+require_once("Mail.php");
 
 header("Content-Type: text/plain; charset=UTF-8");
 
@@ -54,17 +55,27 @@ if (!$template) {
   print "{\"error_key\":\"template_failed\"}\n\n";
   return;
 }
- 
+
+// Prepare mail
+$headers['From']         = $config['mail']['from'];
+$headers['To']           = $address;
+$headers['Subject']      = $template['subject'];
+$headers['Content-Type'] = "text/plain; charset=UTF-8";
+$headers['Content-Transfer-Encoding'] = "8bit";
+
+$mail_object =&
+  Mail::factory($config['mail']['transport'], $config['mail']['params']);
+if (PEAR::isError($mail_object)) {
+  print "{\"error_key\":\"sending_failed\"," .
+         "\"error_detail\":\"" . $mail_object->getMessage() . "\"}\n\n";
+  return;
+}
+
 // Send mail
-$from = $config['mail']['from'];
-$headers =
-  "MIME-Version: 1.0\r\n" .
-  "Content-type: text/plain; charset=UTF-8\r\n" .
-  "From: $from\r\n";
-$mail_result =
-  mail($address, $template['subject'], $template['body'], $headers, "-f $from");
-if (!$mail_result) {
-  print "{\"error_key\":\"sending_failed\"}\n\n";
+$send_result = $mail_object->send($address, $headers, $template['body']);
+if (PEAR::isError($send_result)) {
+  print "{\"error_key\":\"sending_failed\"," .
+         "\"error_detail\":\"" . $send_result->getMessage() . "\"}\n\n";
   return;
 }
 
