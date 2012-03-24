@@ -103,7 +103,8 @@
         <div class="overlay-contents" id="noteSendingComplete">
           送信しました！
         </div>
-        <div class="overlay-contents" id="noteShare">
+        <div class="overlay-contents" id="noteShare"
+          style="padding-top: 1.2em; padding-bottom: 1em">
           作品をシェアーしましょう！
           <form id="email-form" action="javascript:EditorUI.sendEmail()">
             <div class="field-row">
@@ -122,7 +123,7 @@
               <!-- The content here is dynamically inserted -->
             </div>
           </form>
-          <button type="button" class="text" style="margin-top: 0.8em"
+          <button type="button" class="text" style="margin-top: 0.6em"
             onclick="EditorUI.clearNoteAndReset()">OK</button>
         </div>
         <div class="overlay-contents error" id="noteNoAnimation">
