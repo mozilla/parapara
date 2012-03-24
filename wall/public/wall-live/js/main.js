@@ -8,12 +8,27 @@ var CHARACTER_WIDTH = 300;
 var CHARACTER_HEIGHT = 300;
 var CHARACTER_DURATION = 20; // sec
 
+// Maximum number of "old" characters to show. That is, we always show newly
+// added characters, even if 100 come it at one time.
+// We apply this threshold and drop characters when:
+// * Characters have been shown the minimum number of times, or
+// * When getting the initial list of characters from the server (for characters
+//   that have already been displayed in the past).
+var NUM_CHARACTERS_THRESHOLD = 25;
+
+// Number of times to show a character before shrinking/fading it
+var NUM_ITERATIONS_AT_FULL_SIZE = 2;
+
+// Minimum number of times to show a character shrunk or faded before it can be
+// dropped
+var MIN_NUM_ITERATIONS_AT_REDUCED_SIZE = 1;
+
 var Main = {
 
   init: function() {
     Main.timebase = document.getElementById("time-base");
     // Each time we repeat, mark each character as not yet appended
-    // (characters are removed from the scene after they complete their
+    // (characters are removed from the scene after they complete each
     // animation)
     Main.timebase.addEventListener("repeatEvent", function(e) {
       for (var i = 0, n = Main.characters.length; i < n; i++) {
@@ -57,18 +72,25 @@ var Main = {
     // Go through and add waiting characters
     for (var i = 0, n = Main.characters.length; i < n; i++) {
       var character = Main.characters[i];
+
       // If the character is not ready to appear or has already been added
       // skip it
       if (character.x >= currentSimpleTime || character.isAppended) {
         continue;
       }
 
-      // XXXbb
-      // If the display count >= 3 and the number of characters is more than
-      // some threshold, drop the character from the array and continue
-      //
-      // Later on:
-      // Otherwise, if the display count >= 2 make it smaller
+      // If the number of characters exceeds the threshold then drop characters
+      // from the array that have already run their course
+      var minRepeatCount =
+        NUM_ITERATIONS_AT_FULL_SIZE + MIN_NUM_ITERATIONS_AT_REDUCED_SIZE;
+      if (n > NUM_CHARACTERS_THRESHOLD &&
+          character.repeatCount >= minRepeatCount)
+      {
+        Main.characters.splice(i,1);
+        --n;
+        --i;
+        continue;
+      }
 
       // Create a group to wrap the character and its animation
       var g = document.createElementNS("http://www.w3.org/2000/svg", "g");
@@ -83,8 +105,19 @@ var Main = {
         CHARACTERS_DIR+character.id+".svg");
       image.setAttribute("width", CHARACTER_WIDTH);
       image.setAttribute("height", CHARACTER_HEIGHT);
-      image.setAttribute("transform",
-        "translate(-"+CHARACTER_WIDTH/2+" -"+(CHARACTER_HEIGHT-20)+")");
+      var imageTransform = "";
+      if (character.repeatCount >= NUM_ITERATIONS_AT_FULL_SIZE) {
+        // Shrink character in half
+        var actualWidth  = CHARACTER_WIDTH  / 2;
+        var actualHeight = CHARACTER_HEIGHT / 2;
+        imageTransform =
+          "translate(-" + actualWidth/2 + " -"+(actualHeight-20)+") " +
+          "scale(0.5)";
+      } else {
+        imageTransform =
+          "translate(-"+CHARACTER_WIDTH/2+" -"+(CHARACTER_HEIGHT-20)+")";
+      }
+      image.setAttribute("transform", imageTransform);
       g.appendChild(image);
 
       // Add a shadow to the character
@@ -155,8 +188,7 @@ var Main = {
 
       // Update the character's status so we don't add it again
       character.isAppended = true;
-
-      // XXXbb Increment a display count on the character
+      character.repeatCount++;
     }
 
     Main.timeout_id = setTimeout(Main.idle, 100);
@@ -174,11 +206,9 @@ var Main = {
 
   // Get all characters that have already been assigned an x value (i.e. have
   // already made their debut on the stage)
-  // XXXbb Pass along a threshold parameter so we don't get back too many
-  // characters
   loadAllCharacters: function(callback) {
-    var url = API_DIR+"get_all_characters_before_restart.php?type="+
-              TYPE+"&"+(new Date()).getTime();
+    var url = API_DIR+"get_all_characters_before_restart.php?threshold="+
+              NUM_CHARACTERS_THRESHOLD+"&"+(new Date()).getTime();
     $.getJSON(url, function(json) {
       Main.characters = [];
       Main.appendCharacters(json);
@@ -204,6 +234,7 @@ Character.prototype = {
     this.x = json.x;
 //    console.log(this.x);
     this.id = json.id;
+    this.repeatCount = 0;
+    this.isAppended = false;
   }
-  // XXXbb Get age / no. rotations
 }

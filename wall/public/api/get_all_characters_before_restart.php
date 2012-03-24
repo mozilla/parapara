@@ -9,11 +9,20 @@ require_once("../../lib/parapara.inc");
 require_once("db.inc");
 $connection = getConnection();
 
+$threshold = isset($_GET["threshold"]) ? intval($_GET["threshold"]) : -1;
+
 $list = array();
 try {
-  $query =
-    "SELECT id,x,y FROM characters WHERE x IS NOT NULL AND active = 1" .
-    " ORDER BY x";
+  if ($threshold >= 0) {
+    $query = "SELECT id,x,y FROM " .
+      "(SELECT id,x,y FROM characters WHERE x IS NOT NULL AND active = 1" .
+      " ORDER BY rtime DESC LIMIT " . $threshold . ") " .
+      "AS latestShown ORDER BY x";
+  } else {
+    $query =
+      "SELECT id,x,y FROM characters WHERE x IS NOT NULL AND active = 1" .
+      " ORDER BY x";
+  }
   $resultset = mysql_query($query, $connection) or
                throwException(mysql_error());
 
