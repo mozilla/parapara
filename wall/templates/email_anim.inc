@@ -7,7 +7,8 @@ Subject: Parapara Animation
 Parapara Animation を作ってくれて、どうもありがとうございます！
 
 以下のウェブページにあなたの作品を展示させていただきました。
-<?php echo url; ?>
+<?php echo $url; ?>
+
 タイトル：<?php echo $title; ?>
 
 作者：<?php echo $author ?>
