@@ -1,7 +1,18 @@
-Subject: Parapara! Parapara!
-Your animation is here: <?php
-// PHP will remove line breaks following the closing tag so we have to be
-// careful to add them back in
-echo $url . "\n" ?>
-Title: <?php echo $title . "\n" ?>
-Author: <?php echo $author . "\n" ?>
+Subject: Parapara Animation
+<?php 
+	if ($author) {
+		echo $author." さん、＼n";
+	}
+?>
+Parapara Animation を作ってくれて、どうもありがとうございます！
+
+以下のウェブページにあなたの作品を展示させていただきました。
+<?php echo url; ?>
+タイトル：<?php echo $title; ?>
+作者：<?php echo $author ?>
+
+おうちに帰ってからも作品は展示されていますので、家族の方々や、学校に行って友達や先生に自慢してください！
+
+-- 
+Parapara Animation 制作チーム
+parapara@mozilla-japan.org
