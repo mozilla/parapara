@@ -23,9 +23,6 @@
 
   <script xlink:href="js/jquery-1.7.1.min.js"></script>
   <script xlink:href="js/main.js"></script>
-  <script>
-    var TYPE = 1;
-  </script>
   <defs>
     <filter id="shadow" x="-5%" width="110%" height="200%">
       <feGaussianBlur in="SourceAlpha" result="blur" stdDeviation="8"/>
