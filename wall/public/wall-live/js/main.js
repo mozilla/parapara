@@ -6,12 +6,15 @@ var API_DIR = "../api/";
 var CHARACTERS_DIR = "../characters/";
 var CHARACTER_WIDTH = 300;
 var CHARACTER_HEIGHT = 300;
-var CHARACTER_DURATION = 20;//sec
+var CHARACTER_DURATION = 20; // sec
 
 var Main = {
 
   init: function() {
     Main.timebase = document.getElementById("time-base");
+    // Each time we repeat, mark each character as not yet appended
+    // (characters are removed from the scene after they complete their
+    // animation)
     Main.timebase.addEventListener("repeatEvent", function(e) {
       for (var i = 0, n = Main.characters.length; i < n; i++) {
         Main.characters[i].isAppended = false;
@@ -20,9 +23,9 @@ var Main = {
 
     Main.main_layer = document.getElementById("main-layer");
     Main.main_layer_path = document.getElementById("main-layer-path");
-    Main.current_time = 0;
+    Main.currentSimpleTime = 0;
     Main.start();
-    },
+  },
 
   start: function() {
     Main.loadAllCharacters(function() {
@@ -32,27 +35,46 @@ var Main = {
   },
 
   idle: function() {
-    var originalCurrentTime = Main.timebase.getCurrentTime();
+    var currentActiveTime = Main.timebase.getCurrentTime();
     var simpleDuration = Main.timebase.getSimpleDuration();
-    var currentTime =
-      originalCurrentTime -
-      (parseInt(originalCurrentTime/simpleDuration)*simpleDuration);
-    Main.current_time = currentTime;
-    var currentRate = currentTime/simpleDuration;
+    // Get the time within the current repeat iteration
+    var currentSimpleTime = currentActiveTime % simpleDuration;
+    Main.currentSimpleTime = currentSimpleTime;
+    // Get simple time as a ratio of the simple duration (i.e. how far are we
+    // through the current iteration)
+    var currentRate = currentSimpleTime/simpleDuration;
     var ANIMATE_RANGE = 0.5;
-    var ANIMATE_BUFFER = 0.2;
 
+    // Start is the offset into the motion path at which to start animations for
+    // the current time. We set it to -1 and then calculate it for the first
+    // animation that is ready to be appended. After that, we just re-use the
+    // same value.
     var start = -1;
-    var startdif = 0;
+    // Start diff is the amount of tweaking we have to do to get a start value
+    // that's off the screen.
+    var startdiff = 0;
+
+    // Go through and add waiting characters
     for (var i = 0, n = Main.characters.length; i < n; i++) {
       var character = Main.characters[i];
-      if (! (character.x < currentTime && true != character.isAppended)) {
+      // If the character is not ready to appear or has already been added
+      // skip it
+      if (character.x >= currentSimpleTime || character.isAppended) {
         continue;
       }
 
+      // XXXbb
+      // If the display count >= 3 and the number of characters is more than
+      // some threshold, drop the character from the array and continue
+      //
+      // Later on:
+      // Otherwise, if the display count >= 2 make it smaller
+
+      // Create a group to wrap the character and its animation
       var g = document.createElementNS("http://www.w3.org/2000/svg", "g");
       g.setAttribute("id", character.id);
 
+      // Create the character image
       var image =
         document.createElementNS("http://www.w3.org/2000/svg", "image");
       var imageid = character.id+"i";
@@ -65,36 +87,36 @@ var Main = {
         "translate(-"+CHARACTER_WIDTH/2+" -"+(CHARACTER_HEIGHT-20)+")");
       g.appendChild(image);
 
+      // Add a shadow to the character
       var use = document.createElementNS("http://www.w3.org/2000/svg", "use");
       use.setAttribute("transform", "matrix(1 0 0 -0.5 0 0)");
       use.setAttribute("filter", "url(#shadow)");
       use.setAttributeNS("http://www.w3.org/1999/xlink", "href", "#"+imageid);
       g.appendChild(use);
 
-//      var duration = 5+CHARACTER_DURATION*Math.random();
-      var duration = CHARACTER_DURATION;
-
-      // Animate motion ---------------------
+      // Create the animation
       var animateMotion =
         document.createElementNS("http://www.w3.org/2000/svg", "animateMotion");
-      animateMotion.setAttribute("dur", duration+"s");
+      animateMotion.setAttribute("dur", CHARACTER_DURATION+"s");
       animateMotion.setAttribute("rotate", "auto");
-      animateMotion.setAttribute("repeatCount", "1");
-      animateMotion.setAttribute("begin", originalCurrentTime+"s");
+      animateMotion.setAttribute("begin", currentActiveTime+"s");
       animateMotion.setAttribute("calcMode", "linear");
       var mpath =
         document.createElementNS("http://www.w3.org/2000/svg", "mpath");
       mpath.setAttributeNS("http://www.w3.org/1999/xlink", "href",
         "#main-layer-path");
       animateMotion.appendChild(mpath);
+
+      // When the animation finishes, remove the character
       animateMotion.addEventListener("endEvent", function(e) {
-        var imageElement = e.originalTarget.parentNode;
-        imageElement.parentNode.removeChild(imageElement);
+        var gElement = e.originalTarget.parentNode;
+        gElement.parentNode.removeChild(gElement);
       }, true);
 
+      // Find the point on the path to start the animation so that it will
+      // appear just off-screen
       if (start == -1) {
         start = (1-currentRate);
-        //find start point
         var matrix = Main.main_layer_path.getScreenCTM();
         for (;;) {
           var point =
@@ -105,13 +127,15 @@ var Main = {
             break;
           }
           start += 0.01;
-          startdif += 0.01;
+          startdiff += 0.01;
           if (start > 1) {
             start -= 1;
           }
         }
       }
-      var end = start-ANIMATE_RANGE + startdif;
+      // Since we animate in the opposite direction to the path, we subtract the
+      // range of the animation from the start value.
+      var end = start-ANIMATE_RANGE + startdiff;
       if (end >= 0) {
         //console.log(start+";"+end);
         animateMotion.setAttribute("keyPoints", start+";"+end);
@@ -124,40 +148,34 @@ var Main = {
         animateMotion.setAttribute("keyTimes",
           "0;"+startRate+";"+startRate+";1");
       }
+
+      // Add the animation to the group, then add the group to the scene
       g.appendChild(animateMotion);
-      //------------------------------------
       Main.main_layer.appendChild(g);
+
+      // Update the character's status so we don't add it again
       character.isAppended = true;
+
+      // XXXbb Increment a display count on the character
     }
 
     Main.timeout_id = setTimeout(Main.idle, 100);
   },
 
-  createAnimateMotion: function(duration, keyPoints, id, originalCurrentTime) {
-    var animateMotion =
-      document.createElementNS("http://www.w3.org/2000/svg", "animateMotion");
-    animateMotion.setAttribute("dur", duration+"s");
-    animateMotion.setAttribute("rotate", "auto");
-    animateMotion.setAttribute("repeatCount", "1");
-    animateMotion.setAttribute("keyPoints", keyPoints);
-    animateMotion.setAttribute("id",  id);
-    animateMotion.setAttribute("begin", originalCurrentTime+"s");
-    var mpath = document.createElementNS("http://www.w3.org/2000/svg", "mpath");
-    mpath.setAttributeNS("http://www.w3.org/1999/xlink", "href",
-      "#main-layer-path");
-    animateMotion.appendChild(mpath);
-    return animateMotion;
-  },
-
+  // Get the characters that have not yet been assigned an x value
   loadUncompletedCharacters: function() {
-    var url = API_DIR+"get_uncompleted_characters.php?x="+Main.current_time+
-              "&"+(new Date()).getTime();
+    var url = API_DIR+"get_uncompleted_characters.php?x="+
+              Main.currentSimpleTime+"&"+(new Date()).getTime();
     $.getJSON(url, function(json) {
       Main.appendCharacters(json);
       setTimeout(Main.loadUncompletedCharacters, 1000);
     });
   },
 
+  // Get all characters that have already been assigned an x value (i.e. have
+  // already made their debut on the stage)
+  // XXXbb Pass along a threshold parameter so we don't get back too many
+  // characters
   loadAllCharacters: function(callback) {
     var url = API_DIR+"get_all_characters_before_restart.php?type="+
               TYPE+"&"+(new Date()).getTime();
@@ -186,5 +204,6 @@ Character.prototype = {
     this.x = json.x;
 //    console.log(this.x);
     this.id = json.id;
-  },
+  }
+  // XXXbb Get age / no. rotations
 }
