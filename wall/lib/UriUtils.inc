@@ -13,8 +13,9 @@ function getFilenameForId($id)
 
 function getGalleryUrlForId($id)
 {
-  global $config;
-  return fileToUrl($config['characters']['path'] . "gallery.php") . "?id=$id";
+  // Return the raw url without the prefix which we map to the gallery page with
+  // a rewrite rule
+  return substr(getRawUrlForId($id), 0, -4);
 }
 
 function getRawUrlForId($id)
