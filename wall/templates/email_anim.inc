@@ -1,18 +1,18 @@
 Subject: Parapara Animation
 <?php 
 	if ($author) {
-		echo $author." ����A�_n";
+		echo $author." さん、\n";
 	}
 ?>
-Parapara Animation ������Ă���āA�ǂ������肪�Ƃ��������܂��I
+Parapara Animation を作ってくれて、どうもありがとうございます！
 
-�ȉ��̃E�F�u�y�[�W�ɂ��Ȃ��̍�i��W�������Ă��������܂����B
+以下のウェブページにあなたの作品を展示させていただきました。
 <?php echo url; ?>
-�^�C�g���F<?php echo $title; ?>
-��ҁF<?php echo $author ?>
+タイトル：<?php echo $title; ?>
+作者：<?php echo $author ?>
 
-�������ɋA���Ă������i�͓W������Ă��܂��̂ŁA�Ƒ��̕��X��A�w�Z�ɍs���ėF�B��搶�Ɏ������Ă��������I
+おうちに帰ってからも作品は展示されていますので、家族の方々や、学校に行って友達や先生に自慢してください！
 
 -- 
-Parapara Animation ����`�[��
+Parapara Animation 制作チーム
 parapara@mozilla-japan.org
