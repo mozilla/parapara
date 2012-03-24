@@ -106,11 +106,8 @@
         <div class="overlay-contents" id="noteShare">
           作品をシェアーしましょう！
           <form id="email-form" action="javascript:EditorUI.sendEmail()">
-            <div id="animation-link">
-              <!-- The content here is dynamically inserted -->
-            </div>
             <div class="field-row">
-              <input type="email" name="email" id="email" size="25"
+              <input type="email" name="email" id="email" size="23"
                 style="ime-mode: inactive" autocomplete="off"
                 onblur="EditorUI.toggleEmailPlaceholder()"
                 onfocus="EditorUI.toggleEmailPlaceholder()"
@@ -121,6 +118,9 @@
               <div id="email-progress" class="async-progress"></div>
             </div>
             <div class="field-note">携帯アドレスに送信する場合は、受信を許可するドメインに「mozilla-japan.org」を追加してからご利用ください。</div>
+            <div id="animation-link">
+              <!-- The content here is dynamically inserted -->
+            </div>
           </form>
           <button type="button" class="text" style="margin-top: 0.8em"
             onclick="EditorUI.clearNoteAndReset()">OK</button>
