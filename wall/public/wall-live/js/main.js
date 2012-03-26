@@ -14,7 +14,7 @@ var CHARACTER_DURATION = 20; // sec
 // * Characters have been shown the minimum number of times, or
 // * When getting the initial list of characters from the server (for characters
 //   that have already been displayed in the past).
-var NUM_CHARACTERS_THRESHOLD = 25;
+var NUM_CHARACTERS_THRESHOLD = 35;
 
 // Number of times to show a character before shrinking/fading it
 var NUM_ITERATIONS_AT_FULL_SIZE = 2;
