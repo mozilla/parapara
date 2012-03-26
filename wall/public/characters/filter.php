@@ -27,6 +27,8 @@ if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'update') {
   }
 
   $url = $_SERVER['PHP_SELF'] . "?id=$next_id";
+  if (isset($_REQUEST['active']))
+    $url .= "&active";
   header("Location: $url\r\n\r\n");
   exit;
 }
@@ -92,13 +94,13 @@ if (!$found) {
 </table>
 <img src="<?php echo $filename ?>" height="500"/><br/>
 <form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="post">
-<label><input type="checkbox" name="active"/>アクティブファールのみ処理</label><br/>
+<label><input type="checkbox" name="active"<?php if (isset($_REQUEST['active'])) echo " checked"; ?>>アクティブファールのみ処理</label><br/>
 <input type="hidden" name="id" value="<?php echo $id ?>"/>
 <input type="hidden" name="action" value="update"/>
 <button name="makeInactive" class="inactive<?php echo
-  $active ? "" : " current"?>" accesskey="1">インアクティブ</input>
+  $active ? "" : " current"?>" accesskey="1">インアクティブ</button>
 <button name="makeActive" class="active<?php echo
-  $active ? " current" : "" ?>" accesskey="2">アクティブ</input>
+  $active ? " current" : "" ?>" accesskey="2">アクティブ</button>
 </form>
 </center>
 </body>
