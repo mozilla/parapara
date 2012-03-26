@@ -149,8 +149,8 @@ EditorUI.sendSuccess = function(response) {
     // EditorUI.reset() will be called when the sharing screen is dismissed
   } else {
     // No URL, just show success message
-  EditorUI.fadeNote();
-  EditorUI.reset();
+    EditorUI.fadeNote();
+    EditorUI.reset();
   }
 }
 
