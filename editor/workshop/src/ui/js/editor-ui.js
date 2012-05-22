@@ -100,7 +100,7 @@ EditorUI.sendSuccess = function(response) {
       var qr = new QRCode(0, QRCode.QRErrorCorrectLevel.M);
       qr.addData(response.url);
       qr.make();
-      var image = qr.getImage(6 /*cell size*/);
+      var image = qr.getImage(4 /*cell size*/);
       parts.push("<img src=\"" + image.data +
                  "\" width=\"" + image.width +
                  "\" height\"" + image.height +
