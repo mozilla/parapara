@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this file,
+   - You can obtain one at http://mozilla.org/MPL/2.0/.  -->
+<html lang="ja">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>パラパラアニメーション・壁の作成・管理</title>
+</head>
+<body>
+  <h1>壁</h1>
+  <div id="loggedOut">
+    <p>壁の説明</p>
+    <p>ログイン (Mozilla Personaについて説明する？)</p>
+  </div>
+  <div id="homeScreen">
+    <p><a href="javascript:create()">新しい壁を作る</a></p>
+    <div id="prevWalls">
+      <h2>壁の管理</h2>
+      <div class="thumbnailGrid"></div>
+    </div>
+  </div>
+  <div id="createWallType">
+    <ul>
+      <li>背景の選択とプレビュー</li>
+    </ul>
+  </div>
+  <div id="createEventDetails">
+    <ul>
+      <li>エベントの名前（必須）</li>
+      <li>エベントの説明（任意）</li>
+      <li>エベントの場所・国（任意）</li>
+      <li>エベントの書類（任意）</li>
+    </ul>
+  </div>
+  <div id="createEventPrivacy">
+    <ul>
+      <li>エベントの終了時間</li>
+      <li>ギャラリーに表示する？</li>
+      <li>エディターのパスコード</li>
+    </ul>
+  </div>
+  <div id="createFinish">
+    <ul>
+      <li>壁の作成完了：壁の長いＵＲＬ・壁の短いＵＲＬ、エディターの短いＵＲＬ</li>
+      <li><a href="chirashi/id" target="_new">
+        エベントのチラシを印刷する</a></li>
+　　　<li><a href="javascript:manage(id)">壁の設定・キャラクターを管理する</a>
+      </li>
+    </ul>
+  </div>
+  <div id="manage">
+    <h2>エベント名
+      <span style="font-size: smaller">(これは直接に編集できる）</span></h2>
+    <div>
+      <ul>
+        <li>壁の長いＵＲＬ</li>
+        <li>壁の短いＵＲＬ</li>
+        <li>エディターの短いＵＲＬ</li>
+        <li>チラシのリンク</li>
+      </ul>
+    </div>
+    <div class="tab" id="manageWallType">
+      <ul>
+        <li>背景の選択とプレビュー</li>
+      </ul>
+    </div>
+    <div class="tab" id="manageEventDetails">
+      <ul>
+        <li>エベントの名前（必須）</li>
+        <li>エベントの説明（任意）</li>
+        <li>エベントの場所・国（任意）</li>
+        <li>エベントの書類（任意）</li>
+      </ul>
+    </div>
+    <div class="tab" id="manageEventPrivacy">
+      <ul>
+        <li>エベントの終了時間</li>
+        <li>ギャラリーに表示する？</li>
+        <li>エディターのパスコード</li>
+      </ul>
+    </div>
+  </div>
+</body>
