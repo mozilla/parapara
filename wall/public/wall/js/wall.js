@@ -4,6 +4,7 @@
 
 function init() {
   loginInit();
+  document.getElementById('loading').style.display = 'none';
 }
 
 /*
@@ -18,19 +19,26 @@ function loginInit() {
   document.getElementById("browserid").addEventListener('click',
     login, false);
   document.getElementById("logout").addEventListener('click', logout, false);
+
+  // Re-login
+  // XXX We should try doing an XHR request to the server first to get back the
+  // needed info. It will provide the required info if we still have a valid
+  // session cookie. If it returns null, we can do the following.
+  // (It seems to be a bit buggy---we end up getting two calls to gotAssertion,
+  // one where the assertion is null and one where it's filled in meaning the
+  // display will flicker.)
+  navigator.id.get(gotAssertion, { silent: true });
 }
 
 function login() {
   document.getElementById('loginError').style.display = 'none';
-  navigator.id.get(gotAssertion);
+  navigator.id.get(gotAssertion, { allowPersistent: true });
 }
 
 function logout() {
-  var expiryDate = new Date();
-  expiryDate.setDate(expiryDate.getDate()-1);
-  document.cookie =
-    "PHPSESSID=; expires=" + expiryDate.toGMTString() + "; path=/";
+  clearSessionCookie();
   showLoggedOut();
+  window.navigator.id.logout();
 }
 
 function gotAssertion(assertion) {
@@ -60,7 +68,9 @@ function loginFail(reason, detail) {
   // Known reasons (roughly in order of when they might happen):
   //
   //   login-abort :    didn't get an assertion from BrowserID to begin with
-  //                    (user cancelled sign-in?)
+  //                    (e.g. user cancelled sign-in, didn't opt-in to
+  //                    persistent login, the certificate for the persistent
+  //                    login has expired etc.)
   //   (Following relate to verifying the assertion)
   //   send-fail :      something went wrong with sending the request
   //   no-access :      couldn't access the server
@@ -70,11 +80,6 @@ function loginFail(reason, detail) {
   //   browserid-fail : something went wrong with browserid
   //   login-fail :     browser id says status == failure
   //
-  var debugMsg = "Login failed [" + reason + "]";
-  if (detail) {
-    debugMsg += ": " + detail;
-  }
-  console.debug(debugMsg);
 
   switch (reason) {
     case 'login-abort':
@@ -82,13 +87,19 @@ function loginFail(reason, detail) {
       break;
     default:
       {
+        var debugMsg = "Login failed [" + reason + "]";
+        if (detail) {
+          debugMsg += ": " + detail;
+        }
+        console.debug(debugMsg);
+
         var errorBlock = document.getElementById('loginError');
         errorBlock.textContent = "Login failed. Please try again.";
         errorBlock.style.display = 'block';
       }
       break;
   }
-  showLoggedOut();
+  logout();
 }
 
 function showLoggedIn(email) {
@@ -100,6 +111,13 @@ function showLoggedIn(email) {
 function showLoggedOut() {
   document.getElementById('loginStatusYes').style.display = 'none';
   document.getElementById('loginStatusNo').style.display = 'block';
+}
+
+function clearSessionCookie() {
+  var expiryDate = new Date();
+  expiryDate.setDate(expiryDate.getDate()-1);
+  document.cookie =
+    "PHPSESSID=; expires=" + expiryDate.toGMTString() + "; path=/";
 }
 
 window.addEventListener("load", init, false);
