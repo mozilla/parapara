@@ -27,6 +27,9 @@ $config = array(
     // http://pear.php.net/manual/en/package.mail.mail.factory.php
     'transport' => 'mail',
     'params' => ''
+  ),
+  'net' => array(
+    'certfile' => realpath(dirname(__FILE__) . '/CACerts/cacert.pem')
   )
 );
 ?>
