@@ -17,6 +17,7 @@ function init() {
 function loginInit() {
   document.getElementById("browserid").addEventListener('click',
     login, false);
+  document.getElementById("logout").addEventListener('click', logout, false);
 }
 
 function login() {
@@ -25,7 +26,11 @@ function login() {
 }
 
 function logout() {
-  // XXX
+  var expiryDate = new Date();
+  expiryDate.setDate(expiryDate.getDate()-1);
+  document.cookie =
+    "PHPSESSID=; expires=" + expiryDate.toGMTString() + "; path=/";
+  showLoggedOut();
 }
 
 function gotAssertion(assertion) {

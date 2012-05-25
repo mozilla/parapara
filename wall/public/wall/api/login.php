@@ -9,7 +9,12 @@ require_once("UriUtils.inc");
 header("Content-Type: text/plain; charset=UTF-8");
 
 // XXX Factor most of this into a library somewhere
-// XXX Logout (if it's really simple, can be a separate file)
+
+// Destroy any previous session
+session_start();
+session_regenerate_id(TRUE);
+$_SESSION = array();
+assert(!isset($_SESSION['email']));
 
 // Read JSON request
 $handle = fopen('php://input','r');
@@ -50,7 +55,8 @@ if ($response_data->status == 'failure') {
   bailWithError('login-fail', $response_data->reason);
 }
 
-// XXX Create session and store email
+$_SESSION['email'] = $response_data->email;
+
 // XXX Look up db to find user and return their walls
 
 // Success!
