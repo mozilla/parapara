@@ -5,6 +5,7 @@
 
 require_once("../../../lib/parapara.inc");
 require_once("UriUtils.inc");
+require_once("api.inc");
 
 header("Content-Type: text/plain; charset=UTF-8");
 
@@ -61,15 +62,5 @@ $_SESSION['email'] = $response_data->email;
 
 // Success!
 print "{\"email\":\"" . $response_data->email . "\"}";
-
-function bailWithError($code, $detail = NULL) {
-  $result = "{\"error_key\":\"$code\"";
-  if ($detail) {
-    $result .= ", " .  "\"error_detail\":\"$detail\"";
-  }
-  $result .= "}\n\n";
-  print $result;
-  exit();
-}
 
 ?>

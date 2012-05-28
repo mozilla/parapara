@@ -3,16 +3,24 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-require_once("../../../lib/parapara.inc");
-require_once("db.inc");
+require_once('../../../lib/parapara.inc');
+require_once('api.inc');
+require_once('walls.inc');
 
-header("Content-Type: text/plain; charset=UTF-8");
+header('Content-Type: text/plain; charset=UTF-8');
 
 // Check we are logged in
 session_start();
 if (!isset($_SESSION['email'])) {
-  print "{\"error_key\":\"logged-out\"}";
-  exit();
+  bailWithError('logged-out');
 }
 
+// Run the query
+$walls = getWallSummaryForUser($_SESSION['email']);
+if ($walls === null) {
+  bailWithError('db-error');
+}
+
+// Return the result
+print json_encode($walls);
 ?>

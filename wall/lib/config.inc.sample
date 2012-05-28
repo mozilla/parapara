@@ -5,6 +5,8 @@
 
 $config = array(
   'db' => array(
+    'dsn' => 'mysql://user:password@localhost/parapara',
+    // XXX The following will be removed eventually
     'user' => '',
     'password' => '',
     'database' => 'parapara'
