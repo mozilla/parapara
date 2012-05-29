@@ -20,15 +20,17 @@ function updateWalls(wallList) {
  */
 
 function loginInit() {
-  document.getElementById("browserid").addEventListener('click',
-    login, false);
+  document.getElementById("browserid").addEventListener('click', login, false);
   document.getElementById("logout").addEventListener('click', logout, false);
 
   // See if we still have a valid session
-  // XXX Test if the cookie exists first
-  ParaPara.postRequest('api/whoami', null, loginSuccess, silentLogin);
-
-  // If this fails, we'll try a silent login with browserID
+  if (haveSessionCookie()) {
+    console.log("Got cookie... seeing if its valid");
+    ParaPara.postRequest('api/whoami', null, loginSuccess, silentLogin);
+  } else {
+    console.log("No cookie... gotta use BrowserID");
+    silentLogin();
+  }
 }
 
 function silentLogin() {
@@ -48,7 +50,7 @@ function login() {
 function logout() {
   clearSessionCookie();
   showLoggedOut();
-  window.navigator.id.logout();
+  navigator.id.logout();
 }
 
 function gotAssertion(assertion, silent) {
@@ -110,6 +112,16 @@ function clearSessionCookie() {
   expiryDate.setDate(expiryDate.getDate()-1);
   document.cookie =
     "PHPSESSID=; expires=" + expiryDate.toGMTString() + "; path=/";
+}
+
+function haveSessionCookie() {
+  var cookies = document.cookie.split(';');
+  for(var i=0; i < cookies.length; i++) {
+    var cookie = cookies[i].trim();
+    if (cookie.substring(0, "PHPSESSID=".length) == "PHPSESSID=")
+      return true;
+  }
+  return false;
 }
 
 window.addEventListener("load", init, false);
