@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var login;
+var Login;
 
 function init() {
   loginInit();
@@ -34,7 +34,9 @@ function refreshWallList(wallList) {
 }
 
 function getWallsFailed(reason, detail) {
-  // XXX
+  // XXX Automatically try again
+  // XXX Finally give a link saying what happenned
+  // XXX If the error is that we're logged out, do login stuff
   console.log(reason, detail);
 }
 
@@ -43,26 +45,24 @@ function getWallsFailed(reason, detail) {
  */
 
 function loginInit() {
-  document.getElementById("browserid").addEventListener('click', login, false);
-  document.getElementById("logout").addEventListener('click', logout, false);
-
-  login = new ParaPara.Login('WMSESSID', loggedIn, loggedOut, loginError);
-  login.relogin();
+  Login = new ParaPara.Login('WMSESSID', loggedIn, loggedOut, loginError);
+  Login.relogin();
 }
 
 function login() {
   document.getElementById('loginError').style.display = 'none';
-  login.login();
+  Login.login();
 }
 
 function logout() {
-  login.logout();
+  Login.logout();
 }
 
 function loggedIn(email) {
   document.getElementById('loginMail').textContent = email;
   document.getElementById('loginStatusYes').style.display = 'block';
   document.getElementById('loginStatusNo').style.display = 'none';
+  document.getElementById('loggedOut').style.display = 'none';
   document.getElementById('homeScreen').style.display = 'block';
   updateWalls();
 }
@@ -71,6 +71,7 @@ function loggedOut() {
   document.getElementById('loginStatusYes').style.display = 'none';
   document.getElementById('loginStatusNo').style.display = 'block';
   document.getElementById('homeScreen').style.display = 'none';
+  document.getElementById('loggedOut').style.display = 'block';
 }
 
 function loginError(reason, detail) {

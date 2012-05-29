@@ -18,12 +18,14 @@
     <div id="loginStatus">
       <div id="loginStatusNo" style="display: none">
         <a href="#" id="browserid"
-          title="Mozilla Personaでサインインする"><img
+          title="Mozilla Personaでサインインする"
+          onclick="javascript:login()"><img
           src="img/sign_in_blue.png" alt="サインイン"></a>  
       </div>
       <div id="loginStatusYes" style="display: none">
         <span class="login-mail" id="loginMail"></span>
-        <span class="logout">(<a href="#" id="logout">Logout</a>)</a>
+        <span class="logout">(<a href="#" id="logout"
+            onclick="javascript:logout()">Logout</a>)</a>
       </div>
       <div id="loginError" style="display: none">
       </div>
@@ -33,8 +35,15 @@
     <p>Loading&hellip;</p>
   </div>
   <div class="screen" id="loggedOut">
-    <p>壁の説明</p>
-    <p>ログイン (Mozilla Personaについて説明する)</p>
+    <div class="wallExplain">
+      <p>壁の説明</p>
+    </div>
+    <div class="loginExplain">
+      <p>ログイン (Mozilla Personaについて説明する)</p>
+      <div class="loginButtonLarge">
+        <button onclick="javascript:login()">Login</button>
+      </div>
+    </div>
   </div>
   <div class="screen" id="homeScreen">
     <p><a href="#">新しい壁を作る</a></p>
