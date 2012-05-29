@@ -9,8 +9,6 @@ require_once("api.inc");
 
 header("Content-Type: text/plain; charset=UTF-8");
 
-// XXX Factor most of this into a library somewhere
-
 // Destroy any previous session
 session_start();
 session_regenerate_id(TRUE);
