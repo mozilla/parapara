@@ -55,7 +55,7 @@ function getWallSummaryForUser($email) {
     $result[] =
       array(
         'wallId' => $row['wallid'],
-        'eventName' => $row['eventName'],
+        'eventName' => $row['eventname'],
         'thumb' => $row['thumburl'],
         'galleryDisplay' => !!($row['gallerydisplay']),
         'createDate' => $row['createdate'],

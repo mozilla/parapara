@@ -14,7 +14,28 @@ function init() {
  */
 
 function updateWalls() {
+  // XXX Display spinner while loading
+  ParaPara.postRequest('api/mywalls', null, refreshWallList, getWallsFailed);
+}
+
+function refreshWallList(wallList) {
+  var listContainer = document.getElementById('wallList');
+  // XXX Factor this into a utility function somewhere
+  while (listContainer.hasChildNodes()) {
+    listContainer.removeChild(listContainer.lastChild);
+  }
+  var list = document.createElement("ul");
+  for (var i = 0; i < wallList.length; ++i) {
+    var li = document.createElement("li");
+    li.textContent = wallList[i]['eventName'];
+    list.appendChild(li);
+  }
+  listContainer.appendChild(list);
+}
+
+function getWallsFailed(reason, detail) {
   // XXX
+  console.log(reason, detail);
 }
 
 /*
@@ -42,12 +63,14 @@ function loggedIn(email) {
   document.getElementById('loginMail').textContent = email;
   document.getElementById('loginStatusYes').style.display = 'block';
   document.getElementById('loginStatusNo').style.display = 'none';
+  document.getElementById('homeScreen').style.display = 'block';
   updateWalls();
 }
 
 function loggedOut() {
   document.getElementById('loginStatusYes').style.display = 'none';
   document.getElementById('loginStatusNo').style.display = 'block';
+  document.getElementById('homeScreen').style.display = 'none';
 }
 
 function loginError(reason, detail) {
