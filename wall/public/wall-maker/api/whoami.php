@@ -5,9 +5,11 @@
 
 require_once('../../../lib/parapara.inc');
 require_once('api.inc');
+require_once('walls.inc');
 
 header('Content-Type: text/plain; charset=UTF-8');
 
+session_name(WALLMAKER_SESSION_NAME);
 session_start();
 if (isset($_SESSION['email'])) {
   print "{\"email\":\"" . $_SESSION['email'] . "\"}";

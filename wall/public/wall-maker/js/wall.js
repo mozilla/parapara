@@ -25,7 +25,7 @@ function loginInit() {
   document.getElementById("browserid").addEventListener('click', login, false);
   document.getElementById("logout").addEventListener('click', logout, false);
 
-  login = new ParaPara.Login('PHPSESSID', loggedIn, loggedOut, loginError);
+  login = new ParaPara.Login('WMSESSID', loggedIn, loggedOut, loginError);
   login.relogin();
 }
 

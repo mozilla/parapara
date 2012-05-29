@@ -10,6 +10,7 @@ require_once('walls.inc');
 header('Content-Type: text/plain; charset=UTF-8');
 
 // Check we are logged in
+session_name(WALLMAKER_SESSION_NAME);
 session_start();
 if (!isset($_SESSION['email'])) {
   bailWithError('logged-out');

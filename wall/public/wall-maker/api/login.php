@@ -6,10 +6,12 @@
 require_once("../../../lib/parapara.inc");
 require_once("UriUtils.inc");
 require_once("api.inc");
+require_once("walls.inc");
 
 header("Content-Type: text/plain; charset=UTF-8");
 
 // Destroy any previous session
+session_name(WALLMAKER_SESSION_NAME);
 session_start();
 session_regenerate_id(TRUE);
 $_SESSION = array();

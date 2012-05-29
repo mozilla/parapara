@@ -6,6 +6,9 @@
 require_once("parapara.inc");
 require_once("MDB2.php");
 
+// When updating this, be sure to update wall.js as well
+define("WALLMAKER_SESSION_NAME", "WMSESSID");
+
 // Given a user id, returns an array of walls owned by that user with the 
 // following information:
 //
