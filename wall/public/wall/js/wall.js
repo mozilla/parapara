@@ -25,10 +25,8 @@ function loginInit() {
 
   // See if we still have a valid session
   if (haveSessionCookie()) {
-    console.log("Got cookie... seeing if its valid");
     ParaPara.postRequest('api/whoami', null, loginSuccess, silentLogin);
   } else {
-    console.log("No cookie... gotta use BrowserID");
     silentLogin();
   }
 }
