@@ -11,6 +11,10 @@ function init() {
  * Navigation
  */
 
+function updateWalls(wallList) {
+  console.log(wallList);
+}
+
 /*
  * Login
  */
@@ -20,14 +24,20 @@ function loginInit() {
     login, false);
   document.getElementById("logout").addEventListener('click', logout, false);
 
-  // Re-login
-  // XXX We should try doing an XHR request to the server first to get back the
-  // needed info. It will provide the required info if we still have a valid
-  // session cookie. If it returns null, we can do the following.
-  // (It seems to be a bit buggy---we end up getting two calls to gotAssertion,
-  // one where the assertion is null and one where it's filled in meaning the
-  // display will flicker.)
-  navigator.id.get(silentGotAssertion, { silent: true });
+  // See if we still have a valid session
+  // XXX Test if the cookie exists first
+  ParaPara.postRequest('api/whoami', null, loginSuccess, silentLogin);
+
+  // If this fails, we'll try a silent login with browserID
+}
+
+function silentLogin() {
+  navigator.id.get(
+    function(assertion) {
+      return gotAssertion(assertion, /*silent=*/ true);
+    },
+    { silent: true }
+  );
 }
 
 function login() {
@@ -41,46 +51,26 @@ function logout() {
   window.navigator.id.logout();
 }
 
-function gotAssertion(assertion) {
+function gotAssertion(assertion, silent) {
   if (assertion !== null) {
     ParaPara.postRequest('api/login', { assertion: assertion },
-                         requestSuccess, loginFail);
-  } else {
-    loginFail('login-abort');
-  }
-}
-
-function silentGotAssertion(assertion) {
-  if (assertion !== null) {
-    ParaPara.postRequest('api/login', { assertion: assertion },
-                         requestSuccess, logout);
+                         loginSuccess,
+                         function(reason, detail) {
+                           return loginFail(reason, detail, silent);
+                         });
   } else {
     logout();
   }
 }
 
-function requestSuccess(response) {
-  // The request to the server returned successfully, but we still need to check
-  // the response
-  if (response.error_key) {
-    loginFail(response.error_key, response.error_detail);
-    return;
-  }
-  loginSuccess(response.email);
+function loginSuccess(response) {
+  showLoggedIn(response.email);
+  // XXX Update walls
 }
 
-function loginSuccess(email) {
-  showLoggedIn(email);
-}
-
-function loginFail(reason, detail) {
+function loginFail(reason, detail, silent) {
   // Known reasons (roughly in order of when they might happen):
   //
-  //   login-abort :    didn't get an assertion from BrowserID to begin with
-  //                    (e.g. user cancelled sign-in, didn't opt-in to
-  //                    persistent login, the certificate for the persistent
-  //                    login has expired etc.)
-  //   (Following relate to verifying the assertion)
   //   send-fail :      something went wrong with sending the request
   //   no-access :      couldn't access the server
   //   timeout :        timed out waiting for response
@@ -89,25 +79,18 @@ function loginFail(reason, detail) {
   //   browserid-fail : something went wrong with browserid
   //   login-fail :     browser id says status == failure
   //
-
-  switch (reason) {
-    case 'login-abort':
-      // Do nothing, not an error.
-      break;
-    default:
-      {
-        var debugMsg = "Login failed [" + reason + "]";
-        if (detail) {
-          debugMsg += ": " + detail;
-        }
-        console.debug(debugMsg);
-
-        var errorBlock = document.getElementById('loginError');
-        errorBlock.textContent = "Login failed. Please try again.";
-        errorBlock.style.display = 'block';
-      }
-      break;
+  var debugMsg = "Login failed [" + reason + "]";
+  if (detail) {
+    debugMsg += ": " + detail;
   }
+  console.debug(debugMsg);
+
+  if (!silent) {
+    var errorBlock = document.getElementById('loginError');
+    errorBlock.textContent = "Login failed. Please try again.";
+    errorBlock.style.display = 'block';
+  }
+
   logout();
 }
 

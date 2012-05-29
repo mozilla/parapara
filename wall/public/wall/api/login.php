@@ -58,8 +58,6 @@ if ($response_data->status == 'failure') {
 
 $_SESSION['email'] = $response_data->email;
 
-// XXX Look up db to find user and return their walls
-
 // Success!
 print "{\"email\":\"" . $response_data->email . "\"}";
 

@@ -31,7 +31,12 @@ ParaPara.postRequest = function(url, payload, successCallback,
       // without running a local webserver)
       if (xhr.status == 200 || xhr.status == 0) {
         try {
-          successCallback(JSON.parse(xhr.responseText));
+          var response = JSON.parse(xhr.responseText);
+          if (response.error_key) {
+            failureCallback(response.error_key, response.error_detail);
+          } else {
+            successCallback(JSON.parse(xhr.responseText));
+          }
         } catch (e) {
           if (e instanceof SyntaxError) {
             console.debug("Error sending to server, could not parse response: "
