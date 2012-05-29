@@ -11,8 +11,8 @@ function init() {
  * Navigation
  */
 
-function updateWalls(wallList) {
-  console.log(wallList);
+function updateWalls() {
+  // XXX
 }
 
 /*
@@ -67,7 +67,7 @@ function gotAssertion(assertion, silent) {
 
 function loginSuccess(response) {
   showLoggedIn(response.email);
-  // XXX Update walls
+  updateWalls();
 }
 
 function loginFail(reason, detail, silent) {
