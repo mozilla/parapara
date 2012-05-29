@@ -27,10 +27,7 @@ function loginInit() {
   // (It seems to be a bit buggy---we end up getting two calls to gotAssertion,
   // one where the assertion is null and one where it's filled in meaning the
   // display will flicker.)
-  // XXX The following should never show an error message if it fails.
-  // Currently, even the "silent" login can return login-fail: expired cert in
-  // chain and we display an error.
-  navigator.id.get(gotAssertion, { silent: true });
+  navigator.id.get(silentGotAssertion, { silent: true });
 }
 
 function login() {
@@ -50,6 +47,15 @@ function gotAssertion(assertion) {
                          requestSuccess, loginFail);
   } else {
     loginFail('login-abort');
+  }
+}
+
+function silentGotAssertion(assertion) {
+  if (assertion !== null) {
+    ParaPara.postRequest('api/login', { assertion: assertion },
+                         requestSuccess, logout);
+  } else {
+    logout();
   }
 }
 
