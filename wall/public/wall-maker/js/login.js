@@ -4,11 +4,13 @@
 
 var ParaPara = ParaPara || {};
 
-ParaPara.Login = function(sessionName, loggedIn, loggedOut, loginError) {
-  this.sessionName = sessionName;
-  this.loggedIn    = loggedIn;
-  this.loggedOut   = loggedOut;
-  this.loginError  = loginError;
+ParaPara.Login = function(sessionName, loggedIn, loggedOut, loginError,
+  useSilentLogin) {
+  this.sessionName    = sessionName;
+  this.loggedIn       = loggedIn;
+  this.loggedOut      = loggedOut;
+  this.loginError     = loginError;
+  this.useSilentLogin = !!useSilentLogin;
 }
 
 ParaPara.Login.prototype.login = function() {
@@ -25,19 +27,23 @@ ParaPara.Login.prototype.relogin = function() {
   // See if we still have a valid session, otherwise try a silent login
   if (this.haveSessionCookie()) {
     ParaPara.postRequest('api/whoami', null, this.loginSuccess.bind(this),
-                         this.silentLogin.bind(this));
+                         this.reloginFailed.bind(this));
   } else {
-    this.silentLogin();
+    this.reloginFailed();
   }
 }
 
-ParaPara.Login.prototype.silentLogin = function() {
-  navigator.id.get(
-    function(assertion) {
-      return this.gotAssertion(assertion, /*silent=*/ true);
-    }.bind(this),
-    { silent: true }
-  );
+ParaPara.Login.prototype.reloginFailed = function() {
+  if (this.useSilentLogin) {
+    navigator.id.get(
+      function(assertion) {
+        return this.gotAssertion(assertion, /*silent=*/ true);
+      }.bind(this),
+      { silent: true }
+    );
+  } else {
+    this.loggedOut();
+  }
 }
 
 ParaPara.Login.prototype.gotAssertion = function(assertion, silent) {
