@@ -5,16 +5,17 @@
 var ParaPara = ParaPara || {};
 
 ParaPara.Login = function(sessionName, loggedIn, loggedOut, loginError,
-  useSilentLogin) {
-  this.sessionName    = sessionName;
-  this.loggedIn       = loggedIn;
-  this.loggedOut      = loggedOut;
-  this.loginError     = loginError;
-  this.useSilentLogin = !!useSilentLogin;
+                          usePersistentLogin) {
+  this.sessionName        = sessionName;
+  this.loggedIn           = loggedIn;
+  this.loggedOut          = loggedOut;
+  this.loginError         = loginError;
+  this.usePersistentLogin = !!usePersistentLogin;
 }
 
 ParaPara.Login.prototype.login = function() {
-  navigator.id.get(this.gotAssertion.bind(this), { allowPersistent: true });
+  navigator.id.get(this.gotAssertion.bind(this),
+                   { allowPersistent: this.usePersistentLogin });
 }
 
 ParaPara.Login.prototype.logout = function() {
@@ -34,7 +35,7 @@ ParaPara.Login.prototype.relogin = function() {
 }
 
 ParaPara.Login.prototype.reloginFailed = function() {
-  if (this.useSilentLogin) {
+  if (this.usePersistentLogin) {
     navigator.id.get(
       function(assertion) {
         return this.gotAssertion(assertion, /*silent=*/ true);
