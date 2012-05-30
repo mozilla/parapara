@@ -1,0 +1,67 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/*
+ * Base styles
+ */
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+/*
+ * Header bar
+ */
+
+#navBar > * {
+  display: inline-block;
+}
+
+/*
+ * Login
+ */
+
+#loginStatus {
+  float: right;
+  margin: 15px;
+}
+#loginError {
+  color: red;
+}
+
+/*
+ * Navigation
+ */
+
+.screen {
+  display: none;
+}
+
+/*
+ * Login screen
+ */
+
+.wallExplain, .loginExplain {
+  width: 80%;
+  max-width: 800px;
+  margin: 0.3em;
+  padding: 0.8em;
+  border-radius: 10px;
+  vertical-align: middle;
+  line-height: 1.8em;
+  margin-left: auto;
+  margin-right: auto;
+}
+.wallExplain {
+  background: #fc3;
+  border: 1px solid #a40;
+}
+.loginExplain {
+  background: #cfc;
+  border: 1px solid #0d0;
+}
+.loginButtonLarge {
+  text-align: center;
+}

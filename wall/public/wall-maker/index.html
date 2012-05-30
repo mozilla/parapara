@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="css/wall.css">
   <script src="https://browserid.org/include.js"></script> 
   <script src="js/xhr.js"></script>
+  <script src="js/login.js"></script>
   <script src="js/wall.js"></script>
 </head>
 <body>
@@ -17,12 +18,14 @@
     <div id="loginStatus">
       <div id="loginStatusNo" style="display: none">
         <a href="#" id="browserid"
-          title="Mozilla Personaでサインインする"><img
+          title="Mozilla Personaでサインインする"
+          onclick="javascript:login()"><img
           src="img/sign_in_blue.png" alt="サインイン"></a>  
       </div>
       <div id="loginStatusYes" style="display: none">
         <span class="login-mail" id="loginMail"></span>
-        <span class="logout">(<a href="#" id="logout">Logout</a>)</a>
+        <span class="logout">(<a href="#" id="logout"
+            onclick="javascript:logout()">Logout</a>)</a>
       </div>
       <div id="loginError" style="display: none">
       </div>
@@ -32,14 +35,21 @@
     <p>Loading&hellip;</p>
   </div>
   <div class="screen" id="loggedOut">
-    <p>壁の説明</p>
-    <p>ログイン (Mozilla Personaについて説明する)</p>
+    <div class="wallExplain">
+      <p>壁の説明</p>
+    </div>
+    <div class="loginExplain">
+      <p>ログイン (Mozilla Personaについて説明する)</p>
+      <div class="loginButtonLarge">
+        <button onclick="javascript:login()">Login</button>
+      </div>
+    </div>
   </div>
   <div class="screen" id="homeScreen">
     <p><a href="#">新しい壁を作る</a></p>
     <div id="prevWalls">
       <h2>壁の管理</h2>
-      <div class="thumbnailGrid"></div>
+      <div id="wallList" class="thumbnailGrid"></div>
     </div>
   </div>
   <div class="screen" id="createWallType">
@@ -59,6 +69,7 @@
     <ul>
       <li>エベントの終了時間</li>
       <li>ギャラリーに表示する？</li>
+      <li>共同制作者</li>
       <li>エディターのパスコード</li>
     </ul>
   </div>
@@ -82,6 +93,15 @@
         <li>チラシのリンク</li>
       </ul>
     </div>
+    <div class="tab" id="manageWallRunning">
+      <ul>
+        <li>新セッションをスタートする
+        (今のキャラクターが全部見えなくなるよという説明）</li>
+        <li>今、終了</li>
+        <li>ペースを調整する</li>
+        <li>共同制作者</li>
+      </ul>
+    </div>
     <div class="tab" id="manageWallType">
       <ul>
         <li>背景の選択とプレビュー</li>
@@ -99,6 +119,7 @@
       <ul>
         <li>エベントの終了時間</li>
         <li>ギャラリーに表示する？</li>
+        <li>共同制作者</li>
         <li>エディターのパスコード</li>
       </ul>
     </div>

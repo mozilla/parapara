@@ -9,18 +9,11 @@ require_once('walls.inc');
 
 header('Content-Type: text/plain; charset=UTF-8');
 
-// Check we are logged in
+session_name(WALLMAKER_SESSION_NAME);
 session_start();
-if (!isset($_SESSION['email'])) {
-  bailWithError('logged-out');
+if (isset($_SESSION['email'])) {
+  print "{\"email\":\"" . $_SESSION['email'] . "\"}";
 }
-
-// Run the query
-$walls = getWallSummaryForUser($_SESSION['email']);
-if ($walls === null) {
-  bailWithError('db-error');
-}
-
-// Return the result
-print json_encode($walls);
+// If we're not logged in the output will be empty which will be easy to detect 
+// as a failure
 ?>
