@@ -23,34 +23,32 @@ ParaPara.postRequest = function(url, payload, successCallback,
   req.setRequestHeader("Content-Type", "application/json");
 
   // Event listeners
-  req.addEventListener("load",
-    function(evt) {
-      var xhr = evt.target;
-      // 200 is for HTTP request, 0 is for local files (this allows us to test
-      // without running a local webserver)
-      if (xhr.status == 200 || xhr.status == 0) {
-        try {
-          var response = JSON.parse(xhr.responseText);
-          if (response.error_key) {
-            failureCallback(response.error_key, response.error_detail);
-          } else {
-            successCallback(JSON.parse(xhr.responseText));
-          }
-        } catch (e) {
-          if (e instanceof SyntaxError) {
-            console.debug("Error sending to server, could not parse response: "
-              + xhr.responseText);
-            failureCallback('server-fail');
-          } else {
-            throw e;
-          }
+  req.onreadystatechange = function() {
+    if (req.readyState != 4)
+      return;
+    // 200 is for HTTP request, 0 is for local files (this allows us to test
+    // without running a local webserver)
+    if (req.status == 200 || req.status == 0) {
+      try {
+        var response = JSON.parse(req.responseText);
+        if (response.error_key) {
+          failureCallback(response.error_key, response.error_detail);
+        } else {
+          successCallback(JSON.parse(req.responseText));
         }
-      } else {
-        failureCallback('no-access')
+      } catch (e) {
+        if (e instanceof SyntaxError) {
+          console.debug("Error sending to server, could not parse response: "
+            + req.responseText);
+          failureCallback('server-fail');
+        } else {
+          throw e;
+        }
       }
-    }, false);
-  req.addEventListener("error", function() { failureCallback('no-access'); },
-                       false);
+    } else {
+      failureCallback('no-access')
+    }
+  };
 
   // Send away
   try {
