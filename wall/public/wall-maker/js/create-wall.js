@@ -40,7 +40,7 @@ var CreateWallWizard =
   next: function() {
     var newIndex = this.index + 1;
     this.show(newIndex);
-    history.pushState({ createWallPage: newIndex }, null, null);
+    history.pushState({ createWallPage: newIndex }, null);
   },
 
   prev: function() {
@@ -49,7 +49,7 @@ var CreateWallWizard =
       goToScreen("./");
     } else {
       this.show(newIndex);
-      history.pushState({ createWallPage: newIndex }, null, null);
+      history.pushState({ createWallPage: newIndex }, null);
     }
   },
 
