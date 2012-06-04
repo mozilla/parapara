@@ -89,7 +89,7 @@ body {
   margin-right: auto;
 }
 #screen-new .page {
-  min-height: 5em;
+  min-height: 10em;
 }
 #screen-new button {
   padding: 0.4em 1.2em;
