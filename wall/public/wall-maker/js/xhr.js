@@ -20,7 +20,6 @@ ParaPara.postRequest = function(url, payload, successCallback,
   req.open("POST", url, true);
 
   // Set headers
-  req.setRequestHeader("Content-Length", json.length);
   req.setRequestHeader("Content-Type", "application/json");
 
   // Event listeners
@@ -50,7 +49,7 @@ ParaPara.postRequest = function(url, payload, successCallback,
         failureCallback('no-access')
       }
     }, false);
-  req.addEventListener("error", function(evt) { failureCallback('no-access') },
+  req.addEventListener("error", function() { failureCallback('no-access'); },
                        false);
 
   // Send away

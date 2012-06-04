@@ -32,6 +32,11 @@ var CreateWallWizard =
     this.show(this.index)
   },
 
+  start: function() {
+    this.clearAll();
+    this.show(0);
+  },
+
   next: function() {
     var newIndex = this.index + 1;
     this.show(newIndex);
@@ -113,9 +118,11 @@ var CreateWallWizard =
     if (typeof this._index !== "undefined")
       return this._index;
 
-    return sessionStorage.getItem("createWallPage") !== null
-           ? parseInt(sessionStorage.getItem("createWallPage"))
-           : 0
+    var index = sessionStorage.getItem("createWallPage") !== null
+              ? parseInt(sessionStorage.getItem("createWallPage"))
+              : 0;
+    this._index = index;
+    return index;
   },
 
   set index(index) {
@@ -146,8 +153,6 @@ var CreateWallWizard =
         evt.state.createWallPage) {
       var index = evt.state.createWallPage;
       this.show(index);
-    } else if (this.index !== 0) {
-      this.show(0);
     }
   },
 };

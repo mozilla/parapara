@@ -45,7 +45,6 @@ function goToCurrentScreen() {
 
 // Displays the selected screen
 function showScreen(screenId, transition /*="none"*/) {
-  console.log("showScreen " + screenId);
   transition = (typeof transition == "undefined") ? "none" : transition;
 
   var screens = document.getElementsByClassName("screen");
@@ -67,14 +66,21 @@ function navInit() {
       'click',
       function(evt) {
         evt.preventDefault ? evt.preventDefault() : evt.returnvalue = false;
+        CreateWallWizard.start();
         goToScreen("new");
       },
       false
     );
   }
   // Handle history changes (e.g. using the back button)
-  // NOTE: Some browsers fire popstate on load, others don't. To provide
-  // consistent behavior we don't register the listener until after page load.
-  window.addEventListener('popstate', goToCurrentScreen, false);
+  window.addEventListener('popstate',
+    function(evt) {
+      if (LoginController.isLoggedIn()) {
+        goToCurrentScreen();
+      } else {
+        LoginController.loggedOut();
+      }
+    },
+    false);
 }
 window.addEventListener('load', navInit, false);

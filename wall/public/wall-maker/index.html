@@ -13,6 +13,7 @@
   <script src="js/wall.js"></script>
   <script src="js/navi.js"></script>
   <script src="js/create-wall.js"></script>
+  <script src="js/login-controller.js"></script>
 </head>
 <body>
   <div id="navBar" style="display: block">
@@ -27,7 +28,7 @@
       <div id="loginStatusYes" style="display: none">
         <span class="login-mail" id="loginMail"></span>
         <span class="logout">(<a href="#" id="logout"
-            onclick="javascript:logout()">Logout</a>)</span>
+            onclick="javascript:LoginController.logout()">Logout</a>)</span>
       </div>
       <div id="loginError" style="display: none">
       </div>
@@ -43,7 +44,7 @@
     <div class="callout loginExplain">
       <p>ログイン (Mozilla Personaについて説明する)</p>
       <div class="loginButtonLarge">
-        <button onclick="javascript:login()">Login</button>
+        <button onclick="javascript:LoginController.login()">Login</button>
       </div>
     </div>
   </div>
@@ -104,9 +105,9 @@
         <button onclick="javascript:CreateWallWizard.prev()"
           class="prevButton">戻る</button>
         <button onclick="javascript:CreateWallWizard.next()"
-          class="nextButton" id="createNext">次へ</button>
+          class="nextButton">次へ</button>
         <button onclick="javascript:CreateWallWizard.create()"
-          class="createButton" id="createCreate">作成</button>
+          class="createButton">作成</button>
       </div>
     </div>
   </div>
