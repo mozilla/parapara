@@ -31,6 +31,39 @@ var CreateWallWizard =
     this.show(this.getIndex())
   },
 
+  next: function() {
+    var newIndex = this.getIndex() + 1;
+    this.show(newIndex);
+    history.pushState({ createWallPage: newIndex }, null, null);
+  },
+
+  prev: function() {
+    var newIndex = this.getIndex()-1;
+    if (newIndex < 0) {
+      goToScreen("./");
+    } else {
+      this.show(newIndex);
+      history.pushState({ createWallPage: newIndex }, null, null);
+    }
+  },
+
+  cancel: function() {
+    goToScreen("./");
+    this.clearAll();
+    this.show(0);
+  },
+
+  create: function() {
+    // XXX Clear error message
+    // Show loading screen
+    this.next();
+  },
+
+  finish: function() {
+    goToScreen("./");
+    this.show(0);
+  },
+
   show: function(index) {
     // Clamp index to valid range
     index = index <= 0
@@ -86,34 +119,6 @@ var CreateWallWizard =
     sessionStorage.setItem("createWallPage", index);
   },
 
-  next: function() {
-    var newIndex = this.getIndex() + 1;
-    this.show(newIndex);
-    history.pushState({ createWallPage: newIndex }, null, null);
-  },
-
-  prev: function() {
-    var newIndex = this.getIndex()-1;
-    if (newIndex < 0) {
-      goToScreen("./");
-    } else {
-      this.show(newIndex);
-      history.pushState({ createWallPage: newIndex }, null, null);
-    }
-  },
-
-  cancel: function() {
-    goToScreen("./");
-    this.clearAll();
-    this.show(0);
-  },
-
-  create: function() {
-    // XXX Clear error message
-    // Show loading screen
-    this.next();
-  },
-
   createError: function() {
     // XXX Set error message
     this.prev();
@@ -123,11 +128,6 @@ var CreateWallWizard =
     // XXX Get ID and update finish page links
     this.clearAll();
     this.next();
-  },
-
-  finish: function() {
-    goToScreen("./");
-    this.show(0);
   },
 
   clearAll: function() {
