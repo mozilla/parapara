@@ -25,14 +25,12 @@
 var CreateWallWizard = new function()
 {
   this.pages = null;
+
   this.init = function() {
     this.pages = document.querySelectorAll("#screen-new div.page");
     this.show(this.getIndex())
   };
-  this.start = function() {
-    // XXX Clear form
-    this.show(0);
-  };
+
   this.show = function(index) {
     // Clamp index to valid range
     index = index <= 0
@@ -40,6 +38,7 @@ var CreateWallWizard = new function()
           : index >= this.pages.length ? this.pages.length - 1 : index;
     // Update (stored) index
     this.setIndex(index);
+
     // Display the appropriate page
     for (var i = 0; i < this.pages.length; i++) {
       if (i === index) {
@@ -48,6 +47,7 @@ var CreateWallWizard = new function()
         this.pages[i].style.display = "none";
       }
     }
+
     // Toggle which buttons are active.
     //
     // Typically, the arrangement of buttons is as follows:
@@ -70,25 +70,28 @@ var CreateWallWizard = new function()
     var finalPage = page.classList.contains('final');
     nextButton.style.display   = finalPage ? 'none'   : 'inline';
     createButton.style.display = finalPage ? 'inline' : 'none';
+
     // XXX Check validation state of current page and disable next / finish
     //     button as necessary---initial state??
   };
+
   this.getIndex = function() {
     // XXX Should this clamp the number??
     return sessionStorage.getItem("createWallPage") !== null
            ? parseInt(sessionStorage.getItem("createWallPage"))
            : 0
   }
+
   this.setIndex = function(index) {
     sessionStorage.setItem("createWallPage", index);
   }
+
   this.next = function() {
     var newIndex = this.getIndex() + 1;
     this.show(newIndex);
     history.pushState({ createWallPage: newIndex }, null, null);
-    // XXX If the index is length - 2
-    //   Call create and disable the button
   };
+
   this.prev = function() {
     var newIndex = this.getIndex()-1;
     if (newIndex < 0) {
@@ -98,33 +101,40 @@ var CreateWallWizard = new function()
       history.pushState({ createWallPage: newIndex }, null, null);
     }
   };
+
   this.cancel = function() {
     goToScreen("./");
-    // XXX Clear form
+    this.clearAll();
     this.show(0);
   };
+
   this.create = function() {
     // XXX Clear error message
     // Show loading screen
     this.next();
   };
+
   this.createError = function() {
     // XXX Set error message
-    // XXX Show second-last page
-    // XXX Re-enable buttons
+    this.prev();
   };
+
   this.createSuccess = function() {
-    // XXX Clear form
-    // XXX Show page with button to finish()
+    // XXX Get ID and update finish page links
+    this.clearAll();
+    this.next();
   };
+
   this.finish = function() {
     goToScreen("./");
     this.show(0);
   };
+
   this.clearAll = function() {
-    // Iterate over all input elements
-    // Clear sessionStorage etc.
+    // XXX Iterate over all input elements
+    // XXX Clear sessionStorage etc.
   };
+
   this.popHistory = function(evt) {
     if (typeof evt.state === "object" && evt.state.createWallPage) {
       var index = evt.state.createWallPage;
