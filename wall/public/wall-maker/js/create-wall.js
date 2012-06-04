@@ -25,20 +25,21 @@
 var CreateWallWizard =
 {
   pages: null,
+  _index: undefined,
 
   init: function() {
     this.pages = document.querySelectorAll("#screen-new div.page");
-    this.show(this.getIndex())
+    this.show(this.index)
   },
 
   next: function() {
-    var newIndex = this.getIndex() + 1;
+    var newIndex = this.index + 1;
     this.show(newIndex);
     history.pushState({ createWallPage: newIndex }, null, null);
   },
 
   prev: function() {
-    var newIndex = this.getIndex()-1;
+    var newIndex = this.index - 1;
     if (newIndex < 0) {
       goToScreen("./");
     } else {
@@ -70,7 +71,7 @@ var CreateWallWizard =
           ? 0
           : index >= this.pages.length ? this.pages.length - 1 : index;
     // Update (stored) index
-    this.setIndex(index);
+    this.index = index;
 
     // Display the appropriate page
     for (var i = 0; i < this.pages.length; i++) {
@@ -108,15 +109,20 @@ var CreateWallWizard =
     //     button as necessary---initial state??
   },
 
-  getIndex: function() {
-    // XXX Should this clamp the number??
+  get index() {
+    if (typeof this._index !== "undefined")
+      return this._index;
+
     return sessionStorage.getItem("createWallPage") !== null
            ? parseInt(sessionStorage.getItem("createWallPage"))
            : 0
   },
 
-  setIndex: function(index) {
+  set index(index) {
+    console.assert(index >= 0 && index < this.pages.length,
+                   "index is out of range");
     sessionStorage.setItem("createWallPage", index);
+    this._index = index;
   },
 
   createError: function() {
@@ -139,7 +145,7 @@ var CreateWallWizard =
     if (typeof evt.state === "object" && evt.state.createWallPage) {
       var index = evt.state.createWallPage;
       this.show(index);
-    } else if (this.getIndex() !== 0) {
+    } else if (this.index !== 0) {
       this.show(0);
     }
   },
