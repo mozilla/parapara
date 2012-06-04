@@ -27,7 +27,7 @@
       <div id="loginStatusYes" style="display: none">
         <span class="login-mail" id="loginMail"></span>
         <span class="logout">(<a href="#" id="logout"
-            onclick="javascript:logout()">Logout</a>)</a>
+            onclick="javascript:logout()">Logout</a>)</span>
       </div>
       <div id="loginError" style="display: none">
       </div>
@@ -75,7 +75,7 @@
         <li>エベントの書類（任意）</li>
       </ul>
     </div>
-    <div class="page">
+    <div class="page final">
       <ul>
         <li>エベントの終了時間</li>
         <li>ギャラリーに表示する？</li>
@@ -83,7 +83,10 @@
         <li>エディターのパスコード</li>
       </ul>
     </div>
-    <div class="page">
+    <div class="page nobutton">
+      作成中…
+    </div>
+    <div class="page nobutton">
       <ul>
         <li>壁の作成完了：壁の長いＵＲＬ・壁の短いＵＲＬ、エディターの短いＵＲＬ</li>
         <li><a href="chirashi/id" target="_new">
@@ -91,6 +94,8 @@
   　　　<li><a href="#">壁の設定・キャラクターを管理する</a>
         </li>
       </ul>
+      <button onclick="javascript:CreateWallWizard.finish()"
+        class="finishButton">完了</button>
     </div>
     <div class="wizardButtons">
       <button onclick="javascript:CreateWallWizard.cancel()"
@@ -100,6 +105,8 @@
           class="prevButton">戻る</button>
         <button onclick="javascript:CreateWallWizard.next()"
           class="nextButton" id="createNext">次へ</button>
+        <button onclick="javascript:CreateWallWizard.create()"
+          class="createButton" id="createCreate">作成</button>
       </div>
     </div>
   </div>

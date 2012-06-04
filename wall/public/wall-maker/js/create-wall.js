@@ -38,7 +38,7 @@ var CreateWallWizard = new function()
     index = index <= 0
           ? 0
           : index >= this.pages.length ? this.pages.length - 1 : index;
-    // Update index
+    // Update (stored) index
     this.setIndex(index);
     // Display the appropriate page
     for (var i = 0; i < this.pages.length; i++) {
@@ -48,8 +48,28 @@ var CreateWallWizard = new function()
         this.pages[i].style.display = "none";
       }
     }
-    // XXX Enable/disable buttons
-    // XXX Set title of next / finish button
+    // Toggle which buttons are active.
+    //
+    // Typically, the arrangement of buttons is as follows:
+    //  -- first page      : cancel, next
+    //  -- ...             : cancel, prev, next
+    //  -- final page      : cancel, prev, create
+    //  -- waiting page    : (none)
+    //  -- completion page : finish
+    var buttonBar    = document.getElementsByClassName("wizardButtons")[0];
+    var prevButton   = buttonBar.getElementsByClassName("prevButton")[0];
+    var nextButton   = buttonBar.getElementsByClassName("nextButton")[0];
+    var createButton = buttonBar.getElementsByClassName("createButton")[0];
+    var page = this.pages[index];
+    // Hide buttons for those pages that don't want them
+    buttonBar.style.display = page.classList.contains('nobutton')
+                            ? 'none' : 'block';
+    // Hide prev button on first page
+    prevButton.style.visibility = index == 0 ? 'hidden' : 'visible';
+    // Toggle next vs create button
+    var finalPage = page.classList.contains('final');
+    nextButton.style.display   = finalPage ? 'none'   : 'inline';
+    createButton.style.display = finalPage ? 'inline' : 'none';
     // XXX Check validation state of current page and disable next / finish
     //     button as necessary---initial state??
   };
@@ -67,7 +87,7 @@ var CreateWallWizard = new function()
     this.show(newIndex);
     history.pushState({ createWallPage: newIndex }, null, null);
     // XXX If the index is length - 2
-    //   Call create
+    //   Call create and disable the button
   };
   this.prev = function() {
     var newIndex = this.getIndex()-1;
@@ -85,8 +105,8 @@ var CreateWallWizard = new function()
   };
   this.create = function() {
     // XXX Clear error message
-    // XXX Hide buttons
-    // XXX Show loading screen
+    // Show loading screen
+    this.next();
   };
   this.createError = function() {
     // XXX Set error message
@@ -122,12 +142,6 @@ function initCreateWallWizard() {
 }
 window.addEventListener('load', initCreateWallWizard, false);
 
-// XXX Register popstate listener
-//  -- updates the currentPage
 // XXX Register listener to all form changes
 //  -- validates current page and updates disabled/enabled state of next
 //     / create button
-// XXX Register load handler
-//  -- updates the currentPage
-//  -- sets up list of pages
-//  -- registers popstate listener
