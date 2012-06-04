@@ -142,14 +142,15 @@ var CreateWallWizard =
   },
 
   popHistory: function(evt) {
-    if (typeof evt.state === "object" && evt.state.createWallPage) {
+    if (typeof evt.state === "object" && evt.state &&
+        evt.state.createWallPage) {
       var index = evt.state.createWallPage;
       this.show(index);
     } else if (this.index !== 0) {
       this.show(0);
     }
   },
-}
+};
 
 function initCreateWallWizard() {
   window.addEventListener('popstate',
