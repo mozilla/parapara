@@ -22,16 +22,16 @@
  * tab when you refresh the browser is managed by using document.location.hash.
  */
 
-var CreateWallWizard = new function()
+var CreateWallWizard =
 {
-  this.pages = null;
+  pages: null,
 
-  this.init = function() {
+  init: function() {
     this.pages = document.querySelectorAll("#screen-new div.page");
     this.show(this.getIndex())
-  };
+  },
 
-  this.show = function(index) {
+  show: function(index) {
     // Clamp index to valid range
     index = index <= 0
           ? 0
@@ -73,26 +73,26 @@ var CreateWallWizard = new function()
 
     // XXX Check validation state of current page and disable next / finish
     //     button as necessary---initial state??
-  };
+  },
 
-  this.getIndex = function() {
+  getIndex: function() {
     // XXX Should this clamp the number??
     return sessionStorage.getItem("createWallPage") !== null
            ? parseInt(sessionStorage.getItem("createWallPage"))
            : 0
-  }
+  },
 
-  this.setIndex = function(index) {
+  setIndex: function(index) {
     sessionStorage.setItem("createWallPage", index);
-  }
+  },
 
-  this.next = function() {
+  next: function() {
     var newIndex = this.getIndex() + 1;
     this.show(newIndex);
     history.pushState({ createWallPage: newIndex }, null, null);
-  };
+  },
 
-  this.prev = function() {
+  prev: function() {
     var newIndex = this.getIndex()-1;
     if (newIndex < 0) {
       goToScreen("./");
@@ -100,49 +100,49 @@ var CreateWallWizard = new function()
       this.show(newIndex);
       history.pushState({ createWallPage: newIndex }, null, null);
     }
-  };
+  },
 
-  this.cancel = function() {
+  cancel: function() {
     goToScreen("./");
     this.clearAll();
     this.show(0);
-  };
+  },
 
-  this.create = function() {
+  create: function() {
     // XXX Clear error message
     // Show loading screen
     this.next();
-  };
+  },
 
-  this.createError = function() {
+  createError: function() {
     // XXX Set error message
     this.prev();
-  };
+  },
 
-  this.createSuccess = function() {
+  createSuccess: function() {
     // XXX Get ID and update finish page links
     this.clearAll();
     this.next();
-  };
+  },
 
-  this.finish = function() {
+  finish: function() {
     goToScreen("./");
     this.show(0);
-  };
+  },
 
-  this.clearAll = function() {
+  clearAll: function() {
     // XXX Iterate over all input elements
     // XXX Clear sessionStorage etc.
-  };
+  },
 
-  this.popHistory = function(evt) {
+  popHistory: function(evt) {
     if (typeof evt.state === "object" && evt.state.createWallPage) {
       var index = evt.state.createWallPage;
       this.show(index);
     } else if (this.getIndex() !== 0) {
       this.show(0);
     }
-  };
+  },
 }
 
 function initCreateWallWizard() {
