@@ -40,10 +40,10 @@ body {
 }
 
 /*
- * Login screen
+ * Common styles
  */
 
-.wallExplain, .loginExplain {
+.callout {
   width: 80%;
   max-width: 800px;
   margin: 0.3em;
@@ -54,6 +54,11 @@ body {
   margin-left: auto;
   margin-right: auto;
 }
+
+/*
+ * Login screen
+ */
+
 .wallExplain {
   background: #fc3;
   border: 1px solid #a40;
@@ -64,4 +69,35 @@ body {
 }
 .loginButtonLarge {
   text-align: center;
+}
+
+/*
+ * Home screen
+ */
+.newWallLink {
+  background: #fc3;
+  border: 1px solid #a40;
+  text-align: center;
+}
+
+/*
+ * Create wall wizard
+ */
+#screen-new {
+  width: 50em;
+  margin-left: auto;
+  margin-right: auto;
+}
+#screen-new .page {
+  min-height: 5em;
+}
+#screen-new button {
+  padding: 0.4em 1.2em;
+  margin: 0 0.3em;
+}
+.cancelButton {
+  float: left;
+}
+.wizardNavButtons {
+  float: right;
 }

@@ -7,10 +7,12 @@
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <title>パラパラアニメーション・壁の作成・管理</title>
   <link rel="stylesheet" href="css/wall.css">
-  <script src="https://browserid.org/include.js"></script> 
+  <script src="https://browserid.org/include.js"></script>
   <script src="js/xhr.js"></script>
   <script src="js/login.js"></script>
   <script src="js/wall.js"></script>
+  <script src="js/navi.js"></script>
+  <script src="js/create-wall.js"></script>
 </head>
 <body>
   <div id="navBar" style="display: block">
@@ -20,7 +22,7 @@
         <a href="#" id="browserid"
           title="Mozilla Personaでサインインする"
           onclick="javascript:login()"><img
-          src="img/sign_in_blue.png" alt="サインイン"></a>  
+          src="img/sign_in_blue.png" alt="サインイン"></a>
       </div>
       <div id="loginStatusYes" style="display: none">
         <span class="login-mail" id="loginMail"></span>
@@ -29,58 +31,77 @@
       </div>
       <div id="loginError" style="display: none">
       </div>
-    </div> 
+    </div>
   </div>
   <div class="screen" id="loading" style="display: block">
     <p>Loading&hellip;</p>
   </div>
   <div class="screen" id="loggedOut">
-    <div class="wallExplain">
+    <div class="callout wallExplain">
       <p>壁の説明</p>
     </div>
-    <div class="loginExplain">
+    <div class="callout loginExplain">
       <p>ログイン (Mozilla Personaについて説明する)</p>
       <div class="loginButtonLarge">
         <button onclick="javascript:login()">Login</button>
       </div>
     </div>
   </div>
-  <div class="screen" id="homeScreen">
-    <p><a href="#">新しい壁を作る</a></p>
+  <div class="screen" id="screen-home">
+    <div class="callout newWallLink">
+      <p><a href="new">新しい壁を作る</a></p>
+    </div>
     <div id="prevWalls">
       <h2>壁の管理</h2>
       <div id="wallList" class="thumbnailGrid"></div>
     </div>
   </div>
-  <div class="screen" id="createWallType">
-    <ul>
-      <li>背景の選択とプレビュー</li>
-    </ul>
-  </div>
-  <div class="screen" id="createEventDetails">
-    <ul>
-      <li>エベントの名前（必須）</li>
-      <li>エベントの説明（任意）</li>
-      <li>エベントの場所・国（任意）</li>
-      <li>エベントの書類（任意）</li>
-    </ul>
-  </div>
-  <div class="screen" id="createEventPrivacy">
-    <ul>
-      <li>エベントの終了時間</li>
-      <li>ギャラリーに表示する？</li>
-      <li>共同制作者</li>
-      <li>エディターのパスコード</li>
-    </ul>
-  </div>
-  <div class="screen" id="createFinish">
-    <ul>
-      <li>壁の作成完了：壁の長いＵＲＬ・壁の短いＵＲＬ、エディターの短いＵＲＬ</li>
-      <li><a href="chirashi/id" target="_new">
-        エベントのチラシを印刷する</a></li>
-　　　<li><a href="#">壁の設定・キャラクターを管理する</a>
-      </li>
-    </ul>
+  <div class="screen" id="screen-new">
+    <h2>新しい壁を作る</h2>
+    <div class="page">
+      <ul>
+        <li>背景の選択とプレビュー</li>
+      </ul>
+    </div>
+    <div class="page">
+      <ul>
+        <!-- Need to validate that this is non-zero, unique, can be transformed
+             into a unique URL etc.
+             The same callback could show what it will look like as a URL??
+             Probably best to allow the user to set the URL -->
+        <li>エベントの名前（必須）</li>
+        <li>エベントの説明（任意）</li>
+        <li>エベントの場所・国（任意）</li>
+        <li>エベントの書類（任意）</li>
+      </ul>
+    </div>
+    <div class="page">
+      <ul>
+        <li>エベントの終了時間</li>
+        <li>ギャラリーに表示する？</li>
+        <li>共同制作者</li>
+        <li>エディターのパスコード</li>
+      </ul>
+    </div>
+    <div class="page">
+      <ul>
+        <li>壁の作成完了：壁の長いＵＲＬ・壁の短いＵＲＬ、エディターの短いＵＲＬ</li>
+        <li><a href="chirashi/id" target="_new">
+          エベントのチラシを印刷する</a></li>
+  　　　<li><a href="#">壁の設定・キャラクターを管理する</a>
+        </li>
+      </ul>
+    </div>
+    <div class="wizardButtons">
+      <button onclick="javascript:CreateWallWizard.cancel()"
+        class="cancelButton">キャンセル</button>
+      <div class="wizardNavButtons">
+        <button onclick="javascript:CreateWallWizard.prev()"
+          class="prevButton">戻る</button>
+        <button onclick="javascript:CreateWallWizard.next()"
+          class="nextButton" id="createNext">次へ</button>
+      </div>
+    </div>
   </div>
   <div class="screen" id="manage">
     <h2>エベント名

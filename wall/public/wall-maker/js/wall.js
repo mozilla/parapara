@@ -6,7 +6,6 @@ var Login;
 
 function init() {
   loginInit();
-  document.getElementById('loading').style.display = 'none';
 }
 
 /*
@@ -20,17 +19,23 @@ function updateWalls() {
 
 function refreshWallList(wallList) {
   var listContainer = document.getElementById('wallList');
+  // Reset list
   // XXX Factor this into a utility function somewhere
   while (listContainer.hasChildNodes()) {
     listContainer.removeChild(listContainer.lastChild);
   }
-  var list = document.createElement("ul");
-  for (var i = 0; i < wallList.length; ++i) {
-    var li = document.createElement("li");
-    li.textContent = wallList[i]['eventName'];
-    list.appendChild(li);
+  if (wallList.length) {
+    var list = document.createElement("ul");
+    for (var i = 0; i < wallList.length; ++i) {
+      var li = document.createElement("li");
+      li.textContent = wallList[i]['eventName'];
+      list.appendChild(li);
+    }
+    listContainer.appendChild(list);
+    document.getElementById('prevWalls').style.display = 'block';
+  } else {
+    document.getElementById('prevWalls').style.display = 'none';
   }
-  listContainer.appendChild(list);
 }
 
 function getWallsFailed(reason, detail) {
@@ -56,22 +61,23 @@ function login() {
 
 function logout() {
   Login.logout();
+  // XXX Clear all forms here (and NOT in loggedOut since we might arrive there
+  // due to a timeout, not a deliberate request to clear everything)
+  sessionStorage.clear();
 }
 
 function loggedIn(email) {
   document.getElementById('loginMail').textContent = email;
   document.getElementById('loginStatusYes').style.display = 'block';
   document.getElementById('loginStatusNo').style.display = 'none';
-  document.getElementById('loggedOut').style.display = 'none';
-  document.getElementById('homeScreen').style.display = 'block';
+  goToCurrentScreen();
   updateWalls();
 }
 
 function loggedOut() {
   document.getElementById('loginStatusYes').style.display = 'none';
   document.getElementById('loginStatusNo').style.display = 'block';
-  document.getElementById('homeScreen').style.display = 'none';
-  document.getElementById('loggedOut').style.display = 'block';
+  showScreen('loggedOut');
 }
 
 function loginError(reason, detail) {
