@@ -89,7 +89,7 @@ body {
   margin-right: auto;
 }
 #screen-new .page {
-  min-height: 10em;
+  min-height: 18em;
 }
 #screen-new button {
   padding: 0.4em 1.2em;
@@ -100,4 +100,29 @@ body {
 }
 .wizardNavButtons {
   float: right;
+}
+.thumbGrid {
+  display: block;
+  text-align: center;
+  margin: 1em;
+}
+.designThumb {
+  display: inline-block;
+  margin: 1.5em;
+  padding: 1.5em;
+  border-radius: 0.8em;
+  border-width: 3px;
+  border-style: dashed;
+  border-color: rgba(0,0,0,0);
+}
+.designThumb.selected {
+  background: #ffed8b;
+  border-color: #f7931e;
+}
+.designThumb:hover {
+  border-color: blue;
+}
+.designThumb object {
+  width:12em;
+  height:8em;
 }

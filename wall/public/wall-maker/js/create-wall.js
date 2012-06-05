@@ -144,8 +144,8 @@ var CreateWallWizard =
   },
 
   clearAll: function() {
-    // XXX Iterate over all input elements
-    // XXX Clear sessionStorage etc.
+    CreateWallForm.clearAll();
+    sessionStorage.removeItem("createWallPage");
   },
 
   popHistory: function(evt) {
@@ -155,6 +155,27 @@ var CreateWallWizard =
     } else {
       this.show(0);
     }
+  },
+};
+
+var CreateWallForm =
+{
+  clearAll: function() {
+    // Calls form.reset plus performing any additional cleanup actions
+  },
+
+  verifyPage: function(page) {
+    // Walks through the page (use a selector to pick out inputs etc.?)
+    // and applies the rules it knows about based on ids/class names
+  },
+};
+
+// This should probably become an adaptor that finds the appropriate <input>
+// element and produces a graphical version, mapping input / API calls onto the
+// output
+var DesignSelector =
+{
+  clearAll: function() {
   },
 };
 
