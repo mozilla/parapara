@@ -59,19 +59,15 @@ function showScreen(screenId, transition /*="none"*/) {
 }
 
 function navInit() {
-  // Handle links to "new"
-  var links = document.querySelectorAll("a[href=\"new\"]");
-  for (var i = 0; i < links.length; i++) {
-    links[i].addEventListener(
-      'click',
-      function(evt) {
-        evt.preventDefault ? evt.preventDefault() : evt.returnvalue = false;
-        CreateWallWizard.start();
-        goToScreen("new");
-      },
-      false
-    );
-  }
+  // Register link handlers
+  registerLinkHandler('new',
+    function() {
+      CreateWallWizard.start();
+      goToScreen("new");
+    });
+  registerLinkHandler('login', function() { LoginController.login(); });
+  registerLinkHandler('logout', function() { LoginController.logout(); });
+
   // Handle history changes (e.g. using the back button)
   window.addEventListener('popstate',
     function(evt) {
@@ -84,3 +80,17 @@ function navInit() {
     false);
 }
 window.addEventListener('load', navInit, false);
+
+function registerLinkHandler(href, handler) {
+  var links = document.querySelectorAll("a[href=\"" + href + "\"]");
+  for (var i = 0; i < links.length; i++) {
+    links[i].addEventListener(
+      'click',
+      function(evt) {
+        evt.preventDefault ? evt.preventDefault() : evt.returnvalue = false;
+        handler();
+      },
+      false
+    );
+  }
+}
