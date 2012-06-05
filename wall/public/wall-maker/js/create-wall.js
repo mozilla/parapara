@@ -150,16 +150,21 @@ var CreateWallWizard =
 
   popHistory: function(evt) {
     if (typeof evt.state === "object" && evt.state &&
-        evt.state.createWallPage) {
-      var index = evt.state.createWallPage;
-      this.show(index);
+        typeof evt.state.createWallPage === "number") {
+      this.show(evt.state.createWallPage);
+    } else {
+      this.show(0);
     }
   },
 };
 
 function initCreateWallWizard() {
-  window.addEventListener('popstate',
-    CreateWallWizard.popHistory.bind(CreateWallWizard), false);
+  // I tried a bunch of ideas to ignore the initial popevent fired by WebKit on
+  // page load, but this turned out to be the best :(
+  window.setTimeout(function() {
+    window.addEventListener('popstate',
+      CreateWallWizard.popHistory.bind(CreateWallWizard), false);
+  }, 1);
   CreateWallWizard.init();
 }
 window.addEventListener('load', initCreateWallWizard, false);
