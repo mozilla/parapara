@@ -62,7 +62,7 @@ function navInit() {
   // Register link handlers
   registerLinkHandler('new',
     function() {
-      CreateWallWizard.start();
+      CreateWallController.start();
       goToScreen("new");
     });
   registerLinkHandler('login', function() { LoginController.login(); });

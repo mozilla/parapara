@@ -32,7 +32,7 @@ var LoginController =
     // to a timeout and not a deliberate request to clear everything.
     //
     // XXX Clear list of walls
-    CreateWallWizard.clearAll();
+    CreateWallController.clearAll();
     sessionStorage.clear();
   },
 

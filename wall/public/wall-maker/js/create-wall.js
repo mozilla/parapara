@@ -22,7 +22,7 @@
  * tab when you refresh the browser is managed by using document.location.hash.
  */
 
-var CreateWallWizard =
+var CreateWallController =
 {
   pages: null,
   _index: undefined,
@@ -30,6 +30,13 @@ var CreateWallWizard =
   init: function() {
     this.pages = document.querySelectorAll("#screen-new div.page");
     this.show(this.index)
+
+    // I tried a bunch of ideas to ignore the initial popevent fired by WebKit
+    // on page load, but this turned out to be the best :(
+    window.setTimeout(function() {
+      window.addEventListener('popstate',
+        CreateWallController.popHistory.bind(this), false);
+    }, 1);
   },
 
   start: function() {
@@ -112,6 +119,7 @@ var CreateWallWizard =
 
     // XXX Check validation state of current page and disable next / finish
     //     button as necessary---initial state??
+    // CreateWallForm.validate(page) ...
   },
 
   get index() {
@@ -167,6 +175,7 @@ var CreateWallForm =
   verifyPage: function(page) {
     // Walks through the page (use a selector to pick out inputs etc.?)
     // and applies the rules it knows about based on ids/class names
+    return true;
   },
 };
 
@@ -179,16 +188,8 @@ var DesignSelector =
   },
 };
 
-function initCreateWallWizard() {
-  // I tried a bunch of ideas to ignore the initial popevent fired by WebKit on
-  // page load, but this turned out to be the best :(
-  window.setTimeout(function() {
-    window.addEventListener('popstate',
-      CreateWallWizard.popHistory.bind(CreateWallWizard), false);
-  }, 1);
-  CreateWallWizard.init();
-}
-window.addEventListener('load', initCreateWallWizard, false);
+window.addEventListener('load',
+  CreateWallController.init.bind(CreateWallController), false);
 
 // XXX Register listener to all form changes
 //  -- validates current page and updates disabled/enabled state of next
