@@ -13,14 +13,19 @@ $threshold = isset($_GET["threshold"]) ? intval($_GET["threshold"]) : -1;
 
 $list = array();
 try {
+  if (!isset($_GET["wallId"])) {
+    throwException("no wall id");
+  }
+  $wallId = intval($_GET["wallId"]);
+
   if ($threshold >= 0) {
-    $query = "SELECT id,x,y FROM " .
-      "(SELECT id,x,y FROM characters WHERE x IS NOT NULL AND active = 1" .
-      " ORDER BY rtime DESC LIMIT " . $threshold . ") " .
+    $query = "SELECT charId,x,y FROM " .
+      "(SELECT charId,x,y FROM characters WHERE x IS NOT NULL AND active = 1 AND wallId=".$wallId.
+      " ORDER BY createDate DESC LIMIT " . $threshold . ") " .
       "AS latestShown ORDER BY x";
   } else {
     $query =
-      "SELECT id,x,y FROM characters WHERE x IS NOT NULL AND active = 1" .
+      "SELECT charId,x,y FROM characters WHERE x IS NOT NULL AND active = 1" .
       " ORDER BY x";
   }
   $resultset = mysql_query($query, $connection) or
@@ -28,8 +33,7 @@ try {
 
   while ($row = mysql_fetch_array($resultset)) {
     $character = array();
-    $characterid = intval($row["id"]);
-    $character["id"] = $characterid;
+    $character["id"] = intval($row["charId"]);
     $character["x"] = intval($row["x"]);
     $character["y"] = intval($row["y"]);
     array_push($list, $character);
