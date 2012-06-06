@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS `walls`;
+inDROP TABLE IF EXISTS `walls`;
 CREATE TABLE `walls` (
   `wallId` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Identifier of the wall',
   `owner` int(11) unsigned NOT NULL COMMENT 'The user id of the person who created and manages the wall',
@@ -26,7 +26,7 @@ CREATE TABLE `characters` (
   `title` varchar(128) DEFAULT NULL,
   `author` varchar(128) DEFAULT NULL,
   `y` int(4) DEFAULT NULL,
-  `x` int(4) DEFAULT NULL,
+  `x` int(4) DEFAULT NULL COMMENT '0 - 1000',
   `createDate` datetime NOT NULL COMMENT 'Creation datetime in UTC',
   `active` tinyint(1) NOT NULL DEFAULT '1' COMMENT 'Indicates if the character should show on the wall',
   PRIMARY KEY (`charId`),
@@ -38,6 +38,7 @@ CREATE TABLE `designs` (
   `designId` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL COMMENT 'A descriptive name for the type of design. This will need to be localized eventually.',
   `thumbUrl` varchar(255) DEFAULT NULL COMMENT 'A URL to a thumbnail image of the design. Relative paths should probably be relative to some designs folder.',
+  `duration` int(8) DEFAULT NULL COMMENT 'Default duration of this design.',
   PRIMARY KEY (`designId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Catalogue of wall styles';
 
