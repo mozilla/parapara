@@ -168,8 +168,14 @@ var CreateWallController =
 
 var CreateWallForm =
 {
+  _form: null,
+
+  init: function() {
+    this.designSelector = new GraphicalRadioGroup(this.form, 'design');
+  },
+
   clearAll: function() {
-    // Calls form.reset plus performing any additional cleanup actions
+    this.form.reset();
   },
 
   verifyPage: function(page) {
@@ -177,19 +183,28 @@ var CreateWallForm =
     // and applies the rules it knows about based on ids/class names
     return true;
   },
-};
 
-// This should probably become an adaptor that finds the appropriate <input>
-// element and produces a graphical version, mapping input / API calls onto the
-// output
-var DesignSelector =
-{
-  clearAll: function() {
+  getRadioValue: function(name) {
+    var radio = this.form[name];
+    for (var i = 0; i < radio.length; i++) {
+      if (radio[i].checked)
+        return radio[i].value;
+    }
+    return null;
+  },
+
+  get form() {
+    if (!this._form) {
+      this._form = document.forms['createWall'];
+    }
+    return this._form;
   },
 };
 
 window.addEventListener('load',
   CreateWallController.init.bind(CreateWallController), false);
+window.addEventListener('load',
+  CreateWallForm.init.bind(CreateWallForm), false);
 
 // XXX Register listener to all form changes
 //  -- validates current page and updates disabled/enabled state of next

@@ -101,10 +101,13 @@ body {
 .wizardNavButtons {
   float: right;
 }
-.thumbGrid {
+.designGrid {
   display: block;
   text-align: center;
   margin: 1em;
+}
+.designGrid label input[type=radio] {
+  display: none;
 }
 .designThumb {
   display: inline-block;
@@ -114,6 +117,10 @@ body {
   border-width: 3px;
   border-style: dashed;
   border-color: rgba(0,0,0,0);
+}
+.designThumb * {
+  /* Sadly, this doesn't seem to work for Opera... */
+  pointer-events: none;
 }
 .designThumb.selected {
   background: #ffed8b;

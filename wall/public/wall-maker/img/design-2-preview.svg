@@ -1,50 +1,47 @@
 <svg xmlns="http://www.w3.org/2000/svg"
   viewBox="0 0 300 200" width="100%" height="100%" id="svg"
   preserveAspectRatio="none">
-  <g pointer-events="none">
-    <path d="m0,0h300v200h-300z" fill="#69f8ff"></path>
-    <path d="m0,78h300v123h-300z" fill="#00ff31"></path>
-    <g>
-      <animateTransform attributeName="transform" type="translate"
-        from="0 0" to="-300 0" dur="2.5s" repeatCount="indefinite"
-        begin="svg.mouseover" end="svg.mouseout" restart="whenNotActive"/>
-      <path d="m0,136h601v51h-601z" fill="#666"></path>
-      <path fill="none" stroke="#fff" stroke-linecap="round"
-        stroke-miterlimit="10" stroke-width="8" stroke-dasharray="8,20"
-        d="m16,163h578"/>
-      <g fill="#603813">
-        <path d="m13,88h40v41h-40z"></path>
-        <path d="m33,63.5-28,24.5h59z"></path>
-      </g>
-      <g fill="#f7931e">
-        <path d="m93,86h40v41h-40z"></path>
-        <path d="m113,61.5-28,24.5h59z"></path>
-      </g>
-      <g fill="#a67c52">
-        <path d="m176,86h40v41h-40z"></path>
-        <path d="m196,61.5-28,24.5h59z"></path>
-      </g>
-      <g fill="#ff0">
-        <path d="m257,92h40v41h-40z"></path>
-        <path d="m277,67.5-28,24.5h59z"></path>
-      </g>
-      <g fill="#fff">
-        <path d="m313,86h40v41h-40z"></path>
-        <path d="m333,61.5-28,24.5h59z"></path>
-      </g>
-      <g fill="#00f">
-        <path d="m391,92h40v41h-40z"></path>
-        <path d="m411,67.5-28,24.5h59z"></path>
-      </g>
-        <path d="m471,80h40v41h-40z" fill="#603813"></path>
-        <path d="m491,55.5-28,24.5h59z" fill="#603813"></path>
-        <path d="m472,78h37v14h-37z" fill="#f9ff22"></path>
-        <text fill="#e63500" font-family="'KozGoPr6N-Bold-90ms-RKSJ-H'"
-          font-size="8.1" transform="translate(474.29,88)">ラーメン</text>
-      <g fill="#f00">
-        <path d="m534,94h40v41h-40z"></path>
-        <path d="m554,69.5-28,24.5h59z"></path>
-      </g>
+  <path d="m0,0h300v200h-300z" fill="#69f8ff"></path>
+  <path d="m0,78h300v123h-300z" fill="#00ff31"></path>
+  <g>
+    <animateTransform attributeName="transform" type="translate"
+      from="0 0" to="-300 0" dur="2.5s" repeatCount="indefinite"/>
+    <path d="m0,136h601v51h-601z" fill="#666"></path>
+    <path fill="none" stroke="#fff" stroke-linecap="round"
+      stroke-miterlimit="10" stroke-width="8" stroke-dasharray="8,20"
+      d="m16,163h578"/>
+    <g fill="#603813">
+      <path d="m13,88h40v41h-40z"></path>
+      <path d="m33,63.5-28,24.5h59z"></path>
+    </g>
+    <g fill="#f7931e">
+      <path d="m93,86h40v41h-40z"></path>
+      <path d="m113,61.5-28,24.5h59z"></path>
+    </g>
+    <g fill="#a67c52">
+      <path d="m176,86h40v41h-40z"></path>
+      <path d="m196,61.5-28,24.5h59z"></path>
+    </g>
+    <g fill="#ff0">
+      <path d="m257,92h40v41h-40z"></path>
+      <path d="m277,67.5-28,24.5h59z"></path>
+    </g>
+    <g fill="#fff">
+      <path d="m313,86h40v41h-40z"></path>
+      <path d="m333,61.5-28,24.5h59z"></path>
+    </g>
+    <g fill="#00f">
+      <path d="m391,92h40v41h-40z"></path>
+      <path d="m411,67.5-28,24.5h59z"></path>
+    </g>
+      <path d="m471,80h40v41h-40z" fill="#603813"></path>
+      <path d="m491,55.5-28,24.5h59z" fill="#603813"></path>
+      <path d="m472,78h37v14h-37z" fill="#f9ff22"></path>
+      <text fill="#e63500" font-family="'KozGoPr6N-Bold-90ms-RKSJ-H'"
+        font-size="8.1" transform="translate(474.29,88)">ラーメン</text>
+    <g fill="#f00">
+      <path d="m534,94h40v41h-40z"></path>
+      <path d="m554,69.5-28,24.5h59z"></path>
     </g>
   </g>
 </svg>

@@ -14,6 +14,7 @@
   <script src="js/navi.js"></script>
   <script src="js/create-wall.js"></script>
   <script src="js/login-controller.js"></script>
+  <script src="js/ui.js"></script>
 </head>
 <body>
   <div id="navBar" style="display: block">
@@ -57,15 +58,22 @@
   </div>
   <div class="screen" id="screen-new">
     <h2>新しい壁を作る</h2>
+    <form name="createWall">
     <div class="page">
       <p>背景を選択</p>
-      <div class="thumbGrid" id="designSelect">
-        <div class="designThumb">
-          <object data="img/design-1-preview.svg"></object>
-        </div>
-        <div class="designThumb">
-          <object data="img/design-2-preview.svg"></object>
-        </div>
+      <div class="designGrid" id="designSelector">
+        <label class="graphical">
+          <input type="radio" name="design" value="1" required>
+          <div class="designThumb">
+            <object data="img/design-1-preview.svg"></object>
+          </div>
+        </label>
+        <label class="graphical">
+          <input type="radio" name="design" value="2" required>
+          <div class="designThumb">
+            <object data="img/design-2-preview.svg"></object>
+          </div>
+        </label>
       </div>
     </div>
     <div class="page">
@@ -114,6 +122,7 @@
           class="createButton">作成</button>
       </div>
     </div>
+    </form>
   </div>
   <div class="screen" id="manage">
     <h2>エベント名
@@ -132,7 +141,6 @@
         (今のキャラクターが全部見えなくなるよという説明）</li>
         <li>今、終了</li>
         <li>ペースを調整する</li>
-        <li>共同制作者</li>
       </ul>
     </div>
     <div class="tab" id="manageWallType">
