@@ -37,7 +37,7 @@
       <path d="m471,80h40v41h-40z" fill="#603813"></path>
       <path d="m491,55.5-28,24.5h59z" fill="#603813"></path>
       <path d="m472,78h37v14h-37z" fill="#f9ff22"></path>
-      <text fill="#e63500" font-family="'KozGoPr6N-Bold-90ms-RKSJ-H'"
+      <text fill="#e63500" font-family="sans-serif"
         font-size="8.1" transform="translate(474.29,88)">ラーメン</text>
     <g fill="#f00">
       <path d="m534,94h40v41h-40z"></path>
