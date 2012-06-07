@@ -77,16 +77,25 @@
       </div>
     </div>
     <div class="page">
-      <ul>
-        <!-- Need to validate that this is non-zero, unique, can be transformed
-             into a unique URL etc.
-             The same callback could show what it will look like as a URL??
-             Probably best to allow the user to set the URL -->
-        <li>エベントの名前（必須）</li>
-        <li>エベントの説明（任意）</li>
-        <li>エベントの場所・国（任意）</li>
-        <li>エベントの書類（任意）</li>
-      </ul>
+      <dl>
+        <dt><label for="create-eventName">エベントの名前</label></dt>
+        <dd>
+          <input type="text" name="eventName" required autocomplete="off"
+           maxlength="255" class="eventName" id="create-eventName">
+        </dd>
+        <dt><label class="optional"
+          for="create-eventLocation">エベントの場所</label></dt>
+        <dd>
+          <input type="text" name="eventLocation" autocomplete="off"
+           maxlength="255" class="eventLocation" id="create-eventLocation">
+        </dd>
+        <dt><label class="optional"
+          for="create-eventDescr">エベントの説明</label></dt>
+        <dd>
+          <textarea name="eventDescr" class="eventDescr"
+            id="create-eventDescr"></textarea>
+        </dd>
+      </dl>
     </div>
     <div class="page final">
       <ul>
@@ -108,18 +117,18 @@
         </li>
       </ul>
       <button onclick="javascript:CreateWallController.finish()"
-        class="finishButton">完了</button>
+        class="finishButton" type="button">完了</button>
     </div>
     <div class="wizardButtons">
       <button onclick="javascript:CreateWallController.cancel()"
-        class="cancelButton">キャンセル</button>
+        class="cancelButton" type="button">キャンセル</button>
       <div class="wizardNavButtons">
         <button onclick="javascript:CreateWallController.prev()"
-          class="prevButton">戻る</button>
+          class="prevButton" type="button">戻る</button>
         <button onclick="javascript:CreateWallController.next()"
-          class="nextButton">次へ</button>
+          class="nextButton" type="button">次へ</button>
         <button onclick="javascript:CreateWallController.create()"
-          class="createButton">作成</button>
+          class="createButton" type="button">作成</button>
       </div>
     </div>
     </form>

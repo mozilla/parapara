@@ -133,3 +133,30 @@ body {
   width:12em;
   height:8em;
 }
+
+/*
+ * Common form formatting
+ */
+.eventName, .eventLocation {
+  width: 90%;
+  max-width: 20em;
+}
+.eventDescr {
+  width: 90%;
+  height: 4.5em;
+}
+form dt {
+  font-weight: bold;
+  margin: 20px 2px 8px;
+}
+form dd {
+  margin-left: 0;
+}
+input[type=text] {
+  font-size: 1.5em;
+}
+label.optional:after {
+  content: " (任意)";
+  color: grey;
+  font-size: smaller;
+}
