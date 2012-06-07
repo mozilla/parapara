@@ -171,7 +171,8 @@ var CreateWallForm =
   _form: null,
 
   init: function() {
-    this.designSelector = new GraphicalRadioGroup(this.form, 'design');
+    this.designSelector =
+      new WallMaker.GraphicalRadioGroup(this.form, 'design');
   },
 
   clearAll: function() {

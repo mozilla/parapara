@@ -2,7 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var GraphicalRadioGroup = function(form, radioname) {
+var WallMaker = WallMaker || {};
+
+WallMaker.GraphicalRadioGroup = function(form, radioname) {
 
   this.items = new Array();
   this.radioname = null;
@@ -16,7 +18,7 @@ var GraphicalRadioGroup = function(form, radioname) {
     var radio =
       form.querySelectorAll("input[type=radio][name=\""+radioname+"\"]");
     for (var i = 0; i < radio.length; i++) {
-      this.items.push(new GraphicalRadio(radio[i]));
+      this.items.push(new WallMaker.GraphicalRadio(radio[i]));
     }
     this.update();
 
@@ -48,7 +50,7 @@ var GraphicalRadioGroup = function(form, radioname) {
   this.init(form, radioname);
 };
 
-var GraphicalRadio = function(radio) {
+WallMaker.GraphicalRadio = function(radio) {
 
   this.radio = radio;
   this.thumb = null;
@@ -90,7 +92,7 @@ var GraphicalRadio = function(radio) {
 
     // For now we only support animated thumbs. In future we might support
     // other types and switch on class attribute.
-    var thumb = new AnimatedThumb(thumbElem);
+    var thumb = new WallMaker.AnimatedThumb(thumbElem);
     radio.thumb = thumb;
 
     return thumb;
@@ -101,7 +103,7 @@ var GraphicalRadio = function(radio) {
 
 // An element representing a thumbnail that is animated on selection or
 // mouseover.
-var AnimatedThumb = function(thumbElem) {
+WallMaker.AnimatedThumb = function(thumbElem) {
 
   this.thumbElem = thumbElem;
   this.anim      = null;
