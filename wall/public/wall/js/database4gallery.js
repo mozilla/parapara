@@ -53,7 +53,7 @@ var Database = {
   // already made their debut on the stage)
   loadAllCharacters: function(callback) {
     var url = API_DIR+"get_all_characters.php?threshold="+
-              NUM_CHARACTERS_THRESHOLD+"&"+(new Date()).getTime();
+              NUM_CHARACTERS_THRESHOLD+"&sessionId="+SESSION_ID+"&"+(new Date()).getTime();
     $.getJSON(url, function(json) {
       Database.append(json);
       Database.idle();

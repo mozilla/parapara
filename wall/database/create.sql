@@ -21,20 +21,6 @@ CREATE TABLE `walls` (
   FOREIGN KEY (`owner`) REFERENCES `users` (`userId`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='Walls are shared drawing spaces';
 
-DROP TABLE IF EXISTS `characters`;
-CREATE TABLE `characters` (
-  `charId` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `wallId` int(11) unsigned DEFAULT NULL COMMENT 'The wall with which this character is associated, if any.',
-  `title` varchar(128) DEFAULT NULL,
-  `author` varchar(128) DEFAULT NULL,
-  `y` int(4) DEFAULT NULL,
-  `x` int(4) DEFAULT NULL COMMENT '0 - 1000',
-  `createDate` datetime NOT NULL COMMENT 'Creation datetime in UTC',
-  `active` tinyint(1) NOT NULL DEFAULT '1' COMMENT 'Indicates if the character should show on the wall',
-  PRIMARY KEY (`charId`),
-  FOREIGN KEY (`wallId`) REFERENCES walls(`wallId`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
-
 DROP TABLE IF EXISTS `designs`;
 CREATE TABLE `designs` (
   `designId` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -51,11 +37,27 @@ CREATE TABLE `users` (
   PRIMARY KEY (`userId`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='Users of wall system';
 
+DROP TABLE IF EXISTS `characters`;
 DROP TABLE IF EXISTS `sessions`;
 CREATE TABLE `sessions` (
   `wallId` int(11) unsigned NOT NULL,
   `sessionId` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `beginDate` datetime NOT NULL COMMENT 'Creation datetime in UTC',
+  `endDate` datetime DEFAULT NULL COMMENT 'End datetime in UTC',
   FOREIGN KEY (`wallId`) REFERENCES walls(`wallId`),
   PRIMARY KEY (`sessionId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='sessions of wall';
+
+CREATE TABLE `characters` (
+  `charId` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `sessionId` int(11) unsigned NOT NULL,
+  `title` varchar(128) DEFAULT NULL,
+  `author` varchar(128) DEFAULT NULL,
+  `y` int(4) DEFAULT NULL,
+  `x` int(4) DEFAULT NULL COMMENT '0 - 1000',
+  `createDate` datetime NOT NULL COMMENT 'Creation datetime in UTC',
+  `active` tinyint(1) NOT NULL DEFAULT '1' COMMENT 'Indicates if the character should show on the wall',
+  PRIMARY KEY (`charId`),
+  FOREIGN KEY (`sessionId`) REFERENCES sessions(`sessionId`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+

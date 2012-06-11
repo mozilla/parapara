@@ -10,12 +10,14 @@ require_once("../../lib/UriUtils.inc");
 $wallId = intval($_GET["wallId"]);
 $connection = getConnection();
 try {
-  $query = "SELECT W.duration AS duration,D.name AS design, D.duration AS defaultduration FROM walls AS W ,designs AS D WHERE W.wallId=$wallId AND D.designId=W.designId";
+  $query = "SELECT W.duration AS duration,D.name AS design, D.duration AS defaultduration, S.sessionId AS sessionId, S.endDate AS endDate FROM walls AS W ,designs AS D, sessions AS S WHERE W.wallId=$wallId AND D.designId=W.designId AND W.wallId=S.wallId ORDER BY S.sessionId DESC LIMIT 1";
   $resultset = mysql_query($query, $connection) or throwException(mysql_error());
   if ($row = mysql_fetch_array($resultset)) {
     $duration = intval($row["duration"]);
     $defaultduration = intval($row["defaultduration"]);
     $design = $row["design"];
+    $endDate = $row["endDate"];
+    $sessionId = $row["sessionId"];
   } else {
     throwException("no wall found");
   }
@@ -32,7 +34,7 @@ header("Content-Type: image/svg+xml; charset=UTF-8");
 
 $walltype = $design;
 $templatepath = "./templates/$walltype";
-$database = "database4live.js";
+$database = $endDate == NULL ? "database4live.js" : "database4gallery.js";
 $basetime = $duration == 0 ? $defaultduration : $duration;
 $timeparts = explode(" ",microtime());
 $currentTimeMillis = bcadd(($timeparts[0]*1000),bcmul($timeparts[1],1000));
@@ -49,6 +51,7 @@ $begintime = $currentTimeMillis % $basetime;
   >
   <script>
       var WALL_ID = <?php echo $wallId ?>;
+      var SESSION_ID = <?php echo $sessionId ?>;
       var BASE_TIME = <?php echo $basetime ?>;
       var BEGIN_TIME = <?php echo $begintime ?>;
       var BEFORE_LOADED_TIME = (new Date()).getTime();
