@@ -30,7 +30,7 @@ var Main = {
     Database.start(Main.timebase, Main.showCharacter);
   },
 
-  showCharacter: function(character, currentActiveTime, currentSimpleTime, currentRate) {
+  showCharacter: function(character, currentActiveTime, currentSimpleTime, currentRate, durationRate) {
     var ANIMATE_RANGE = 0.5;
     // Start is the offset into the motion path at which to start animations for
     // the current time. We set it to -1 and then calculate it for the first
@@ -82,9 +82,10 @@ var Main = {
     // Create the animation
     var animateMotion =
       document.createElementNS("http://www.w3.org/2000/svg", "animateMotion");
-    animateMotion.setAttribute("dur", CHARACTER_DURATION+"s");
+    animateMotion.setAttribute("dur", Math.round(CHARACTER_DURATION*durationRate)+"s");
     animateMotion.setAttribute("rotate", "auto");
     animateMotion.setAttribute("begin", currentActiveTime+"s");
+    animateMotion.setAttribute("repeatCount", "1");
     animateMotion.setAttribute("calcMode", "linear");
     var mpath =
       document.createElementNS("http://www.w3.org/2000/svg", "mpath");
@@ -122,13 +123,13 @@ var Main = {
     // range of the animation from the start value.
     var end = start-ANIMATE_RANGE + startdiff;
     if (end >= 0) {
-      //console.log(start+";"+end);
+//      console.error(start+";"+end);
       animateMotion.setAttribute("keyPoints", start+";"+end);
       animateMotion.setAttribute("keyTimes", "0;1");
     } else {
       var startRate = start*(1/ANIMATE_RANGE);
-      //console.log(start+";0;1;"+(end+1));
-      //console.log("0;"+startRate+";"+startRate+";1");
+//      console.error(start+";0;1;"+(end+1));
+//      console.error("0;"+startRate+";"+startRate+";1");
       animateMotion.setAttribute("keyPoints", start+";0;1;"+(end+1));
       animateMotion.setAttribute("keyTimes",
         "0;"+startRate+";"+startRate+";1");
@@ -139,6 +140,8 @@ var Main = {
     Main.main_layer.appendChild(g);
     // Update the character's status so we don't add it again
     character.repeatCount++;
+    
+//    console.log(g);
   }
 
 }

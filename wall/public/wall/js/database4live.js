@@ -19,7 +19,7 @@ var Database = {
     }, true);
 
     //changes animate duration. [dur]
-    Utility.applyDuration(Database.timebase, BASE_TIME, BEGIN_TIME+(new Date()).getTime()-BEFORE_LOADED_TIME);
+    Database.duration_rate = Utility.applyDuration(Database.timebase, BASE_TIME, BEGIN_TIME+(new Date()).getTime()-BEFORE_LOADED_TIME);
     Database.loadAllCharacters(function() {
     });
   },
@@ -41,7 +41,8 @@ var Database = {
       // skip it
       var rate = character.x;
       if (character.sent != true && rate < currentRate) {
-        Database.listener(character, currentActiveTime, currentSimpleTime, currentRate);
+//      if (character.sent != true) { //for debug
+        Database.listener(character, currentActiveTime, currentSimpleTime, currentRate, Database.duration_rate);
         character.sent = true;
       }
     }

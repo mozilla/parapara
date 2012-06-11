@@ -9,12 +9,6 @@
 
   <style type="text/css"><![CDATA[
     svg {background-color: black}
-    #back-layer-path { fill:#338833; stroke:none; stroke-width:1 }
-    #main-layer-path { fill:#33cc33; stroke:none; stroke-width:1 }
-    #front-layer-path { fill:#33ff33; stroke:none; stroke-width:1 }
-    #back-layer-path { fill:none; stroke:none; stroke-width:1 }
-    #main-layer-path { fill:none; stroke:none; stroke-width:1 }
-    #front-layer-path { fill:none; stroke:none; stroke-width:1 }
     .shadow {fill-opacity: 0.3; fill:black;}
   ]]></style>
 
@@ -38,7 +32,6 @@
     width="1280" height="254"/>
 
   <g transform="translate(-1050 20)" >
-
     <image xlink:href="templates/space/images/oku.png" width="3400" height="3400">
       <animateTransform attributeName="transform" type="rotate"
         from="0 1700 1700" to="360 1700 1700"
@@ -46,13 +39,13 @@
     </image>
 
     <image xlink:href="templates/space/images/naka.png" width="3400" height="3400">
-      <animateTransform id="time-base" attributeName="transform" type="rotate"
+      <animateTransform attributeName="transform" type="rotate"
         from="0 1700 1700" to="360 1700 1700"
         repeatCount="indefinite" additive="sum" dur="240s"/>
     </image>
 
-    <g id="main-layer">
-      <animateTransform attributeName="transform" type="rotate"
+    <g id="main-layer" >
+      <animateTransform id="time-base" attributeName="transform" type="rotate"
         from="0 1700 1700" to="360 1700 1700" repeatCount="indefinite"
         additive="sum" dur="240s"/>
       <path id="main-layer-path" pathLength="1"
@@ -66,6 +59,7 @@
         c-9.029-12.194-550.446,7.48-550.715-160.947c-0.182-114,349.077-141.521,407.087-165.469
         c-15.767-97.042-22.395-448.727,0.527-537.59C760.031,951.474,1194.486,598,1711.5,598
         C2052.247,598,2357.134,751.538,2560.75,993.206z"/>
+
     </g>
 
     <image xlink:href="templates/space/images/temae.png" width="3400" height="3400">
@@ -73,5 +67,6 @@
         from="0 1700 1700" to="360 1700 1700" repeatCount="indefinite"
         additive="sum" dur="200s"/>
     </image>
+
   </g>
 </svg>

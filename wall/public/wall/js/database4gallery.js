@@ -18,7 +18,7 @@ var Database = {
     }, true);
 
     //changes animate duration. [dur]
-    Utility.applyDuration(Database.timebase, BASE_TIME);
+    Database.duration_rate = Utility.applyDuration(Database.timebase, BASE_TIME, BEGIN_TIME+(new Date()).getTime()-BEFORE_LOADED_TIME);
 
     Database.loadAllCharacters();
   },
@@ -41,7 +41,7 @@ var Database = {
       
       var rate = character.x;
       if (rate < currentRate && !character.sent) {
-        Database.listener(character, currentActiveTime, currentSimpleTime, currentRate);
+        Database.listener(character, currentActiveTime, currentSimpleTime, currentRate, Database.duration_rate);
         character.sent = true;
       }
     }
