@@ -32,6 +32,7 @@ function goToCurrentScreen() {
 
   if (path.match(WallMaker.newRe)) {
     screenId = "screen-new";
+    CreateWallController.show();
   } else if (path.match(WallMaker.manageRe)) {
     // Parse anchor refs but for managing we DON'T want to add history
     // references every time we switch tabs. This might need some changes

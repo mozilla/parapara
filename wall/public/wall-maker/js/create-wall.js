@@ -24,145 +24,71 @@
 
 var CreateWallController =
 {
-  pages: null,
-  _index: undefined,
-
-  init: function() {
-    this.pages = document.querySelectorAll("#screen-new div.page");
-    this.show(this.index)
-
-    // I tried a bunch of ideas to ignore the initial popevent fired by WebKit
-    // on page load, but this turned out to be the best :(
-    window.setTimeout(function() {
-      window.addEventListener('popstate',
-        CreateWallController.popHistory.bind(this), false);
-    }, 1);
-  },
-
   start: function() {
     this.clearAll();
-    this.show(0);
   },
 
-  next: function() {
-    var newIndex = this.index + 1;
-    this.show(newIndex);
-    history.pushState({ createWallPage: newIndex }, null);
-  },
-
-  prev: function() {
-    var newIndex = this.index - 1;
-    if (newIndex < 0) {
-      goToScreen("./");
-    } else {
-      this.show(newIndex);
-      history.pushState({ createWallPage: newIndex }, null);
-    }
+  show: function() {
+    this.showErrors();
   },
 
   cancel: function() {
     goToScreen("./");
     this.clearAll();
-    this.show(0);
   },
 
   create: function() {
-    // XXX Clear error message
-    // Show loading screen
-    this.next();
+    this.clearError();
+    // XXX Show loading screen
+    // Send request
+    var payload = CreateWallForm.getFormValues();
+    ParaPara.postRequest('api/createWall', payload,
+                         this.createSuccess.bind(this),
+                         this.createError.bind(this));
   },
 
-  finish: function() {
-    goToScreen("./");
-    this.show(0);
-  },
-
-  show: function(index) {
-    // Clamp index to valid range
-    index = index <= 0
-          ? 0
-          : index >= this.pages.length ? this.pages.length - 1 : index;
-    // Update (stored) index
-    this.index = index;
-
-    // Display the appropriate page
-    for (var i = 0; i < this.pages.length; i++) {
-      if (i === index) {
-        this.pages[i].style.display = "block";
-      } else {
-        this.pages[i].style.display = "none";
-      }
+  createSuccess: function(response) {
+    // XXX Error handling
+    if (typeof response.wallId !== "number") {
+      this.setError("Made the wall but hey...");
     }
 
-    // Toggle which buttons are active.
-    //
-    // Typically, the arrangement of buttons is as follows:
-    //  -- first page      : cancel, next
-    //  -- ...             : cancel, prev, next
-    //  -- final page      : cancel, prev, create
-    //  -- waiting page    : (none)
-    //  -- completion page : finish
-    var buttonBar    = document.getElementsByClassName("wizardButtons")[0];
-    var prevButton   = buttonBar.getElementsByClassName("prevButton")[0];
-    var nextButton   = buttonBar.getElementsByClassName("nextButton")[0];
-    var createButton = buttonBar.getElementsByClassName("createButton")[0];
-    var page = this.pages[index];
-    // Hide buttons for those pages that don't want them
-    buttonBar.style.display = page.classList.contains('nobutton')
-                            ? 'none' : 'block';
-    // Hide prev button on first page
-    prevButton.style.visibility = index == 0 ? 'hidden' : 'visible';
-    // Toggle next vs create button
-    var finalPage = page.classList.contains('final');
-    nextButton.style.display   = finalPage ? 'none'   : 'inline';
-    createButton.style.display = finalPage ? 'inline' : 'none';
-
-    // XXX Check validation state of current page and disable next / finish
-    //     button as necessary---initial state??
-    // CreateWallForm.validate(page) ...
-  },
-
-  get index() {
-    if (typeof this._index !== "undefined")
-      return this._index;
-
-    var index = sessionStorage.getItem("createWallPage") !== null
-              ? parseInt(sessionStorage.getItem("createWallPage"))
-              : 0;
-    this._index = index;
-    return index;
-  },
-
-  set index(index) {
-    console.assert(index >= 0 && index < this.pages.length,
-                   "index is out of range");
-    sessionStorage.setItem("createWallPage", index);
-    this._index = index;
-  },
-
-  createError: function() {
-    // XXX Set error message
-    this.prev();
-  },
-
-  createSuccess: function() {
-    // XXX Get ID and update finish page links
+    var id = response.wallId;
     this.clearAll();
-    this.next();
+    updateWalls();
+    sessionStorage.setItem("messageKey", "create-wall-success");
+    goToScreen("manage/" + id + "#event");
+  },
+
+  createError: function(key, detail) {
+    // XXX Translate error messages
+    this.setError("Something went wrong.");
   },
 
   clearAll: function() {
+    this.clearError();
     CreateWallForm.clearAll();
-    sessionStorage.removeItem("createWallPage");
   },
 
-  popHistory: function(evt) {
-    if (typeof evt.state === "object" && evt.state &&
-        typeof evt.state.createWallPage === "number") {
-      this.show(evt.state.createWallPage);
+  showErrors: function(msg) {
+    var error = sessionStorage.getItem('create-error');
+    var errorBlock = document.getElementById('create-error');
+    if (error) {
+      errorBlock.innerHTML = error;
+      errorBlock.classList.remove("hidden");
     } else {
-      this.show(0);
+      errorBlock.classList.add("hidden");
     }
+  },
+
+  setError: function(msg) {
+    sessionStorage.setItem('create-error', msg);
+    this.showErrors();
+  },
+
+  clearError: function() {
+    sessionStorage.removeItem('create-error');
+    this.showErrors();
   },
 };
 
@@ -179,10 +105,16 @@ var CreateWallForm =
     this.form.reset();
   },
 
-  verifyPage: function(page) {
-    // Walks through the page (use a selector to pick out inputs etc.?)
-    // and applies the rules it knows about based on ids/class names
+  verify: function(page) {
+    // XXX
     return true;
+  },
+
+  getFormValues: function() {
+    var result = {};
+    result.title = this.form.eventName.value;
+    result.design = this.getRadioValue('design');
+    return result;
   },
 
   getRadioValue: function(name) {
@@ -203,10 +135,4 @@ var CreateWallForm =
 };
 
 window.addEventListener('load',
-  CreateWallController.init.bind(CreateWallController), false);
-window.addEventListener('load',
   CreateWallForm.init.bind(CreateWallForm), false);
-
-// XXX Register listener to all form changes
-//  -- validates current page and updates disabled/enabled state of next
-//     / create button

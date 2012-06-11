@@ -43,7 +43,8 @@
     <div class="callout loginExplain">
       <p>ログイン (Mozilla Personaについて説明する)</p>
       <div class="loginButtonLarge">
-        <button onclick="javascript:LoginController.login()">Login</button>
+        <button onclick="javascript:LoginController.login()"
+          type="button">Login</button>
       </div>
     </div>
   </div>
@@ -57,11 +58,15 @@
     </div>
   </div>
   <div class="screen" id="screen-new">
-    <h2>新しい壁を作る</h2>
-    <form name="createWall">
-    <div class="page">
-      <p>背景を選択</p>
+    <div class="error" id="create-error">
+      Error message goes here
+    </div>
+    <form name="createWall" action="javascript:CreateWallController.create()">
+      <input type="text" name="eventName" required autocomplete="off"
+        maxlength="255" class="eventName" id="create-eventName"
+        placeholder="壁のタイトル">
       <div class="designGrid" id="designSelector">
+        <p>壁のデザイン：</p>
         <label class="graphical">
           <input type="radio" name="design" value="1" required>
           <div class="designThumb">
@@ -75,59 +80,16 @@
           </div>
         </label>
       </div>
-    </div>
-    <div class="page">
-      <ul>
-        <!-- Need to validate that this is non-zero, unique, can be transformed
-             into a unique URL etc.
-             The same callback could show what it will look like as a URL??
-             Probably best to allow the user to set the URL -->
-        <li>エベントの名前（必須）</li>
-        <li>エベントの説明（任意）</li>
-        <li>エベントの場所・国（任意）</li>
-        <li>エベントの書類（任意）</li>
-      </ul>
-    </div>
-    <div class="page final">
-      <ul>
-        <li>エベントの終了時間</li>
-        <li>ギャラリーに表示する？</li>
-        <li>共同制作者</li>
-        <li>エディターのパスコード</li>
-      </ul>
-    </div>
-    <div class="page nobutton">
-      作成中…
-    </div>
-    <div class="page nobutton">
-      <ul>
-        <li>壁の作成完了：壁の長いＵＲＬ・壁の短いＵＲＬ、エディターの短いＵＲＬ</li>
-        <li><a href="chirashi/id" target="_new">
-          エベントのチラシを印刷する</a></li>
-  　　　<li><a href="#">壁の設定・キャラクターを管理する</a>
-        </li>
-      </ul>
-      <button onclick="javascript:CreateWallController.finish()"
-        class="finishButton">完了</button>
-    </div>
-    <div class="wizardButtons">
-      <button onclick="javascript:CreateWallController.cancel()"
-        class="cancelButton">キャンセル</button>
-      <div class="wizardNavButtons">
-        <button onclick="javascript:CreateWallController.prev()"
-          class="prevButton">戻る</button>
-        <button onclick="javascript:CreateWallController.next()"
-          class="nextButton">次へ</button>
-        <button onclick="javascript:CreateWallController.create()"
-          class="createButton">作成</button>
-      </div>
-    </div>
+      <button type="submit" name="作成" class="submitButton">作成</button>
+      <button type="button" class="cancelButton"
+        onclick="javascript:CreateWallController.cancel()">キャンセル</button>
     </form>
   </div>
-  <div class="screen" id="manage">
-    <h2>エベント名
+  <div class="screen" id="screen-manage">
+    <h2>エベントの名前</h2>
       <span style="font-size: smaller">(これは直接に編集できる）</span></h2>
     <div>
+      基本情報
       <ul>
         <li>壁の長いＵＲＬ</li>
         <li>壁の短いＵＲＬ</li>
@@ -135,7 +97,7 @@
         <li>チラシのリンク</li>
       </ul>
     </div>
-    <div class="tab" id="manageWallRunning">
+    <div class="tab" id="manage-running">
       <ul>
         <li>新セッションをスタートする
         (今のキャラクターが全部見えなくなるよという説明）</li>
@@ -143,26 +105,72 @@
         <li>ペースを調整する</li>
       </ul>
     </div>
-    <div class="tab" id="manageWallType">
+    <div class="tab" id="manage-design">
       <ul>
         <li>背景の選択とプレビュー</li>
       </ul>
     </div>
-    <div class="tab" id="manageEventDetails">
-      <ul>
-        <li>エベントの名前（必須）</li>
-        <li>エベントの説明（任意）</li>
-        <li>エベントの場所・国（任意）</li>
-        <li>エベントの書類（任意）</li>
-      </ul>
+    <div class="tab" id="manage-event">
+      <dl>
+        <dt><label class="optional"
+          for="create-eventLocation">場所</label></dt>
+        <dd>
+          <input type="text" name="eventLocation" autocomplete="off"
+           maxlength="255" class="eventLocation" id="create-eventLocation">
+          <div class="fieldExplain">場所の例</div>
+        </dd>
+        <dt><label for="create-eventFinish">終了時間</label></dt>
+        <dd>
+          TODO <!-- XXX Time picker -->
+          <div class="fieldExplain">終了時間の説明</div>
+        </dd>
+        <dt><label class="optional"
+          for="create-eventDescr">エベントの説明</label></dt>
+        <dd>
+          <textarea name="eventDescr" class="eventDescr"
+            id="create-eventDescr"></textarea>
+        </dd>
+      </dl>
     </div>
-    <div class="tab" id="manageEventPrivacy">
-      <ul>
-        <li>エベントの終了時間</li>
-        <li>ギャラリーに表示する？</li>
-        <li>共同制作者</li>
-        <li>エディターのパスコード</li>
-      </ul>
+    <div class="tab" id="manage-privacy">
+      <dl>
+        <dt>ギャラリーに表示</dt>
+        <dd class="alongside">
+          <label>
+            <input type="radio" name="galleryDisplay" value="1"
+              id="create-eventFinish" checked>
+            On
+          </label>
+          <label>
+            <input type="radio" name="galleryDisplay" value="0"
+              id="create-eventFinish">
+            Off
+          </label>
+          <div class="fieldExplain">ギャラリーの説明</div>
+        </dd>
+        <dt><label class="optional">共同制作者</label></dt>
+        <dd>
+          <div class="fieldExplain">共同制作者の説明</div>
+        </dd>
+        <dt><label class="optional">エディターのパスコード</label></dt>
+        <dd>
+          <input type="password" name="eventName" autocomplete="off"
+           maxlength="50" class="eventName" id="create-eventName">
+          <div class="fieldExplain">パスコードの説明</div>
+        </dd>
+      </dl>
+    </div>
+    <div class="tab" id="manage-collaboration">
+      <dl>
+        <dt><label class="optional">共同制作者</label></dt>
+        <dd>
+          <div class="fieldExplain">共同制作者の説明</div>
+        </dd>
+      </dl>
+    </div>
+    <div class="tab" id="manage-characters">
+      <h3>セッション１</h3>
+      <h3>セッション２</h3>
     </div>
   </div>
 </body>

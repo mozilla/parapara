@@ -11,6 +11,9 @@ $config = array(
     'password' => '',
     'database' => 'parapara'
   ),
+  'editor' => array(
+    'url' => 'http://parapara-editor.mozlabs.jp/',
+  ),
   'characters' => array(
     'path' => '../characters/',
     'accept_new' => true 
