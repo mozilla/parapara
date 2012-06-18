@@ -9,57 +9,138 @@ body, html, div {
   overflow: hidden;
 }
 div.container {
-  display: table;
   position: absolute;
   left: 0; top: 0; width: 100%; height: 100%;
-  background: white; /* Needed for when we go full-screen */
-}
-div.container {
-  display: table-row;
-}
-div.column {
-  display: table-cell;
-  vertical-align: top;
+  background: black; /* Needed for when we go full-screen */
 }
 
-svg.canvas {
+div.controlPanel {
+  position: absolute;
+  background: rgb(17,49,103);
+  width: 25%;
+  height: 100%;
+}
+div.controlPanel .starBackground {
+  position: absolute;
+  width: 100%;
+  bottom: 0;
+}
+div.controlPanel .wheelBackground {
+  position: absolute;
+  width: 100%;
+  opacity: 0.5;
+}
+div.controlPanel .panelContents {
+  position: relative;
+  width: 100%;
+}
+div.controlPanel #widths {
+  width: 80%;
+  padding: 0 10%;
+}
+div.controlPanel #clear {
+  position: absolute;
+  bottom: 5px;
+  left: 1em;
+}
+div.controlPanel #animate {
+  position: absolute;
+  bottom: -1px;
+  right: 0;
+}
+div.controlPanel #send {
+  position: absolute;
+  bottom: 0;
+  right: 3px;
+}
+div.controlPanel #return {
+  position: absolute;
+  bottom: -1px;
+  left: 0px;
+}
+
+div.controlPanel div#animControls {
+  position: absolute;
+  width: 100%;
+  top: 0;
+}
+div.controlPanel .controlSet {
+  visibility:hidden;
+  height:100%;
+}
+div.controlPanel .controlSet.active {
+  visibility:visible;
+}
+
+/* Credit form */
+div.controlSet div.field {
+  display: block;
+  margin: 1.5em 0.3em;
+  color: green;
+}
+div.controlSet label:first-child {
+  display: block;
+  /* bullet image is 35x33 */
+  padding-top: 0.1em;
+  padding-bottom: 0.3em;
+  padding-left: 35px;
+  background-image: url(../img/star-bullet.png);
+  background-repeat: no-repeat;
+}
+div.controlSet label {
+  font-size: 1.5em;
+}
+div.controlSet label, span.units {
+  filter: url(effects.svg#glow)
+}
+span.units {
+  font-size: 1.3em;
+}
+div.controlSet label:first-child:after {
+  content:":"
+}
+div.field input {
+  margin-top: 0.1em;
+  margin-left: 35px; /* this is the width of the star */
+}
+div.field input.fullWidthField {
+  width: -moz-calc(100% - 35px - 1em);
+}
+div.controlSet input[type=text], div.controlSet input[type=number] {
+  font-size: 24px;
+}
+div.field input[type=radio] {
+  display: none;
+}
+div.field input[type=radio] + label {
+  margin: 0 0.2em;
+}
+div.field input:checked + label {
+  color: red;
+  font-weight: bold;
+}
+div.radioGroup {
+  text-align: center;
+}
+/* Hack to make sure fields appear above the background image */
+div.field input {
+  position: relative;
+}
+#speedDial {
+  width: 80%;
+  padding: 1em 10%;
+}
+
+div.canvas {
+  position: absolute;
+  left: 25%;
+}
+div.canvas > svg {
   border: 2px solid black;
   margin: 0;
 }
 
-/* Control boxes */
-div.controls {
-  text-align: center;
-  padding: 0.4em 0.8em 0.2em;
-  position: relative;
-}
-div.controls.vertical button {
-  display: block;
-}
-div.controls.vertical button.image {
-  margin: 0.1em auto;
-}
-div.controls.vertical button.text {
-  margin: 2em 0 1em;
-}
-div.controls.vertical div.separator {
-  display: block;
-  border-top: 1px dotted #ccc;
-  border-left: none;
-  max-height: 0.2em;
-}
-div.separator {
-  font-size: 45px;
-  display: inline;
-  vertical-align: top;
-  pointer-events: none;
-}
-
 /* Buttons */
-button.left {
-  position: absolute;
-  left: 0;
-}
 button.right {
   position: absolute;
   right: 0;
@@ -90,50 +171,6 @@ button.text:disabled:hover {
   background: -o-linear-gradient(top, #ebebeb, #a1a1a1);
   background: -webkit-linear-gradient(top, #ebebeb, #a1a1a1);
   background: -ms-linear-gradient(top, #ebebeb, #a1a1a1);
-}
-button.image {
-  background: none;
-  border: none;
-  border-radius: 8px;
-  margin: 0;
-  padding: 0;
-}
-button.image svg {
-  width: 38px;
-  height: 38px;
-  margin: 4px;
-}
-button.image:hover, button.image.active {
-  background: pink;
-  outline: none;
-}
-button.image.swell:hover svg, button.image.swell.active svg {
-  width: 44px;
-  height: 44px;
-  margin: 1px;
-}
-circle.eraseOutline {
-  fill: none;
-  stroke: black;
-  stroke-dasharray: 1 1.5;
-  stroke-width: 0.25;
-}
-
-/* Previous (greyed-out) animation frames */
-g.prevFrames circle {
-  fill: grey
-}
-g.prevFrames path {
-  stroke: grey
-}
-g.prevFrames {
-  opacity: 0.5
-}
-g.oldFrames {
-  opacity: 0.4
-}
-g.nextFrames {
-  display: none
 }
 
 /* Error/notice overlay */

@@ -30,48 +30,67 @@ EditorUI.init = function() {
 window.addEventListener("load", EditorUI.init, false);
 
 EditorUI.initControls = function() {
-  EditorUI.initTools();
-  EditorUI.initStrokeWidths();
+  // This method gets called on init and ALSO on reset. Therefore, we must
+  // assume it will be called multiple times. When adding event listeners we
+  // must be sure to pass exactly the same function object so that
+  // addEventListener can detect the duplicate and filter it out. If we use
+  // function objects generated on the fly we'll end up accumulating event
+  // listeners and, at best, getting slower and slower.
   EditorUI.initColors();
-  EditorUI.initEraseWidths();
-  var speedAdjust = document.getElementById("speedAdjust");
-  speedAdjust.value = EditorUI.INITIAL_SPEED_FPS;
+  EditorUI.initWidths();
+  EditorUI.initTools();
+  EditorUI.initFrameControls();
+  EditorUI.initNavControls();
+  EditorUI.initSpeedMeter();
+
+  // Add a catch-all handler to call preventDefault on mouse events.
+  // This is necessary for disabling the chrome that flies in from offscreen
+  // when you drag in old versions of the Fennec tablet UI (i.e. Firefox 9-ish)
+  var container = document.getElementById("container");
+  container.addEventListener("mousemove", EditorUI.catchAll, false);
+  container.addEventListener("touchmove", EditorUI.catchAll, false);
+}
+
+EditorUI.catchAll = function(e) {
+  e.preventDefault();
 }
 
 // -------------- Navigation -----------
 
 EditorUI.prevFrame = function() {
-  ParaPara.prevFrame();
+  var result = ParaPara.prevFrame();
+  EditorUI.updateFrameDisplay(result.index+1, result.count);
 }
 
 EditorUI.nextFrame = function() {
   var result = ParaPara.nextFrame();
   if (result.added)
-    this.changeTool(document.getElementById("pencilTool"));
+    EditorUI.changeTool("pencil");
+  EditorUI.updateFrameDisplay(result.index+1, result.count);
 }
 
-EditorUI.finish = function() {
-  document.getElementById("toolBox").style.visibility = "hidden";
-  document.getElementById("frameControls").style.display = "none";
-  document.getElementById("animControls").style.display = "";
-  EditorUI.updateLayout();
-  var speedAdjust = document.getElementById("speedAdjust");
-  ParaPara.animate(speedAdjust.value);
+EditorUI.deleteFrame = function() {
+  var result = ParaPara.deleteFrame();
+  EditorUI.updateFrameDisplay(result.index+1, result.count);
+}
+
+EditorUI.animate = function() {
+  document.getElementById("editControls").classList.remove("active");
+  document.getElementById("animControls").classList.add("active");
+  var speed = EditorUI.meter.getValue();
+  ParaPara.animate(speed);
 }
 
 EditorUI.returnToEditing = function() {
   ParaPara.removeAnimation();
-  document.getElementById("toolBox").style.visibility = "";
-  document.getElementById("frameControls").style.display = "";
-  document.getElementById("animControls").style.display = "none";
-  EditorUI.updateLayout();
+  document.getElementById("animControls").classList.remove("active");
+  document.getElementById("editControls").classList.add("active");
 }
 
 EditorUI.reset = function() {
-  document.getElementById("toolBox").style.visibility = "";
-  document.getElementById("frameControls").style.display = "";
-  document.getElementById("animControls").style.display = "none";
-  EditorUI.updateLayout();
+  document.getElementById("animControls").classList.remove("active");
+  document.getElementById("editControls").classList.add("active");
+  document.forms[0].reset();
   ParaPara.reset();
   EditorUI.initControls();
 }
@@ -80,12 +99,19 @@ EditorUI.reset = function() {
 
 EditorUI.send = function() {
   EditorUI.displayNote("noteSending");
-  // XXX get title and author -- leaving this until we have a design for this
   var metadata = {};
-  metadata.title  = "タイトル";
-  metadata.author = "名前";
+  metadata.title  = document.forms[0].title.value.trim();
+  metadata.author = document.forms[0].name.value.trim();
   ParaPara.send(EditorUI.UPLOAD_PATH, EditorUI.sendSuccess, EditorUI.sendFail,
                 metadata);
+}
+
+EditorUI.getRadioValue = function(radio) {
+  for (var i = 0; i < radio.length; ++i) {
+    if (radio[i].checked)
+      return radio[i].value;
+  }
+  return undefined;
 }
 
 EditorUI.sendSuccess = function(response) {
@@ -299,123 +325,227 @@ EditorUI.sendEmailFail = function() {
   document.getElementById("email-button").disabled = false;
 }
 
-// -------------- Tools -----------
-
-EditorUI.initTools = function() {
-  EditorUI.initButtonGroup("toolButton", EditorUI.changeTool, 0);
-}
-
-EditorUI.changeTool = function(buttonOrEvent) {
-  var button = EditorUI.selectButtonInGroup(buttonOrEvent, "toolButton");
-  if (!button)
-    return;
-
-  var controlSets = document.getElementsByClassName("controlSet");
-  for (var i = 0; i < controlSets.length; i++) {
-    controlSets[i].style.display = "none";
-  }
-  if (button.id == "pencilTool") {
-    ParaPara.setDrawMode();
-    var drawControls = document.getElementById("drawControls");
-    drawControls.style.display = "inline";
-  } else if (button.id ="eraserTool") {
-    ParaPara.setEraseMode();
-    var eraseControls = document.getElementById("eraseControls");
-    eraseControls.style.display = "inline";
-  } else {
-    console.assert("Unknown tool selected");
-  }
-}
-
-// -------------- Stroke width -----------
-
-EditorUI.initStrokeWidths = function() {
-  EditorUI.initButtonGroup("strokeWidthButton", EditorUI.changeStrokeWidth, 1);
-}
-
-EditorUI.changeStrokeWidth = function(buttonOrEvent) {
-  var button = EditorUI.selectButtonInGroup(buttonOrEvent, "strokeWidthButton");
-  if (!button)
-    return;
-  ParaPara.currentStyle.strokeWidth = EditorUI.getStrokeWidthFromButton(button);
-}
-
-EditorUI.getStrokeWidthFromButton = function(elem) {
-  var circles = elem.getElementsByTagName("circle");
-  if (!circles.length)
-    return "4";
-  return parseFloat(circles[0].getAttribute("r")) * 2;
-}
-
 // -------------- Colors -----------
 
 EditorUI.initColors = function() {
-  EditorUI.initButtonGroup("colorButton", EditorUI.changeColor, 0);
+  var picker = document.getElementById("picker");
+  // Randomly choose a color from index 1 to 6. We skip 0 because it's dark blue
+  // and similar to the background color making the width selection hard to
+  // notice.
+  var initialColor = Math.floor(Math.random()*6+1);
+  EditorUI.addHitRegionListeners(picker.contentDocument, EditorUI.changeColor,
+                                 initialColor);
 }
 
-EditorUI.changeColor = function(buttonOrEvent) {
-  var button = EditorUI.selectButtonInGroup(buttonOrEvent, "colorButton");
-  if (!button)
+// color = <hit element> | <event>
+EditorUI.changeColor = function(color) {
+  var elem = EditorUI.getHitTarget(color);
+  if (!elem)
     return;
-  ParaPara.currentStyle.currentColor = EditorUI.getColorFromButton(button);
+  var color =
+    window.getComputedStyle(elem, null).getPropertyValue("fill", null);
+  ParaPara.currentStyle.currentColor = color;
+  EditorUI.changeTool("pencil");
+  EditorUI.updateBrushPreviewColor(color);
 }
 
-EditorUI.getColorFromButton = function(elem) {
-  var elemsWithAFill = elem.querySelectorAll("*[fill]");
-  if (!elemsWithAFill.length)
-    return "black";
-  return elemsWithAFill[0].getAttribute("fill");
+EditorUI.updateBrushPreviewColor = function(color) {
+  var widths = document.getElementById("widths");
+  var starGroup = widths.contentDocument.getElementById("starGroup");
+  starGroup.setAttribute("fill", color);
 }
 
-// -------------- Erase width -----------
+// -------------- Widths -----------
 
-EditorUI.initEraseWidths = function() {
-  EditorUI.initButtonGroup("eraseWidthButton", EditorUI.changeEraseWidth, 1);
+EditorUI.initWidths = function() {
+  var widths = document.getElementById("widths");
+  EditorUI.addHitRegionListeners(widths.contentDocument, EditorUI.changeWidth,
+                                 1);
+  // Set the initial erase width to match the initial stroke width
+  ParaPara.currentStyle.eraseWidth = EditorUI.widthTable["medium"];
 }
 
-EditorUI.changeEraseWidth = function(buttonOrEvent) {
-  var button = EditorUI.selectButtonInGroup(buttonOrEvent, "eraseWidthButton");
-  if (!button)
+// width = <width> | <hit element> | <event>
+EditorUI.changeWidth = function(width) {
+  // Get width as a keyword
+  var widthAsString = "";
+  if (typeof width === "string") {
+    widthAsString = width;
+  } else if (typeof width === "number") {
+    widthAsString = EditorUI.getStringFromWidth(width);
+  } else {
+    var elem = EditorUI.getHitTarget(width);
+    if (!elem)
+      return;
+    widthAsString = elem.id;
+  }
+  // Turn it into a number
+  var widthAsNumber = EditorUI.getWidthFromString(widthAsString);
+  // Update UI:
+  //   We do this before filtering out redundant changes since we might
+  //   still need to update the UI if we've changed tool
+  var widths = document.getElementById("widths");
+  var glows = widths.contentDocument.getElementsByClassName("glow");
+  for (var i = 0; i < glows.length; i++) {
+    var glow = glows[i];
+    if (glow.id == widthAsString + "StarGlow") {
+      glow.classList.add("active");
+    } else {
+      glow.classList.remove("active");
+    }
+  }
+  // Filter out redundant changes
+  var currentWidth = ParaPara.getMode() === "draw"
+                   ? ParaPara.currentStyle.strokeWidth
+                   : ParaPara.currentStyle.eraseWidth;
+  if (widthAsNumber == currentWidth)
     return;
-  ParaPara.currentStyle.eraseWidth = EditorUI.getStrokeWidthFromButton(button);
+  // Apply change
+  if (ParaPara.getMode() === "draw")
+    ParaPara.currentStyle.strokeWidth = widthAsNumber;
+  else
+    ParaPara.currentStyle.eraseWidth = widthAsNumber;
+}
+
+EditorUI.widthTable = new Array();
+EditorUI.widthTable["small"] = 4;
+EditorUI.widthTable["medium"] = 8;
+EditorUI.widthTable["large"] = 12;
+
+EditorUI.getWidthFromString = function(str) {
+  return EditorUI.widthTable[str];
+}
+
+EditorUI.getStringFromWidth = function(num) {
+  for (width in EditorUI.widthTable) {
+    if (EditorUI.widthTable[width] === num)
+      return width;
+  }
+  console.assert(false, "Couldn't find width '" + str + "'");
+  return "large";
+}
+
+// -------------- Tools -----------
+
+EditorUI.initTools = function() {
+  var tools = document.getElementById("tools");
+  EditorUI.addHitRegionListeners(tools.contentDocument, EditorUI.changeTool);
+  EditorUI.changeTool("pencil");
+}
+
+// tool = "pencil" | "eraser" | <hit element> | <event>
+EditorUI.changeTool = function(tool) {
+  if (typeof tool !== "string") {
+    elem = EditorUI.getHitTarget(tool);
+    if (!elem)
+      return;
+    tool = elem.id;
+  }
+
+  var changed = false;
+  switch (tool) {
+    case "pencil":
+      changed = ParaPara.setDrawMode();
+      break;
+    case "eraser":
+      changed = ParaPara.setEraseMode();
+      break;
+  }
+  if (!changed)
+    return;
+
+  // Update selected width
+  var width = tool == "pencil" ? ParaPara.currentStyle.strokeWidth
+                               : ParaPara.currentStyle.eraseWidth;
+  EditorUI.changeWidth(width);
+
+  // Update color
+  EditorUI.updateBrushPreviewColor(tool == "pencil"
+                                   ? ParaPara.currentStyle.currentColor
+                                   : "white");
+
+  // Animate selection
+  var tools = document.getElementById("tools");
+  var anim = tools.contentDocument.getElementById(tool + "SelectAnim");
+  anim.beginElement();
+}
+
+// -------------- Frame controls -----------
+
+EditorUI.initFrameControls = function() {
+  var frameControls = document.getElementById("frameControls");
+  var prev = frameControls.contentDocument.getElementById("prev");
+  prev.addEventListener("click", EditorUI.prevFrame, false);
+  var next = frameControls.contentDocument.getElementById("next");
+  next.addEventListener("click", EditorUI.nextFrame, false);
+  EditorUI.updateFrameDisplay(1, 1);
+}
+
+EditorUI.updateFrameDisplay = function(currentFrame, numFrames) {
+  var frameControls = document.getElementById("frameControls");
+  var numerator   = frameControls.contentDocument.getElementById("numerator");
+  var denominator = frameControls.contentDocument.getElementById("denominator");
+  numerator.textContent   = currentFrame;
+  denominator.textContent = numFrames;
+}
+
+// -------------- Init nav controls -----------
+
+EditorUI.initNavControls = function() {
+  var clear = document.getElementById("clear");
+  clear.addEventListener("click", EditorUI.confirmClear, false);
+  var animate = document.getElementById("animate");
+  animate.addEventListener("click", EditorUI.animate, false);
+  var returnToEditing = document.getElementById("return");
+  returnToEditing.addEventListener("click", EditorUI.returnToEditing, false);
+  var send = document.getElementById("send");
+  send.addEventListener("click", EditorUI.send, false);
+}
+
+EditorUI.confirmClear = function() {
+  EditorUI.displayNote("noteConfirmDelete");
 }
 
 // -------------- Common button handling -----------
 
-EditorUI.initButtonGroup = function(className, handler, selectedIndex) {
-  var buttons = document.getElementsByClassName(className);
-  for (var i = 0; i < buttons.length; i++) {
-    var button = buttons[i];
+EditorUI.addHitRegionListeners = function(root, handler, indexToSelect/*=-1*/) {
+  if (typeof indexToSelect == "undefined")
+    indexToSelect = -1;
+  var targets = root.getElementsByClassName("hitRegion");
+  for (var i = 0; i < targets.length; i++) {
+    var target = targets[i];
     // addEventListener detects and ignores attempts to register the same event
     // listener twice (so long as we're not using an anonymous function)
-    button.addEventListener("click", handler, false);
-  }
-  if (selectedIndex <= buttons.length - 1) {
-    handler(buttons[selectedIndex]);
+    target.addEventListener("click", handler, false);
+    if (i == indexToSelect)
+      handler(target);
   }
 }
 
-EditorUI.selectButtonInGroup = function(evtTarget, className) {
-  var button;
-  if (evtTarget instanceof Event)
-    evtTarget = evtTarget.target;
-  for (button = evtTarget;
-       button && button.tagName != "BUTTON";
-       button = button.parentNode);
-  if (!button)
-    return null;
+// Takes an event or element and starting with evt.target or the element
+// searches through ancestors for an element with class="hitRegion".
+EditorUI.getHitTarget = function(src) {
+  if (src.target)
+    src = src.target;
 
-  var buttons = document.getElementsByClassName(className);
-  for (var i = 0; i < buttons.length; i++) {
-    buttons[i].classList.remove("active");
-  }
-  button.classList.add("active");
-  button.blur(); // Get rid of outline that appears on tablets
-                 // (unfortunately outline:none doesn't seem to work)
-  return button;
+  // Search upwards for an element with class "hitRegion"
+  var elem;
+  for (elem = src;
+       elem && !elem.classList.contains("hitRegion");
+       elem = elem.parentNode);
+  return elem;
 }
 
 // -------------- Speed control -----------
+
+EditorUI.initSpeedMeter = function() {
+  var meterObject = document.getElementById("speedDial");
+  if (!EditorUI.meter) {
+    EditorUI.meter =
+      new Meter(0.65, 12.5, 0.2, meterObject,EditorUI.changeSpeed);
+  }
+  EditorUI.meter.setValue(EditorUI.INITIAL_SPEED_FPS);
+}
 
 EditorUI.changeSpeed = function(sliderValue) {
   if (!ParaPara.animator)
@@ -427,7 +557,7 @@ EditorUI.changeSpeed = function(sliderValue) {
 
 EditorUI.updateLayout = function() {
   var controlsHeight = controlsWidth = 0;
-  var controls = document.getElementsByClassName("controls");
+  var controls = document.getElementsByClassName("controlPanel");
   for (var i = 0; i < controls.length; i++) {
     if (controls[i].classList.contains('vertical')) {
       controlsWidth += controls[i].offsetWidth;
@@ -437,39 +567,14 @@ EditorUI.updateLayout = function() {
   }
   var availHeight = window.innerHeight - controlsHeight;
   var availWidth  = window.innerWidth - controlsWidth;
-  var maxDim = Math.min(availHeight, availWidth);
+  var vbHeight = 300;
+  var vbWidth = vbHeight * availWidth / availHeight;
 
-  // Set the SVG canvas size explicitly. This is mostly for WebKit
-  // compatibility. Otherwise we could just set the <svg> width/height to
-  // 100%
+  // Set the SVG canvas size explicitly.
   var canvas = document.getElementById("canvas");
-  canvas.style.setProperty("width", maxDim + "px", "");
-  canvas.style.setProperty("height", maxDim + "px", "");
-  // Resize slider
-  var speedAdjust = document.getElementById("speedAdjust");
-  speedAdjust.style.setProperty("width", maxDim * 0.65 + "px", "");
-
-  EditorUI.updateStrokeWidth(maxDim);
+  canvas.style.setProperty("width", availWidth + "px", "");
+  canvas.style.setProperty("height", availHeight + "px", "");
+  canvas.setAttribute("viewBox", [0, 0, vbWidth, vbHeight].join(" "));
 }
 window.addEventListener("resize", EditorUI.updateLayout, false);
 window.addEventListener("orientationchange", EditorUI.updateLayout, false);
-
-// As the SVG resizes, keep the stroke width icons in sync
-EditorUI.updateStrokeWidth = function(svgDim) {
-  // The SVG viewBox is 300x300 so get its current scale ratio
-  var svgScaleRatio = svgDim / 300;
-  // Work out the actual dimension of the icon (we might tweak the width,
-  // so use the height)
-  var svgs = document.querySelectorAll("button.strokeWidthButton svg");
-  if (!svgs.length)
-    return;
-  var height = parseFloat(window.getComputedStyle(svgs[0], null).
-                 getPropertyValue('height'));
-  // Go through each button's svg and adjust the viewBox accordingly.
-  var viewBoxSize = height / svgScaleRatio;
-  var minDim = -viewBoxSize / 2;
-  var viewBox = [minDim, minDim, viewBoxSize, viewBoxSize].join(" ");
-  for (var i = 0; i < svgs.length; i++) {
-    svgs[i].setAttribute("viewBox", viewBox);
-  }
-}
