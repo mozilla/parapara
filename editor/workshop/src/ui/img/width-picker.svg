@@ -38,7 +38,7 @@
     <animateTransform attributeName="transform" type="scale"
       values="0; 0" fill="freeze"/>
     <animateTransform attributeName="transform" type="scale"
-      values="0; 1.15; 0.9; 1" keyTimes="0; 0.7; 0.9; 1" dur="0.6s"
+      values="0.7; 1.15; 0.9; 1" keyTimes="0; 0.5; 0.9; 1" dur="0.4s"
       calcMode="spline" keySplines="0 0 0.58 1; 0.42 0 0.58 1; 0 0 1 1"
       begin="indefinite" end="indefinite" fill="freeze" restart="whenNotActive"
       id="grow-big"/>
@@ -55,7 +55,7 @@
     <animateTransform attributeName="transform" type="scale"
       values="0; 0" fill="freeze"/>
     <animateTransform attributeName="transform" type="scale"
-      values="0; 1.15; 0.9; 1" keyTimes="0; 0.7; 0.9; 1" dur="0.6s"
+      values="0.65; 1.15; 0.9; 1" keyTimes="0; 0.5; 0.85; 1" dur="0.4s"
       calcMode="spline" keySplines="0 0 0.58 1; 0.42 0 0.58 1; 0 0 1 1"
       begin="indefinite" end="indefinite" fill="freeze" restart="whenNotActive"
       id="grow-middle"/>
@@ -72,7 +72,7 @@
     <animateTransform attributeName="transform" type="scale"
       values="0; 0" fill="freeze"/>
     <animateTransform attributeName="transform" type="scale"
-      values="0; 1.15; 0.9; 1" keyTimes="0; 0.7; 0.9; 1" dur="0.6s"
+      values="0.58; 1.15; 0.9; 1" keyTimes="0; 0.5; 0.85; 1" dur="0.4s"
       calcMode="spline" keySplines="0 0 0.58 1; 0.42 0 0.58 1; 0 0 1 1"
       begin="indefinite" end="indefinite" fill="freeze" restart="whenNotActive"
       id="grow-small"/>
