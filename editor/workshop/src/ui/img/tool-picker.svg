@@ -1,0 +1,122 @@
+<svg width="100%" height="100%" viewBox="0 0 243 355"
+  xmlns="http://www.w3.org/2000/svg"
+  xmlns:xlink="http://www.w3.org/1999/xlink">
+ <style type="text/css">
+  .hitRegion {
+   fill: none;
+   pointer-events: all;
+  }
+  #medium {
+   display: none;
+  }
+  #full {
+   display: none;
+  }
+  @media screen and (min-width: 160px) and (min-height: 210px) {
+   #small {
+    display: none;
+   }
+   #medium {
+    display: block;
+   }
+  }
+  @media screen and (min-width: 240px) and (min-height: 320px) {
+   #small {
+    display: none;
+   }
+   #medium {
+    display: none;
+   }
+   #full {
+    display: block;
+   }
+  }
+ </style>
+ <defs>
+  <!-- Pencil -->
+  <symbol id="pencil">
+   <path d="m48.52.12c10.14,0 20.3.28 30.43-.09 7.23-.27 13.81,1.22 20.16,4.55 3.97,2.08 8.26,3.55 12.24,5.63 4.06,2.12 4.14,5.96.04,7.95-6.88,3.34-13.76,6.96-21.05,9.05-5.08,1.47-10.86.99-16.29.7-17.4-.93-34.8.99-52.19-.24-3.15-.22-6.3-.39-9.46-.48-8.55-.25-14.58-9.55-11.65-17.69 2.05-5.71 5.62-8.29 11.88-8.52 11.96-.45 23.92-.88 35.89-.86z" fill="#3b2c0f"/>
+   <path d="m83.33,3.53c-1.11.89-2.75,2.42-3.58,2.9-2.56,1.47-2.81,3.06-.45,4.96 1.89,1.52 3.03,2.73.35,4.98-4.58,3.83 3.43,6.37 4.63,9.32-5.8,1.49-13.74-.12-19.37.04-15.59.44-31.21.21-46.81.05-5.22-.05-10.65.31-13.9-5.53-3.77-6.78.57-16.6 8.08-17.15 22.92-1.69 43.6-.5 66.51-.17 .26.01 3.68.02 4.54.6z" fill="currentColor"/>
+   <path d="m101.25,10.18c-.13,1.15-.38,2.3-.35,3.44 .07,2.26 1.3,5.62.27,6.54-2.35,2.11-5.72,3.18-8.78,4.4-5.1,2.04-7.8-2.65-11.41-4.54-2.13-1.11-.08-2.54.93-3.45 2.05-1.85 2.17-3.76.11-5.49-2.45-2.06-1.03-2.64.71-4.3 6.27-5.93 11.93-2.02 17.72.56 1.28.57 1.18.79.8,2.84z" fill="#fcf7df"/>
+   <path d="m102.58,13.93c.25-1.91.58-4.78 2.7-4.14s6.54,1.52 6.56,4.55c.03,3.37-4.36,4.11-6.58,4.66s-2.47-3.11-2.68-5.07z" fill="currentColor"/>
+  </symbol>
+  <!-- Pencil plus hit region -->
+  <symbol id="pencil-small">
+   <use x="10" y="7" xlink:href="#pencil"/>
+   <path d="m0 0h106l32 21l-32 22h-106Z" class="hitRegion"/>
+  </symbol>
+  <symbol id="pencil-medium">
+   <use x="10" y="7" xlink:href="#pencil" transform="scale(1 1.2)"/>
+   <path d="m0 0h106l32 27l-32 28h-106Z" class="hitRegion"/>
+  </symbol>
+  <symbol id="pencil-large">
+   <use x="10" y="15" xlink:href="#pencil" transform="scale(1 1.75)"/>
+   <path d="m0 0h106l32 51l-32 51h-106Z" class="hitRegion"/>
+  </symbol>
+  <!-- Eraser -->
+  <symbol id="eraser" viewBox="0 0 60 64">
+   <path d="m59.59,22.1c.99,5.6-2.91,9.09-5.8,12.76-5.46,6.93-10.99,13.82-15.93,21.11-.86,1.26-2.56,3.67-3.99,4.17-8.96,3.12-16.35,5.11-25.67.58-6.71-3.26-10.19-11.93-7.01-19.67 2.54-6.2 5.37-12.07 10.08-17.33 6.07-6.79 10.9-13.34 16.31-20.73 1.95-2.66 3.12-3.61 5.67-2.58 8.71,3.53 17.48,6.99 23.61,14.38 2.75,3.31 2.29,4.66 2.73,7.31z" fill="#5b4624" fill-rule="evenodd"/>
+   <path d="m32.18,1.66c6.14,2.38 11.83,5.19 16.86,9.04 7.69,5.89 7.51,2.92 1.09,11.18-5.58,7.19-10.73,14.69-16.03,22.07-1.68,2.34-3.41,2.48-5.77.95-6.14-3.99-12.34-7.89-18.58-11.72-2.13-1.31-1.43-2.93-.42-4.11 6.11-7.19 10.41-15.87 17.74-22.04 1.89-1.59 2.2-4.78 5.11-5.37z" fill="#2795b0" fill-rule="evenodd"/>
+   <path d="m56.47,16.75c4.54,10.48-1.55,14.22-5.67,19.85-5.13,7.01-11.85,15.6-17.18,22.53-.87-11.72-.52-11.13 4.98-18.53 6.98-9.38 11.09-16.08 17.87-23.85z" fill="#278" fill-rule="evenodd"/>
+   <path d="m31.82,51.38c1.31,10.26-1.95,8.77-7.48,9.81-14.92,2.79-23.25-5.22-22.8-15.82 4.96,12.41 19.73,15.11 30.28,6.01z" fill="#f5f3e5" fill-rule="evenodd"/>
+   <path d="m20.19,55.25c-6.99.59-11.96-1.41-15.68-7.73-1.22-2.08-2.21-3.73-1.81-6.06 1.05-6.07 3.33-10.53 9.37-5.41 5.25,4.45 11.02,8.37 17.49,10.86 1.25.48 2.89,1.62 1.53,3.2-2.53,2.95-6.94,5.16-10.9,5.14z" fill="#fff" fill-rule="evenodd"/>
+  </symbol>
+ </defs>
+ <!-- Full palette -->
+ <g id="full">
+  <!-- Pencils -->
+  <use color="#d6011f" xlink:href="#pencil-small"/>
+  <use x="-243" y="23" color="#e47a00" xlink:href="#pencil-small"
+    transform="matrix(-1 0 0 1 0 0)"/>
+  <use y="46" color="#f4db26" xlink:href="#pencil-small"/>
+  <use x="-243" y="69" color="#9bbb5a" xlink:href="#pencil-small"
+    transform="matrix(-1 0 0 1 0 0)"/>
+  <use y="92" color="#2f9a4c" xlink:href="#pencil-small"/>
+  <use x="-243" y="115" color="#6cb6e5" xlink:href="#pencil-small"
+    transform="matrix(-1 0 0 1 0 0)"/>
+  <use y="138" color="#134490" xlink:href="#pencil-small"/>
+  <use x="-243" y="161" color="#944296" xlink:href="#pencil-small"
+    transform="matrix(-1 0 0 1 0 0)"/>
+  <use y="184" color="#f283ad" xlink:href="#pencil-small"/>
+  <use x="-243" y="207" color="#5e4b10" xlink:href="#pencil-small"
+    transform="matrix(-1 0 0 1 0 0)"/>
+  <use y="230" color="#3f403b" xlink:href="#pencil-small"/>
+  <use x="-243" y="253" color="white" xlink:href="#pencil-small"
+    transform="matrix(-1 0 0 1 0 0)"/>
+  <!-- Eraser -->
+  <use x="35" y="283" width="60" height="64" xlink:href="#eraser"/>
+  <path d="m0 275h108l30 25v55h-138Z" class="hitRegion"/>
+ </g>
+ <!-- Medium palette -->
+ <g id="medium">
+  <!-- Pencils -->
+  <use color="#d6011f" xlink:href="#pencil-medium"/>
+  <use x="-243" y="30" color="#e47a00" xlink:href="#pencil-medium"
+    transform="matrix(-1 0 0 1 0 0)"/>
+  <use y="60" color="#f4db26" xlink:href="#pencil-medium"/>
+  <use x="-243" y="90" color="#9bbb5a" xlink:href="#pencil-medium"
+    transform="matrix(-1 0 0 1 0 0)"/>
+  <use y="120" color="#6cb6e5" xlink:href="#pencil-medium"/>
+  <use x="-243" y="150" color="#944296" xlink:href="#pencil-medium"
+    transform="matrix(-1 0 0 1 0 0)"/>
+  <use y="180" color="#3f403b" xlink:href="#pencil-medium"/>
+  <use x="-243" y="210" color="white" xlink:href="#pencil-medium"
+    transform="matrix(-1 0 0 1 0 0)"/>
+  <!-- Eraser -->
+  <use x="20" y="243" width="100" height="100" xlink:href="#eraser"/>
+  <path d="m0 235h100l30 25v95h-130Z" class="hitRegion"/>
+ </g>
+ <!-- Small palette -->
+ <g id="small">
+  <!-- Pencils -->
+  <use color="#d6011f" xlink:href="#pencil-large"/>
+  <use x="-243" y="55" color="#9bbb5a" xlink:href="#pencil-large"
+    transform="matrix(-1 0 0 1 0 0)"/>
+  <use y="110" color="#f4db26" xlink:href="#pencil-large"/>
+  <use x="-243" y="165" color="#6cb6e5" xlink:href="#pencil-large"
+    transform="matrix(-1 0 0 1 0 0)"/>
+  <!-- Eraser -->
+  <use x="20" y="243" width="100" height="100" xlink:href="#eraser"/>
+  <path d="m0 220h105l45 70v65h-150Z" class="hitRegion"/>
+ </g>
+</svg>
