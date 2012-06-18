@@ -12,17 +12,17 @@ $connection = getConnection();
 
 $list = array();
 try {
-  if (!isset($_GET["wallId"])) {
-    throwException("no wall id");
+  if (!isset($_GET["sessionId"])) {
+    throwException("no session id");
   }
   if (!isset($_GET["x"])) {
     throwException("no x");
   }
   $x = intval($_GET["x"]);
-  $wallId = intval($_GET["wallId"]);
+  $sessionId = intval($_GET["sessionId"]);
 
   $query =
-    "SELECT charId,title,author,y FROM characters WHERE x IS NULL AND active = 1 AND wallId=".$wallId;
+    "SELECT charId,title,author,y FROM characters WHERE x IS NULL AND active = 1 AND sessionId=".$sessionId;
   $resultset = mysql_query($query, $connection) or
                throwException(mysql_error());
 

@@ -13,19 +13,19 @@ $threshold = isset($_GET["threshold"]) ? intval($_GET["threshold"]) : -1;
 
 $list = array();
 try {
-  if (!isset($_GET["wallId"])) {
-    throwException("no wall id");
+  if (!isset($_GET["sessionId"])) {
+    throwException("no session id");
   }
-  $wallId = intval($_GET["wallId"]);
+  $sessionId = intval($_GET["sessionId"]);
 
   if ($threshold >= 0) {
     $query = "SELECT charId,x,y FROM " .
-      "(SELECT charId,x,y FROM characters WHERE x IS NOT NULL AND active = 1 AND wallId=".$wallId.
+      "(SELECT charId,x,y FROM characters WHERE x IS NOT NULL AND active = 1 AND sessionId=".$sessionId.
       " ORDER BY createDate DESC LIMIT " . $threshold . ") " .
       "AS latestShown ORDER BY x";
   } else {
     $query =
-      "SELECT charId,x,y FROM characters WHERE x IS NOT NULL AND active = 1" .
+      "SELECT charId,x,y FROM characters WHERE x IS NOT NULL AND active = 1 AND sessionId=".$sessionId.
       " ORDER BY x";
   }
   $resultset = mysql_query($query, $connection) or

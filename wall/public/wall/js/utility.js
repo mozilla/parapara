@@ -15,6 +15,7 @@ var Utility = {
       }
       Utility.applyDuration2Element(animation, durationRate, basetime, begintime);
     }
+    return durationRate;
   },
   
   applyDuration2Element: function(element, durationRate, baseTime, beginTime) {

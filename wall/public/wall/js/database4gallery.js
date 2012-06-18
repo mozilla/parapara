@@ -18,7 +18,7 @@ var Database = {
     }, true);
 
     //changes animate duration. [dur]
-    Utility.applyDuration(Database.timebase, BASE_TIME);
+    Database.duration_rate = Utility.applyDuration(Database.timebase, BASE_TIME, BEGIN_TIME+(new Date()).getTime()-BEFORE_LOADED_TIME);
 
     Database.loadAllCharacters();
   },
@@ -41,7 +41,7 @@ var Database = {
       
       var rate = character.x;
       if (rate < currentRate && !character.sent) {
-        Database.listener(character, currentActiveTime, currentSimpleTime, currentRate);
+        Database.listener(character, currentActiveTime, currentSimpleTime, currentRate, Database.duration_rate);
         character.sent = true;
       }
     }
@@ -53,7 +53,7 @@ var Database = {
   // already made their debut on the stage)
   loadAllCharacters: function(callback) {
     var url = API_DIR+"get_all_characters.php?threshold="+
-              NUM_CHARACTERS_THRESHOLD+"&"+(new Date()).getTime();
+              NUM_CHARACTERS_THRESHOLD+"&sessionId="+SESSION_ID+"&"+(new Date()).getTime();
     $.getJSON(url, function(json) {
       Database.append(json);
       Database.idle();

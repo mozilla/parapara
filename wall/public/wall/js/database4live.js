@@ -19,7 +19,7 @@ var Database = {
     }, true);
 
     //changes animate duration. [dur]
-    Utility.applyDuration(Database.timebase, BASE_TIME, BEGIN_TIME+(new Date()).getTime()-BEFORE_LOADED_TIME);
+    Database.duration_rate = Utility.applyDuration(Database.timebase, BASE_TIME, BEGIN_TIME+(new Date()).getTime()-BEFORE_LOADED_TIME);
     Database.loadAllCharacters(function() {
     });
   },
@@ -41,7 +41,8 @@ var Database = {
       // skip it
       var rate = character.x;
       if (character.sent != true && rate < currentRate) {
-        Database.listener(character, currentActiveTime, currentSimpleTime, currentRate);
+//      if (character.sent != true) { //for debug
+        Database.listener(character, currentActiveTime, currentSimpleTime, currentRate, Database.duration_rate);
         character.sent = true;
       }
     }
@@ -53,7 +54,7 @@ var Database = {
     // Send ratio in the duration.
     var parameter = Math.round(Database.current_rate*1000);
     var url = API_DIR+"get_uncompleted_characters.php?x="+
-              parameter+"&wallId="+WALL_ID+"&"+(new Date()).getTime();
+              parameter+"&sessionId="+SESSION_ID+"&"+(new Date()).getTime();
     $.getJSON(url, function(json) {
       Database.append(json);
       setTimeout(Database.loadUncompletedCharacters, 1000);
@@ -64,7 +65,7 @@ var Database = {
   // already made their debut on the stage)
   loadAllCharacters: function(callback) {
     var url = API_DIR+"get_all_characters.php?threshold="+
-              NUM_CHARACTERS_THRESHOLD+"&wallId="+WALL_ID+"&"+(new Date()).getTime();
+              NUM_CHARACTERS_THRESHOLD+"&sessionId="+SESSION_ID+"&"+(new Date()).getTime();
     $.getJSON(url, function(json) {
       Database.append(json);
       Database.idle();
