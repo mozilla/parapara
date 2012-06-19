@@ -16,37 +16,38 @@ div.container {
 
 div.controlPanel {
   position: absolute;
-  background: rgb(17,49,103);
-  width: 25%;
+  background: #fdf8db;
+  width: 17%;
   height: 100%;
+  border-radius: 15px;
+  text-align: center;
+  z-index: 1;
 }
-div.controlPanel .starBackground {
-  position: absolute;
-  width: 100%;
-  bottom: 0;
-}
-div.controlPanel .wheelBackground {
-  position: absolute;
-  width: 100%;
-  opacity: 0.5;
+div.inner-border {
+  border: 1px solid #5d4c18;
+  border-radius: 15px;
+  margin: 6px;
+  height: -moz-calc(100% - 14px);
+  height: -webkit-calc(100% - 14px);
+  height: calc(100% - 14px);
 }
 div.controlPanel .panelContents {
   position: relative;
   width: 100%;
 }
+div.controlPanel #picker {
+ width: 95%;
+}
 div.controlPanel #widths {
-  width: 80%;
+  width: 85%;
   padding: 0 10%;
 }
-div.controlPanel #clear {
-  position: absolute;
-  bottom: 5px;
-  left: 1em;
+div.controlPanel #meter {
+  width: 85%;
+  margin: 10px 10%;
 }
-div.controlPanel #animate {
-  position: absolute;
-  bottom: -1px;
-  right: 0;
+div.controlPanel #end {
+  width: 60%;
 }
 div.controlPanel #send {
   position: absolute;
@@ -64,40 +65,10 @@ div.controlPanel div#animControls {
   width: 100%;
   top: 0;
 }
-div.controlPanel .controlSet {
-  visibility:hidden;
-  height:100%;
-}
-div.controlPanel .controlSet.active {
-  visibility:visible;
-}
 
 /* Credit form */
-div.controlSet div.field {
-  display: block;
-  margin: 1.5em 0.3em;
-  color: green;
-}
-div.controlSet label:first-child {
-  display: block;
-  /* bullet image is 35x33 */
-  padding-top: 0.1em;
-  padding-bottom: 0.3em;
-  padding-left: 35px;
-  background-image: url(../img/star-bullet.png);
-  background-repeat: no-repeat;
-}
-div.controlSet label {
-  font-size: 1.5em;
-}
-div.controlSet label, span.units {
-  filter: url(effects.svg#glow)
-}
 span.units {
   font-size: 1.3em;
-}
-div.controlSet label:first-child:after {
-  content:":"
 }
 div.field input {
   margin-top: 0.1em;
@@ -105,35 +76,13 @@ div.field input {
 }
 div.field input.fullWidthField {
   width: -moz-calc(100% - 35px - 1em);
-}
-div.controlSet input[type=text], div.controlSet input[type=number] {
-  font-size: 24px;
-}
-div.field input[type=radio] {
-  display: none;
-}
-div.field input[type=radio] + label {
-  margin: 0 0.2em;
-}
-div.field input:checked + label {
-  color: red;
-  font-weight: bold;
-}
-div.radioGroup {
-  text-align: center;
-}
-/* Hack to make sure fields appear above the background image */
-div.field input {
-  position: relative;
-}
-#speedDial {
-  width: 80%;
-  padding: 1em 10%;
+  width: -webkit-calc(100% - 35px - 1em);
+  width: calc(100% - 35px - 1em);
 }
 
 div.canvas {
   position: absolute;
-  left: 25%;
+  left: 16%;
 }
 div.canvas > svg {
   border: 2px solid black;
@@ -150,6 +99,7 @@ button.text {
   background: -o-linear-gradient(top, #ebebeb, #a1a1a1);
   background: -webkit-linear-gradient(top, #ebebeb, #a1a1a1);
   background: -ms-linear-gradient(top, #ebebeb, #a1a1a1);
+  background: linear-gradient(top, #ebebeb, #a1a1a1);
   border: none;
   border-radius: 8px;
   color: #FFFFFF;
@@ -165,12 +115,14 @@ button.text:hover {
   background: -o-linear-gradient(top,  #04acec,  #0186ba);
   background: -webkit-linear-gradient(top,  #04acec,  #0186ba);
   background: -ms-linear-gradient(top,  #04acec,  #0186ba);
+  background: linear-gradient(top,  #04acec,  #0186ba);
 }
 button.text:disabled:hover {
   background: -moz-linear-gradient(top, #ebebeb, #a1a1a1);
   background: -o-linear-gradient(top, #ebebeb, #a1a1a1);
   background: -webkit-linear-gradient(top, #ebebeb, #a1a1a1);
   background: -ms-linear-gradient(top, #ebebeb, #a1a1a1);
+  background: linear-gradient(top, #ebebeb, #a1a1a1);
 }
 
 /* Error/notice overlay */
@@ -250,18 +202,22 @@ div.overlay-contents.fadeOut {
   -webkit-animation-duration: 1s;
   -o-animation-duration: 1s;
   -ms-animation-duration: 1s;
+  animation-duration: 1s;
   -moz-animation-name: fadeOut;
   -webkit-animation-name: fadeOut;
   -o-animation-name: fadeOut;
   -ms-animation-name: fadeOut;
+  animation-name: fadeOut;
   -moz-animation-delay: 1.5s;
   -webkit-animation-delay: 1.5s;
   -o-animation-delay: 1.5s;
   -ms-animation-delay: 1.5s;
+  animation-delay: 1.5s;
   -moz-animation-fill-mode: forwards;
   -webkit-animation-fill-mode: forwards;
   -o-animation-fill-mode: forwards;
   -ms-animation-fill-mode: forwards;
+  animation-fill-mode: forwards;
 }
 @-moz-keyframes fadeOut {
   from { opacity: 1; }
@@ -276,6 +232,10 @@ div.overlay-contents.fadeOut {
   to { opacity: 0; }
 }
 @-ms-keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+@keyframes fadeOut {
   from { opacity: 1; }
   to { opacity: 0; }
 }

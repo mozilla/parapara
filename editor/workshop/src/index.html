@@ -14,7 +14,7 @@
     <!-- The following QRCode library is only used as a fallback in case the
          server doesn't send a QR Code. If we know the server will always
          provide a QR code we can leave the following library out. -->
-    <script type="text/javascript" src="ui/js/qrcode.js"></script>
+    <script type="text/javascript" src="js/qrcode.js"></script>
     <meta name="viewport"
       content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -24,37 +24,15 @@
   <body>
     <div class="container" id="container">
       <div class="controlPanel vertical">
-        <img src="ui/img/space_plate.jpg" alt="" class="starBackground">
-        <div id="editControls" class="controlSet active">
-          <object data="ui/img/picker.svg" class="panelContents"
-            id="picker"></object>
-          <object data="ui/img/widths.svg" class="panelContents"
-            id="widths"></object>
-          <object data="ui/img/tools.svg" class="panelContents"
-            id="tools"></object>
-          <object data="ui/img/frame-controls.svg" class="panelContents"
-            id="frameControls"></object>
-          <img src="ui/img/clear.svg" id="clear" width="60">
-          <img src="ui/img/next.svg" id="animate" width="80">
-        </div>
-        <div id="animControls" class="controlSet">
-          <img src="ui/img/picker.svg" class="wheelBackground">
-          <form>
-          <div class="field">
-            <label for="title">タイトル</label>
-            <input type="text" name="title" id="title" size="10"
-              style="ime-mode: active" class="fullWidthField">
-          </div>
-          <div class="field">
-            <label for="name">おなまえ</label>
-            <input type="text" name="name" id="name" size="10"
-              style="ime-mode: active" class="fullWidthField">
-          </div>
-          </form>
+        <div class="inner-border">
+          <object data="ui/img/tool-picker.svg" class="panelContents"
+            id="picker" data-aspect-ratio="0.6845"></object>
+          <object data="ui/img/width-picker.svg" class="panelContents"
+            id="widths" data-aspect-ratio="2.490"></object>
           <object data="ui/img/meter.svg" class="panelContents"
-            id="speedDial"></object>
-          <img src="ui/img/prev.svg" id="return" width="90">
-          <img src="ui/img/send.svg" id="send" width="100">
+            id="meter" data-aspect-ratio="1.76"></object>
+          <object data="ui/img/end.svg" class="panelContents"
+            id="end" data-aspect-ratio="1.770"></object>
         </div>
       </div>
       <div class="canvas">

@@ -36,12 +36,13 @@ EditorUI.initControls = function() {
   // addEventListener can detect the duplicate and filter it out. If we use
   // function objects generated on the fly we'll end up accumulating event
   // listeners and, at best, getting slower and slower.
-  EditorUI.initColors();
-  EditorUI.initWidths();
-  EditorUI.initTools();
-  EditorUI.initFrameControls();
-  EditorUI.initNavControls();
-  EditorUI.initSpeedMeter();
+  // XXX
+  // EditorUI.initColors();
+  // EditorUI.initWidths();
+  // EditorUI.initTools();
+  // EditorUI.initFrameControls();
+  // EditorUI.initNavControls();
+  // EditorUI.initSpeedMeter();
 
   // Add a catch-all handler to call preventDefault on mouse events.
   // This is necessary for disabling the chrome that flies in from offscreen
@@ -556,6 +557,7 @@ EditorUI.changeSpeed = function(sliderValue) {
 // -------------- UI layout -----------
 
 EditorUI.updateLayout = function() {
+  // XXX All this needs to be redone
   var controlsHeight = controlsWidth = 0;
   var controls = document.getElementsByClassName("controlPanel");
   for (var i = 0; i < controls.length; i++) {
@@ -575,6 +577,37 @@ EditorUI.updateLayout = function() {
   canvas.style.setProperty("width", availWidth + "px", "");
   canvas.style.setProperty("height", availHeight + "px", "");
   canvas.setAttribute("viewBox", [0, 0, vbWidth, vbHeight].join(" "));
+
+  // Workaround Safari bugs regarding resizing SVG by setting the height of
+  // referenced SVG files explicitly
+  var contents = document.querySelectorAll(".panelContents");
+  for (var i = 0; i < contents.length; i++) {
+    var specifiedRatio =
+      parseFloat(contents[i].getAttribute('data-aspect-ratio'));
+    if (!specifiedRatio)
+       continue;
+    var style = window.getComputedStyle(contents[i]);
+    var actualRatio = parseInt(style.width) / parseInt(style.height);
+    // If the actual ratio differs from the specified ratio by more than 5%
+    // update the height
+    var error = Math.abs(specifiedRatio - actualRatio) / specifiedRatio;
+    if (Math.abs(specifiedRatio - actualRatio) / specifiedRatio >= 0.05) {
+      var adjustedHeight = parseInt(style.width) / specifiedRatio;
+      contents[i].setAttribute("height", adjustedHeight);
+    }
+  }
+
+  // Manually perform calc() behavior for browsers that don't support it
+  var borders = document.querySelectorAll(".inner-border");
+  for (var i = 0; i < borders.length; i++) {
+    var border = borders[i];
+    var actualHeight = parseInt(window.getComputedStyle(border).height);
+    // height: calc(100% - 14px);
+    var expectedHeight = window.innerHeight - 14;
+    if (actualHeight != expectedHeight) {
+      border.style.height = expectedHeight + 'px';
+    }
+  }
 }
 window.addEventListener("resize", EditorUI.updateLayout, false);
 window.addEventListener("orientationchange", EditorUI.updateLayout, false);
