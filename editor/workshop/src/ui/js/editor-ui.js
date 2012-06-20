@@ -37,9 +37,9 @@ EditorUI.initControls = function() {
   // function objects generated on the fly we'll end up accumulating event
   // listeners and, at best, getting slower and slower.
   // XXX
-  // EditorUI.initColors();
+  EditorUI.initColors();
   // EditorUI.initWidths();
-  // EditorUI.initTools();
+  EditorUI.initTools();
   // EditorUI.initFrameControls();
   // EditorUI.initNavControls();
   // EditorUI.initSpeedMeter();
@@ -330,30 +330,25 @@ EditorUI.sendEmailFail = function() {
 
 EditorUI.initColors = function() {
   var picker = document.getElementById("picker");
-  // Randomly choose a color from index 1 to 6. We skip 0 because it's dark blue
-  // and similar to the background color making the width selection hard to
-  // notice.
-  var initialColor = Math.floor(Math.random()*6+1);
-  EditorUI.addHitRegionListeners(picker.contentDocument, EditorUI.changeColor,
-                                 initialColor);
+  EditorUI.setColor(picker.contentDocument.getRandomColor());
+  picker.contentDocument.addEventListener("colorchange", EditorUI.onChangeColor,
+                                          false);
 }
 
-// color = <hit element> | <event>
-EditorUI.changeColor = function(color) {
-  var elem = EditorUI.getHitTarget(color);
-  if (!elem)
-    return;
-  var color =
-    window.getComputedStyle(elem, null).getPropertyValue("fill", null);
-  ParaPara.currentStyle.currentColor = color;
+EditorUI.onChangeColor = function(evt) {
+  var color = evt.detail.color;
+  EditorUI.setColor(color);
   EditorUI.changeTool("pencil");
+}
+
+EditorUI.setColor = function(color) {
+  ParaPara.currentStyle.currentColor = color;
   EditorUI.updateBrushPreviewColor(color);
 }
 
 EditorUI.updateBrushPreviewColor = function(color) {
   var widths = document.getElementById("widths");
-  var starGroup = widths.contentDocument.getElementById("starGroup");
-  starGroup.setAttribute("fill", color);
+  widths.contentDocument.setColor(color);
 }
 
 // -------------- Widths -----------
@@ -429,20 +424,23 @@ EditorUI.getStringFromWidth = function(num) {
 // -------------- Tools -----------
 
 EditorUI.initTools = function() {
-  var tools = document.getElementById("tools");
-  EditorUI.addHitRegionListeners(tools.contentDocument, EditorUI.changeTool);
+  var picker = document.getElementById("picker");
+  picker.contentDocument.addEventListener("eraserselect", EditorUI.selectEraser,
+                                          false);
   EditorUI.changeTool("pencil");
 }
 
-// tool = "pencil" | "eraser" | <hit element> | <event>
-EditorUI.changeTool = function(tool) {
-  if (typeof tool !== "string") {
-    elem = EditorUI.getHitTarget(tool);
-    if (!elem)
-      return;
-    tool = elem.id;
-  }
+EditorUI.selectEraser = function() {
+  EditorUI.changeTool("eraser");
+}
 
+EditorUI.showEraser = function() {
+  var widths = document.getElementById("widths");
+  widths.contentDocument.setEraserMode();
+}
+
+// tool = "pencil" | "eraser"
+EditorUI.changeTool = function(tool) {
   var changed = false;
   switch (tool) {
     case "pencil":
@@ -455,20 +453,15 @@ EditorUI.changeTool = function(tool) {
   if (!changed)
     return;
 
-  // Update selected width
-  var width = tool == "pencil" ? ParaPara.currentStyle.strokeWidth
-                               : ParaPara.currentStyle.eraseWidth;
-  EditorUI.changeWidth(width);
-
-  // Update color
-  EditorUI.updateBrushPreviewColor(tool == "pencil"
-                                   ? ParaPara.currentStyle.currentColor
-                                   : "white");
-
-  // Animate selection
-  var tools = document.getElementById("tools");
-  var anim = tools.contentDocument.getElementById(tool + "SelectAnim");
-  anim.beginElement();
+  // Update width picker
+  switch (tool) {
+    case "pencil":
+      EditorUI.updateBrushPreviewColor(ParaPara.currentStyle.currentColor);
+      break;
+    case "eraser":
+      EditorUI.showEraser();
+      break;
+  }
 }
 
 // -------------- Frame controls -----------
@@ -525,6 +518,7 @@ EditorUI.addHitRegionListeners = function(root, handler, indexToSelect/*=-1*/) {
 
 // Takes an event or element and starting with evt.target or the element
 // searches through ancestors for an element with class="hitRegion".
+// XXX Eventually we can probably remove this
 EditorUI.getHitTarget = function(src) {
   if (src.target)
     src = src.target;

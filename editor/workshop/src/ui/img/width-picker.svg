@@ -43,7 +43,7 @@
       begin="indefinite" end="indefinite" fill="freeze" restart="whenNotActive"
       id="grow-big"/>
     <animateTransform attributeName="transform" type="scale"
-      from="1" to="0" dur="0.6s"
+      from="1" to="0" dur="0.2s"
       calcMode="spline" keySplines="0.42 0 1 1"
       begin="indefinite" end="indefinite" fill="freeze" restart="whenNotActive"
       id="shrink-big"/>
@@ -60,7 +60,7 @@
       begin="indefinite" end="indefinite" fill="freeze" restart="whenNotActive"
       id="grow-middle"/>
     <animateTransform attributeName="transform" type="scale"
-      from="1" to="0" dur="0.6s"
+      from="1" to="0" dur="0.2s"
       calcMode="spline" keySplines="0.42 0 1 1"
       begin="indefinite" end="indefinite" fill="freeze" restart="whenNotActive"
       id="shrink-middle"/>
@@ -77,7 +77,7 @@
       begin="indefinite" end="indefinite" fill="freeze" restart="whenNotActive"
       id="grow-small"/>
     <animateTransform attributeName="transform" type="scale"
-      from="1" to="0" dur="0.6s"
+      from="1" to="0" dur="0.2s"
       calcMode="spline" keySplines="0.42 0 1 1"
       begin="indefinite" end="indefinite" fill="freeze" restart="whenNotActive"
       id="shrink-small"/>
