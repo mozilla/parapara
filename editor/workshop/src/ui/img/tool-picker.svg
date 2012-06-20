@@ -3,7 +3,8 @@
   xmlns:xlink="http://www.w3.org/1999/xlink">
  <style type="text/css">
   .hitRegion {
-   fill: none;
+   /* Work around Fennec bug 765679 */
+   opacity: 0;
    pointer-events: all;
   }
   #medium {
@@ -40,18 +41,21 @@
    <path d="m101.25,10.18c-.13,1.15-.38,2.3-.35,3.44 .07,2.26 1.3,5.62.27,6.54-2.35,2.11-5.72,3.18-8.78,4.4-5.1,2.04-7.8-2.65-11.41-4.54-2.13-1.11-.08-2.54.93-3.45 2.05-1.85 2.17-3.76.11-5.49-2.45-2.06-1.03-2.64.71-4.3 6.27-5.93 11.93-2.02 17.72.56 1.28.57 1.18.79.8,2.84z" fill="#fcf7df"/>
    <path d="m102.58,13.93c.25-1.91.58-4.78 2.7-4.14s6.54,1.52 6.56,4.55c.03,3.37-4.36,4.11-6.58,4.66s-2.47-3.11-2.68-5.07z" fill="currentColor"/>
   </symbol>
-  <!-- Pencil plus hit region -->
+  <!-- Scaled pencils -->
+  <!-- I'd love to put the hit region in here as well to save repeating it
+       everywhere and duplicating the transform information.
+       However, Safari on iOS 5 doesn't dispatch click events to children of
+       <use> elements (at least when they are part of <object> content). :(
+       So, we have to duplicate the hit test region alongside every
+       instantiation of the pencil. :( -->
   <symbol id="pencil-small">
    <use x="10" y="7" xlink:href="#pencil"/>
-   <path d="m0 0h106l32 21l-32 22h-106Z" class="hitRegion"/>
   </symbol>
   <symbol id="pencil-medium">
    <use x="10" y="7" xlink:href="#pencil" transform="scale(1 1.2)"/>
-   <path d="m0 0h106l32 27l-32 28h-106Z" class="hitRegion"/>
   </symbol>
   <symbol id="pencil-large">
    <use x="10" y="15" xlink:href="#pencil" transform="scale(1 1.75)"/>
-   <path d="m0 0h106l32 51l-32 51h-106Z" class="hitRegion"/>
   </symbol>
   <!-- Eraser -->
   <symbol id="eraser" viewBox="0 0 60 64">
@@ -65,58 +69,156 @@
  <!-- Full palette -->
  <g id="full">
   <!-- Pencils -->
-  <use color="#d6011f" xlink:href="#pencil-small"/>
-  <use x="-243" y="23" color="#e47a00" xlink:href="#pencil-small"
-    transform="matrix(-1 0 0 1 0 0)"/>
-  <use y="46" color="#f4db26" xlink:href="#pencil-small"/>
-  <use x="-243" y="69" color="#9bbb5a" xlink:href="#pencil-small"
-    transform="matrix(-1 0 0 1 0 0)"/>
-  <use y="92" color="#2f9a4c" xlink:href="#pencil-small"/>
-  <use x="-243" y="115" color="#6cb6e5" xlink:href="#pencil-small"
-    transform="matrix(-1 0 0 1 0 0)"/>
-  <use y="138" color="#134490" xlink:href="#pencil-small"/>
-  <use x="-243" y="161" color="#944296" xlink:href="#pencil-small"
-    transform="matrix(-1 0 0 1 0 0)"/>
-  <use y="184" color="#f283ad" xlink:href="#pencil-small"/>
-  <use x="-243" y="207" color="#5e4b10" xlink:href="#pencil-small"
-    transform="matrix(-1 0 0 1 0 0)"/>
-  <use y="230" color="#3f403b" xlink:href="#pencil-small"/>
-  <use x="-243" y="253" color="white" xlink:href="#pencil-small"
-    transform="matrix(-1 0 0 1 0 0)"/>
+  <g>
+   <use color="#d6011f" xlink:href="#pencil-small"/>
+   <path d="m0 0h106l32 21l-32 22h-106Z" class="hitRegion pencil"/>
+  </g>
+  <g transform="matrix(-1 0 0 1 243 23)">
+   <use color="#e47a00" xlink:href="#pencil-small"/>
+   <path d="m0 0h106l32 21l-32 22h-106Z" class="hitRegion pencil"/>
+  </g>
+  <g transform="translate(0 46)">
+   <use color="#f4db26" xlink:href="#pencil-small"/>
+   <path d="m0 0h106l32 21l-32 22h-106Z" class="hitRegion pencil"/>
+  </g>
+  <g transform="matrix(-1 0 0 1 243 69)">
+   <use color="#9bbb5a" xlink:href="#pencil-small"/>
+   <path d="m0 0h106l32 21l-32 22h-106Z" class="hitRegion pencil"/>
+  </g>
+  <g transform="translate(0 92)">
+   <use color="#2f9a4c" xlink:href="#pencil-small"/>
+   <path d="m0 0h106l32 21l-32 22h-106Z" class="hitRegion pencil"/>
+  </g>
+  <g transform="matrix(-1 0 0 1 243 115)">
+   <use color="#6cb6e5" xlink:href="#pencil-small"/>
+   <path d="m0 0h106l32 21l-32 22h-106Z" class="hitRegion pencil"/>
+  </g>
+  <g transform="translate(0 138)">
+   <use color="#134490" xlink:href="#pencil-small"/>
+   <path d="m0 0h106l32 21l-32 22h-106Z" class="hitRegion pencil"/>
+  </g>
+  <g transform="matrix(-1 0 0 1 243 161)">
+   <use color="#944296" xlink:href="#pencil-small"/>
+   <path d="m0 0h106l32 21l-32 22h-106Z" class="hitRegion pencil"/>
+  </g>
+  <g transform="translate(0 184)">
+   <use color="#f283ad" xlink:href="#pencil-small"/>
+   <path d="m0 0h106l32 21l-32 22h-106Z" class="hitRegion pencil"/>
+  </g>
+  <g transform="matrix(-1 0 0 1 243 207)">
+   <use color="#5e4b10" xlink:href="#pencil-small"/>
+   <path d="m0 0h106l32 21l-32 22h-106Z" class="hitRegion pencil"/>
+  </g>
+  <g transform="translate(0 230)">
+   <use color="#3f403b" xlink:href="#pencil-small"/>
+   <path d="m0 0h106l32 21l-32 22h-106Z" class="hitRegion pencil"/>
+  </g>
+  <g transform="matrix(-1 0 0 1 243 253)">
+   <use color="white" xlink:href="#pencil-small"/>
+   <path d="m0 0h106l32 21l-32 22h-106Z" class="hitRegion pencil"/>
+  </g>
   <!-- Eraser -->
   <use x="35" y="283" width="60" height="64" xlink:href="#eraser"/>
-  <path d="m0 275h108l30 25v55h-138Z" class="hitRegion"/>
+  <path d="m0 275h108l30 25v55h-138Z" class="hitRegion eraser"/>
  </g>
  <!-- Medium palette -->
  <g id="medium">
   <!-- Pencils -->
-  <use color="#d6011f" xlink:href="#pencil-medium"/>
-  <use x="-243" y="30" color="#e47a00" xlink:href="#pencil-medium"
-    transform="matrix(-1 0 0 1 0 0)"/>
-  <use y="60" color="#f4db26" xlink:href="#pencil-medium"/>
-  <use x="-243" y="90" color="#9bbb5a" xlink:href="#pencil-medium"
-    transform="matrix(-1 0 0 1 0 0)"/>
-  <use y="120" color="#6cb6e5" xlink:href="#pencil-medium"/>
-  <use x="-243" y="150" color="#944296" xlink:href="#pencil-medium"
-    transform="matrix(-1 0 0 1 0 0)"/>
-  <use y="180" color="#3f403b" xlink:href="#pencil-medium"/>
-  <use x="-243" y="210" color="white" xlink:href="#pencil-medium"
-    transform="matrix(-1 0 0 1 0 0)"/>
+  <g>
+   <use color="#d6011f" xlink:href="#pencil-medium"/>
+   <path d="m0 0h106l32 27l-32 28h-106Z" class="hitRegion pencil"/>
+  </g>
+  <g transform="matrix(-1 0 0 1 243 30)">>
+   <use color="#e47a00" xlink:href="#pencil-medium"/>
+   <path d="m0 0h106l32 27l-32 28h-106Z" class="hitRegion pencil"/>
+  </g>
+  <g transform="translate(0 60)">
+   <use color="#f4db26" xlink:href="#pencil-medium"/>
+   <path d="m0 0h106l32 27l-32 28h-106Z" class="hitRegion pencil"/>
+  </g>
+  <g transform="matrix(-1 0 0 1 243 90)">>
+   <use color="#9bbb5a" xlink:href="#pencil-medium"/>
+   <path d="m0 0h106l32 27l-32 28h-106Z" class="hitRegion pencil"/>
+  </g>
+  <g transform="translate(0 120)">
+   <use color="#6cb6e5" xlink:href="#pencil-medium"/>
+   <path d="m0 0h106l32 27l-32 28h-106Z" class="hitRegion pencil"/>
+  </g>
+  <g transform="matrix(-1 0 0 1 243 150)">>
+   <use color="#944296" xlink:href="#pencil-medium"/>
+   <path d="m0 0h106l32 27l-32 28h-106Z" class="hitRegion pencil"/>
+  </g>
+  <g transform="translate(0 180)">
+   <use color="#3f403b" xlink:href="#pencil-medium"/>
+   <path d="m0 0h106l32 27l-32 28h-106Z" class="hitRegion pencil"/>
+  </g>
+  <g transform="matrix(-1 0 0 1 243 210)">>
+   <use color="white" xlink:href="#pencil-medium"/>
+   <path d="m0 0h106l32 27l-32 28h-106Z" class="hitRegion pencil"/>
+  </g>
   <!-- Eraser -->
   <use x="20" y="243" width="100" height="100" xlink:href="#eraser"/>
-  <path d="m0 235h100l30 25v95h-130Z" class="hitRegion"/>
+  <path d="m0 235h100l30 25v95h-130Z" class="hitRegion eraser"/>
  </g>
  <!-- Small palette -->
  <g id="small">
   <!-- Pencils -->
-  <use color="#d6011f" xlink:href="#pencil-large"/>
-  <use x="-243" y="55" color="#9bbb5a" xlink:href="#pencil-large"
-    transform="matrix(-1 0 0 1 0 0)"/>
-  <use y="110" color="#f4db26" xlink:href="#pencil-large"/>
-  <use x="-243" y="165" color="#6cb6e5" xlink:href="#pencil-large"
-    transform="matrix(-1 0 0 1 0 0)"/>
+  <g>
+   <use color="#d6011f" xlink:href="#pencil-large"/>
+   <path d="m0 0h106l32 51l-32 51h-106Z" class="hitRegion pencil"/>
+  </g>
+  <g transform="matrix(-1 0 0 1 243 55)">
+   <use color="#9bbb5a" xlink:href="#pencil-large"/>
+   <path d="m0 0h106l32 51l-32 51h-106Z" class="hitRegion pencil"/>
+  </g>
+  <g transform="translate(0 110)">
+    <use color="#f4db26" xlink:href="#pencil-large"/>
+    <path d="m0 0h106l32 51l-32 51h-106Z" class="hitRegion pencil"/>
+  </g>
+  <g transform="matrix(-1 0 0 1 243 165)">
+    <use color="#6cb6e5" xlink:href="#pencil-large"/>
+    <path d="m0 0h106l32 51l-32 51h-106Z" class="hitRegion pencil"/>
+  </g>
   <!-- Eraser -->
   <use x="20" y="243" width="100" height="100" xlink:href="#eraser"/>
-  <path d="m0 220h105l45 70v65h-150Z" class="hitRegion"/>
+  <path d="m0 220h105l45 70v65h-150Z" class="hitRegion eraser"/>
  </g>
+ <script type="text/javascript">
+ <![CDATA[
+  function hit(evt) {
+    var target = evt.target;
+    // Some browsers don't support classList in SVG :(
+    // (i.e. it is defined in HTMLElement, not Element)
+    // We only need classList.contains here so just use split and indexOf
+    // instead.
+    var classList = target.className.baseVal.split(/\s+/);
+    var changeEvent = null;
+    if (classList.indexOf("pencil") !== -1) {
+      var color = target.previousElementSibling.getAttribute("color");
+      changeEvent = document.createEvent("CustomEvent");
+      changeEvent.initCustomEvent("colorchange", true, true,
+        { color: color });
+    } else if (classList.indexOf("eraser") !== -1) {
+      changeEvent = document.createEvent("CustomEvent");
+      changeEvent.initCustomEvent("eraserselect", true, true, null);
+    }
+    if (changeEvent) {
+      document.dispatchEvent(changeEvent);
+    }
+  }
+
+  function init() {
+    var hitRegions = document.querySelectorAll('.hitRegion');
+    for (var i = 0; i < hitRegions.length; i++) {
+      hitRegions[i].addEventListener('click', hit, false);
+    }
+  }
+  init();
+
+  document.addEventListener("colorchange", function(event) {
+    alert(event.detail.color); }, false);
+  document.addEventListener("eraserselect", function(event) {
+    alert("eraser"); }, false);
+ ]]>
+ </script>
 </svg>
