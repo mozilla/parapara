@@ -115,7 +115,7 @@
 </g>
 <script type="text/javascript">
 <![CDATA[
-var currentWidth = 0;
+var currentWidth = null;
 var mode = 'dots';
 
 document.setColor = function(color) {
@@ -145,8 +145,8 @@ document.setWidth = function(width) {
 }
 
 function updateWidth(width) {
-  for (var i = 1; i <= 3; ++i) {
-    var keyword = (i == 3) ? "big" : (i == 2) ? "middle" : "small";
+  for (var i = 0; i < 3; ++i) {
+    var keyword = (i == 2) ? "big" : (i == 1) ? "middle" : "small";
     var ring   = document.getElementById(keyword + "-ring");
     var grow   = document.getElementById("grow-" + keyword);
     var shrink = document.getElementById("shrink-" + keyword);
@@ -164,13 +164,13 @@ function handleWidthChange(evt) {
   var width;
   switch (evt.target.id) {
     case 'big':
-      width = 3;
-      break;
-    case 'middle':
       width = 2;
       break;
-    case 'small':
+    case 'middle':
       width = 1;
+      break;
+    case 'small':
+      width = 0;
       break;
     default:
       return;

@@ -38,7 +38,7 @@ EditorUI.initControls = function() {
   // listeners and, at best, getting slower and slower.
   // XXX
   EditorUI.initColors();
-  // EditorUI.initWidths();
+  EditorUI.initWidths();
   EditorUI.initTools();
   // EditorUI.initFrameControls();
   // EditorUI.initNavControls();
@@ -353,72 +353,32 @@ EditorUI.updateBrushPreviewColor = function(color) {
 
 // -------------- Widths -----------
 
+// Width values
+EditorUI.widthTable = new Array();
+EditorUI.widthTable[0] = 4;
+EditorUI.widthTable[1] = 8;
+EditorUI.widthTable[2] = 12;
+
 EditorUI.initWidths = function() {
   var widths = document.getElementById("widths");
-  EditorUI.addHitRegionListeners(widths.contentDocument, EditorUI.changeWidth,
-                                 1);
-  // Set the initial erase width to match the initial stroke width
-  ParaPara.currentStyle.eraseWidth = EditorUI.widthTable["medium"];
+  ParaPara.currentStyle.strokeWidth = EditorUI.widthTable[1];
+  ParaPara.currentStyle.eraseWidth = EditorUI.widthTable[1];
+  widths.contentDocument.setWidth(1);
+  widths.contentDocument.addEventListener("widthchange", EditorUI.onWidthChange,
+                                          false);
 }
 
-// width = <width> | <hit element> | <event>
-EditorUI.changeWidth = function(width) {
-  // Get width as a keyword
-  var widthAsString = "";
-  if (typeof width === "string") {
-    widthAsString = width;
-  } else if (typeof width === "number") {
-    widthAsString = EditorUI.getStringFromWidth(width);
-  } else {
-    var elem = EditorUI.getHitTarget(width);
-    if (!elem)
-      return;
-    widthAsString = elem.id;
-  }
-  // Turn it into a number
-  var widthAsNumber = EditorUI.getWidthFromString(widthAsString);
-  // Update UI:
-  //   We do this before filtering out redundant changes since we might
-  //   still need to update the UI if we've changed tool
-  var widths = document.getElementById("widths");
-  var glows = widths.contentDocument.getElementsByClassName("glow");
-  for (var i = 0; i < glows.length; i++) {
-    var glow = glows[i];
-    if (glow.id == widthAsString + "StarGlow") {
-      glow.classList.add("active");
-    } else {
-      glow.classList.remove("active");
-    }
-  }
-  // Filter out redundant changes
-  var currentWidth = ParaPara.getMode() === "draw"
-                   ? ParaPara.currentStyle.strokeWidth
-                   : ParaPara.currentStyle.eraseWidth;
-  if (widthAsNumber == currentWidth)
-    return;
+EditorUI.onWidthChange = function(evt) {
+  var width = evt.detail.width;
+  console.assert(width >= 0 && width < EditorUI.widthTable.length,
+                 "Out of range width value");
+  var widthValue = EditorUI.widthTable[width];
+
   // Apply change
   if (ParaPara.getMode() === "draw")
-    ParaPara.currentStyle.strokeWidth = widthAsNumber;
+    ParaPara.currentStyle.strokeWidth = widthValue;
   else
-    ParaPara.currentStyle.eraseWidth = widthAsNumber;
-}
-
-EditorUI.widthTable = new Array();
-EditorUI.widthTable["small"] = 4;
-EditorUI.widthTable["medium"] = 8;
-EditorUI.widthTable["large"] = 12;
-
-EditorUI.getWidthFromString = function(str) {
-  return EditorUI.widthTable[str];
-}
-
-EditorUI.getStringFromWidth = function(num) {
-  for (width in EditorUI.widthTable) {
-    if (EditorUI.widthTable[width] === num)
-      return width;
-  }
-  console.assert(false, "Couldn't find width '" + str + "'");
-  return "large";
+    ParaPara.currentStyle.eraseWidth = widthValue;
 }
 
 // -------------- Tools -----------
@@ -501,20 +461,6 @@ EditorUI.confirmClear = function() {
 }
 
 // -------------- Common button handling -----------
-
-EditorUI.addHitRegionListeners = function(root, handler, indexToSelect/*=-1*/) {
-  if (typeof indexToSelect == "undefined")
-    indexToSelect = -1;
-  var targets = root.getElementsByClassName("hitRegion");
-  for (var i = 0; i < targets.length; i++) {
-    var target = targets[i];
-    // addEventListener detects and ignores attempts to register the same event
-    // listener twice (so long as we're not using an anonymous function)
-    target.addEventListener("click", handler, false);
-    if (i == indexToSelect)
-      handler(target);
-  }
-}
 
 // Takes an event or element and starting with evt.target or the element
 // searches through ancestors for an element with class="hitRegion".
