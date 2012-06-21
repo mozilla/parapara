@@ -489,6 +489,9 @@ EditorUI.initNavControls = function() {
   var send = document.getElementById("end");
   send.contentDocument.addEventListener("click", EditorUI.send, false);
 
+  var sendContainer = document.getElementById("send-container");
+  sendContainer.addEventListener("click", EditorUI.send, false);
+
   var controlSets = document.querySelectorAll(".controlSet");
   for (var i = 0; i < controlSets.length; i++) {
     var cs = controlSets[i];
