@@ -3,12 +3,30 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this file,
    - You can obtain one at http://mozilla.org/MPL/2.0/.  -->
 <svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 264 150">
+ <defs>
+  <!-- We'd like to put this in a separate file and reference it from there, but
+       WebKit doesn't yet support pulling filters from external resources. -->
+  <filter id="sepia" x="0%" y="0%" width="100%" height="100%">
+    <feColorMatrix values="0.393 0.769 0.189 0.2 0
+                           0.349 0.686 0.168 0.1 0
+                           0.272 0.534 0.131 0 0
+                           0 0 0 1 0"/>
+  </filter>
+ </defs>
  <style type="text/css">
   .needle {
     fill: #ee9c45;
   }
   .depressed {
     fill: #b25211;
+  }
+  .disabled {
+    /*
+     * Safari iOS doesn't yet support SVG filters but the reduced opacity will
+     * be good enough for now.
+     */
+    filter: url(#sepia);
+    opacity: 0.6;
   }
  </style>
  <g fill="#5D4E27">
@@ -53,6 +71,14 @@
 
   /*const*/ var MIN_ANGLE = -53;
   /*const*/ var MAX_ANGLE = 53;
+
+  document.disable = function() {
+    document.documentElement.classList.add("disabled");
+  }
+
+  document.enable = function() {
+    document.documentElement.classList.remove("disabled");
+  }
 
   document.getLeft = function() {
     return document.documentElement.getBBox().x;

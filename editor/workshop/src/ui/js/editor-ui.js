@@ -41,8 +41,8 @@ EditorUI.initControls = function() {
   EditorUI.initWidths();
   EditorUI.initTools();
   // EditorUI.initFrameControls();
-  // EditorUI.initNavControls();
-  // EditorUI.initSpeedMeter();
+  EditorUI.initNavControls();
+  EditorUI.initSpeedMeter();
 
   // Add a catch-all handler to call preventDefault on mouse events.
   // This is necessary for disabling the chrome that flies in from offscreen
@@ -76,21 +76,21 @@ EditorUI.deleteFrame = function() {
 }
 
 EditorUI.animate = function() {
-  document.getElementById("editControls").classList.remove("active");
-  document.getElementById("animControls").classList.add("active");
+  document.getElementById("play").contentDocument.hide();
+  EditorUI.meter.enable();
   var speed = EditorUI.meter.getValue();
   ParaPara.animate(speed);
 }
 
 EditorUI.returnToEditing = function() {
   ParaPara.removeAnimation();
-  document.getElementById("animControls").classList.remove("active");
-  document.getElementById("editControls").classList.add("active");
+  var playButton = document.getElementById("play");
+  playButton.style.display = 'block';
+  playButton.contentDocument.show();
+  EditorUI.meter.disable();
 }
 
 EditorUI.reset = function() {
-  document.getElementById("animControls").classList.remove("active");
-  document.getElementById("editControls").classList.add("active");
   document.forms[0].reset();
   ParaPara.reset();
   EditorUI.initControls();
@@ -446,46 +446,43 @@ EditorUI.updateFrameDisplay = function(currentFrame, numFrames) {
 // -------------- Init nav controls -----------
 
 EditorUI.initNavControls = function() {
-  var clear = document.getElementById("clear");
-  clear.addEventListener("click", EditorUI.confirmClear, false);
-  var animate = document.getElementById("animate");
-  animate.addEventListener("click", EditorUI.animate, false);
-  var returnToEditing = document.getElementById("return");
-  returnToEditing.addEventListener("click", EditorUI.returnToEditing, false);
-  var send = document.getElementById("send");
-  send.addEventListener("click", EditorUI.send, false);
+  var animate = document.getElementById("play");
+  animate.contentDocument.addEventListener("click", EditorUI.animate, false);
+  animate.contentDocument.addEventListener("hidden", EditorUI.hidePlayButton,
+                                           false);
+
+  // On iOS Safari we don't see to get click events when we attach it to the
+  // play button (probably due to the way it is absolutely-positioned). So we
+  // attach the event handler to the outer group instead.
+  var playContainer = document.getElementById("play-container");
+  playContainer.addEventListener("click", EditorUI.animate, false);
+
+  animate.contentDocument.show();
+  var send = document.getElementById("end");
+  send.contentDocument.addEventListener("click", EditorUI.send, false);
+}
+
+EditorUI.hidePlayButton = function() {
+  // Unless we actually make the <object> itself display:none the events don't
+  // seem to fall through to the meter. I tried setting pointer-events:none
+  // inside the SVG but it doesn't seem to work.
+  document.getElementById("play").style.display = 'none';
 }
 
 EditorUI.confirmClear = function() {
   EditorUI.displayNote("noteConfirmDelete");
 }
 
-// -------------- Common button handling -----------
-
-// Takes an event or element and starting with evt.target or the element
-// searches through ancestors for an element with class="hitRegion".
-// XXX Eventually we can probably remove this
-EditorUI.getHitTarget = function(src) {
-  if (src.target)
-    src = src.target;
-
-  // Search upwards for an element with class "hitRegion"
-  var elem;
-  for (elem = src;
-       elem && !elem.classList.contains("hitRegion");
-       elem = elem.parentNode);
-  return elem;
-}
-
 // -------------- Speed control -----------
 
 EditorUI.initSpeedMeter = function() {
-  var meterObject = document.getElementById("speedDial");
+  var meterObject = document.getElementById("meter");
   if (!EditorUI.meter) {
     EditorUI.meter =
       new Meter(0.65, 12.5, 0.2, meterObject,EditorUI.changeSpeed);
   }
   EditorUI.meter.setValue(EditorUI.INITIAL_SPEED_FPS);
+  EditorUI.meter.disable();
 }
 
 EditorUI.changeSpeed = function(sliderValue) {

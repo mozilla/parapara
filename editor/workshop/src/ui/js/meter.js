@@ -38,6 +38,7 @@ Meter = function(min, max, step, object, onChangeHandler) {
   this.object          = object;
   this.svgDoc          = object.contentDocument;
   this.onChangeHandler = onChangeHandler;
+  this.enabled         = true;
 
   // Register for events
   var seekListener = this.onSeekStart.bind(this);
@@ -51,6 +52,16 @@ Meter = function(min, max, step, object, onChangeHandler) {
   this.dragEndListener = this.onDragEnd.bind(this);
 
   this.update();
+}
+
+Meter.prototype.disable = function() {
+  this.enabled = false;
+  this.svgDoc.disable();
+}
+
+Meter.prototype.enable = function() {
+  this.enabled = true;
+  this.svgDoc.enable();
 }
 
 Meter.prototype.setValue = function(value) {
@@ -121,7 +132,7 @@ Meter.prototype.onDragEnd = function(e) {
 }
 
 Meter.prototype.onSeekStart = function(e) {
-  if (e.button)
+  if (!this.enabled || e.button)
     return;
   var multiplier = this.svgDoc.getWidth() / this.range;
   if (!multiplier)
@@ -129,7 +140,8 @@ Meter.prototype.onSeekStart = function(e) {
   var localX = this.getLocalX(e);
   if (localX === null)
     return;
-  var dev = localX - this.svgDoc.getLeft() - (this.value - this.min) * multiplier;
+  var dev =
+    localX - this.svgDoc.getLeft() - (this.value - this.min) * multiplier;
   // move needle to click location
   if (Math.abs(dev) > 20) {
     this.value -= -dev / multiplier;

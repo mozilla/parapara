@@ -40,30 +40,27 @@ div.controlPanel #picker {
 }
 div.controlPanel #widths {
   width: 85%;
-  padding: 0 10%;
+  padding: 10px 0 0;
+}
+div.controlPanel div.overlay-container {
+  position: relative;
+  width: 100%;
 }
 div.controlPanel #meter {
+  margin-top: 8%;
   width: 85%;
-  margin: 10px 10%;
+}
+div.controlPanel #play {
+  position: absolute;
+  top: 5%;
+  left: 28%;
+  margin-left: auto;
+  margin-right: auto;
+  width: 44%;
 }
 div.controlPanel #end {
+  margin-top: 5%;
   width: 60%;
-}
-div.controlPanel #send {
-  position: absolute;
-  bottom: 0;
-  right: 3px;
-}
-div.controlPanel #return {
-  position: absolute;
-  bottom: -1px;
-  left: 0px;
-}
-
-div.controlPanel div#animControls {
-  position: absolute;
-  width: 100%;
-  top: 0;
 }
 
 /* Credit form */
