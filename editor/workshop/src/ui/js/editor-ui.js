@@ -11,6 +11,7 @@ EditorUI.SEND_EMAIL_PATH   = "../api/email_anim.php";
 EditorUI.init = function() {
   var paraparaRoot = document.getElementById("parapara");
   ParaPara.init(paraparaRoot);
+  EditorUI.editMode = 'draw'; // 'draw' | 'animate'
   EditorUI.initControls();
   // Disabling full-screen mode for now since:
   // a) there's no UI for it for tablets
@@ -76,23 +77,49 @@ EditorUI.deleteFrame = function() {
 }
 
 EditorUI.animate = function() {
-  document.getElementById("play").contentDocument.hide();
-  EditorUI.meter.enable();
+  EditorUI.editMode = 'animate';
+
   var speed = EditorUI.meter.getValue();
   ParaPara.animate(speed);
+
+  // Run the hide animation for the play button
+  // (This is a bit gratuitous. We used to overlay the play button over other
+  // disabled controls so the animation made sense but for now we're just
+  // keeping it since it was a pain to make.)
+  document.getElementById("play").contentDocument.hide();
+
+  var editControls = document.getElementById("editControls");
+  var animControls = document.getElementById("animControls");
+
+  editControls.style.opacity = 0;
+  animControls.style.visibility = 'visible';
+  animControls.style.opacity = 1;
 }
 
 EditorUI.returnToEditing = function() {
+  EditorUI.editMode = 'draw';
+
   ParaPara.removeAnimation();
-  var playButton = document.getElementById("play");
-  playButton.style.display = 'block';
-  playButton.contentDocument.show();
-  EditorUI.meter.disable();
+
+  // Make the play button spring in... because we can
+  document.getElementById("play").contentDocument.show();
+
+  document.getElementById("editControls").style.opacity = 1;
+  document.getElementById("animControls").style.opacity = 0;
+  var editControls = document.getElementById("editControls");
+  var animControls = document.getElementById("animControls");
+
+  editControls.style.visibility = 'hidden';
+  editControls.style.opacity = 1;
+  animControls.style.opacity = 0;
 }
 
 EditorUI.reset = function() {
   document.forms[0].reset();
   ParaPara.reset();
+  if (EditorUI.editMode != 'draw') {
+    EditorUI.returnToEditing();
+  }
   EditorUI.initControls();
 }
 
@@ -336,6 +363,9 @@ EditorUI.initColors = function() {
 }
 
 EditorUI.onChangeColor = function(evt) {
+  if (EditorUI.editMode != 'draw') {
+    EditorUI.returnToEditing();
+  }
   var color = evt.detail.color;
   EditorUI.setColor(color);
   EditorUI.changeTool("pencil");
@@ -446,27 +476,35 @@ EditorUI.updateFrameDisplay = function(currentFrame, numFrames) {
 // -------------- Init nav controls -----------
 
 EditorUI.initNavControls = function() {
-  var animate = document.getElementById("play");
-  animate.contentDocument.addEventListener("click", EditorUI.animate, false);
-  animate.contentDocument.addEventListener("hidden", EditorUI.hidePlayButton,
-                                           false);
+  var play = document.getElementById("play");
+  play.contentDocument.addEventListener("click", EditorUI.animate, false);
+  play.contentDocument.show();
 
-  // On iOS Safari we don't see to get click events when we attach it to the
-  // play button (probably due to the way it is absolutely-positioned). So we
-  // attach the event handler to the outer group instead.
+  // iOS Safari seems to have trouble listening to click events on <object>
+  // elements (at least for SVG) so we wrap the object in a <div> and listen on
+  // that instead.
   var playContainer = document.getElementById("play-container");
   playContainer.addEventListener("click", EditorUI.animate, false);
 
-  animate.contentDocument.show();
   var send = document.getElementById("end");
   send.contentDocument.addEventListener("click", EditorUI.send, false);
+
+  var controlSets = document.querySelectorAll(".controlSet");
+  for (var i = 0; i < controlSets.length; i++) {
+    var cs = controlSets[i];
+    cs.addEventListener("transitionend", EditorUI.disableControlSet, false);
+    cs.addEventListener("webkitTransitionend", EditorUI.disableControlSet,
+                        false);
+    cs.addEventListener("MSTransitionend", EditorUI.disableControlSet, false);
+    cs.addEventListener("oTransitionend", EditorUI.disableControlSet, false);
+  }
 }
 
-EditorUI.hidePlayButton = function() {
-  // Unless we actually make the <object> itself display:none the events don't
-  // seem to fall through to the meter. I tried setting pointer-events:none
-  // inside the SVG but it doesn't seem to work.
-  document.getElementById("play").style.display = 'none';
+EditorUI.disableControlSet = function(evt) {
+  var target = evt.target;
+  if (evt.target.style.opacity == 0) {
+    evt.target.style.visibility = 'hidden';
+  }
 }
 
 EditorUI.confirmClear = function() {
@@ -482,7 +520,6 @@ EditorUI.initSpeedMeter = function() {
       new Meter(0.65, 12.5, 0.2, meterObject,EditorUI.changeSpeed);
   }
   EditorUI.meter.setValue(EditorUI.INITIAL_SPEED_FPS);
-  EditorUI.meter.disable();
 }
 
 EditorUI.changeSpeed = function(sliderValue) {
@@ -538,11 +575,13 @@ EditorUI.updateLayout = function() {
   var borders = document.querySelectorAll(".inner-border");
   for (var i = 0; i < borders.length; i++) {
     var border = borders[i];
-    var actualHeight = parseInt(window.getComputedStyle(border).height);
-    // height: calc(100% - 14px);
-    var expectedHeight = window.innerHeight - 14;
-    if (actualHeight != expectedHeight) {
-      border.style.height = expectedHeight + 'px';
+    var style = window.getComputedStyle(border);
+    var actualHeight = parseInt(style.height) || 0;
+    var borderWidth = parseInt(style.getPropertyValue('border-top-width')) || 0;
+    var margin = parseInt(style.getPropertyValue('margin-top')) || 0;
+    var minHeight = window.innerHeight - (borderWidth + margin) * 2;
+    if (actualHeight != minHeight) {
+      border.style.height = minHeight + 'px';
     }
   }
 }

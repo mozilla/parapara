@@ -13,7 +13,7 @@
   #full {
    display: none;
   }
-  @media screen and (min-width: 160px) and (min-height: 210px) {
+  @media screen and (min-width: 120px) and (min-height: 180px) {
    #small {
     display: none;
    }

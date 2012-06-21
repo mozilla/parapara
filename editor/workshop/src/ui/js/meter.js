@@ -56,12 +56,10 @@ Meter = function(min, max, step, object, onChangeHandler) {
 
 Meter.prototype.disable = function() {
   this.enabled = false;
-  this.svgDoc.disable();
 }
 
 Meter.prototype.enable = function() {
   this.enabled = true;
-  this.svgDoc.enable();
 }
 
 Meter.prototype.setValue = function(value) {
