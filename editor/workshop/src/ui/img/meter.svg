@@ -53,13 +53,21 @@
 
   /*const*/ var MIN_ANGLE = -53;
   /*const*/ var MAX_ANGLE = 53;
+  var width = null;
+  var left  = null;
 
   document.getLeft = function() {
-    return document.documentElement.getBBox().x;
+    if (left === null) {
+      left = document.documentElement.getBBox().x;
+    }
+    return left;
   }
 
   document.getWidth = function() {
-    return document.documentElement.getBBox().width;
+    if (width === null) {
+      width = document.documentElement.getBBox().width;
+    }
+    return width;
   }
 
   document.depressNeedle = function() {
