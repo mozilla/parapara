@@ -4,6 +4,8 @@
 
 var EditorUI = EditorUI || {};
 
+EditorUI.MIN_SPEED_FPS     = 0.65;
+EditorUI.MAX_SPEED_FPS     = 12.5;
 EditorUI.INITIAL_SPEED_FPS = 3.3;
 EditorUI.UPLOAD_PATH       = "../api/upload_anim.php";
 EditorUI.SEND_EMAIL_PATH   = "../api/email_anim.php";
@@ -43,7 +45,8 @@ EditorUI.initControls = function() {
   EditorUI.initTools();
   // EditorUI.initFrameControls();
   EditorUI.initNavControls();
-  EditorUI.initSpeedMeter();
+
+  EditorUI.currentSpeed = EditorUI.INITIAL_SPEED_FPS;
 
   // Add a catch-all handler to call preventDefault on mouse events.
   // This is necessary for disabling the chrome that flies in from offscreen
@@ -79,39 +82,15 @@ EditorUI.deleteFrame = function() {
 EditorUI.animate = function() {
   EditorUI.editMode = 'animate';
 
-  var speed = EditorUI.meter.getValue();
-  ParaPara.animate(speed);
-
-  // Run the hide animation for the play button
-  // (This is a bit gratuitous. We used to overlay the play button over other
-  // disabled controls so the animation made sense but for now we're just
-  // keeping it since it was a pain to make.)
-  document.getElementById("play").contentDocument.hide();
-
-  var editControls = document.getElementById("editControls");
-  var animControls = document.getElementById("animControls");
-
-  editControls.style.opacity = 0;
-  animControls.style.visibility = 'visible';
-  animControls.style.opacity = 1;
+  ParaPara.animate(EditorUI.currentSpeed);
+  document.getElementById("play").contentDocument.showPause();
 }
 
 EditorUI.returnToEditing = function() {
   EditorUI.editMode = 'draw';
 
   ParaPara.removeAnimation();
-
-  // Make the play button spring in... because we can
-  document.getElementById("play").contentDocument.show();
-
-  document.getElementById("editControls").style.opacity = 1;
-  document.getElementById("animControls").style.opacity = 0;
-  var editControls = document.getElementById("editControls");
-  var animControls = document.getElementById("animControls");
-
-  editControls.style.visibility = 'hidden';
-  editControls.style.opacity = 1;
-  animControls.style.opacity = 0;
+  document.getElementById("play").contentDocument.showPlay();
 }
 
 EditorUI.reset = function() {
@@ -358,11 +337,11 @@ EditorUI.sendEmailFail = function() {
 EditorUI.initColors = function() {
   var picker = document.getElementById("picker");
   EditorUI.setColor(picker.contentDocument.getRandomColor());
-  picker.contentDocument.addEventListener("colorchange", EditorUI.onChangeColor,
+  picker.contentDocument.addEventListener("colorchange", EditorUI.onColorChange,
                                           false);
 }
 
-EditorUI.onChangeColor = function(evt) {
+EditorUI.onColorChange = function(evt) {
   if (EditorUI.editMode != 'draw') {
     EditorUI.returnToEditing();
   }
@@ -399,6 +378,9 @@ EditorUI.initWidths = function() {
 }
 
 EditorUI.onWidthChange = function(evt) {
+  if (EditorUI.editMode != 'draw') {
+    EditorUI.returnToEditing();
+  }
   var width = evt.detail.width;
   console.assert(width >= 0 && width < EditorUI.widthTable.length,
                  "Out of range width value");
@@ -421,6 +403,9 @@ EditorUI.initTools = function() {
 }
 
 EditorUI.selectEraser = function() {
+  if (EditorUI.editMode != 'draw') {
+    EditorUI.returnToEditing();
+  }
   EditorUI.changeTool("eraser");
 }
 
@@ -477,37 +462,23 @@ EditorUI.updateFrameDisplay = function(currentFrame, numFrames) {
 
 EditorUI.initNavControls = function() {
   var play = document.getElementById("play");
-  play.contentDocument.addEventListener("click", EditorUI.animate, false);
-  play.contentDocument.show();
+  play.contentDocument.addEventListener("click", EditorUI.toggleEditMode,
+                                        false);
+  play.contentDocument.showPlay();
 
   // iOS Safari seems to have trouble listening to click events on <object>
   // elements (at least for SVG) so we wrap the object in a <div> and listen on
   // that instead.
   var playContainer = document.getElementById("play-container");
-  playContainer.addEventListener("click", EditorUI.animate, false);
-
-  var send = document.getElementById("end");
-  send.contentDocument.addEventListener("click", EditorUI.send, false);
-
-  var sendContainer = document.getElementById("send-container");
-  sendContainer.addEventListener("click", EditorUI.send, false);
-
-  var controlSets = document.querySelectorAll(".controlSet");
-  for (var i = 0; i < controlSets.length; i++) {
-    var cs = controlSets[i];
-    cs.addEventListener("transitionend", EditorUI.disableControlSet, false);
-    cs.addEventListener("webkitTransitionend", EditorUI.disableControlSet,
-                        false);
-    cs.addEventListener("MSTransitionend", EditorUI.disableControlSet, false);
-    cs.addEventListener("oTransitionend", EditorUI.disableControlSet, false);
-  }
+  playContainer.addEventListener("click", EditorUI.toggleEditMode, false);
 }
 
-EditorUI.disableControlSet = function(evt) {
-  var target = evt.target;
-  if (evt.target.style.opacity == 0) {
-    evt.target.style.visibility = 'hidden';
-  }
+EditorUI.toggleEditMode = function() {
+ if (EditorUI.editMode === 'draw') {
+   EditorUI.animate();
+ } else {
+   EditorUI.returnToEditing();
+ }
 }
 
 EditorUI.confirmClear = function() {
@@ -516,16 +487,7 @@ EditorUI.confirmClear = function() {
 
 // -------------- Speed control -----------
 
-EditorUI.initSpeedMeter = function() {
-  var meterObject = document.getElementById("meter");
-  if (!EditorUI.meter) {
-    EditorUI.meter =
-      new Meter(0.65, 12.5, 0.2, meterObject,EditorUI.changeSpeed);
-  }
-  EditorUI.meter.setValue(EditorUI.INITIAL_SPEED_FPS);
-}
-
-EditorUI.changeSpeed = function(sliderValue) {
+EditorUI.changeSpeed = function(fps) {
   if (!ParaPara.animator)
     return;
   ParaPara.animator.setSpeed(sliderValue);
@@ -553,6 +515,11 @@ EditorUI.updateLayout = function() {
   var canvas = document.getElementById("canvas");
   canvas.style.setProperty("width", availWidth + "px", "");
   canvas.style.setProperty("height", availHeight + "px", "");
+  // XXX See if the following fixes the layout on iOS Safari
+  /*
+  canvas.setAttribute("width", availWidth)
+  canvas.setAttribute("height", availHeight);
+  */
   canvas.setAttribute("viewBox", [0, 0, vbWidth, vbHeight].join(" "));
 
   // Workaround Safari bugs regarding resizing SVG by setting the height of

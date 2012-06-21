@@ -63,20 +63,6 @@ div.controlPanel #end {
   width: 60%;
 }
 
-#animControls {
-  visibility: hidden;
-  opacity: 0;
-}
-div.controlSet {
-  position: absolute;
-  width: 100%;
-  -moz-transition: opacity 0.25s linear 0s;
-  -webkit-transition: opacity 0.25s linear 0s;
-  -ms-transition: opacity 0.25s linear 0s;
-  -o-transition: opacity 0.25s linear 0s;
-  transition: opacity 0.25s linear 0s;
-}
-
 /* Credit form */
 span.units {
   font-size: 1.3em;
