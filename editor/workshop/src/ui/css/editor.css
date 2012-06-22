@@ -79,11 +79,14 @@ div.field input.fullWidthField {
 
 div.canvas {
   position: absolute;
-  left: 16%;
+  left: 17%;
+  overflow: visible;
 }
 div.canvas > svg {
   border: 2px solid black;
   margin: 0;
+  margin-left: -15px; /* Move left to fill the space around the curved edges of
+                       * the tool palette. */
 }
 #anim-controls {
   position: absolute;
@@ -91,6 +94,7 @@ div.canvas > svg {
   height: 100%;
   width: 100%;
   opacity: 0;
+  display: none;
   -moz-transition: opacity 0.2s linear 0s;
   -webkit-transition: opacity 0.2s linear 0s;
   -ms-transition: opacity 0.2s linear 0s;

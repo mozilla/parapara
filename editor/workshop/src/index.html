@@ -22,7 +22,7 @@
   </head>
   <body>
     <div class="container" id="container">
-      <div class="controlPanel vertical">
+      <div class="controlPanel">
         <div class="inner-border">
           <object data="ui/img/tool-picker.svg" class="panelContents"
             id="picker" data-aspect-ratio="0.6845"></object>
@@ -37,16 +37,21 @@
       <div class="canvas">
         <svg viewBox="0 0 300 300" id="canvas">
           <defs>
-            <pattern patternUnits="userSpaceOnUse"
-              width="95" height="300" viewBox="0 -856 300 941" id="jimen">
-              <image width="300" height="85"
-                xlink:href="ui/img/jimen.png"/>
-            </pattern>
+            <image y="273" width="380" height="27"
+              xlink:href="ui/img/jimen-long.png" id="jimen-long"/>
           </defs>
           <rect width="100%" height="100%" fill="black"/>
           <image width="600" height="300"
             xlink:href="ui/img/space-bg.jpg"/>
-          <rect width="100%" height="100%" fill="url(#jimen)"/>
+          <!-- The ground pattern.
+               Patterns on iOS Safari 5.1 are quite broken. Even after applying
+               scale(1,-1) they were still in the wrong position.
+               Eventually I gave up and just made up some images to repeat. -->
+          <use xlink:href="#jimen-long"/>
+          <use x="380" xlink:href="#jimen-long"/>
+          <use x="760" xlink:href="#jimen-long"/>
+          <use x="1140" xlink:href="#jimen-long"/>
+          <use x="1520" xlink:href="#jimen-long"/>
           <g id="parapara"/>
         </svg>
         <div id="anim-controls">
@@ -54,7 +59,7 @@
           <svg width="100%" height="100%" viewBox="0 0 100 200"
            preserveAspectRatio="xMinYMid">
            <circle cx="0" cy="100" r="100" class="overlay-shading"/>
-           <path d="m52 85l-30 15l30 15zm30 0l-30 15l30 15z"
+           <path d="m44 85l-30 15l30 15zm30 0l-30 15l30 15z"
             class="overlay-icon"/>
           </svg>
          </div>
@@ -62,7 +67,7 @@
           <svg width="100%" height="100%" viewBox="0 0 100 200"
            preserveAspectRatio="xMaxYMid">
            <circle cx="100" cy="100" r="100" class="overlay-shading"/>
-           <path d="m20 85l30 15l-30 15zm30 0l30 15l-30 15z"
+           <path d="m26 85l30 15l-30 15zm30 0l30 15l-30 15z"
             class="overlay-icon"/>
           </svg>
          </div>

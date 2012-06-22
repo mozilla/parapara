@@ -628,11 +628,26 @@ EditorUI.vibrate = function(millis) {
 // -------------- UI layout -----------
 
 EditorUI.updateLayout = function() {
-  // XXX All this needs to be redone
+  /*
+   * We size the SVG manually. This is because we want to resize the viewBox for
+   * the following reasons:
+   *
+   * a) Regardless of the size and orientation of the device, we want to keep
+   *    the HEIGHT of the characters roughly the same. The width can flex as
+   *    needed.
+   * b) By resizing the viewbox, we can have graphics such as a ground pattern,
+   *    with height / width 100% and be sure it will fill the viewable area
+   *    regardless of the setting of preserveAspectRatio.
+   *
+   * In future I think we need to make the viewBox property settable via media
+   * queries so you can have responsive graphics that change aspect ratio.
+   */
   var controlsHeight = controlsWidth = 0;
   var controls = document.getElementsByClassName("controlPanel");
   for (var i = 0; i < controls.length; i++) {
-    if (controls[i].classList.contains('vertical')) {
+    var panel = controls[i];
+    // Check if the panel is oriented vertically or horizontally
+    if (panel.offsetWidth < panel.offsetHeight) {
       controlsWidth += controls[i].offsetWidth;
     } else {
       controlsHeight += controls[i].offsetHeight;
@@ -640,18 +655,20 @@ EditorUI.updateLayout = function() {
   }
   var availHeight = window.innerHeight - controlsHeight;
   var availWidth  = window.innerWidth - controlsWidth;
+  // We need to account for the fact that we have a bit of overlap with the
+  // control panel
+  if (window.innerWidth > window.innerHeight) {
+    availWidth += 15;
+  } else {
+    availHeight += 15;
+  }
   var vbHeight = 300;
   var vbWidth = vbHeight * availWidth / availHeight;
 
   // Set the SVG canvas size explicitly.
   var canvas = document.getElementById("canvas");
-  canvas.style.setProperty("width", availWidth + "px", "");
-  canvas.style.setProperty("height", availHeight + "px", "");
-  // XXX See if the following fixes the layout on iOS Safari
-  /*
-  canvas.setAttribute("width", availWidth)
+  canvas.setAttribute("width", availWidth);
   canvas.setAttribute("height", availHeight);
-  */
   canvas.setAttribute("viewBox", [0, 0, vbWidth, vbHeight].join(" "));
 
   // Workaround Safari bugs regarding resizing SVG by setting the height of
