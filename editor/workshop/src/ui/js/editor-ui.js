@@ -691,14 +691,19 @@ EditorUI.updateLayout = function() {
   }
 
   // Manually perform calc() behavior for browsers that don't support it
+  var portrait = window.matchMedia("(orientation: portrait)").matches;
   var borders = document.getElementsByClassName("inner-border");
   for (var i = 0; i < borders.length; i++) {
     var border = borders[i];
     var style = window.getComputedStyle(border);
     var actualHeight = parseInt(style.height) || 0;
-    var borderWidth = parseInt(style.getPropertyValue('border-top-width')) || 0;
+    var borderWidth =
+      parseInt(style.getPropertyValue('border-top-width')) || 0;
     var margin = parseInt(style.getPropertyValue('margin-top')) || 0;
-    var minHeight = window.innerHeight - (borderWidth + margin) * 2;
+    var parentHeight = portrait
+           ? parseInt(window.getComputedStyle(border.parentNode).height) || 0
+           : window.innerHeight;
+    var minHeight = parentHeight - (borderWidth + margin) * 2;
     if (actualHeight != minHeight) {
       border.style.height = minHeight + 'px';
     }

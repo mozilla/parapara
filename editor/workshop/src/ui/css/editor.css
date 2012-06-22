@@ -62,14 +62,6 @@ div.tool-box #widths {
 div.tool-box #play {
   width: 44%;
 }
-div.tool-box #meter {
-  margin-top: 12%;
-  width: 85%;
-}
-div.tool-box #end {
-  margin-top: 20%;
-  width: 60%;
-}
 
 /*
  * Film strip
@@ -146,7 +138,7 @@ div.canvas-container {
   position: absolute;
   left: 17%;
   height: 100%;
-  width: 100%;
+  width: 83%; 
   overflow: visible;
 }
 svg#canvas {
@@ -157,6 +149,47 @@ svg#canvas {
                        * the tool palette. */
   top: 15%;
 } 
+
+/*
+ * Portrait layout
+ */
+
+@media screen and (orientation: portrait) {
+ div.tool-box {
+   bottom: 0;
+   width: 100%;
+   height: 17%;
+ }
+ div.inner-border {
+   min-height: auto;
+ }
+ div.canvas-container {
+   left: 0;
+   width: 100%; 
+   height: 83%;
+ }
+ div.tool-box .panelContents {
+   display: inline-block;
+ }
+ div.safari-click-catcher {
+   display: inline;
+ }
+ div.tool-box #picker {
+   height: 90%;
+   width: auto;
+ }
+ div.tool-box #widths {
+   height: 80%;
+   width: auto;
+ }
+ div.tool-box #play {
+   height: 90%;
+   width: auto;
+ }
+ svg#canvas {
+  margin-left: 0;
+ }
+}
 
 /*
  * Credit form
