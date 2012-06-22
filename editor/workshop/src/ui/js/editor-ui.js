@@ -7,7 +7,11 @@ var EditorUI = EditorUI || {};
 EditorUI.MIN_SPEED_FPS     = 0.65;
 EditorUI.MAX_SPEED_FPS     = 12.5;
 EditorUI.INITIAL_SPEED_FPS = 3.3;
-EditorUI.SPEED_STEP_FPS    = 0.2;
+EditorUI.SPEED_STEP_FPS    = 0.3;
+
+EditorUI.LONG_PRESS_DELAY_MS = 350;
+EditorUI.LONG_PRESS_RATE_MS  = 120;
+
 EditorUI.UPLOAD_PATH       = "../api/upload_anim.php";
 EditorUI.SEND_EMAIL_PATH   = "../api/email_anim.php";
 
@@ -15,6 +19,7 @@ EditorUI.init = function() {
   var paraparaRoot = document.getElementById("parapara");
   ParaPara.init(paraparaRoot);
   EditorUI.editMode = 'draw'; // 'draw' | 'animate'
+  EditorUI.stillPressing = false;
   EditorUI.initControls();
   // Disabling full-screen mode for now since:
   // a) there's no UI for it for tablets
@@ -493,10 +498,14 @@ EditorUI.confirmClear = function() {
 
 EditorUI.initAnimControls = function() {
   var slower = document.getElementById("slower");
-  slower.addEventListener("click", EditorUI.goSlower, false);
-
   var faster = document.getElementById("faster");
-  faster.addEventListener("click", EditorUI.goFaster, false);
+  if ('ontouchstart' in window) {
+    slower.addEventListener("touchstart", EditorUI.onGoSlowTouch, false);
+    faster.addEventListener("touchstart", EditorUI.onGoFastTouch, false);
+  } else {
+    slower.addEventListener("mousedown", EditorUI.onGoSlowPress, false);
+    faster.addEventListener("mousedown", EditorUI.onGoFastPress, false);
+  }
 
   var send = document.getElementById("send");
   send.addEventListener("click", EditorUI.send, false);
@@ -530,28 +539,90 @@ EditorUI.finishAnimControlsFade = function() {
   }
 }
 
+EditorUI.onGoSlowPress = function(evt) {
+  EditorUI.beginLongPress(evt, EditorUI.goSlower, false);
+}
+
+EditorUI.onGoSlowTouch = function(evt) {
+  EditorUI.beginLongPress(evt, EditorUI.goSlower, true);
+}
+
 EditorUI.goSlower = function() {
-  var newSpeed = Math.min(EditorUI.currentSpeed - EditorUI.SPEED_STEP_FPS,
+  var newSpeed = Math.max(EditorUI.currentSpeed - EditorUI.SPEED_STEP_FPS,
                           EditorUI.MIN_SPEED_FPS);
-  if (newSpeed === EditorUI.currentSpeed)
-    return;
-  EditorUI.currentSpeed = newSpeed;
+  if (newSpeed === EditorUI.currentSpeed) {
+    EditorUI.vibrate(50);
+  }
   EditorUI.setSpeed(newSpeed);
+}
+
+EditorUI.onGoFastPress = function(evt) {
+  EditorUI.beginLongPress(evt, EditorUI.goFaster, false);
+}
+
+EditorUI.onGoFastTouch = function(evt) {
+  EditorUI.beginLongPress(evt, EditorUI.goFaster, true);
 }
 
 EditorUI.goFaster = function() {
-  var newSpeed = Math.max(EditorUI.currentSpeed + EditorUI.SPEED_STEP_FPS,
+  var newSpeed = Math.min(EditorUI.currentSpeed + EditorUI.SPEED_STEP_FPS,
                           EditorUI.MAX_SPEED_FPS);
-  if (newSpeed === EditorUI.currentSpeed)
-    return;
-  EditorUI.currentSpeed = newSpeed;
+  if (newSpeed === EditorUI.currentSpeed) {
+    EditorUI.vibrate(50);
+  }
   EditorUI.setSpeed(newSpeed);
 }
 
-EditorUI.setSpeed = function(fps) {
+EditorUI.beginLongPress = function(evt, callback, isTouch) {
+  evt.preventDefault();
+  callback();
+  EditorUI.stillPressing = true;
+  if (isTouch) {
+    document.addEventListener("touchend", EditorUI.finishLongTouch, false);
+  } else {
+    document.addEventListener("mouseup", EditorUI.finishLongPress, false);
+  }
+  window.setTimeout(
+    function() { EditorUI.continueLongPress(callback); },
+    EditorUI.LONG_PRESS_DELAY_MS);
+}
+
+EditorUI.continueLongPress = function(callback) {
+  if (!EditorUI.stillPressing)
+    return;
+  callback();
+  window.setTimeout(
+    function() { EditorUI.continueLongPress(callback); },
+    EditorUI.LONG_PRESS_RATE_MS);
+}
+
+EditorUI.finishLongPress = function() {
+  EditorUI.stillPressing = false;
+  document.removeEventListener("mouseup", EditorUI.finishLongPress, false);
+}
+
+EditorUI.finishLongTouch = function() {
+  EditorUI.stillPressing = false;
+  document.removeEventListener("touchend", EditorUI.finishLongTouch, false);
+}
+
+EditorUI.setSpeed = function(newSpeed) {
+  if (newSpeed === EditorUI.currentSpeed)
+    return;
+  EditorUI.currentSpeed = newSpeed;
   if (!ParaPara.animator)
     return;
-  ParaPara.animator.setSpeed(fps);
+  ParaPara.animator.setSpeed(newSpeed);
+}
+
+EditorUI.vibrate = function(millis) {
+  if (navigator.vibrate) {
+    navigator.vibrate(millis);
+  } else if (navigator.mozVibrate) {
+    navigator.mozVibrate(millis);
+  } else if (navigator.webkitVibrate) {
+    navigator.webkitVibrate(millis);
+  }
 }
 
 // -------------- UI layout -----------
