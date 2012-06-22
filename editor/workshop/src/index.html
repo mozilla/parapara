@@ -36,17 +36,30 @@
       </div>
       <div class="canvas">
         <svg viewBox="0 0 300 300" id="canvas">
+          <rect width="100%" height="100%" fill="black"/>
+          <!-- WebKit doesn't seem to calculate the correct result for the
+               following width/height:100% with preserveAspectRatio:slice, at
+               least not when we dynamically update the viewBox on the root svg
+               element.
+               So, as a fallback, we have a duplicate background image sitting
+               behind the real one so that at least the viewport should be
+               filled with something for most screen sizes. -->
+          <image width="600" height="300" xlink:href="ui/img/space-bg.jpg"/>
+          <image width="100%" height="100%" preserveAspectRatio="xMinYMax slice"
+            xlink:href="ui/img/space-bg.jpg"/>
+          <!-- The ground pattern.
+
+               Patterns on iOS Safari 5.1 are quite broken. Even after applying
+               scale(1,-1) they were still in the wrong position.
+               Eventually I gave up and just made up some images to repeat.
+
+               I've now discovered that use elements appears to be broken in
+               Chrome.
+               -->
           <defs>
             <image y="273" width="380" height="27"
               xlink:href="ui/img/jimen-long.png" id="jimen-long"/>
           </defs>
-          <rect width="100%" height="100%" fill="black"/>
-          <image width="600" height="300"
-            xlink:href="ui/img/space-bg.jpg"/>
-          <!-- The ground pattern.
-               Patterns on iOS Safari 5.1 are quite broken. Even after applying
-               scale(1,-1) they were still in the wrong position.
-               Eventually I gave up and just made up some images to repeat. -->
           <use xlink:href="#jimen-long"/>
           <use x="379" xlink:href="#jimen-long"/>
           <use x="758" xlink:href="#jimen-long"/>
