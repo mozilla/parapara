@@ -2,7 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* Page layout */
+/*
+ * Page layout
+ */
 body, html, div {
   margin: 0;
   padding: 0;
@@ -13,15 +15,21 @@ div.container {
   left: 0; top: 0; width: 100%; height: 100%;
   background: black; /* Needed for when we go full-screen */
 }
-
 div.controlPanel {
   position: absolute;
+  z-index: 1;
+}
+
+/* 
+ * Tool box
+ */
+div.tool-box {
   background: #fdf8db;
   width: 17%;
   height: 100%;
   border-radius: 15px;
   text-align: center;
-  z-index: 1;
+  z-index: 2;
 }
 div.inner-border {
   position: relative;
@@ -40,54 +48,43 @@ div.inner-border {
     min-height: calc(100% - 8px);
   }
 }
-div.controlPanel .panelContents {
+div.tool-box .panelContents {
   position: relative;
   width: 100%;
 }
-div.controlPanel #picker {
+div.tool-box #picker {
  width: 95%;
 }
-div.controlPanel #widths {
+div.tool-box #widths {
   width: 85%;
   padding: 10px 0 0;
 }
-div.controlPanel #play {
+div.tool-box #play {
   width: 44%;
 }
-div.controlPanel #meter {
+div.tool-box #meter {
   margin-top: 12%;
   width: 85%;
 }
-div.controlPanel #end {
+div.tool-box #end {
   margin-top: 20%;
   width: 60%;
 }
 
-/* Credit form */
-span.units {
-  font-size: 1.3em;
-}
-div.field input {
-  margin-top: 0.1em;
-  margin-left: 35px; /* this is the width of the star */
-}
-div.field input.fullWidthField {
-  width: -moz-calc(100% - 35px - 1em);
-  width: -webkit-calc(100% - 35px - 1em);
-  width: calc(100% - 35px - 1em);
+/*
+ * Film strip
+ */
+div.film-strip {
+  width: 100%;
+  background: #3D362F;
+  height: 15%;
+  margin-left: -15px; /* Overlap with rounded edges of toolbox */
+  padding-left: 15px;
 }
 
-div.canvas {
-  position: absolute;
-  left: 17%;
-  overflow: visible;
-}
-div.canvas > svg {
-  border: 2px solid black;
-  margin: 0;
-  margin-left: -15px; /* Move left to fill the space around the curved edges of
-                       * the tool palette. */
-}
+/*
+ * Animation controls
+ */
 #anim-controls {
   position: absolute;
   top: 0;
@@ -142,7 +139,44 @@ div.canvas > svg {
   pointer-events: all;
 }
 
-/* Buttons */
+/*
+ * Drawing canvas
+ */
+div.canvas-container {
+  position: absolute;
+  left: 17%;
+  height: 100%;
+  width: 100%;
+  overflow: visible;
+}
+svg#canvas {
+  position: relative;
+  border: 2px solid black;
+  margin: 0;
+  margin-left: -15px; /* Move left to fill the space around the curved edges of
+                       * the tool palette. */
+  top: 15%;
+} 
+
+/*
+ * Credit form
+ */
+span.units {
+  font-size: 1.3em;
+}
+div.field input {
+  margin-top: 0.1em;
+  margin-left: 35px; /* this is the width of the star */
+}
+div.field input.fullWidthField {
+  width: -moz-calc(100% - 35px - 1em);
+  width: -webkit-calc(100% - 35px - 1em);
+  width: calc(100% - 35px - 1em);
+}
+
+/*
+ * Form buttons
+ */
 button.right {
   position: absolute;
   right: 0;

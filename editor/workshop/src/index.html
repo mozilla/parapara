@@ -22,7 +22,7 @@
   </head>
   <body>
     <div class="container" id="container">
-      <div class="controlPanel">
+      <div class="controlPanel tool-box">
         <div class="inner-border">
           <object data="ui/img/tool-picker.svg" class="panelContents"
             id="picker" data-aspect-ratio="0.6845"></object>
@@ -34,7 +34,9 @@
           </div>
         </div>
       </div>
-      <div class="canvas">
+      <div class="canvas-container">
+        <div class="controlPanel film-strip">
+        </div>
         <svg viewBox="0 0 300 300" id="canvas">
           <rect width="100%" height="100%" fill="black"/>
           <!-- WebKit doesn't seem to calculate the correct result for the

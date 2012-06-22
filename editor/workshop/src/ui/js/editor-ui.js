@@ -648,9 +648,9 @@ EditorUI.updateLayout = function() {
     var panel = controls[i];
     // Check if the panel is oriented vertically or horizontally
     if (panel.offsetWidth < panel.offsetHeight) {
-      controlsWidth += controls[i].offsetWidth;
+      controlsWidth += panel.offsetWidth;
     } else {
-      controlsHeight += controls[i].offsetHeight;
+      controlsHeight += panel.offsetHeight;
     }
   }
   var availHeight = window.innerHeight - controlsHeight;
