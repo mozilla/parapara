@@ -673,7 +673,7 @@ EditorUI.updateLayout = function() {
 
   // Workaround Safari bugs regarding resizing SVG by setting the height of
   // referenced SVG files explicitly
-  var contents = document.querySelectorAll(".panelContents");
+  var contents = document.getElementsByClassName("panelContents");
   for (var i = 0; i < contents.length; i++) {
     var specifiedRatio =
       parseFloat(contents[i].getAttribute('data-aspect-ratio'));
@@ -691,7 +691,7 @@ EditorUI.updateLayout = function() {
   }
 
   // Manually perform calc() behavior for browsers that don't support it
-  var borders = document.querySelectorAll(".inner-border");
+  var borders = document.getElementsByClassName("inner-border");
   for (var i = 0; i < borders.length; i++) {
     var border = borders[i];
     var style = window.getComputedStyle(border);
