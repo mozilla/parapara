@@ -85,6 +85,58 @@ div.canvas > svg {
   border: 2px solid black;
   margin: 0;
 }
+#anim-controls {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  opacity: 0;
+  -moz-transition: opacity 0.2s linear 0s;
+  -webkit-transition: opacity 0.2s linear 0s;
+  -ms-transition: opacity 0.2s linear 0s;
+  -o-transition: opacity 0.2s linear 0s;
+  transition: opacity 0.2s linear 0s;
+}
+#slower, #faster {
+  position: absolute;
+  top: 50%;
+  margin-top: -10%;
+  height: 20%;
+  width: 10%;
+  min-width: 40px;
+  min-height: 80px;
+  padding-bottom: 50%; /* Work around iOS Safari bug */
+}
+#slower {
+  left: 0;
+}
+#faster {
+  right: 0;
+}
+#send {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 25%;
+  height: 25%;
+}
+#anim-controls .overlay-shading {
+  fill: white;
+  opacity: 0.3;
+}
+#anim-controls .overlay-shading:hover {
+  opacity: 0.6;
+}
+#anim-controls .overlay-icon {
+  fill: white;
+}
+/* Turn off pointer events for all svg except the shading area */
+#anim-controls svg {
+  pointer-events: none;
+}
+#anim-controls .overlay-shading {
+  pointer-events: all;
+}
 
 /* Buttons */
 button.right {

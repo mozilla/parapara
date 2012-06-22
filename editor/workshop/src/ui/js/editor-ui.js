@@ -7,6 +7,7 @@ var EditorUI = EditorUI || {};
 EditorUI.MIN_SPEED_FPS     = 0.65;
 EditorUI.MAX_SPEED_FPS     = 12.5;
 EditorUI.INITIAL_SPEED_FPS = 3.3;
+EditorUI.SPEED_STEP_FPS    = 0.2;
 EditorUI.UPLOAD_PATH       = "../api/upload_anim.php";
 EditorUI.SEND_EMAIL_PATH   = "../api/email_anim.php";
 
@@ -45,6 +46,7 @@ EditorUI.initControls = function() {
   EditorUI.initTools();
   // EditorUI.initFrameControls();
   EditorUI.initNavControls();
+  EditorUI.initAnimControls();
 
   EditorUI.currentSpeed = EditorUI.INITIAL_SPEED_FPS;
 
@@ -84,6 +86,7 @@ EditorUI.animate = function() {
 
   ParaPara.animate(EditorUI.currentSpeed);
   document.getElementById("play").contentDocument.showPause();
+  EditorUI.showAnimControls();
 }
 
 EditorUI.returnToEditing = function() {
@@ -91,6 +94,7 @@ EditorUI.returnToEditing = function() {
 
   ParaPara.removeAnimation();
   document.getElementById("play").contentDocument.showPlay();
+  EditorUI.hideAnimControls();
 }
 
 EditorUI.reset = function() {
@@ -458,7 +462,7 @@ EditorUI.updateFrameDisplay = function(currentFrame, numFrames) {
   denominator.textContent = numFrames;
 }
 
-// -------------- Init nav controls -----------
+// -------------- Nav controls -----------
 
 EditorUI.initNavControls = function() {
   var play = document.getElementById("play");
@@ -485,12 +489,69 @@ EditorUI.confirmClear = function() {
   EditorUI.displayNote("noteConfirmDelete");
 }
 
-// -------------- Speed control -----------
+// -------------- Anim control -----------
 
-EditorUI.changeSpeed = function(fps) {
+EditorUI.initAnimControls = function() {
+  var slower = document.getElementById("slower");
+  slower.addEventListener("click", EditorUI.goSlower, false);
+
+  var faster = document.getElementById("faster");
+  faster.addEventListener("click", EditorUI.goFaster, false);
+
+  var send = document.getElementById("send");
+  send.addEventListener("click", EditorUI.send, false);
+
+  var animControls = document.getElementById("anim-controls");
+  animControls.addEventListener("transitionend",
+    EditorUI.finishAnimControlsFade, false);
+  animControls.addEventListener("webkitTransitionend",
+    EditorUI.finishAnimControlsFade, false);
+  animControls.addEventListener("oTransitionend",
+    EditorUI.finishAnimControlsFade, false);
+  animControls.addEventListener("MSTransitionend",
+    EditorUI.finishAnimControlsFade, false);
+}
+
+EditorUI.showAnimControls = function() {
+  var animControls = document.getElementById("anim-controls");
+  animControls.style.display = 'block';
+  animControls.style.opacity = 1;
+}
+
+EditorUI.hideAnimControls = function() {
+  document.getElementById("anim-controls").style.opacity = 0;
+}
+
+EditorUI.finishAnimControlsFade = function() {
+  var animControls = document.getElementById("anim-controls");
+  var opacity = parseInt(window.getComputedStyle(animControls).opacity);
+  if (opacity === 0) {
+    animControls.style.display = 'none';
+  }
+}
+
+EditorUI.goSlower = function() {
+  var newSpeed = Math.min(EditorUI.currentSpeed - EditorUI.SPEED_STEP_FPS,
+                          EditorUI.MIN_SPEED_FPS);
+  if (newSpeed === EditorUI.currentSpeed)
+    return;
+  EditorUI.currentSpeed = newSpeed;
+  EditorUI.setSpeed(newSpeed);
+}
+
+EditorUI.goFaster = function() {
+  var newSpeed = Math.max(EditorUI.currentSpeed + EditorUI.SPEED_STEP_FPS,
+                          EditorUI.MAX_SPEED_FPS);
+  if (newSpeed === EditorUI.currentSpeed)
+    return;
+  EditorUI.currentSpeed = newSpeed;
+  EditorUI.setSpeed(newSpeed);
+}
+
+EditorUI.setSpeed = function(fps) {
   if (!ParaPara.animator)
     return;
-  ParaPara.animator.setSpeed(sliderValue);
+  ParaPara.animator.setSpeed(fps);
 }
 
 // -------------- UI layout -----------
