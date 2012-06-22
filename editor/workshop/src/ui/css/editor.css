@@ -169,22 +169,23 @@ svg#canvas {
    height: 83%;
  }
  div.tool-box .panelContents {
+   vertical-align: middle;
    display: inline-block;
  }
  div.safari-click-catcher {
    display: inline;
  }
  div.tool-box #picker {
-   height: 90%;
-   width: auto;
+   height: 88%;
+   max-width: 45%;
  }
  div.tool-box #widths {
-   height: 80%;
-   width: auto;
+   height: 88%;
+   max-width: 30%;
  }
  div.tool-box #play {
-   height: 90%;
-   width: auto;
+   height: 88%;
+   max-width: 20%;
  }
  svg#canvas {
   margin-left: 0;
