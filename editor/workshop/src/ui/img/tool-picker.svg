@@ -405,8 +405,7 @@
   }
 
   function getActivePalette() {
-    var palettes = document.querySelectorAll('.palette');
-    var palette = null;
+    var palettes = document.getElementsByClassName('palette');
     for (var i = 0; i < palettes.length; i++) {
       var palette = palettes[i];
       if (window.getComputedStyle(palette).display !== 'none')
@@ -481,6 +480,11 @@
 
     initialViewBox = document.documentElement.getAttribute("viewBox");
     document.updateViewbox();
+
+    // Safari desktop seems to apply the media query after page load and so
+    // running updateViewbox above will detect that the wrong palette is
+    // showing. Hence we run it again in a moment.
+    window.setTimeout(document.updateViewbox, 1);
   }
   init();
  ]]>

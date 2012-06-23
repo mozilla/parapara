@@ -180,6 +180,7 @@ svg#canvas {
    max-width: 45%;
  }
  div.tool-box #widths {
+   margin-top: -2%; /* Little tweak to improve appearance on iOS Safari */
    height: 88%;
    max-width: 30%;
  }
