@@ -204,6 +204,35 @@ function getOrCreateUserIdFromEmail($email) {
   return $ownerId;
 }
 
+function getWall($wallId) {
+  $conn =& getDbConnection();
+  $res =& $conn->query(
+      'SELECT designId,eventName,eventDescr,eventLocation,eventType,eventFinish,urlPath,shortUrl,editorShortUrl,duration,galleryDisplay FROM walls WHERE wallId = '
+    . $conn->quote($wallId, 'integer')
+  );
+  if (PEAR::isError($res)) {
+    error_log($res->getMessage() . ', ' . $res->getDebugInfo());
+    throw new KeyedException('db-error');
+  }
+  $result = array();
+  $conn->setFetchMode(MDB2_FETCHMODE_ASSOC);
+  if ($row = $res->fetchRow()) {
+    $result["designId"] = $row['designid'];
+    $result["eventName"] = $row['eventname'];
+    $result["eventDescr"] = $row['eventdescr'];
+    $result["eventLocation"] = $row['eventlocation'];
+    $result["eventType"] = $row['eventtype'];
+    $result["eventFinish"] = $row['eventfinish'];
+    $result["urlPath"] = $row['urlpath'];
+    $result["shortUrl"] = $row['shorturl'];
+    $result["editorShortUrl"] = $row['editorshorturl'];
+    $result["galleryDisplay"] = $row['galleryDisplay'];
+    $result["duration"] = $row['duration'];
+  }
+  $conn->disconnect();
+  return $result;
+}
+
 function isTitleUnique($title) {
   return !recordExists('walls', 'eventName', $title, 'text');
 }
@@ -262,9 +291,6 @@ function recordExists($table, $field, $value, $type) {
   $exists = $res->numRows() > 0;
   $res->free();
   return $exists;
-}
-
-function getWall($id) {
 }
 
 ?>
