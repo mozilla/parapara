@@ -242,12 +242,12 @@ function isDesignIdValid($id) {
 }
 
 function getWallUrlForPath($path) {
-  $scheme      = 'http://';
-  $port        = intval($_SERVER['SERVER_PORT']) !== 80
-               ? ':' . $_SERVER['SERVER_PORT']
-               : '';
-  $path        = '/wall/' . $path;
-  $url         = $scheme . $_SERVER['SERVER_NAME'] . $port . $path;
+  $scheme = 'http://';
+  $port   = intval($_SERVER['SERVER_PORT']) !== 80
+          ? ':' . $_SERVER['SERVER_PORT']
+          : '';
+  $path   = '/wall/' . $path;
+  $url    = $scheme . $_SERVER['SERVER_NAME'] . $port . $path;
   return $url;
 }
 
