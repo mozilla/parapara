@@ -13,6 +13,7 @@
   <script src="js/wall.js"></script>
   <script src="js/navi.js"></script>
   <script src="js/create-wall.js"></script>
+  <script src="js/manage-wall.js"></script>
   <script src="js/login-controller.js"></script>
   <script src="js/ui.js"></script>
 </head>
@@ -86,14 +87,14 @@
     </form>
   </div>
   <div class="screen" id="screen-manage">
-    <h2>エベントの名前</h2>
-      <span style="font-size: smaller">(これは直接に編集できる）</span></h2>
+    <h2>イベントの名前</h2>
+      <span style="font-size: smaller"><input type="text" id="manage-eventName"></span></h2>
     <div>
       基本情報
       <ul>
-        <li>壁の長いＵＲＬ</li>
-        <li>壁の短いＵＲＬ</li>
-        <li>エディターの短いＵＲＬ</li>
+        <li id="manage-urlPath">壁の長いＵＲＬ</li>
+        <li id="manage-shortUrl">壁の短いＵＲＬ</li>
+        <li id="manage-editorShortUrl">エディターの短いＵＲＬ</li>
         <li>チラシのリンク</li>
       </ul>
     </div>
@@ -116,7 +117,7 @@
           for="create-eventLocation">場所</label></dt>
         <dd>
           <input type="text" name="eventLocation" autocomplete="off"
-           maxlength="255" class="eventLocation" id="create-eventLocation">
+           maxlength="255" class="eventLocation" id="manage-eventLocation">
           <div class="fieldExplain">場所の例</div>
         </dd>
         <dt><label for="create-eventFinish">終了時間</label></dt>
@@ -125,7 +126,7 @@
           <div class="fieldExplain">終了時間の説明</div>
         </dd>
         <dt><label class="optional"
-          for="create-eventDescr">エベントの説明</label></dt>
+          for="create-eventDescr"  id="manage-eventDescr">イベントの説明</label></dt>
         <dd>
           <textarea name="eventDescr" class="eventDescr"
             id="create-eventDescr"></textarea>
@@ -138,12 +139,12 @@
         <dd class="alongside">
           <label>
             <input type="radio" name="galleryDisplay" value="1"
-              id="create-eventFinish" checked>
+              id="manage-galleryDisplay" checked>
             On
           </label>
           <label>
             <input type="radio" name="galleryDisplay" value="0"
-              id="create-eventFinish">
+              id="manage-galleryDisplay">
             Off
           </label>
           <div class="fieldExplain">ギャラリーの説明</div>

@@ -75,6 +75,7 @@ function fetchUrl($url, $data, $type) {
     error_log("Failed to verify SSL certificate when loading $url. " .
               "Add the CA certificate to the CACerts folder");
   }
+  error_log($result);
   $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
   curl_close($ch);

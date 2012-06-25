@@ -2,9 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/*
 function init() {
   LoginController.relogin();
 }
+*/
 
 /*
  * Navigation
@@ -24,12 +26,20 @@ function refreshWallList(wallList) {
   }
   if (wallList.length) {
     var list = document.createElement("ul");
+    listContainer.appendChild(list);
     for (var i = 0; i < wallList.length; ++i) {
       var li = document.createElement("li");
-      li.textContent = wallList[i]['eventName'];
+      var a = document.createElement("a");
+      a.textContent = wallList[i]['eventName'];
+      var href = "manage/"+wallList[i]['wallId'];
+      a.setAttribute("href", href);
+      li.appendChild(a);
       list.appendChild(li);
+      //manage
+      registerLinkHandler(href, function(e) { 
+        goToScreen(e.target.getAttribute("href"));
+      });
     }
-    listContainer.appendChild(list);
     document.getElementById('prevWalls').style.display = 'block';
   } else {
     document.getElementById('prevWalls').style.display = 'none';
@@ -43,4 +53,4 @@ function getWallsFailed(reason, detail) {
   console.log(reason, detail);
 }
 
-window.addEventListener("load", init, false);
+//window.addEventListener("load", init, false);

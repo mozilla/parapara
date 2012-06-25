@@ -5,8 +5,8 @@
 var WallMaker = WallMaker || {};
 
 WallMaker.newRe                = /(^|\/)new$/;
-WallMaker.manageRe             = /(^|\/)manage\/\d+$/;
-WallMaker.manageReOptionalHash = /(^|\/)manage\/\d+($|#)/;
+WallMaker.manageRe             = /(^|\/)manage\/(\d+)$/;
+WallMaker.manageReOptionalHash = /(^|\/)manage\/(\d+)($|#)/;
 
 function goToScreen(path) {
   console.log("goToScreen: " + path);
@@ -37,6 +37,9 @@ function goToCurrentScreen() {
     // Parse anchor refs but for managing we DON'T want to add history
     // references every time we switch tabs. This might need some changes
     // upstream.
+    screenId = "screen-manage";
+    var wallId = RegExp.$2;
+    ManageWallController.show(wallId);
   } else {
     screenId = "screen-home";
   }
@@ -79,6 +82,9 @@ function navInit() {
       }
     },
     false);
+
+  //from wall.js
+  LoginController.relogin();
 }
 window.addEventListener('load', navInit, false);
 
@@ -89,7 +95,7 @@ function registerLinkHandler(href, handler) {
       'click',
       function(evt) {
         evt.preventDefault ? evt.preventDefault() : evt.returnvalue = false;
-        handler();
+        handler(evt);
       },
       false
     );
