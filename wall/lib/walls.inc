@@ -207,7 +207,7 @@ function getOrCreateUserIdFromEmail($email) {
 function getWall($wallId) {
   $conn =& getDbConnection();
   $res =& $conn->query(
-      'SELECT designId,eventName,eventDescr,eventLocation,eventType,eventFinish,urlPath,shortUrl,editorShortUrl,duration,galleryDisplay FROM walls WHERE wallId = '
+      'SELECT walls.designId,eventName,eventDescr,eventLocation,eventType,eventFinish,urlPath,shortUrl,editorShortUrl,walls.duration,galleryDisplay,passcode,designs.duration AS defaultduration FROM walls,designs WHERE walls.designId = designs.designId AND wallId = '
     . $conn->quote($wallId, 'integer')
   );
   if (PEAR::isError($res)) {
@@ -226,11 +226,26 @@ function getWall($wallId) {
     $result["urlPath"] = $row['urlpath'];
     $result["shortUrl"] = $row['shorturl'];
     $result["editorShortUrl"] = $row['editorshorturl'];
-    $result["galleryDisplay"] = $row['galleryDisplay'];
+    $result["galleryDisplay"] = $row['gallerydisplay'];
     $result["duration"] = $row['duration'];
+    $result["defaultDuration"] = $row['defaultduration'];
+    $result["passcode"] = $row['passcode'] != NULL ? strlen($row['passcode']) : 0;
   }
   $conn->disconnect();
   return $result;
+}
+
+function updateWall($wallId, $name, $value, $type) {
+  $conn =& getDbConnection();
+  $qvalue = $conn->quote($value, $type);
+  $qwallid = $conn->quote($wallId, 'integer');
+  $query = "UPDATE walls SET $name=$qvalue WHERE wallId = $qwallid";
+  $res =& $conn->query($query);
+  if (PEAR::isError($res)) {
+    error_log($res->getMessage() . ', ' . $res->getDebugInfo());
+    throw new KeyedException('db-error');
+  }
+  $conn->disconnect();
 }
 
 function isTitleUnique($title) {

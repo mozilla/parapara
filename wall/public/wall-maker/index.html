@@ -92,9 +92,9 @@
     <div>
       基本情報
       <ul>
-        <li id="manage-urlPath">壁の長いＵＲＬ</li>
-        <li id="manage-shortUrl">壁の短いＵＲＬ</li>
-        <li id="manage-editorShortUrl">エディターの短いＵＲＬ</li>
+        <li><label class="manage-title">URL</label><label id="manage-urlPath" class="manage-value"></label></li>
+        <li><label class="manage-title">ショートURL</label><label id="manage-shortUrl" class="manage-value"></label></li>
+        <li><label class="manage-title">エディタURL</label><label id="manage-editorShortUrl" class="manage-value"></label></li>
         <li>チラシのリンク</li>
       </ul>
     </div>
@@ -103,7 +103,13 @@
         <li>新セッションをスタートする
         (今のキャラクターが全部見えなくなるよという説明）</li>
         <li>今、終了</li>
-        <li>ペースを調整する</li>
+        <li>
+          <label class="manage-title">現在のアニメーションスピード</label>
+          <input type="number" name="duration" autocomplete="off"
+           maxlength="10" class="duration" id="manage-duration">秒
+          <label id="manage-duration-message" class="manage-message"></label>
+        </li>
+        <li><label class="manage-title">既存のアニメーションスピード</label><label id="manage-defaultDuration" class="manage-value"></label>秒</li>
       </ul>
     </div>
     <div class="tab" id="manage-design">
@@ -120,7 +126,7 @@
            maxlength="255" class="eventLocation" id="manage-eventLocation">
           <div class="fieldExplain">場所の例</div>
         </dd>
-        <dt><label for="create-eventFinish">終了時間</label></dt>
+        <dt><label class="manage-title">イベントの終了日時</label><label id="manage-eventFinish"></label></dt>
         <dd>
           TODO <!-- XXX Time picker -->
           <div class="fieldExplain">終了時間の説明</div>
@@ -149,14 +155,10 @@
           </label>
           <div class="fieldExplain">ギャラリーの説明</div>
         </dd>
-        <dt><label class="optional">共同制作者</label></dt>
-        <dd>
-          <div class="fieldExplain">共同制作者の説明</div>
-        </dd>
         <dt><label class="optional">エディターのパスコード</label></dt>
         <dd>
-          <input type="password" name="eventName" autocomplete="off"
-           maxlength="50" class="eventName" id="create-eventName">
+          <input type="password" name="passcode" autocomplete="off"
+           maxlength="50" class="passcode" id="manage-passcode">
           <div class="fieldExplain">パスコードの説明</div>
         </dd>
       </dl>

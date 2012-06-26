@@ -186,3 +186,20 @@ label.optional:after {
   color: grey;
   font-size: smaller;
 }
+
+label.manage-title {
+  font-weight: bold;
+}
+
+label.manage-title:after {
+  font-weight: bold;
+  content: "：";
+}
+
+label.manage-message {
+  color: black;
+}
+
+label.manage-message.error {
+  color: red;
+}
