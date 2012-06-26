@@ -436,15 +436,7 @@
     }
   }
 
-  // There seems to be a Gecko bug where sometimes transitionend events don't
-  // figure on orientation change when this is embedded in another page.
-  // Particularly when the transition occurs as a result of going from portrait
-  // (where we DO have a media query in effect) back to landscape at small size
-  // where we DON'T have a media query in effect.
-  //
-  // To workaround this we expose this method and have the app call it on
-  // orientationchange
-  document.updateViewbox = function() {
+  function updateViewbox() {
     var palette = getActivePalette();
     if (!palette)
       return;
@@ -471,20 +463,31 @@
     // We use the approach outlined in:
     // http://www.paulrhayes.com/2011-11/use-css-transitions-to-link-media-queries-and-javascript/
     var transElem = document.getElementById('sizeChange');
-    transElem.addEventListener('transitionend', document.updateViewbox, false);
-    transElem.addEventListener('webkitTransitionend', document.updateViewbox,
-                               false);
-    transElem.addEventListener('oTransitionend', document.updateViewbox, false);
-    transElem.addEventListener('MSTransitionend', document.updateViewbox,
-                               false);
+    transElem.addEventListener('transitionend', updateViewbox, false);
+    transElem.addEventListener('webkitTransitionend', updateViewbox, false);
+    transElem.addEventListener('oTransitionend', updateViewbox, false);
+    transElem.addEventListener('MSTransitionend', updateViewbox, false);
+
+    // There seems to be a bug with Gecko's where, when this file is embedded in
+    // another changes to the parent window that affect our viewport update us
+    // for the purpose of layout but MediaQueryList listener events don't fire
+    // and nor do transitions run (or at least, we never get the transitionend
+    // event).
+    //
+    // So we register a MediaQueryList listener on the parent window if there is
+    // one.
+    if (window.parent) {
+      window.parent.matchMedia("screen and (orientation:landscape)").
+        addListener(updateViewbox);
+    }
 
     initialViewBox = document.documentElement.getAttribute("viewBox");
-    document.updateViewbox();
+    updateViewbox();
 
     // Safari desktop seems to apply the media query after page load and so
     // running updateViewbox above will detect that the wrong palette is
     // showing. Hence we run it again in a moment.
-    window.setTimeout(document.updateViewbox, 1);
+    window.setTimeout(updateViewbox, 1);
   }
   init();
  ]]>

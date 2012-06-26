@@ -409,19 +409,6 @@ EditorUI.initTools = function() {
   picker.contentDocument.addEventListener("eraserselect", EditorUI.selectEraser,
                                           false);
   EditorUI.changeTool("pencil");
-
-  // There seems to be a bug with Gecko's dispatching of transitionend events in
-  // some circumstances so we have to manually force an update to the viewbox of
-  // the tool picker.
-  //
-  // Since we're only interested in Gecko here we can use a MediaQueryList
-  // listener (which is currently only supported by Gecko).
-  if (!EditorUI.orientChangeQuery) {
-    EditorUI.orientChangeQuery =
-      window.matchMedia("screen and (orientation:landscape)");
-    EditorUI.orientChangeQuery.addListener(
-      picker.contentDocument.updateViewbox);
-  }
 }
 
 EditorUI.selectEraser = function() {
