@@ -41,14 +41,8 @@ ParaPara.reset = function() {
   ParaPara.init(ParaPara.contentGroup);
 }
 
-ParaPara.prevFrame = function() {
-  var result = ParaPara.frames.prevFrame();
-  ParaPara.currentTool.targetFrame(ParaPara.frames.getCurrentFrame());
-  return result;
-}
-
-ParaPara.nextFrame = function() {
-  var result = ParaPara.frames.nextFrame();
+ParaPara.appendFrame = function() {
+  var result = ParaPara.frames.appendFrame();
   ParaPara.currentTool.targetFrame(ParaPara.frames.getCurrentFrame());
   return result;
 }
@@ -597,6 +591,15 @@ ParaPara.FrameList.prototype.addFrame = function() {
   g.setAttribute("class", "frame");
   this.scene.insertBefore(g, this.getNextFrames());
   this.currentFrame = g;
+}
+
+ParaPara.FrameList.prototype.appendFrame = function() {
+  // There are probably more efficient ways of doing this,
+  // but this will do for now
+  var result;
+  do {
+    result = this.nextFrame();
+  } while (!result.added);
 }
 
 ParaPara.FrameList.prototype.deleteCurrentFrame = function() {

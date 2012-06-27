@@ -108,7 +108,7 @@
     //   copied/adopted svg
   }
 
-  document.reset = function() {
+  document.resetFrames = function() {
     // Go through and remove all frames then add one
     document.documentElement.currentTranslate = 0;
   }
@@ -141,7 +141,10 @@
           window.cancelAnimationFrame = function(id) { clearTimeout(id); };
   }());
 
-  function addFrame() {
+  function addFrame(fireEvent) {
+    if (typeof fireEvent === "undefined")
+      fireEvent = true;
+
     // XXX Stop any scrolling
 
     // Add content
@@ -221,6 +224,9 @@
     } else {
       selectFn();
     }
+
+    if (fireEvent)
+      dispatchEvent("appendframe");
   }
 
   function animTranslate(elem, x, y) {
@@ -395,6 +401,12 @@
     }
   }
 
+  function dispatchEvent(eventName, detail) {
+    var changeEvent = document.createEvent("CustomEvent");
+    changeEvent.initCustomEvent(eventName, true, true, detail);
+    document.dispatchEvent(changeEvent);
+  }
+
   function init() {
     var plusFrame = document.getElementById('plus-frame');
     plusFrame.addEventListener('click', addFrame, true);
@@ -402,7 +414,7 @@
     // XXX Register for touch handling
     // XXX Register for resize events to scroll currently selected frame into
     //     view
-    addFrame();
+    addFrame(false);
   }
   init();
  ]]>

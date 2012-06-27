@@ -45,11 +45,10 @@ EditorUI.initControls = function() {
   // addEventListener can detect the duplicate and filter it out. If we use
   // function objects generated on the fly we'll end up accumulating event
   // listeners and, at best, getting slower and slower.
-  // XXX
   EditorUI.initColors();
   EditorUI.initWidths();
   EditorUI.initTools();
-  // EditorUI.initFrameControls();
+  EditorUI.initFrameControls();
   EditorUI.initNavControls();
   EditorUI.initAnimControls();
 
@@ -68,23 +67,6 @@ EditorUI.catchAll = function(e) {
 }
 
 // -------------- Navigation -----------
-
-EditorUI.prevFrame = function() {
-  var result = ParaPara.prevFrame();
-  EditorUI.updateFrameDisplay(result.index+1, result.count);
-}
-
-EditorUI.nextFrame = function() {
-  var result = ParaPara.nextFrame();
-  if (result.added)
-    EditorUI.changeTool("pencil");
-  EditorUI.updateFrameDisplay(result.index+1, result.count);
-}
-
-EditorUI.deleteFrame = function() {
-  var result = ParaPara.deleteFrame();
-  EditorUI.updateFrameDisplay(result.index+1, result.count);
-}
 
 EditorUI.animate = function() {
   EditorUI.editMode = 'animate';
@@ -451,20 +433,16 @@ EditorUI.changeTool = function(tool) {
 // -------------- Frame controls -----------
 
 EditorUI.initFrameControls = function() {
-  var frameControls = document.getElementById("frameControls");
-  var prev = frameControls.contentDocument.getElementById("prev");
-  prev.addEventListener("click", EditorUI.prevFrame, false);
-  var next = frameControls.contentDocument.getElementById("next");
-  next.addEventListener("click", EditorUI.nextFrame, false);
-  EditorUI.updateFrameDisplay(1, 1);
+  var filmstrip = document.getElementById("filmstrip");
+  if (filmstrip.contentDocument.reset)
+    filmstrip.contentDocument.reset();
+  filmstrip.contentDocument.addEventListener("appendframe",
+    EditorUI.appendFrame, false);
 }
 
-EditorUI.updateFrameDisplay = function(currentFrame, numFrames) {
-  var frameControls = document.getElementById("frameControls");
-  var numerator   = frameControls.contentDocument.getElementById("numerator");
-  var denominator = frameControls.contentDocument.getElementById("denominator");
-  numerator.textContent   = currentFrame;
-  denominator.textContent = numFrames;
+EditorUI.appendFrame = function() {
+  ParaPara.appendFrame();
+  EditorUI.changeTool("pencil");
 }
 
 // -------------- Nav controls -----------
