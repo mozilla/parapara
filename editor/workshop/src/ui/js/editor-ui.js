@@ -447,6 +447,8 @@ EditorUI.initFrameControls = function() {
     EditorUI.selectFrame, false);
   filmstrip.contentDocument.addEventListener("requestdelete",
     EditorUI.requestDeleteFrame, false);
+  ParaPara.svgRoot.addEventListener("changegraphic",
+    EditorUI.updateThumbnails, false);
 }
 
 EditorUI.appendFrame = function() {
@@ -477,7 +479,12 @@ EditorUI.requestDeleteFrame = function(evt) {
       ParaPara.deleteFrame(index);
     };
   EditorUI.displayNote("noteConfirmDelete");
+}
 
+EditorUI.updateThumbnails = function() {
+  var currentFrame = ParaPara.getCurrentFrame();
+  var filmstrip = document.getElementById("filmstrip");
+  filmstrip.contentDocument.updateFrame(currentFrame.index, currentFrame.svg);
 }
 
 // -------------- Nav controls -----------

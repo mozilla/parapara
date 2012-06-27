@@ -59,6 +59,12 @@ ParaPara.deleteFrame = function(index) {
   return result;
 }
 
+ParaPara.getCurrentFrame = function(index) {
+  var frame = ParaPara.frames.getCurrentFrame();
+  var index = ParaPara.frames.getCurrentIndex();
+  return { index: index, svg: frame };
+}
+
 ParaPara.setDrawMode = function() {
   if (ParaPara.currentTool === ParaPara.drawControls)
     return false;
@@ -236,6 +242,12 @@ ParaPara.sendAsyncRequest = function(url, json, successCallback,
 
 ParaPara.fixPrecision = function(x) { return x.toFixed(2); }
 
+ParaPara.notifyGraphicChanged = function() {
+  var changeEvent = document.createEvent("CustomEvent");
+  changeEvent.initCustomEvent("changegraphic", true, true, {});
+  ParaPara.svgRoot.dispatchEvent(changeEvent);
+}
+
 // -------------------- Canvas event handling --------------------
 
 ParaPara.DrawControls = function() {
@@ -306,6 +318,7 @@ ParaPara.DrawControls.prototype.mouseUp = function(evt) {
     return;
   this.linesInProgress.mouseLine.finishLine();
   delete this.linesInProgress.mouseLine;
+  ParaPara.notifyGraphicChanged();
 }
 
 ParaPara.DrawControls.prototype.touchStart = function(evt) {
@@ -338,6 +351,7 @@ ParaPara.DrawControls.prototype.touchEnd = function(evt) {
     this.linesInProgress[touch.identifier].finishLine();
     delete this.linesInProgress[touch.identifier];
   }
+  ParaPara.notifyGraphicChanged();
 }
 
 ParaPara.DrawControls.prototype.touchCancel = function(evt) {

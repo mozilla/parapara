@@ -93,6 +93,7 @@ ParaPara.EraseControls.prototype.mouseUp = function(evt) {
     return;
   this.eraser = null;
   this.prevX = this.prevY = undefined;
+  ParaPara.notifyGraphicChanged();
 }
 
 ParaPara.EraseControls.prototype.touchStart = function(evt) {
@@ -128,6 +129,7 @@ ParaPara.EraseControls.prototype.touchEnd = function(evt) {
 
   this.eraser = null;
   this.prevX = this.prevY = undefined;
+  ParaPara.notifyGraphicChanged();
 }
 
 ParaPara.EraseControls.prototype.eraseFromEvent = function(evt) {

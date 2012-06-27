@@ -63,7 +63,7 @@
     id="frame-bg"/>
    <!-- Frame mask -->
    <clipPath id="frame-mask">
-    <rect x="5" y="20" width="130" height="92" rx="26"/>
+    <rect width="130" height="92" rx="26"/>
    </clipPath>
    <!-- Close button -->
    <g id="close-button">
@@ -112,10 +112,44 @@
 
   // Public API
 
-  document.updateFrame = function(svg, copy /*= true*/) {
-    // If copy is true or undefined, clone the svg, otherwise adopt it
-    // Find the current frame and replace the subtree with the
-    //   copied/adopted svg
+  document.updateFrame = function(index, svg, copy /*= true*/) {
+    if (typeof copy === "undefined")
+      copy = true;
+
+    // Copy / adopt the code
+    var content = copy
+                ? svg.cloneNode(true)
+                : document.adoptNode(svg);
+
+    // Get the frame at index
+    var container = document.getElementById('frame-container');
+    var frame = container.childNodes[index];
+
+    // Get the target group
+    var g = frame.getElementsByTagName("g")[0];
+
+    // Clear the previous image
+    // (There should only be one child but just to be safe iterate over them)
+    while (g.hasChildNodes()) {
+      g.removeChild(g.lastChild);
+    }
+
+    // Plug in the new content
+    // XXX Still undecided which method is better
+    if (true) {
+      var scale = 92 / 300;
+      content.setAttribute("transform", "scale(" + scale + ")");
+      g.appendChild(content);
+    } else {
+      var svgWrapper = document.createElementNS(SVG_NS, "svg");
+      svgWrapper.setAttribute("width", "130");
+      svgWrapper.setAttribute("height", "92");
+      svgWrapper.appendChild(content);
+      g.appendChild(svgWrapper);
+      var bbox = content.getBBox();
+      svgWrapper.setAttribute("viewBox",
+        [bbox.x,bbox.y,bbox.width,bbox.height].join(" "));
+    }
   }
 
   document.resetFrames = function() {
@@ -180,6 +214,7 @@
     // Add group for content
     var content_g = document.createElementNS(SVG_NS, 'g');
     content_g.setAttribute('clip-path', 'url(#frame-mask)');
+    content_g.setAttribute('transform', 'translate(5 20)');
     frame_g.appendChild(content_g);
 
     // Add close button
@@ -513,10 +548,6 @@
   function init() {
     var plusFrame = document.getElementById('plus-frame');
     plusFrame.addEventListener('click', addFrame, true);
-
-    // XXX Register for touch handling
-    // XXX Register for resize events to scroll currently selected frame into
-    //     view
     addFrame(false);
   }
   init();
