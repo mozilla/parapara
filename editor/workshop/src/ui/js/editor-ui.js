@@ -86,6 +86,7 @@ EditorUI.returnToEditing = function() {
 
 EditorUI.reset = function() {
   document.forms[0].reset();
+  document.forms[1].reset();
   ParaPara.reset();
   if (EditorUI.editMode != 'draw') {
     EditorUI.returnToEditing();
@@ -94,6 +95,10 @@ EditorUI.reset = function() {
 }
 
 // -------------- Sending -----------
+
+EditorUI.promptMetadata = function() {
+  EditorUI.displayNote("noteMetadata");
+}
 
 EditorUI.send = function() {
   EditorUI.displayNote("noteSending");
@@ -512,7 +517,7 @@ EditorUI.initAnimControls = function() {
   }
 
   var send = document.getElementById("send");
-  send.addEventListener("click", EditorUI.send, false);
+  send.addEventListener("click", EditorUI.promptMetadata, false);
 
   var animControls = document.getElementById("anim-controls");
   animControls.addEventListener("transitionend",

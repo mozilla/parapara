@@ -864,7 +864,9 @@ ParaPara.Animator.prototype.makeAnimation = function() {
 }
 
 ParaPara.Animator.prototype.removeAnimation = function() {
-  this.animation.parentNode.removeChild(this.animation);
+  if (this.animation && this.animation.parentNode) {
+    this.animation.parentNode.removeChild(this.animation);
+  }
   this.animation = null;
 }
 

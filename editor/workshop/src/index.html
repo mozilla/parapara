@@ -130,6 +130,26 @@
         <div class="overlay-contents" id="noteSendingComplete">
           送信しました！
         </div>
+        <div class="overlay-contents" id="noteMetadata"
+          style="padding-top: 1.2em; padding-bottom: 1em">
+          タイトルを付けましょう！
+          <form id="email-form" action="javascript:EditorUI.sendEmail()">
+            <div class="field-row">
+              <input type="text" name="title" id="title" size="23"
+                style="ime-mode: active" autocomplete="off"
+                placeholder="タイトル">
+            </div>
+            <div class="field-row">
+              <input type="text" name="name" id="name" size="23"
+                style="ime-mode: active" autocomplete="off"
+                placeholder="おなまえ">
+            </div>
+          </form>
+          <button type="submit" class="text" id="metadata-button"
+            onclick="EditorUI.clearNote(); EditorUI.send()">送信</button>
+          <button type="button" class="text"
+            onclick="EditorUI.clearNote()">キャンセル</button>
+        </div>
         <div class="overlay-contents" id="noteShare"
           style="padding-top: 1.2em; padding-bottom: 1em">
           作品をシェアーしましょう！
@@ -156,7 +176,7 @@
         <div class="overlay-contents error" id="noteNoAnimation">
           アニメーションがありません<br/><br/>
           <button type="button" class="text"
-            onclick="EditorUI.clearNoteAndReset()">OK</button>
+            onclick="EditorUI.clearNote()">OK</button>
         </div>
         <div class="overlay-contents" id="noteConfirmDelete">
           このフレームを削除してよろしいですか<br/><br/>
