@@ -98,7 +98,7 @@
  <![CDATA[
   const SVG_NS   = 'http://www.w3.org/2000/svg';
   const XLINK_NS = 'http://www.w3.org/1999/xlink';
-  const FRAME_ANIM_DUR_MS = 1000;
+  const FRAME_ANIM_DUR_MS = 300;
 
   // Public API
 
@@ -289,7 +289,6 @@
     var parent = evt.target.parentNode;
     if (!parent)
       return;
-
     parent.removeChild(evt.target);
   }
 
@@ -397,8 +396,12 @@
   }
 
   function init() {
-    // XXX Register handler for plus button
+    var plusFrame = document.getElementById('plus-frame');
+    plusFrame.addEventListener('click', addFrame, true);
+
     // XXX Register for touch handling
+    // XXX Register for resize events to scroll currently selected frame into
+    //     view
     addFrame();
   }
   init();
