@@ -8,7 +8,7 @@
     <title>パラパラアニメーション</title>
     <link rel="stylesheet" href="ui/css/editor.css" type="text/css">
     <link rel="stylesheet" href="ui/css/parapara.css" type="text/css">
-    <script type="text/javascript" src="js/parapara-dev.core.js"></script>
+    <script type="text/javascript" src="js/parapara.core.js"></script>
     <script type="text/javascript" src="ui/js/editor-ui.js"></script>
     <!-- The following QRCode library is only used as a fallback in case the
          server doesn't send a QR Code. If we know the server will always
@@ -161,7 +161,7 @@
         <div class="overlay-contents" id="noteConfirmDelete">
           このフレームを削除してよろしいですか<br/><br/>
           <button type="button" class="text"
-            onclick="EditorUI.deleteFrame(); EditorUI.clearNote()">削除</button>
+            id="confirmDeleteButton">削除</button>
           <button type="button" class="text"
             onclick="EditorUI.clearNote()">キャンセル</button>
         </div>

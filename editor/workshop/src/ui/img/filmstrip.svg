@@ -181,13 +181,11 @@
     var content_g = document.createElementNS(SVG_NS, 'g');
     content_g.setAttribute('clip-path', 'url(#frame-mask)');
     frame_g.appendChild(content_g);
-    // XXX Add handler for selection
 
     // Add close button
     var close = document.createElementNS(SVG_NS, 'use');
     close.setAttributeNS(XLINK_NS, 'xlink:href', '#close-button');
     frame_g.appendChild(close);
-    // XXX Add handler here
 
     // Add selection border
     var border = document.createElementNS(SVG_NS, 'use');
@@ -264,7 +262,8 @@
       transform.setTranslate(transform.matrix.e + x, transform.matrix.f + y);
       // This shouldn't be necessary but Transform objects in WebKit don't
       // appear to be live.
-      list.replaceItem(transform, 0);
+      list.clear();
+      list.appendItem(transform);
     } else {
       var transform = document.documentElement.createSVGTransform();
       transform.setTranslate(x, y);
@@ -288,7 +287,7 @@
     anim.setAttribute("to", to);
   }
 
-  function createAnimBase(elem, attr, tag) {
+  function createAnimBase(elem, attr, tag, endAnimCallback) {
     if (typeof tag === "undefined")
       tag = "animate";
 
@@ -297,15 +296,20 @@
     anim.setAttribute("attributeName", attr);
     anim.setAttribute("begin", "indefinite");
     anim.setAttribute("fill", "freeze");
-    if (typeof TimeEvent === "object") {
-      anim.addEventListener("end", selfDestruct);
-    } else {
-      // Fallback for browsers that don't do TimeEvents
-      window.setTimeout(
-        function() { elem.removeChild(anim); },
-        FRAME_ANIM_DUR_MS
-      );
+
+    // Set up callback for when animation ends
+    if (endAnimCallback !== null) {
+      var callback = typeof endAnimCallback === "undefined"
+                   ? function() { elem.removeChild(anim); }
+                   : function() { endAnimCallback(elem, anim); };
+      if (typeof TimeEvent === "object") {
+        anim.addEventListener("end", callback);
+      } else {
+        // Fallback for browsers that don't do TimeEvents
+        window.setTimeout(callback, FRAME_ANIM_DUR_MS);
+      }
     }
+
     elem.appendChild(anim);
     anim.beginElement();
 
@@ -367,27 +371,81 @@
     });
   }
 
-  function onClose() {
-    console.log("XXX close");
+  function onClose(evt) {
     // XXX Stop any scrolling
-    // XXX Send event to application so it can put up a prompt for deleting the
-    // frame???
+
+    // Send event to application so it can put up a prompt for deleting the
+    // frame
+    var frameIndex = getChildIndex(evt.target.parentNode);
+    dispatchEvent('requestdelete',
+      { index: frameIndex,
+        callback: function() { removeFrame(frameIndex); } }
+    );
+
     // XXX In the future we should move this frame to the end, dim it, add
     // a return icon (i.e. undo), append the frame with its index. On click it
     // would be restored. On creating a new frame, it would be lost forever.
   }
 
-  function removeFrame() {
-    // XXX Remove hit test item so we don't get double-selection?
-    // XXX Animate disappearance
-    // XXX If we are down to zero frames, call addFrame again
+  function removeFrame(index) {
+    var container = document.getElementById('frame-container');
+    var frame = container.childNodes[index];
+
+    // Remove hit test item so we don't get double-selection
+    var hitRegions = frame.getElementsByClassName('hit-region');
+    for (var i = hitRegions.length - 1; i >= 0; i--) {
+      frame.removeChild(hitRegions[i]);
+    }
+
+    // Animate disappearance
+    var anim =
+      createAnimBase(frame, "transform", "animateTransform", finishDelete);
+    anim.setAttribute("type", "scale");
+    anim.setAttribute("from", "1 1");
+    anim.setAttribute("to", "0 1");
+    anim.setAttribute("additive", "sum");
+
+    // Retract backing rect and lines too
+    var backingRect = document.getElementById('backing');
+    animLength(backingRect, backingRect.width, "width", -140);
+    var topLine = document.getElementById('top-line');
+    animLength(topLine, topLine.x1, "x1", -140);
+    var bottomLine = document.getElementById('bottom-line');
+    animLength(bottomLine, bottomLine.x1, "x1", -140);
+
+    // Move plus frame
+    var plusFrame = document.getElementById('plus-frame');
+    animTranslate(plusFrame, -140, 0);
+
+    // Move other frames
+    for (var i = index + 1; i < container.childNodes.length; i++) {
+      animTranslate(container.childNodes[i], -140, 0);
+    }
+  }
+
+  function finishDelete(elem) {
+    var container = document.getElementById('frame-container');
+
+    // Store info about the elem before removing it
+    var index = getChildIndex(elem);
+    var wasSelected = hasClass(elem, 'selected');
+
+    container.removeChild(elem);
+
+    // If there are no frames left, add one back
+    if (container.childNodes.length === 0) {
+      addFrame(false);
+    }
+
+    // If it was selected, choose the appropriate frame
+    if (wasSelected) {
+      var newIndex = Math.min(index, container.childNodes.length-1);
+      selectFrame(newIndex);
+    }
   }
 
   function onSelect(evt) {
-    var frame = evt.target.parentNode;
-    var frameIndex = 0;
-    while((frame = frame.previousSibling) !== null) 
-      frameIndex++;
+    var frameIndex = getChildIndex(evt.target.parentNode);
     selectFrame(frameIndex);
     dispatchEvent("selectframe", { index: frameIndex });
   }
@@ -403,6 +461,14 @@
 
     // Again, 'children' would be better, but WebKit says no
     addClass(container.childNodes[index], 'selected');
+  }
+
+  function getChildIndex(elem) {
+    var index = 0;
+    var prev = elem;
+    while((prev = prev.previousSibling) !== null) 
+      index++;
+    return index;
   }
 
   function removeClass(elem, classStr) {
@@ -426,6 +492,15 @@
       if (idx === -1)
         classes.push(classStr);
       elem.className.baseVal = classes.join(" ");
+    }
+  }
+
+  function hasClass(elem, classStr) {
+    if (elem.classList) {
+      return elem.classList.contains(classStr);
+    } else {
+      var classes = elem.className.baseVal.trim().split(/\s+/);
+      return classes.indexOf(classStr) !== -1;
     }
   }
 

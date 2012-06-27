@@ -440,6 +440,8 @@ EditorUI.initFrameControls = function() {
     EditorUI.appendFrame, false);
   filmstrip.contentDocument.addEventListener("selectframe",
     EditorUI.selectFrame, false);
+  filmstrip.contentDocument.addEventListener("requestdelete",
+    EditorUI.requestDeleteFrame, false);
 }
 
 EditorUI.appendFrame = function() {
@@ -455,6 +457,22 @@ EditorUI.selectFrame = function(evt) {
     EditorUI.returnToEditing();
   }
   ParaPara.selectFrame(evt.detail.index);
+}
+
+EditorUI.requestDeleteFrame = function(evt) {
+  if (EditorUI.editMode != 'draw') {
+    EditorUI.returnToEditing();
+  }
+  var index = evt.detail.index;
+  var callback = evt.detail.callback;
+  document.getElementById("confirmDeleteButton").onclick =
+    function() {
+      EditorUI.clearNote();
+      callback();
+      ParaPara.deleteFrame(index);
+    };
+  EditorUI.displayNote("noteConfirmDelete");
+
 }
 
 // -------------- Nav controls -----------
@@ -478,10 +496,6 @@ EditorUI.toggleEditMode = function() {
  } else {
    EditorUI.returnToEditing();
  }
-}
-
-EditorUI.confirmClear = function() {
-  EditorUI.displayNote("noteConfirmDelete");
 }
 
 // -------------- Anim control -----------
