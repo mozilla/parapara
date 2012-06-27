@@ -228,7 +228,9 @@ button.text {
   font-weight: bold;
   font-size: 20px;
   letter-spacing: 1px;
-  margin: auto;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 0.3em;
   padding: 7px 25px;
   text-shadow: 0 1px 1px black;
 }
@@ -266,8 +268,9 @@ div.overlay-inner {
 div.overlay-contents {
   position: relative;
   top: -50%;
-  width: 20em;
-  max-width: 90%;
+  /* I've no idea how the following two lines work, but they do */
+  min-width: 50%;
+  width: 3em;
   margin: 1em auto;
   padding: 1.8em 2.5em;
   border-radius: 1em;
