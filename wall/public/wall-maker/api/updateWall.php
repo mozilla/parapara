@@ -34,12 +34,15 @@ if (!isset($wallId)) {
   if ($name === "eventName" || $name === "eventDescr" || $name === "eventLocation" || $name === "passcode") {
     $type = "text";
   } else if ($name === "duration") {
-    if (!is_numeric($value)) {
+    if (strlen($value) == 0) {
+      $value = null;
+    } else if (!is_numeric($value)) {
       bailWithError('input is not numeric');
+    } else {
+      $value = intval($value)*1000;
     }
-    $value = intval($value)*1000;
     $type = "integer";
-  } else if ($name === "galleryDisplay") {
+  } else if ($name === "galleryDisplay" || $name === "designId") {
     if (!is_numeric($value)) {
       bailWithError('input is not numeric');
     }

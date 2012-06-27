@@ -88,7 +88,8 @@
   </div>
   <div class="screen" id="screen-manage">
     <h2>イベントの名前</h2>
-      <span style="font-size: smaller"><input type="text" id="manage-eventName"></span></h2>
+      <input type="text" id="manage-eventName"><label id="manage-eventName-message" class="manage-message"></label>
+      </h2>
     <div>
       基本情報
       <ul>
@@ -100,9 +101,15 @@
     </div>
     <div class="tab" id="manage-running">
       <ul>
-        <li>新セッションをスタートする
-        (今のキャラクターが全部見えなくなるよという説明）</li>
-        <li>今、終了</li>
+        <li>
+          <a class="clickable" id="manage-startSession">新セッションをスタートする</a>
+          <label id="manage-startSession-message" class="manage-message"></label>
+          (今のキャラクターが全部見えなくなるよという説明）
+        </li>
+        <li>
+          <a class="clickable" id="manage-closeSession">セッションを終了する</a>
+          <label id="manage-closeSession-message" class="manage-message"></label>
+        </li>
         <li>
           <label class="manage-title">現在のアニメーションスピード</label>
           <input type="number" name="duration" autocomplete="off"
@@ -113,9 +120,24 @@
       </ul>
     </div>
     <div class="tab" id="manage-design">
-      <ul>
-        <li>背景の選択とプレビュー</li>
-      </ul>
+      <div class="designGrid">
+        <p>壁のデザイン：</p>
+        <form id="manage-designId">
+        <label class="graphical">
+          <input type="radio" name="manage-designId" value="1">
+          <div class="designThumb">
+            <object data="img/design-1-preview.svg"></object>
+          </div>
+        </label>
+        <label class="graphical">
+          <input type="radio" name="manage-designId" value="2">
+          <div class="designThumb">
+            <object data="img/design-2-preview.svg"></object>
+          </div>
+        </label>
+        <label id="manage-designId-message" class="manage-message"></label>
+        </form>
+      </div>
     </div>
     <div class="tab" id="manage-event">
       <dl>
@@ -124,18 +146,15 @@
         <dd>
           <input type="text" name="eventLocation" autocomplete="off"
            maxlength="255" class="eventLocation" id="manage-eventLocation">
+          <label id="manage-eventLocation-message" class="manage-message"></label>
           <div class="fieldExplain">場所の例</div>
         </dd>
-        <dt><label class="manage-title">イベントの終了日時</label><label id="manage-eventFinish"></label></dt>
-        <dd>
-          TODO <!-- XXX Time picker -->
-          <div class="fieldExplain">終了時間の説明</div>
-        </dd>
         <dt><label class="optional"
-          for="create-eventDescr"  id="manage-eventDescr">イベントの説明</label></dt>
+          for="create-eventDescr">イベントの説明</label></dt>
         <dd>
           <textarea name="eventDescr" class="eventDescr"
-            id="create-eventDescr"></textarea>
+            id="manage-eventDescr"></textarea>
+          <label id="manage-eventDescr-message" class="manage-message"></label>
         </dd>
       </dl>
     </div>
@@ -143,22 +162,24 @@
       <dl>
         <dt>ギャラリーに表示</dt>
         <dd class="alongside">
-          <label>
-            <input type="radio" name="galleryDisplay" value="1"
-              id="manage-galleryDisplay" checked>
-            On
-          </label>
-          <label>
-            <input type="radio" name="galleryDisplay" value="0"
-              id="manage-galleryDisplay">
-            Off
-          </label>
+          <form id="manage-galleryDisplay">
+            <label>
+              <input type="radio" name="manage-galleryDisplay" value="1" checked>
+              On
+            </label>
+            <label>
+              <input type="radio" name="manage-galleryDisplay" value="0">
+              Off
+            </label>
+            <label id="manage-galleryDisplay-message" class="manage-message"></label>
+          </form>
           <div class="fieldExplain">ギャラリーの説明</div>
         </dd>
         <dt><label class="optional">エディターのパスコード</label></dt>
         <dd>
           <input type="password" name="passcode" autocomplete="off"
            maxlength="50" class="passcode" id="manage-passcode">
+          <label id="manage-passcode-message" class="manage-message"></label>
           <div class="fieldExplain">パスコードの説明</div>
         </dd>
       </dl>

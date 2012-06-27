@@ -23,23 +23,16 @@ $json = json_decode($jsonString,true);
 fclose($handle);
 
 // Prepare parameters
-$params = array('ownerEmail' => $_SESSION['email']);
-$params['design'] = @$json['design'];
-$params['title'] = @$json['title'];
-
-// Run the query
-try {
-  $wallId = createWall($params);
-} catch (KeyedException $e) {
-  bailWithError($e->getKey(), $e->getDetail());
+$wallId = @$json['wallId'];
+if (!isset($wallId)) {
+  bailWithError('logged-out');
 }
 
-// Prepare result
-$result = array('wallId' => $wallId);
-// start session
 $currentdatetime = date("Y-m-d H:i:s", time());
+closeLastSession($wallId, $currentdatetime);
 startNewSession($wallId, $currentdatetime);
 
+
 // Return the result
-print json_encode($result);
+print json_encode("ok");
 ?>

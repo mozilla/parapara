@@ -203,3 +203,13 @@ label.manage-message {
 label.manage-message.error {
   color: red;
 }
+
+.tab {
+  border: 1px solid gray;
+  margin: 16px;
+}
+
+.clickable {
+  color: orange;
+  cursor: pointer;
+}

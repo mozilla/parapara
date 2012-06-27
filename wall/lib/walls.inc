@@ -239,7 +239,34 @@ function updateWall($wallId, $name, $value, $type) {
   $conn =& getDbConnection();
   $qvalue = $conn->quote($value, $type);
   $qwallid = $conn->quote($wallId, 'integer');
-  $query = "UPDATE walls SET $name=$qvalue WHERE wallId = $qwallid";
+  $query = 'UPDATE walls SET '.$name.'='.$qvalue.' WHERE wallId = '.$qwallid;
+  $res =& $conn->query($query);
+  if (PEAR::isError($res)) {
+    error_log($res->getMessage() . ', ' . $res->getDebugInfo());
+    throw new KeyedException('db-error');
+  }
+  $conn->disconnect();
+}
+
+function startNewSession($wallId, $datetime) {
+  $conn =& getDbConnection();
+  $qwallid = $conn->quote($wallId, 'integer');
+  $qdatetime = $conn->quote($datetime, 'text');
+  $query = 'INSERT INTO sessions(wallId,beginDate) VALUES('.$wallId.','.$qdatetime.')';
+  $res =& $conn->query($query);
+  if (PEAR::isError($res)) {
+    error_log($res->getMessage() . ', ' . $res->getDebugInfo());
+    throw new KeyedException('db-error');
+  }
+  $conn->disconnect();
+}
+
+function closeLastSession($wallId, $datetime) {
+  $conn =& getDbConnection();
+  $qwallid = $conn->quote($wallId, 'integer');
+  $qdatetime = $conn->quote($datetime, 'text');
+  //makes temp table for (You can't specify target table 'sessions' for update in FROM clause)
+  $query = 'UPDATE sessions SET endDate='.$qdatetime.' WHERE endDate IS NULL AND wallId='.$wallId.' AND sessionId=(SELECT temp.sessionId FROM (SELECT MAX(sessionId) AS sessionID FROM sessions WHERE wallId='.$wallId.') AS temp)';
   $res =& $conn->query($query);
   if (PEAR::isError($res)) {
     error_log($res->getMessage() . ', ' . $res->getDebugInfo());

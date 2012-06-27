@@ -25,54 +25,89 @@
 var ManageWallController =
 {
   show: function(wallId) {
+    this.clearAllMessage();
     this.wallId = wallId;
     this.installObserver("manage-eventName");
     this.installObserver("manage-eventDescr");
     this.installObserver("manage-eventLocation");
     this.installObserver("manage-duration");
     this.installObserver("manage-passcode");
-    
+    this.installObserver("manage-galleryDisplay");
+    this.installObserver("manage-designId");
+
+    this.installClickObserver("manage-startSession", this.clickOnStartSession.bind(this));
+    this.installClickObserver("manage-closeSession", this.clickOnCloseSession.bind(this));
+
+    //ui
+    new WallMaker.GraphicalRadioGroup(document.forms["manage-designId"], "manage-designId");
+
     //ここで ajax アクセスして、基本情報をとる
     var payload = {wallId: wallId};
     ParaPara.postRequest('../api/getWall', payload,
                          this.loadSuccess.bind(this),
                          this.loadError.bind(this));
   },
+
+  clearAllMessage: function() {
+    var elements = document.getElementsByClassName("manage-message");
+    for (var i = 0; i < elements.length; i++) {
+      elements[i].textContent = "";
+    }
+  },
   
+  clickOnStartSession: function(e) {
+    this.sendCommand('../api/startSession', {wallId: this.wallId}, document.getElementById("manage-startSession-message"));
+  },
+  
+  clickOnCloseSession: function(e) {
+    this.sendCommand('../api/closeSession', {wallId: this.wallId}, document.getElementById("manage-closeSession-message"));
+  },
+
+  installClickObserver: function(name, callbackFunction) {
+    var element = document.getElementById(name);
+    element.removeEventListener("click", callbackFunction, false);
+    element.addEventListener("click", callbackFunction, false);
+  },
+
   installObserver: function(name) {
     var element = document.getElementById(name);
-    element.removeEventListener("change", this.valueChanged.bind(this), false)
-    element.addEventListener("change", this.valueChanged.bind(this), false)
+    element.removeEventListener("change", this.valueChanged.bind(this), false);
+    element.addEventListener("change", this.valueChanged.bind(this), false);
   },
   
   valueChanged: function(e) {
     var target = e.target;
     var id = target.getAttribute("id");
+    id = id != null ? id : target.getAttribute("name"); //when name is used, it is from radio.
     var name = id.substring(7);//removes "manage-"
     var value = target.value;
     var payload = {wallId: this.wallId, name: name, value: value};
     var messageElement = document.getElementById(id+"-message");
-    ParaPara.postRequest('../api/updateWall', payload,
+    this.sendCommand('../api/updateWall', payload, messageElement);
+  },
+  
+  sendCommand: function(url, payload, messageElement) {
+    ParaPara.postRequest(url, payload,
        function(response) {
-          messageElement.setAttribute("class", "manage-message");
+          messageElement.classList.remove("error");
           messageElement.textContent = response;
        },
        function(key, detail) {
-          messageElement.setAttribute("class", "manage-message error");
+          messageElement.classList.add("error");
           if (key) {
             messageElement.textContent = key;
           } else {
             messageElement.textContent = "something error";
           }
        }
-    );
+     );
   },
   
   loadSuccess: function(response) {
     document.getElementById("manage-eventName").value = response.eventName;
     document.getElementById("manage-eventDescr").value = response.eventDescr;
     document.getElementById("manage-eventLocation").value = response.eventLocation;
-    document.getElementById("manage-duration").value = response.duration/1000;
+    document.getElementById("manage-duration").value = response.duration == null ? "" : response.duration/1000;
     var dummypasscode = "";
     for (var i = 0; i < response.passcode; i++) {
       dummypasscode += "x";
@@ -82,7 +117,14 @@ var ManageWallController =
     document.getElementById("manage-shortUrl").textContent = response.shortUrl;
     document.getElementById("manage-editorShortUrl").textContent = response.editorShortUrl;
     document.getElementById("manage-defaultDuration").textContent = response.defaultDuration/1000;
-    document.getElementsByName("galleryDisplay")[response.editorShortUrl == 0 ? 1 : 0].checked = true;
+    var radios = document.getElementsByName("manage-galleryDisplay");
+    if (response.galleryDisplay == 0) {
+      radios[0].checked = false;
+      radios[1].checked = true;
+    } else {
+      radios[0].checked = true;
+      radios[1].checked = false;
+    }
   },
   
   loadError: function(key, detail) {
