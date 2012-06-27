@@ -12,8 +12,8 @@ EditorUI.SPEED_STEP_FPS    = 0.3;
 EditorUI.LONG_PRESS_DELAY_MS = 350;
 EditorUI.LONG_PRESS_RATE_MS  = 120;
 
-EditorUI.UPLOAD_PATH       = "../api/upload_anim.php";
-EditorUI.SEND_EMAIL_PATH   = "../api/email_anim.php";
+EditorUI.UPLOAD_PATH       = "api/upload_anim.php";
+EditorUI.SEND_EMAIL_PATH   = "api/email_anim.php";
 
 EditorUI.init = function() {
   var paraparaRoot = document.getElementById("parapara");
