@@ -384,13 +384,15 @@
   }
 
   function onSelect(evt) {
-    console.log("XXX select");
-    // XXX Inspect target and work out which frame was selected
-    // XXX call selectFrame with the right index
-    // XXX Dispatch frameChanged event
+    var frame = evt.target.parentNode;
+    var frameIndex = 0;
+    while((frame = frame.previousSibling) !== null) 
+      frameIndex++;
+    selectFrame(frameIndex);
+    dispatchEvent("selectframe", { index: frameIndex });
   }
 
-  function selectFrame(index, fireEvent) {
+  function selectFrame(index) {
     var container = document.getElementById('frame-container');
 
     // Clear any previous selection

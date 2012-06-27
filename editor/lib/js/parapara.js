@@ -47,6 +47,12 @@ ParaPara.appendFrame = function() {
   return result;
 }
 
+ParaPara.selectFrame = function(index) {
+  var result = ParaPara.frames.selectFrame(index);
+  ParaPara.currentTool.targetFrame(ParaPara.frames.getCurrentFrame());
+  return result;
+}
+
 ParaPara.deleteFrame = function() {
   var result = ParaPara.frames.deleteFrame();
   ParaPara.currentTool.targetFrame(ParaPara.frames.getCurrentFrame());
@@ -593,13 +599,32 @@ ParaPara.FrameList.prototype.addFrame = function() {
   this.currentFrame = g;
 }
 
+// appendFrame, selectFrame, and deleteFrame are needed for the random-access
+// filmstrip UI. Currently they're pretty inefficient for long jumps.
+
 ParaPara.FrameList.prototype.appendFrame = function() {
-  // There are probably more efficient ways of doing this,
-  // but this will do for now
   var result;
   do {
     result = this.nextFrame();
   } while (!result.added);
+}
+
+ParaPara.FrameList.prototype.selectFrame = function(index) {
+  if (index < 0 || index >= this.getFrameCount() ||
+      !this.currentFrame)
+    return;
+
+  var currIndex = this.getCurrentIndex();
+  if (index === currIndex)
+    return;
+
+  if (index < currIndex) {
+    for (var i = currIndex; i != index; --i)
+      this.prevFrame();
+  } else {
+    for (var i = currIndex; i != index; ++i)
+      this.nextFrame();
+  }
 }
 
 ParaPara.FrameList.prototype.deleteCurrentFrame = function() {

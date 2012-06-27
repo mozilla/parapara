@@ -438,11 +438,17 @@ EditorUI.initFrameControls = function() {
     filmstrip.contentDocument.reset();
   filmstrip.contentDocument.addEventListener("appendframe",
     EditorUI.appendFrame, false);
+  filmstrip.contentDocument.addEventListener("selectframe",
+    EditorUI.selectFrame, false);
 }
 
 EditorUI.appendFrame = function() {
   ParaPara.appendFrame();
   EditorUI.changeTool("pencil");
+}
+
+EditorUI.selectFrame = function(evt) {
+  ParaPara.selectFrame(evt.detail.index);
 }
 
 // -------------- Nav controls -----------
