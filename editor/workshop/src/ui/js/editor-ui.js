@@ -443,11 +443,17 @@ EditorUI.initFrameControls = function() {
 }
 
 EditorUI.appendFrame = function() {
+  if (EditorUI.editMode != 'draw') {
+    EditorUI.returnToEditing();
+  }
   ParaPara.appendFrame();
   EditorUI.changeTool("pencil");
 }
 
 EditorUI.selectFrame = function(evt) {
+  if (EditorUI.editMode != 'draw') {
+    EditorUI.returnToEditing();
+  }
   ParaPara.selectFrame(evt.detail.index);
 }
 

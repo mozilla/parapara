@@ -558,14 +558,17 @@ ParaPara.Style.prototype.__defineGetter__("eraseWidth", function() {
 ParaPara.FrameList = function() {
   this.currentFrame = null;
   this.scene = ParaPara.editContent;
-  this.addFrame();
+  this.appendFrame();
 }
 
 ParaPara.FrameList.prototype.getCurrentFrame = function() {
   return this.currentFrame;
 }
 
-ParaPara.FrameList.prototype.nextFrame = function() {
+ParaPara.FrameList.prototype.appendFrame = function() {
+  // Select last frame
+  this.selectFrame(this.getFrameCount()-1);
+
   // Move previous frame to oldFrames group
   var prevFrame = this.getPrevFrame();
   if (prevFrame) {
@@ -578,35 +581,11 @@ ParaPara.FrameList.prototype.nextFrame = function() {
   }
   this.currentFrame = null;
 
-  // Get next frame
-  var addedFrame = false;
-  if (this.getNextFrames()) {
-    this.makeNextFrameCurrent();
-  } else {
-    this.addFrame();
-    addedFrame = true;
-  }
-
-  var result = this.getFrameIndexAndCount();
-  result.added = addedFrame;
-  return result;
-}
-
-ParaPara.FrameList.prototype.addFrame = function() {
+  // Append new frame
   var g = document.createElementNS(ParaPara.SVG_NS, "g");
   g.setAttribute("class", "frame");
-  this.scene.insertBefore(g, this.getNextFrames());
+  this.scene.appendChild(g);
   this.currentFrame = g;
-}
-
-// appendFrame, selectFrame, and deleteFrame are needed for the random-access
-// filmstrip UI. Currently they're pretty inefficient for long jumps.
-
-ParaPara.FrameList.prototype.appendFrame = function() {
-  var result;
-  do {
-    result = this.nextFrame();
-  } while (!result.added);
 }
 
 ParaPara.FrameList.prototype.selectFrame = function(index) {
@@ -619,18 +598,92 @@ ParaPara.FrameList.prototype.selectFrame = function(index) {
     return;
 
   if (index < currIndex) {
-    for (var i = currIndex; i != index; --i)
-      this.prevFrame();
+    // Going backwards
+    var amountToMove = currIndex - index;
+
+    // Move current frame to next frames group
+    var nextFrames = this.getOrMakeNextFrames();
+    nextFrames.insertBefore(this.currentFrame, nextFrames.firstChild);
+    this.currentFrame = null;
+
+    // Move prev frame
+    if (amountToMove > 1) {
+      nextFrames.insertBefore(this.getPrevFrame(), nextFrames.firstChild);
+    } else {
+      var prevFrame = this.getPrevFrame();
+      this.scene.insertBefore(prevFrame, this.getNextFrames());
+      this.currentFrame = prevFrame;
+    }
+
+    // Shift old frames forwards
+    var oldFrames = this.getOldFrames();
+    var prevFrames = this.getPrevFrames();
+    while (amountToMove > 0) {
+      if (!oldFrames || oldFrames.childNodes.length === 0)
+        break;
+      var frame = this.getOldFrames().lastChild;
+      switch (amountToMove) {
+        case 1:
+          prevFrames.appendChild(frame);
+          break;
+        case 2:
+          this.scene.insertBefore(frame, nextFrames);
+          this.currentFrame = frame;
+          break;
+        default:
+          nextFrames.insertBefore(frame, nextFrames.firstChild);
+          break;
+      }
+      amountToMove--;
+    }
+
+    // Tidy up
+    if (!oldFrames.hasChildNodes())
+      oldFrames.parentNode.removeChild(oldFrames);
+    if (!prevFrames.hasChildNodes())
+      prevFrames.parentNode.removeChild(prevFrames);
   } else {
-    for (var i = currIndex; i != index; ++i)
-      this.nextFrame();
+    // Going forwards
+    var amountToMove = index - currIndex;
+
+    // Move prev frame back to old frames
+    var prevFrame = this.getPrevFrame();
+    if (prevFrame) {
+      this.getOrMakeOldFrames().appendChild(prevFrame);
+    }
+
+    // Move current frame back
+    if (amountToMove > 1) {
+      this.getOrMakeOldFrames().appendChild(this.currentFrame);
+    } else {
+      this.getOrMakePrevFrames().appendChild(this.currentFrame);
+    }
+
+    // Move next frames back
+    var nextFrames = this.getNextFrames();
+    while (amountToMove > 0) {
+      if (!nextFrames || nextFrames.childNodes.length === 0)
+        break;
+      var frame = this.getNextFrames().firstChild;
+      switch (amountToMove) {
+        case 1:
+          this.scene.insertBefore(frame, nextFrames);
+          this.currentFrame = frame;
+          break;
+        case 2:
+          this.getOrMakePrevFrames().appendChild(frame);
+          break;
+        default:
+          this.getOrMakeOldFrames().appendChild(frame);
+          break;
+      }
+      amountToMove--;
+    }
+
+    // Tidy up
+    if (!nextFrames.hasChildNodes())
+      nextFrames.parentNode.removeChild(nextFrames);
   }
-}
-
-ParaPara.FrameList.prototype.deleteCurrentFrame = function() {
-  if (!this.currentFrame)
-    return { index: 0, count: this.getFramesCount() };
-
 }
 
 ParaPara.FrameList.prototype.deleteFrame = function(index) {
@@ -646,21 +699,6 @@ ParaPara.FrameList.prototype.deleteFrame = function(index) {
   // otherwise revert to the previous frame,
   // or, failing that, just add a new frame.
   this.makeNextFrameCurrent() || this.makePrevFrameCurrent() || this.addFrame();
-  return this.getFrameIndexAndCount();
-}
-
-ParaPara.FrameList.prototype.prevFrame = function() {
-  var prevFrame = this.getPrevFrame();
-  if (!prevFrame)
-    return { index: 0, count: this.getFramesCount() };
-
-  // Move current frame to next frames group
-  var nextFrames = this.getOrMakeNextFrames();
-  nextFrames.insertBefore(this.currentFrame, nextFrames.firstChild);
-  this.currentFrame = null;
-
-  // Make prev frame current
-  this.makePrevFrameCurrent();
   return this.getFrameIndexAndCount();
 }
 
