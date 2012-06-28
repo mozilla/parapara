@@ -31,7 +31,7 @@ $title  = "";
 $author = "";
 $connection = getConnection();
 try {
-  $query = "SELECT id, title, author FROM characters WHERE id = $id";
+  $query = "SELECT charId, title, author FROM characters WHERE charId = $id";
   $result = mysql_query($query, $connection) or throwException(mysql_error());
   $row = mysql_fetch_array($result, MYSQL_ASSOC);
   if (!$row) {
