@@ -8,3 +8,4 @@ Options -Indexes
   RewriteRule ^[^/]+$ /wall/index.php [L]
   RewriteRule ^[^/]+/upload$ /api/upload_anim.php [L]
 </ifModule>
+php_flag short_open_tag off
