@@ -439,8 +439,7 @@ EditorUI.changeTool = function(tool) {
 
 EditorUI.initFrameControls = function() {
   var filmstrip = document.getElementById("filmstrip");
-  if (filmstrip.contentDocument.reset)
-    filmstrip.contentDocument.reset();
+  filmstrip.contentDocument.resetFrames();
   filmstrip.contentDocument.addEventListener("appendframe",
     EditorUI.appendFrame, false);
   filmstrip.contentDocument.addEventListener("selectframe",

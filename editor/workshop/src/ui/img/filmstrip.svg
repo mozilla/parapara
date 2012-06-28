@@ -150,12 +150,39 @@
       svgWrapper.setAttribute("viewBox",
         [bbox.x,bbox.y,bbox.width,bbox.height].join(" "));
     }
-  }
+  };
 
   document.resetFrames = function() {
-    // Go through and remove all frames then add one
-    document.documentElement.currentTranslate = 0;
-  }
+    // Reset view position
+    document.documentElement.currentTranslate.x = 0;
+
+    // Check if we only have one empty frame, in which case we don't need to do
+    // anything
+    var container = document.getElementById('frame-container');
+    if (container.childNodes.length == 1) {
+      var g = container.childNodes[0].getElementsByTagName("g")[0];
+      if (!g.hasChildNodes()) {
+        return;
+      }
+    }
+
+    // Delete frames
+    var container = document.getElementById('frame-container');
+    while (container.hasChildNodes()) {
+      container.removeChild(container.lastChild);
+    }
+
+    // Reset background
+    document.getElementById('backing').width.baseVal.value = 140;
+    document.getElementById('top-line').x1.baseVal.value = 140;
+    document.getElementById('bottom-line').x1.baseVal.value = 140;
+
+    // Move plus button back
+    document.getElementById('plus-frame').removeAttribute('transform');
+
+    // Add a frame back
+    addFrame(false);
+  };
 
   // rAF polyfill from https://gist.github.com/1579671
   (function() {
