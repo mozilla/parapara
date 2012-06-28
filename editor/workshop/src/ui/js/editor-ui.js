@@ -4,13 +4,22 @@
 
 var EditorUI = EditorUI || {};
 
+EditorUI.MIN_SPEED_FPS     = 0.65;
+EditorUI.MAX_SPEED_FPS     = 12.5;
 EditorUI.INITIAL_SPEED_FPS = 3.3;
-EditorUI.UPLOAD_PATH       = "../api/upload_anim.php";
-EditorUI.SEND_EMAIL_PATH   = "../api/email_anim.php";
+EditorUI.SPEED_STEP_FPS    = 0.3;
+
+EditorUI.LONG_PRESS_DELAY_MS = 350;
+EditorUI.LONG_PRESS_RATE_MS  = 120;
+
+EditorUI.UPLOAD_PATH       = "api/upload_anim.php";
+EditorUI.SEND_EMAIL_PATH   = "api/email_anim.php";
 
 EditorUI.init = function() {
   var paraparaRoot = document.getElementById("parapara");
   ParaPara.init(paraparaRoot);
+  EditorUI.editMode = 'draw'; // 'draw' | 'animate'
+  EditorUI.stillPressing = false;
   EditorUI.initControls();
   // Disabling full-screen mode for now since:
   // a) there's no UI for it for tablets
@@ -30,62 +39,82 @@ EditorUI.init = function() {
 window.addEventListener("load", EditorUI.init, false);
 
 EditorUI.initControls = function() {
-  EditorUI.initTools();
-  EditorUI.initStrokeWidths();
+  // This method gets called on init and ALSO on reset. Therefore, we must
+  // assume it will be called multiple times. When adding event listeners we
+  // must be sure to pass exactly the same function object so that
+  // addEventListener can detect the duplicate and filter it out. If we use
+  // function objects generated on the fly we'll end up accumulating event
+  // listeners and, at best, getting slower and slower.
   EditorUI.initColors();
-  EditorUI.initEraseWidths();
-  var speedAdjust = document.getElementById("speedAdjust");
-  speedAdjust.value = EditorUI.INITIAL_SPEED_FPS;
+  EditorUI.initWidths();
+  EditorUI.initTools();
+  EditorUI.initFrameControls();
+  EditorUI.initNavControls();
+  EditorUI.initAnimControls();
+
+  EditorUI.currentSpeed = EditorUI.INITIAL_SPEED_FPS;
+
+  // Add a catch-all handler to call preventDefault on mouse events.
+  // This is necessary for disabling the chrome that flies in from offscreen
+  // when you drag in old versions of the Fennec tablet UI (i.e. Firefox 9-ish)
+  var container = document.getElementById("container");
+  container.addEventListener("mousemove", EditorUI.catchAll, false);
+  container.addEventListener("touchmove", EditorUI.catchAll, false);
+}
+
+EditorUI.catchAll = function(e) {
+  e.preventDefault();
 }
 
 // -------------- Navigation -----------
 
-EditorUI.prevFrame = function() {
-  ParaPara.prevFrame();
-}
+EditorUI.animate = function() {
+  EditorUI.editMode = 'animate';
 
-EditorUI.nextFrame = function() {
-  var result = ParaPara.nextFrame();
-  if (result.added)
-    this.changeTool(document.getElementById("pencilTool"));
-}
-
-EditorUI.finish = function() {
-  document.getElementById("toolBox").style.visibility = "hidden";
-  document.getElementById("frameControls").style.display = "none";
-  document.getElementById("animControls").style.display = "";
-  EditorUI.updateLayout();
-  var speedAdjust = document.getElementById("speedAdjust");
-  ParaPara.animate(speedAdjust.value);
+  ParaPara.animate(EditorUI.currentSpeed);
+  document.getElementById("play").contentDocument.showPause();
+  EditorUI.showAnimControls();
 }
 
 EditorUI.returnToEditing = function() {
+  EditorUI.editMode = 'draw';
+
   ParaPara.removeAnimation();
-  document.getElementById("toolBox").style.visibility = "";
-  document.getElementById("frameControls").style.display = "";
-  document.getElementById("animControls").style.display = "none";
-  EditorUI.updateLayout();
+  document.getElementById("play").contentDocument.showPlay();
+  EditorUI.hideAnimControls();
 }
 
 EditorUI.reset = function() {
-  document.getElementById("toolBox").style.visibility = "";
-  document.getElementById("frameControls").style.display = "";
-  document.getElementById("animControls").style.display = "none";
-  EditorUI.updateLayout();
+  document.forms[0].reset();
+  document.forms[1].reset();
   ParaPara.reset();
+  if (EditorUI.editMode != 'draw') {
+    EditorUI.returnToEditing();
+  }
   EditorUI.initControls();
 }
 
 // -------------- Sending -----------
 
+EditorUI.promptMetadata = function() {
+  EditorUI.displayNote("noteMetadata");
+}
+
 EditorUI.send = function() {
   EditorUI.displayNote("noteSending");
-  // XXX get title and author -- leaving this until we have a design for this
   var metadata = {};
-  metadata.title  = "タイトル";
-  metadata.author = "名前";
+  metadata.title  = document.forms[0].title.value.trim();
+  metadata.author = document.forms[0].name.value.trim();
   ParaPara.send(EditorUI.UPLOAD_PATH, EditorUI.sendSuccess, EditorUI.sendFail,
                 metadata);
+}
+
+EditorUI.getRadioValue = function(radio) {
+  for (var i = 0; i < radio.length; ++i) {
+    if (radio[i].checked)
+      return radio[i].value;
+  }
+  return undefined;
 }
 
 EditorUI.sendSuccess = function(response) {
@@ -299,177 +328,401 @@ EditorUI.sendEmailFail = function() {
   document.getElementById("email-button").disabled = false;
 }
 
-// -------------- Tools -----------
-
-EditorUI.initTools = function() {
-  EditorUI.initButtonGroup("toolButton", EditorUI.changeTool, 0);
-}
-
-EditorUI.changeTool = function(buttonOrEvent) {
-  var button = EditorUI.selectButtonInGroup(buttonOrEvent, "toolButton");
-  if (!button)
-    return;
-
-  var controlSets = document.getElementsByClassName("controlSet");
-  for (var i = 0; i < controlSets.length; i++) {
-    controlSets[i].style.display = "none";
-  }
-  if (button.id == "pencilTool") {
-    ParaPara.setDrawMode();
-    var drawControls = document.getElementById("drawControls");
-    drawControls.style.display = "inline";
-  } else if (button.id ="eraserTool") {
-    ParaPara.setEraseMode();
-    var eraseControls = document.getElementById("eraseControls");
-    eraseControls.style.display = "inline";
-  } else {
-    console.assert("Unknown tool selected");
-  }
-}
-
-// -------------- Stroke width -----------
-
-EditorUI.initStrokeWidths = function() {
-  EditorUI.initButtonGroup("strokeWidthButton", EditorUI.changeStrokeWidth, 1);
-}
-
-EditorUI.changeStrokeWidth = function(buttonOrEvent) {
-  var button = EditorUI.selectButtonInGroup(buttonOrEvent, "strokeWidthButton");
-  if (!button)
-    return;
-  ParaPara.currentStyle.strokeWidth = EditorUI.getStrokeWidthFromButton(button);
-}
-
-EditorUI.getStrokeWidthFromButton = function(elem) {
-  var circles = elem.getElementsByTagName("circle");
-  if (!circles.length)
-    return "4";
-  return parseFloat(circles[0].getAttribute("r")) * 2;
-}
-
 // -------------- Colors -----------
 
 EditorUI.initColors = function() {
-  EditorUI.initButtonGroup("colorButton", EditorUI.changeColor, 0);
+  var picker = document.getElementById("picker");
+  EditorUI.setColor(picker.contentDocument.getRandomColor());
+  picker.contentDocument.addEventListener("colorchange", EditorUI.onColorChange,
+                                          false);
 }
 
-EditorUI.changeColor = function(buttonOrEvent) {
-  var button = EditorUI.selectButtonInGroup(buttonOrEvent, "colorButton");
-  if (!button)
+EditorUI.onColorChange = function(evt) {
+  if (EditorUI.editMode != 'draw') {
+    EditorUI.returnToEditing();
+  }
+  var color = evt.detail.color;
+  EditorUI.setColor(color);
+  EditorUI.changeTool("pencil");
+}
+
+EditorUI.setColor = function(color) {
+  ParaPara.currentStyle.currentColor = color;
+  EditorUI.updateBrushPreviewColor(color);
+}
+
+EditorUI.updateBrushPreviewColor = function(color) {
+  var widths = document.getElementById("widths");
+  widths.contentDocument.setColor(color);
+}
+
+// -------------- Widths -----------
+
+// Width values
+EditorUI.widthTable = new Array();
+EditorUI.widthTable[0] = 4;
+EditorUI.widthTable[1] = 8;
+EditorUI.widthTable[2] = 12;
+
+EditorUI.initWidths = function() {
+  var widths = document.getElementById("widths");
+  ParaPara.currentStyle.strokeWidth = EditorUI.widthTable[1];
+  ParaPara.currentStyle.eraseWidth = EditorUI.widthTable[1];
+  widths.contentDocument.setWidth(1);
+  widths.contentDocument.addEventListener("widthchange", EditorUI.onWidthChange,
+                                          false);
+}
+
+EditorUI.onWidthChange = function(evt) {
+  if (EditorUI.editMode != 'draw') {
+    EditorUI.returnToEditing();
+  }
+  var width = evt.detail.width;
+  console.assert(width >= 0 && width < EditorUI.widthTable.length,
+                 "Out of range width value");
+  var widthValue = EditorUI.widthTable[width];
+
+  // Apply change
+  if (ParaPara.getMode() === "draw")
+    ParaPara.currentStyle.strokeWidth = widthValue;
+  else
+    ParaPara.currentStyle.eraseWidth = widthValue;
+}
+
+// -------------- Tools -----------
+
+EditorUI.initTools = function() {
+  var picker = document.getElementById("picker");
+  picker.contentDocument.addEventListener("eraserselect", EditorUI.selectEraser,
+                                          false);
+  EditorUI.changeTool("pencil");
+}
+
+EditorUI.selectEraser = function() {
+  if (EditorUI.editMode != 'draw') {
+    EditorUI.returnToEditing();
+  }
+  EditorUI.changeTool("eraser");
+}
+
+EditorUI.showEraser = function() {
+  var widths = document.getElementById("widths");
+  widths.contentDocument.setEraserMode();
+}
+
+// tool = "pencil" | "eraser"
+EditorUI.changeTool = function(tool) {
+  var changed = false;
+  switch (tool) {
+    case "pencil":
+      changed = ParaPara.setDrawMode();
+      break;
+    case "eraser":
+      changed = ParaPara.setEraseMode();
+      break;
+  }
+  if (!changed)
     return;
-  ParaPara.currentStyle.currentColor = EditorUI.getColorFromButton(button);
+
+  // Update width picker
+  switch (tool) {
+    case "pencil":
+      EditorUI.updateBrushPreviewColor(ParaPara.currentStyle.currentColor);
+      break;
+    case "eraser":
+      EditorUI.showEraser();
+      break;
+  }
 }
 
-EditorUI.getColorFromButton = function(elem) {
-  var elemsWithAFill = elem.querySelectorAll("*[fill]");
-  if (!elemsWithAFill.length)
-    return "black";
-  return elemsWithAFill[0].getAttribute("fill");
+// -------------- Frame controls -----------
+
+EditorUI.initFrameControls = function() {
+  var filmstrip = document.getElementById("filmstrip");
+  filmstrip.contentDocument.resetFrames();
+  filmstrip.contentDocument.addEventListener("appendframe",
+    EditorUI.appendFrame, false);
+  filmstrip.contentDocument.addEventListener("selectframe",
+    EditorUI.selectFrame, false);
+  filmstrip.contentDocument.addEventListener("requestdelete",
+    EditorUI.requestDeleteFrame, false);
+  ParaPara.svgRoot.addEventListener("changegraphic",
+    EditorUI.updateThumbnails, false);
 }
 
-// -------------- Erase width -----------
-
-EditorUI.initEraseWidths = function() {
-  EditorUI.initButtonGroup("eraseWidthButton", EditorUI.changeEraseWidth, 1);
+EditorUI.appendFrame = function() {
+  if (EditorUI.editMode != 'draw') {
+    EditorUI.returnToEditing();
+  }
+  ParaPara.appendFrame();
+  EditorUI.changeTool("pencil");
 }
 
-EditorUI.changeEraseWidth = function(buttonOrEvent) {
-  var button = EditorUI.selectButtonInGroup(buttonOrEvent, "eraseWidthButton");
-  if (!button)
+EditorUI.selectFrame = function(evt) {
+  if (EditorUI.editMode != 'draw') {
+    EditorUI.returnToEditing();
+  }
+  ParaPara.selectFrame(evt.detail.index);
+}
+
+EditorUI.requestDeleteFrame = function(evt) {
+  if (EditorUI.editMode != 'draw') {
+    EditorUI.returnToEditing();
+  }
+  var index = evt.detail.index;
+  var callback = evt.detail.callback;
+  document.getElementById("confirmDeleteButton").onclick =
+    function() {
+      EditorUI.clearNote();
+      callback();
+      ParaPara.deleteFrame(index);
+    };
+  EditorUI.displayNote("noteConfirmDelete");
+}
+
+EditorUI.updateThumbnails = function() {
+  var currentFrame = ParaPara.getCurrentFrame();
+  var filmstrip = document.getElementById("filmstrip");
+  filmstrip.contentDocument.updateFrame(currentFrame.index, currentFrame.svg);
+}
+
+// -------------- Nav controls -----------
+
+EditorUI.initNavControls = function() {
+  var play = document.getElementById("play");
+  play.contentDocument.addEventListener("click", EditorUI.toggleEditMode,
+                                        false);
+  play.contentDocument.showPlay();
+
+  // iOS Safari seems to have trouble listening to click events on <object>
+  // elements (at least for SVG) so we wrap the object in a <div> and listen on
+  // that instead.
+  var playContainer = document.getElementById("play-container");
+  playContainer.addEventListener("click", EditorUI.toggleEditMode, false);
+}
+
+EditorUI.toggleEditMode = function() {
+ if (EditorUI.editMode === 'draw') {
+   EditorUI.animate();
+ } else {
+   EditorUI.returnToEditing();
+ }
+}
+
+// -------------- Anim control -----------
+
+EditorUI.initAnimControls = function() {
+  var slower = document.getElementById("slower");
+  var faster = document.getElementById("faster");
+  if ('ontouchstart' in window) {
+    slower.addEventListener("touchstart", EditorUI.onGoSlowTouch, false);
+    faster.addEventListener("touchstart", EditorUI.onGoFastTouch, false);
+  } else {
+    slower.addEventListener("mousedown", EditorUI.onGoSlowPress, false);
+    faster.addEventListener("mousedown", EditorUI.onGoFastPress, false);
+  }
+
+  var send = document.getElementById("send");
+  send.addEventListener("click", EditorUI.promptMetadata, false);
+
+  var animControls = document.getElementById("anim-controls");
+  animControls.addEventListener("transitionend",
+    EditorUI.finishAnimControlsFade, false);
+  animControls.addEventListener("webkitTransitionend",
+    EditorUI.finishAnimControlsFade, false);
+  animControls.addEventListener("oTransitionend",
+    EditorUI.finishAnimControlsFade, false);
+  animControls.addEventListener("MSTransitionend",
+    EditorUI.finishAnimControlsFade, false);
+}
+
+EditorUI.showAnimControls = function() {
+  var animControls = document.getElementById("anim-controls");
+  animControls.style.display = 'block';
+  animControls.style.opacity = 1;
+}
+
+EditorUI.hideAnimControls = function() {
+  document.getElementById("anim-controls").style.opacity = 0;
+}
+
+EditorUI.finishAnimControlsFade = function() {
+  var animControls = document.getElementById("anim-controls");
+  var opacity = parseInt(window.getComputedStyle(animControls).opacity);
+  if (opacity === 0) {
+    animControls.style.display = 'none';
+  }
+}
+
+EditorUI.onGoSlowPress = function(evt) {
+  EditorUI.beginLongPress(evt, EditorUI.goSlower, false);
+}
+
+EditorUI.onGoSlowTouch = function(evt) {
+  EditorUI.beginLongPress(evt, EditorUI.goSlower, true);
+}
+
+EditorUI.goSlower = function() {
+  var newSpeed = Math.max(EditorUI.currentSpeed - EditorUI.SPEED_STEP_FPS,
+                          EditorUI.MIN_SPEED_FPS);
+  if (newSpeed === EditorUI.currentSpeed) {
+    EditorUI.vibrate(50);
+  }
+  EditorUI.setSpeed(newSpeed);
+}
+
+EditorUI.onGoFastPress = function(evt) {
+  EditorUI.beginLongPress(evt, EditorUI.goFaster, false);
+}
+
+EditorUI.onGoFastTouch = function(evt) {
+  EditorUI.beginLongPress(evt, EditorUI.goFaster, true);
+}
+
+EditorUI.goFaster = function() {
+  var newSpeed = Math.min(EditorUI.currentSpeed + EditorUI.SPEED_STEP_FPS,
+                          EditorUI.MAX_SPEED_FPS);
+  if (newSpeed === EditorUI.currentSpeed) {
+    EditorUI.vibrate(50);
+  }
+  EditorUI.setSpeed(newSpeed);
+}
+
+EditorUI.beginLongPress = function(evt, callback, isTouch) {
+  evt.preventDefault();
+  callback();
+  EditorUI.stillPressing = true;
+  if (isTouch) {
+    document.addEventListener("touchend", EditorUI.finishLongTouch, false);
+  } else {
+    document.addEventListener("mouseup", EditorUI.finishLongPress, false);
+  }
+  window.setTimeout(
+    function() { EditorUI.continueLongPress(callback); },
+    EditorUI.LONG_PRESS_DELAY_MS);
+}
+
+EditorUI.continueLongPress = function(callback) {
+  if (!EditorUI.stillPressing)
     return;
-  ParaPara.currentStyle.eraseWidth = EditorUI.getStrokeWidthFromButton(button);
+  callback();
+  window.setTimeout(
+    function() { EditorUI.continueLongPress(callback); },
+    EditorUI.LONG_PRESS_RATE_MS);
 }
 
-// -------------- Common button handling -----------
-
-EditorUI.initButtonGroup = function(className, handler, selectedIndex) {
-  var buttons = document.getElementsByClassName(className);
-  for (var i = 0; i < buttons.length; i++) {
-    var button = buttons[i];
-    // addEventListener detects and ignores attempts to register the same event
-    // listener twice (so long as we're not using an anonymous function)
-    button.addEventListener("click", handler, false);
-  }
-  if (selectedIndex <= buttons.length - 1) {
-    handler(buttons[selectedIndex]);
-  }
+EditorUI.finishLongPress = function() {
+  EditorUI.stillPressing = false;
+  document.removeEventListener("mouseup", EditorUI.finishLongPress, false);
 }
 
-EditorUI.selectButtonInGroup = function(evtTarget, className) {
-  var button;
-  if (evtTarget instanceof Event)
-    evtTarget = evtTarget.target;
-  for (button = evtTarget;
-       button && button.tagName != "BUTTON";
-       button = button.parentNode);
-  if (!button)
-    return null;
-
-  var buttons = document.getElementsByClassName(className);
-  for (var i = 0; i < buttons.length; i++) {
-    buttons[i].classList.remove("active");
-  }
-  button.classList.add("active");
-  button.blur(); // Get rid of outline that appears on tablets
-                 // (unfortunately outline:none doesn't seem to work)
-  return button;
+EditorUI.finishLongTouch = function() {
+  EditorUI.stillPressing = false;
+  document.removeEventListener("touchend", EditorUI.finishLongTouch, false);
 }
 
-// -------------- Speed control -----------
-
-EditorUI.changeSpeed = function(sliderValue) {
+EditorUI.setSpeed = function(newSpeed) {
+  if (newSpeed === EditorUI.currentSpeed)
+    return;
+  EditorUI.currentSpeed = newSpeed;
   if (!ParaPara.animator)
     return;
-  ParaPara.animator.setSpeed(sliderValue);
+  ParaPara.animator.setSpeed(newSpeed);
+}
+
+EditorUI.vibrate = function(millis) {
+  if (navigator.vibrate) {
+    navigator.vibrate(millis);
+  } else if (navigator.mozVibrate) {
+    navigator.mozVibrate(millis);
+  } else if (navigator.webkitVibrate) {
+    navigator.webkitVibrate(millis);
+  }
 }
 
 // -------------- UI layout -----------
 
 EditorUI.updateLayout = function() {
+  /*
+   * We size the SVG manually. This is because we want to resize the viewBox for
+   * the following reasons:
+   *
+   * a) Regardless of the size and orientation of the device, we want to keep
+   *    the HEIGHT of the characters roughly the same. The width can flex as
+   *    needed.
+   * b) By resizing the viewbox, we can have graphics such as a ground pattern,
+   *    with height / width 100% and be sure it will fill the viewable area
+   *    regardless of the setting of preserveAspectRatio.
+   *
+   * In future I think we need to make the viewBox property settable via media
+   * queries so you can have responsive graphics that change aspect ratio.
+   */
   var controlsHeight = controlsWidth = 0;
-  var controls = document.getElementsByClassName("controls");
+  var controls = document.getElementsByClassName("controlPanel");
   for (var i = 0; i < controls.length; i++) {
-    if (controls[i].classList.contains('vertical')) {
-      controlsWidth += controls[i].offsetWidth;
+    var panel = controls[i];
+    // Check if the panel is oriented vertically or horizontally
+    if (panel.offsetWidth < panel.offsetHeight) {
+      controlsWidth += panel.offsetWidth;
     } else {
-      controlsHeight += controls[i].offsetHeight;
+      controlsHeight += panel.offsetHeight;
     }
   }
   var availHeight = window.innerHeight - controlsHeight;
   var availWidth  = window.innerWidth - controlsWidth;
-  var maxDim = Math.min(availHeight, availWidth);
+  // We need to account for the fact that we have a bit of overlap with the
+  // control panel
+  if (window.innerWidth > window.innerHeight) {
+    availWidth += 15;
+  } else {
+    availHeight += 15;
+  }
+  var vbHeight = 300;
+  var vbWidth = vbHeight * availWidth / availHeight;
 
-  // Set the SVG canvas size explicitly. This is mostly for WebKit
-  // compatibility. Otherwise we could just set the <svg> width/height to
-  // 100%
+  // Set the SVG canvas size explicitly.
   var canvas = document.getElementById("canvas");
-  canvas.style.setProperty("width", maxDim + "px", "");
-  canvas.style.setProperty("height", maxDim + "px", "");
-  // Resize slider
-  var speedAdjust = document.getElementById("speedAdjust");
-  speedAdjust.style.setProperty("width", maxDim * 0.65 + "px", "");
+  canvas.setAttribute("width", availWidth);
+  canvas.setAttribute("height", availHeight);
+  canvas.setAttribute("viewBox", [0, 0, vbWidth, vbHeight].join(" "));
 
-  EditorUI.updateStrokeWidth(maxDim);
+  // Workaround Safari bugs regarding resizing SVG by setting the height of
+  // referenced SVG files explicitly
+  var contents = document.getElementsByClassName("panelContents");
+  for (var i = 0; i < contents.length; i++) {
+    var specifiedRatio =
+      parseFloat(contents[i].getAttribute('data-aspect-ratio'));
+    if (!specifiedRatio)
+       continue;
+    var style = window.getComputedStyle(contents[i]);
+    var actualRatio = parseInt(style.width) / parseInt(style.height);
+    // If the actual ratio differs from the specified ratio by more than 5%
+    // update the height
+    var error = Math.abs(specifiedRatio - actualRatio) / specifiedRatio;
+    if (Math.abs(specifiedRatio - actualRatio) / specifiedRatio >= 0.05) {
+      var adjustedHeight = parseInt(style.width) / specifiedRatio;
+      contents[i].setAttribute("height", adjustedHeight);
+    }
+  }
+
+  // Manually perform calc() behavior for browsers that don't support it
+  var portrait = window.matchMedia("(orientation: portrait)").matches;
+  var borders = document.getElementsByClassName("inner-border");
+  for (var i = 0; i < borders.length; i++) {
+    var border = borders[i];
+    var style = window.getComputedStyle(border);
+    var actualHeight = parseInt(style.height) || 0;
+    var borderWidth =
+      parseInt(style.getPropertyValue('border-top-width')) || 0;
+    var margin = parseInt(style.getPropertyValue('margin-top')) || 0;
+    var parentHeight = portrait
+           ? parseInt(window.getComputedStyle(border.parentNode).height) || 0
+           : window.innerHeight;
+    var minHeight = parentHeight - (borderWidth + margin) * 2;
+    if (actualHeight != minHeight) {
+      border.style.height = minHeight + 'px';
+    }
+  }
 }
 window.addEventListener("resize", EditorUI.updateLayout, false);
 window.addEventListener("orientationchange", EditorUI.updateLayout, false);
-
-// As the SVG resizes, keep the stroke width icons in sync
-EditorUI.updateStrokeWidth = function(svgDim) {
-  // The SVG viewBox is 300x300 so get its current scale ratio
-  var svgScaleRatio = svgDim / 300;
-  // Work out the actual dimension of the icon (we might tweak the width,
-  // so use the height)
-  var svgs = document.querySelectorAll("button.strokeWidthButton svg");
-  if (!svgs.length)
-    return;
-  var height = parseFloat(window.getComputedStyle(svgs[0], null).
-                 getPropertyValue('height'));
-  // Go through each button's svg and adjust the viewBox accordingly.
-  var viewBoxSize = height / svgScaleRatio;
-  var minDim = -viewBoxSize / 2;
-  var viewBox = [minDim, minDim, viewBoxSize, viewBoxSize].join(" ");
-  for (var i = 0; i < svgs.length; i++) {
-    svgs[i].setAttribute("viewBox", viewBox);
-  }
-}

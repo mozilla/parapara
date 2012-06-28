@@ -41,22 +41,28 @@ ParaPara.reset = function() {
   ParaPara.init(ParaPara.contentGroup);
 }
 
-ParaPara.prevFrame = function() {
-  var result = ParaPara.frames.prevFrame();
+ParaPara.appendFrame = function() {
+  var result = ParaPara.frames.appendFrame();
   ParaPara.currentTool.targetFrame(ParaPara.frames.getCurrentFrame());
   return result;
 }
 
-ParaPara.nextFrame = function() {
-  var result = ParaPara.frames.nextFrame();
+ParaPara.selectFrame = function(index) {
+  var result = ParaPara.frames.selectFrame(index);
   ParaPara.currentTool.targetFrame(ParaPara.frames.getCurrentFrame());
   return result;
 }
 
-ParaPara.deleteFrame = function() {
-  var result = ParaPara.frames.deleteFrame();
+ParaPara.deleteFrame = function(index) {
+  var result = ParaPara.frames.deleteFrame(index);
   ParaPara.currentTool.targetFrame(ParaPara.frames.getCurrentFrame());
   return result;
+}
+
+ParaPara.getCurrentFrame = function(index) {
+  var frame = ParaPara.frames.getCurrentFrame();
+  var index = ParaPara.frames.getCurrentIndex();
+  return { index: index, svg: frame };
 }
 
 ParaPara.setDrawMode = function() {
@@ -236,6 +242,12 @@ ParaPara.sendAsyncRequest = function(url, json, successCallback,
 
 ParaPara.fixPrecision = function(x) { return x.toFixed(2); }
 
+ParaPara.notifyGraphicChanged = function() {
+  var changeEvent = document.createEvent("CustomEvent");
+  changeEvent.initCustomEvent("changegraphic", true, true, {});
+  ParaPara.svgRoot.dispatchEvent(changeEvent);
+}
+
 // -------------------- Canvas event handling --------------------
 
 ParaPara.DrawControls = function() {
@@ -306,6 +318,7 @@ ParaPara.DrawControls.prototype.mouseUp = function(evt) {
     return;
   this.linesInProgress.mouseLine.finishLine();
   delete this.linesInProgress.mouseLine;
+  ParaPara.notifyGraphicChanged();
 }
 
 ParaPara.DrawControls.prototype.touchStart = function(evt) {
@@ -338,6 +351,7 @@ ParaPara.DrawControls.prototype.touchEnd = function(evt) {
     this.linesInProgress[touch.identifier].finishLine();
     delete this.linesInProgress[touch.identifier];
   }
+  ParaPara.notifyGraphicChanged();
 }
 
 ParaPara.DrawControls.prototype.touchCancel = function(evt) {
@@ -558,14 +572,17 @@ ParaPara.Style.prototype.__defineGetter__("eraseWidth", function() {
 ParaPara.FrameList = function() {
   this.currentFrame = null;
   this.scene = ParaPara.editContent;
-  this.addFrame();
+  this.appendFrame();
 }
 
 ParaPara.FrameList.prototype.getCurrentFrame = function() {
   return this.currentFrame;
 }
 
-ParaPara.FrameList.prototype.nextFrame = function() {
+ParaPara.FrameList.prototype.appendFrame = function() {
+  // Select last frame
+  this.selectFrame(this.getFrameCount()-1);
+
   // Move previous frame to oldFrames group
   var prevFrame = this.getPrevFrame();
   if (prevFrame) {
@@ -576,64 +593,149 @@ ParaPara.FrameList.prototype.nextFrame = function() {
   if (this.currentFrame) {
     this.getOrMakePrevFrames().appendChild(this.currentFrame);
   }
-  this.currentFrame = null;
 
-  // Get next frame
-  var addedFrame = false;
-  if (this.getNextFrames()) {
-    this.makeNextFrameCurrent();
-  } else {
-    this.addFrame();
-    addedFrame = true;
-  }
-
-  var result = this.getFrameIndexAndCount();
-  result.added = addedFrame;
-  return result;
-}
-
-ParaPara.FrameList.prototype.addFrame = function() {
+  // Append new frame
   var g = document.createElementNS(ParaPara.SVG_NS, "g");
   g.setAttribute("class", "frame");
-  this.scene.insertBefore(g, this.getNextFrames());
+  this.scene.appendChild(g);
   this.currentFrame = g;
 }
 
-ParaPara.FrameList.prototype.deleteCurrentFrame = function() {
-  if (!this.currentFrame)
-    return { index: 0, count: this.getFramesCount() };
+ParaPara.FrameList.prototype.selectFrame = function(index) {
+  if (index < 0 || index >= this.getFrameCount() ||
+      !this.currentFrame)
+    return;
 
+  var currIndex = this.getCurrentIndex();
+  if (index === currIndex)
+    return;
+
+  if (index < currIndex) {
+    // Going backwards
+    var amountToMove = currIndex - index;
+
+    // Move current frame to next frames group
+    var nextFrames = this.getOrMakeNextFrames();
+    nextFrames.insertBefore(this.currentFrame, nextFrames.firstChild);
+    this.currentFrame = null;
+
+    // Move prev frame
+    if (amountToMove > 1) {
+      nextFrames.insertBefore(this.getPrevFrame(), nextFrames.firstChild);
+    } else {
+      var prevFrame = this.getPrevFrame();
+      this.scene.insertBefore(prevFrame, this.getNextFrames());
+      this.currentFrame = prevFrame;
+    }
+
+    // Shift old frames forwards
+    var oldFrames = this.getOldFrames();
+    var prevFrames = this.getPrevFrames();
+    while (amountToMove > 0) {
+      if (!oldFrames || oldFrames.childNodes.length === 0)
+        break;
+      var frame = this.getOldFrames().lastChild;
+      switch (amountToMove) {
+        case 1:
+          prevFrames.appendChild(frame);
+          break;
+        case 2:
+          this.scene.insertBefore(frame, nextFrames);
+          this.currentFrame = frame;
+          break;
+        default:
+          nextFrames.insertBefore(frame, nextFrames.firstChild);
+          break;
+      }
+      amountToMove--;
+    }
+
+    // Tidy up
+    if (oldFrames && !oldFrames.hasChildNodes())
+      oldFrames.parentNode.removeChild(oldFrames);
+    if (prevFrames && !prevFrames.hasChildNodes())
+      prevFrames.parentNode.removeChild(prevFrames);
+  } else {
+    // Going forwards
+    var amountToMove = index - currIndex;
+
+    // Move prev frame back to old frames
+    var prevFrame = this.getPrevFrame();
+    if (prevFrame) {
+      this.getOrMakeOldFrames().appendChild(prevFrame);
+    }
+
+    // Move current frame back
+    if (amountToMove > 1) {
+      this.getOrMakeOldFrames().appendChild(this.currentFrame);
+    } else {
+      this.getOrMakePrevFrames().appendChild(this.currentFrame);
+    }
+
+    // Move next frames back
+    var nextFrames = this.getNextFrames();
+    while (amountToMove > 0) {
+      if (!nextFrames || nextFrames.childNodes.length === 0)
+        break;
+      var frame = this.getNextFrames().firstChild;
+      switch (amountToMove) {
+        case 1:
+          this.scene.insertBefore(frame, nextFrames);
+          this.currentFrame = frame;
+          break;
+        case 2:
+          this.getOrMakePrevFrames().appendChild(frame);
+          break;
+        default:
+          this.getOrMakeOldFrames().appendChild(frame);
+          break;
+      }
+      amountToMove--;
+    }
+
+    // Tidy up
+    if (nextFrames && !nextFrames.hasChildNodes())
+      nextFrames.parentNode.removeChild(nextFrames);
+  }
 }
 
 ParaPara.FrameList.prototype.deleteFrame = function(index) {
   if (index < 0 || index >= this.getFrameCount() ||
       !this.currentFrame)
-    return { index: 0, count: this.getFramesCount() };
+    return;
 
-  // Remove current frame
-  this.currentFrame.parentNode.removeChild(this.currentFrame);
-  this.currentFrame = null;
+  // To make this easy, first, select the first frame, but store old selection
+  // first so we can restore it
+  var prevIndex = this.getCurrentIndex();
+  this.selectFrame(0);
 
-  // Try to use the next frame as the current frame,
-  // otherwise revert to the previous frame,
-  // or, failing that, just add a new frame.
-  this.makeNextFrameCurrent() || this.makePrevFrameCurrent() || this.addFrame();
-  return this.getFrameIndexAndCount();
-}
+  // Now, the frame to delete is either in the nextFrames group or it's the
+  // current frame
+  if (index === 0) {
+    this.currentFrame.parentNode.removeChild(this.currentFrame);
+    this.currentFrame = null;
+    var nextFrames = this.getNextFrames();
+    if (!nextFrames) {
+      // We're out of frames. Create a new one.
+      this.appendFrame();
+    } else {
+      // Move the first frame into position
+      var firstFrame = nextFrames.firstChild;
+      this.scene.insertBefore(firstFrame, nextFrames);
+      this.currentFrame = firstFrame;
+    }
+  } else {
+    var nextFrames = this.getNextFrames();
+    nextFrames.removeChild(nextFrames.childNodes[index - 1]);
+  }
 
-ParaPara.FrameList.prototype.prevFrame = function() {
-  var prevFrame = this.getPrevFrame();
-  if (!prevFrame)
-    return { index: 0, count: this.getFramesCount() };
+  // Tidy up
+  var nextFrames = this.getNextFrames();
+  if (nextFrames && !nextFrames.hasChildNodes())
+    nextFrames.parentNode.removeChild(nextFrames);
 
-  // Move current frame to next frames group
-  var nextFrames = this.getOrMakeNextFrames();
-  nextFrames.insertBefore(this.currentFrame, nextFrames.firstChild);
-  this.currentFrame = null;
-
-  // Make prev frame current
-  this.makePrevFrameCurrent();
-  return this.getFrameIndexAndCount();
+  // Now seek back to position
+  this.selectFrame(Math.min(prevIndex, this.getFrameCount()-1));
 }
 
 ParaPara.FrameList.prototype.getFrames = function() {
@@ -641,12 +743,6 @@ ParaPara.FrameList.prototype.getFrames = function() {
 }
 
 // --------------- FrameList, internal helpers -------------
-
-ParaPara.FrameList.prototype.getFrameIndexAndCount = function() {
-  var index = this.getCurrentIndex();
-  var numFrames = this.getFrameCount();
-  return { index: index, count: numFrames };
-}
 
 ParaPara.FrameList.prototype.getCurrentIndex = function() {
   return this.getOldFrames()
@@ -723,55 +819,6 @@ ParaPara.FrameList.prototype._getOrMakeGroup =
   return parent.insertBefore(g, first ? parent.firstChild : null);
 }
 
-// Reused frame shuffling
-
-ParaPara.FrameList.prototype.makeNextFrameCurrent = function() {
-  console.assert(this.currentFrame === null,
-    "The current frame should be removed before calling makeNextFrameCurrent");
-  var nextFrames = this.getNextFrames();
-  if (!nextFrames)
-    return false;
-
-  // Update current frame
-  this.currentFrame = nextFrames.firstChild;
-
-  // Move to before nextFrames group
-  this.scene.insertBefore(this.currentFrame, nextFrames);
-  if (!nextFrames.hasChildNodes()) {
-    nextFrames.parentNode.removeChild(nextFrames);
-  }
-
-  return true;
-}
-
-ParaPara.FrameList.prototype.makePrevFrameCurrent = function() {
-  console.assert(this.currentFrame === null,
-    "The current frame should be removed before calling makePrevFrameCurrent");
-
-  var prevFrame = this.getPrevFrame();
-  if (!prevFrame)
-    return false;
-
-  // Make prevFrame the currentFrame
-  this.scene.insertBefore(prevFrame, this.getNextFrames());
-  this.currentFrame = prevFrame;
-
-  // Move last oldFrames to prevFrame pos
-  var oldFrames = this.getOldFrames();
-  if (oldFrames) {
-    var prevFrames = this.getPrevFrames();
-    prevFrames.appendChild(oldFrames.lastChild);
-    if (!oldFrames.hasChildNodes())
-      oldFrames.parentNode.removeChild(oldFrames);
-  } else {
-    console.assert(!this.getPrevFrames().hasChildNodes(),
-      "Previous frames group has child nodes somehow");
-    this.scene.removeChild(this.getPrevFrames());
-  }
-
-  return true;
-}
-
 // -------------------- Animator --------------------
 
 ParaPara.Animator = function(fps, parent) {
@@ -831,7 +878,9 @@ ParaPara.Animator.prototype.makeAnimation = function() {
 }
 
 ParaPara.Animator.prototype.removeAnimation = function() {
-  this.animation.parentNode.removeChild(this.animation);
+  if (this.animation && this.animation.parentNode) {
+    this.animation.parentNode.removeChild(this.animation);
+  }
   this.animation = null;
 }
 

@@ -2,64 +2,216 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* Page layout */
+/*
+ * Page layout
+ */
 body, html, div {
   margin: 0;
   padding: 0;
   overflow: hidden;
 }
 div.container {
-  display: table;
   position: absolute;
   left: 0; top: 0; width: 100%; height: 100%;
-  background: white; /* Needed for when we go full-screen */
+  background: black; /* Needed for when we go full-screen */
 }
-div.container {
-  display: table-row;
-}
-div.column {
-  display: table-cell;
-  vertical-align: top;
-}
-
-svg.canvas {
-  border: 2px solid black;
-  margin: 0;
-}
-
-/* Control boxes */
-div.controls {
-  text-align: center;
-  padding: 0.4em 0.8em 0.2em;
-  position: relative;
-}
-div.controls.vertical button {
-  display: block;
-}
-div.controls.vertical button.image {
-  margin: 0.1em auto;
-}
-div.controls.vertical button.text {
-  margin: 2em 0 1em;
-}
-div.controls.vertical div.separator {
-  display: block;
-  border-top: 1px dotted #ccc;
-  border-left: none;
-  max-height: 0.2em;
-}
-div.separator {
-  font-size: 45px;
-  display: inline;
-  vertical-align: top;
-  pointer-events: none;
-}
-
-/* Buttons */
-button.left {
+div.controlPanel {
   position: absolute;
+  z-index: 1;
+}
+
+/* 
+ * Tool box
+ */
+div.tool-box {
+  background: #fdf8db;
+  width: 17%;
+  height: 100%;
+  border-radius: 15px;
+  text-align: center;
+  z-index: 2;
+}
+div.inner-border {
+  position: relative;
+  border: 1px solid #5d4c18;
+  border-radius: 15px;
+  margin: 6px;
+  min-height: -moz-calc(100% - 14px);
+  min-height: -webkit-calc(100% - 14px);
+  min-height: calc(100% - 14px);
+}
+@media screen and (max-width: 480px) {
+  div.inner-border {
+    margin: 3px;
+    min-height: -moz-calc(100% - 8px);
+    min-height: -webkit-calc(100% - 8px);
+    min-height: calc(100% - 8px);
+  }
+}
+div.tool-box .panelContents {
+  position: relative;
+  width: 100%;
+}
+div.tool-box #picker {
+ width: 95%;
+}
+div.tool-box #widths {
+  width: 85%;
+  padding: 10px 0 0;
+}
+div.tool-box #play {
+  width: 44%;
+}
+
+/*
+ * Film strip
+ */
+div.film-strip {
+  width: 100%;
+  background: #3D362F;
+  height: 15%;
+  margin-left: -15px; /* Overlap with rounded edges of toolbox */
+  padding-left: 15px;
+}
+
+/*
+ * Animation controls
+ */
+#anim-controls {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  opacity: 0;
+  display: none;
+  -moz-transition: opacity 0.2s linear 0s;
+  -webkit-transition: opacity 0.2s linear 0s;
+  -ms-transition: opacity 0.2s linear 0s;
+  -o-transition: opacity 0.2s linear 0s;
+  transition: opacity 0.2s linear 0s;
+}
+#slower, #faster {
+  position: absolute;
+  top: 50%;
+  margin-top: -10%;
+  height: 20%;
+  width: 10%;
+  min-width: 40px;
+  min-height: 80px;
+  padding-bottom: 50%; /* Work around iOS Safari bug */
+}
+#slower {
   left: 0;
 }
+#faster {
+  right: 0;
+}
+#send {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 25%;
+  height: 25%;
+}
+#anim-controls .overlay-shading {
+  fill: white;
+  opacity: 0.3;
+}
+#anim-controls .overlay-shading:hover {
+  opacity: 0.6;
+}
+#anim-controls .overlay-icon {
+  fill: white;
+}
+/* Turn off pointer events for all svg except the shading area */
+#anim-controls svg {
+  pointer-events: none;
+}
+#anim-controls .overlay-shading {
+  pointer-events: all;
+}
+
+/*
+ * Drawing canvas
+ */
+div.canvas-container {
+  position: absolute;
+  left: 17%;
+  height: 100%;
+  width: 83%; 
+  overflow: visible;
+}
+svg#canvas {
+  position: relative;
+  border: 2px solid black;
+  margin: 0;
+  margin-left: -15px; /* Move left to fill the space around the curved edges of
+                       * the tool palette. */
+  top: 15%;
+} 
+
+/*
+ * Portrait layout
+ */
+
+@media screen and (orientation: portrait) {
+ div.tool-box {
+   bottom: 0;
+   width: 100%;
+   height: 17%;
+ }
+ div.inner-border {
+   min-height: auto;
+ }
+ div.canvas-container {
+   left: 0;
+   width: 100%; 
+   height: 83%;
+ }
+ div.tool-box .panelContents {
+   vertical-align: middle;
+   display: inline-block;
+ }
+ div.safari-click-catcher {
+   display: inline;
+ }
+ div.tool-box #picker {
+   height: 88%;
+   max-width: 45%;
+ }
+ div.tool-box #widths {
+   margin-top: -2%; /* Little tweak to improve appearance on iOS Safari */
+   height: 88%;
+   max-width: 30%;
+ }
+ div.tool-box #play {
+   height: 88%;
+   max-width: 20%;
+ }
+ svg#canvas {
+  margin-left: 0;
+ }
+}
+
+/*
+ * Credit form
+ */
+span.units {
+  font-size: 1.3em;
+}
+div.field input {
+  margin-top: 0.1em;
+  margin-left: 35px; /* this is the width of the star */
+}
+div.field input.fullWidthField {
+  width: -moz-calc(100% - 35px - 1em);
+  width: -webkit-calc(100% - 35px - 1em);
+  width: calc(100% - 35px - 1em);
+}
+
+/*
+ * Form buttons
+ */
 button.right {
   position: absolute;
   right: 0;
@@ -69,13 +221,16 @@ button.text {
   background: -o-linear-gradient(top, #ebebeb, #a1a1a1);
   background: -webkit-linear-gradient(top, #ebebeb, #a1a1a1);
   background: -ms-linear-gradient(top, #ebebeb, #a1a1a1);
+  background: linear-gradient(top, #ebebeb, #a1a1a1);
   border: none;
   border-radius: 8px;
   color: #FFFFFF;
   font-weight: bold;
   font-size: 20px;
   letter-spacing: 1px;
-  margin: auto;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 0.3em;
   padding: 7px 25px;
   text-shadow: 0 1px 1px black;
 }
@@ -84,56 +239,14 @@ button.text:hover {
   background: -o-linear-gradient(top,  #04acec,  #0186ba);
   background: -webkit-linear-gradient(top,  #04acec,  #0186ba);
   background: -ms-linear-gradient(top,  #04acec,  #0186ba);
+  background: linear-gradient(top,  #04acec,  #0186ba);
 }
 button.text:disabled:hover {
   background: -moz-linear-gradient(top, #ebebeb, #a1a1a1);
   background: -o-linear-gradient(top, #ebebeb, #a1a1a1);
   background: -webkit-linear-gradient(top, #ebebeb, #a1a1a1);
   background: -ms-linear-gradient(top, #ebebeb, #a1a1a1);
-}
-button.image {
-  background: none;
-  border: none;
-  border-radius: 8px;
-  margin: 0;
-  padding: 0;
-}
-button.image svg {
-  width: 38px;
-  height: 38px;
-  margin: 4px;
-}
-button.image:hover, button.image.active {
-  background: pink;
-  outline: none;
-}
-button.image.swell:hover svg, button.image.swell.active svg {
-  width: 44px;
-  height: 44px;
-  margin: 1px;
-}
-circle.eraseOutline {
-  fill: none;
-  stroke: black;
-  stroke-dasharray: 1 1.5;
-  stroke-width: 0.25;
-}
-
-/* Previous (greyed-out) animation frames */
-g.prevFrames circle {
-  fill: grey
-}
-g.prevFrames path {
-  stroke: grey
-}
-g.prevFrames {
-  opacity: 0.5
-}
-g.oldFrames {
-  opacity: 0.4
-}
-g.nextFrames {
-  display: none
+  background: linear-gradient(top, #ebebeb, #a1a1a1);
 }
 
 /* Error/notice overlay */
@@ -155,8 +268,9 @@ div.overlay-inner {
 div.overlay-contents {
   position: relative;
   top: -50%;
-  width: 20em;
-  max-width: 90%;
+  /* I've no idea how the following two lines work, but they do */
+  min-width: 50%;
+  width: 3em;
   margin: 1em auto;
   padding: 1.8em 2.5em;
   border-radius: 1em;
@@ -213,18 +327,22 @@ div.overlay-contents.fadeOut {
   -webkit-animation-duration: 1s;
   -o-animation-duration: 1s;
   -ms-animation-duration: 1s;
+  animation-duration: 1s;
   -moz-animation-name: fadeOut;
   -webkit-animation-name: fadeOut;
   -o-animation-name: fadeOut;
   -ms-animation-name: fadeOut;
+  animation-name: fadeOut;
   -moz-animation-delay: 1.5s;
   -webkit-animation-delay: 1.5s;
   -o-animation-delay: 1.5s;
   -ms-animation-delay: 1.5s;
+  animation-delay: 1.5s;
   -moz-animation-fill-mode: forwards;
   -webkit-animation-fill-mode: forwards;
   -o-animation-fill-mode: forwards;
   -ms-animation-fill-mode: forwards;
+  animation-fill-mode: forwards;
 }
 @-moz-keyframes fadeOut {
   from { opacity: 1; }
@@ -239,6 +357,10 @@ div.overlay-contents.fadeOut {
   to { opacity: 0; }
 }
 @-ms-keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+@keyframes fadeOut {
   from { opacity: 1; }
   to { opacity: 0; }
 }

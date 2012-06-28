@@ -4,137 +4,109 @@
    - You can obtain one at http://mozilla.org/MPL/2.0/.  -->
 <html>
   <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>パラパラアニメーション</title>
     <link rel="stylesheet" href="ui/css/editor.css" type="text/css">
     <link rel="stylesheet" href="ui/css/parapara.css" type="text/css">
     <script type="text/javascript" src="js/parapara.core.js"></script>
     <script type="text/javascript" src="ui/js/editor-ui.js"></script>
-    <script type="text/javascript" src="ui/js/svgslider.js"></script>
     <!-- The following QRCode library is only used as a fallback in case the
          server doesn't send a QR Code. If we know the server will always
          provide a QR code we can leave the following library out. -->
-    <script type="text/javascript" src="ui/js/qrcode.js"></script>
+    <script type="text/javascript" src="js/qrcode.js"></script>
     <meta name="viewport"
       content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style"
       content="black-translucent">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   </head>
   <body>
     <div class="container" id="container">
-      <div class="container-row">
-      <div class="controls vertical column" id="toolBox">
-        <button type="button" class="image toolButton swell" id="pencilTool">
-          <svg viewBox="-1 -1 22 22">
-            <image xlink:href="ui/img/pencil.svg" width="20" height="20"/>
-          </svg>
-        </button>
-        <button type="button" class="image toolButton swell" id="eraserTool">
-          <svg viewBox="-1 -1 22 22">
-            <image xlink:href="ui/img/eraser.svg" width="20" height="20"/>
-          </svg>
-        </button>
-        <div id="drawControls" style="display:none" class="controlSet">
-          <div class="separator">&nbsp;</div>
-          <button type="button" class="image strokeWidthButton">
-            <svg viewBox="-10 -10 20 20" style="width:20px"
-              preserveAspectRatio="xMidYMid slice">
-              <circle r="1.5"/>
-            </svg>
-          </button>
-          <button type="button" class="image strokeWidthButton">
-            <svg viewBox="-10 -10 20 20" style="width:20px"
-              preserveAspectRatio="xMidYMid slice">
-              <circle r="3"/>
-            </svg>
-          </button>
-          <button type="button" class="image strokeWidthButton">
-            <svg viewBox="-10 -10 20 20" style="width:30px"
-              preserveAspectRatio="xMidYMid slice">
-              <circle r="5"/>
-            </svg>
-          </button>
-          <div class="separator">&nbsp;</div>
-          <button type="button" class="image colorButton swell">
-            <svg viewBox="-1 -1 22 22">
-              <circle cx="10" cy="10" r="10" fill="red"/>
-            </svg>
-          </button>
-          <button type="button" class="image colorButton swell">
-            <svg viewBox="-1 -1 22 22">
-              <circle cx="10" cy="10" r="10" fill="blue"/>
-            </svg>
-          </button>
-          <button type="button" class="image colorButton swell">
-            <svg viewBox="-1 -1 22 22">
-              <circle cx="10" cy="10" r="10" fill="orange"/>
-            </svg>
-          </button>
-          <!-- Disabled for the time being since it doesn't fit on the screen of
-               small DELL tablets
-          <button type="button" class="image colorButton">
-            <svg viewBox="-1 -1 22 22">
-              <circle cx="10" cy="10" r="10" fill="green"/>
-            </svg>
-          </button>
-          -->
-        </div>
-        <div id="eraseControls" style="display:none" class="controlSet">
-          <div class="separator">&nbsp;</div>
-          <button type="button" class="image eraseWidthButton">
-            <svg viewBox="-10 -10 20 20" style="width:20px"
-              preserveAspectRatio="xMidYMid slice">
-              <circle r="1.5" class="eraseOutline"/>
-            </svg>
-          </button>
-          <button type="button" class="image eraseWidthButton">
-            <svg viewBox="-10 -10 20 20" style="width:20px"
-              preserveAspectRatio="xMidYMid slice">
-              <circle r="3" class="eraseOutline"/>
-            </svg>
-          </button>
-          <button type="button" class="image eraseWidthButton">
-            <svg viewBox="-10 -10 20 20" style="width:30px"
-              preserveAspectRatio="xMidYMid slice">
-              <circle r="6" class="eraseOutline"/>
-            </svg>
-          </button>
+      <div class="controlPanel tool-box">
+        <div class="inner-border">
+          <object data="ui/img/tool-picker.svg" class="panelContents"
+            id="picker" data-aspect-ratio="0.6845"></object>
+          <object data="ui/img/width-picker.svg" class="panelContents"
+            id="widths" data-aspect-ratio="2.490"></object>
+          <div id="play-container" class="safari-click-catcher">
+            <object data="ui/img/play.svg" class="panelContents"
+              id="play" data-aspect-ratio="1"></object>
+          </div>
         </div>
       </div>
-      <div class="column">
-        <svg style="width:600px;height:600px" viewBox="0 0 300 300"
-          id="canvas" class="canvas">
-          <!-- Fallback background -->
+      <div class="canvas-container">
+        <div class="controlPanel film-strip">
+          <object data="ui/img/filmstrip.svg" width="100%" height="100%"
+            id="filmstrip"></object>
+        </div>
+        <svg viewBox="0 0 300 300" id="canvas">
           <rect width="100%" height="100%" fill="black"/>
-          <image width="101%" height="101%" xlink:href="ui/img/space-bg.svg"/>
+          <!-- WebKit doesn't seem to calculate the correct result for the
+               following width/height:100% with preserveAspectRatio:slice, at
+               least not when we dynamically update the viewBox on the root svg
+               element.
+               So, as a fallback, we have a duplicate background image sitting
+               behind the real one so that at least the viewport should be
+               filled with something for most screen sizes. -->
+          <image width="600" height="300" xlink:href="ui/img/space-bg.jpg"/>
+          <image width="100%" height="100%" preserveAspectRatio="xMinYMax slice"
+            xlink:href="ui/img/space-bg.jpg"/>
+          <!-- The ground pattern.
+
+               Patterns on iOS Safari 5.1 are quite broken. Even after applying
+               scale(1,-1) they were still in the wrong position.
+               Eventually I gave up and just made up some images to repeat.
+
+               I've now discovered that use elements appears to be broken in
+               Chrome.
+               -->
+          <defs>
+            <image y="273" width="380" height="27"
+              xlink:href="ui/img/jimen-long.png" id="jimen-long"/>
+          </defs>
+          <use xlink:href="#jimen-long"/>
+          <use x="379" xlink:href="#jimen-long"/>
+          <use x="758" xlink:href="#jimen-long"/>
+          <use x="1137" xlink:href="#jimen-long"/>
+          <use x="1516" xlink:href="#jimen-long"/>
           <g id="parapara"/>
         </svg>
-        <div class="controls" id="animControls" style="display:none">
-          <input type="range" min="0.65" max="12.5" step="0.2"
-            onchange="EditorUI.changeSpeed(this.value)" id="speedAdjust"/>
-          <button type="button" class="text left"
-            onclick="EditorUI.returnToEditing()">もどる</button>
-          <button type="button" class="text right"
-            onclick="EditorUI.send()">おくる</button>
+        <div id="anim-controls">
+         <div id="slower">
+          <svg width="100%" height="100%" viewBox="0 0 100 200"
+           preserveAspectRatio="xMinYMid">
+           <circle cx="0" cy="100" r="100" class="overlay-shading"/>
+           <path d="m44 85l-30 15l30 15zm30 0l-30 15l30 15z"
+            class="overlay-icon"/>
+          </svg>
+         </div>
+         <div id="faster">
+          <svg width="100%" height="100%" viewBox="0 0 100 200"
+           preserveAspectRatio="xMaxYMid">
+           <circle cx="100" cy="100" r="100" class="overlay-shading"/>
+           <path d="m26 85l30 15l-30 15zm30 0l30 15l-30 15z"
+            class="overlay-icon"/>
+          </svg>
+         </div>
+         <div id="send">
+           <svg width="100%" height="100%" viewBox="0 0 100 100"
+            preserveAspectRatio="xMaxYMax">
+            <circle cx="100" cy="100" r="100" class="overlay-shading"/>
+            <text fill="black" text-anchor="end"
+             x="91" y="81" font-size="25">おくる</text>
+            <text class="overlay-icon" text-anchor="end"
+             x="90" y="80" font-size="25">おくる</text>
+           </svg>
+         </div>
         </div>
-      </div>
-      <div class="controls vertical column" id="frameControls"
-        style="vertical-align: bottom">
-        <button type="button" class="text"
-          onclick="EditorUI.prevFrame()">もどる</button>
-        <button type="button" class="text"
-          onclick="EditorUI.nextFrame()">つぎ</button>
-        <button type="button" class="text"
-          onclick="EditorUI.finish()">おわる</button>
-      </div>
       </div>
     </div>
     <div class="overlay" id="overlay" style="display:none">
       <div class="overlay-inner">
         <div class="overlay-contents" id="noteSending">
           送信中<br/><br/>
-          <img src="ui/img/loader.gif" width="43" height="11" alt="送信中">
+          <img src="ui/img/loader.gif" width="43" height="11"
+            alt="送信中">
         </div>
         <div class="overlay-contents error" id="noteSendingFailed">
           送信失敗しました<br/><br/>
@@ -157,6 +129,26 @@
         </div>
         <div class="overlay-contents" id="noteSendingComplete">
           送信しました！
+        </div>
+        <div class="overlay-contents" id="noteMetadata"
+          style="padding-top: 1.2em; padding-bottom: 1em">
+          タイトルを付けましょう！
+          <form id="email-form" action="javascript:EditorUI.sendEmail()">
+            <div class="field-row">
+              <input type="text" name="title" id="title" size="23"
+                style="ime-mode: active" autocomplete="off"
+                placeholder="タイトル">
+            </div>
+            <div class="field-row">
+              <input type="text" name="name" id="name" size="23"
+                style="ime-mode: active" autocomplete="off"
+                placeholder="おなまえ">
+            </div>
+          </form>
+          <button type="submit" class="text" id="metadata-button"
+            onclick="EditorUI.clearNote(); EditorUI.send()">送信</button>
+          <button type="button" class="text"
+            onclick="EditorUI.clearNote()">キャンセル</button>
         </div>
         <div class="overlay-contents" id="noteShare"
           style="padding-top: 1.2em; padding-bottom: 1em">
@@ -182,9 +174,16 @@
             onclick="EditorUI.clearNoteAndReset()">OK</button>
         </div>
         <div class="overlay-contents error" id="noteNoAnimation">
-          アニメーションは見つけませんでした<br/><br/>
+          アニメーションがありません<br/><br/>
           <button type="button" class="text"
-            onclick="EditorUI.clearNoteAndReset()">OK</button>
+            onclick="EditorUI.clearNote()">OK</button>
+        </div>
+        <div class="overlay-contents" id="noteConfirmDelete">
+          このフレームを削除してよろしいですか<br/><br/>
+          <button type="button" class="text"
+            id="confirmDeleteButton">削除</button>
+          <button type="button" class="text"
+            onclick="EditorUI.clearNote()">キャンセル</button>
         </div>
       </div>
     </div>
