@@ -1,3 +1,19 @@
+DROP TABLE IF EXISTS `designs`;
+CREATE TABLE `designs` (
+  `designId` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL COMMENT 'A descriptive name for the type of design. This will need to be localized eventually.',
+  `thumbUrl` varchar(255) DEFAULT NULL COMMENT 'A URL to a thumbnail image of the design. Relative paths should probably be relative to some designs folder.',
+  `duration` int(8) DEFAULT NULL COMMENT 'Default duration of this design',
+  PRIMARY KEY (`designId`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='Catalogue of wall styles';
+
+DROP TABLE IF EXISTS `users`;
+CREATE TABLE `users` (
+  `userId` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `email` varchar(255) NOT NULL,
+  PRIMARY KEY (`userId`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='Users of wall system';
+
 DROP TABLE IF EXISTS `walls`;
 CREATE TABLE `walls` (
   `wallId` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Identifier of the wall',
@@ -20,22 +36,6 @@ CREATE TABLE `walls` (
   FOREIGN KEY (`designId`) REFERENCES `designs` (`designId`),
   FOREIGN KEY (`owner`) REFERENCES `users` (`userId`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='Walls are shared drawing spaces';
-
-DROP TABLE IF EXISTS `designs`;
-CREATE TABLE `designs` (
-  `designId` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL COMMENT 'A descriptive name for the type of design. This will need to be localized eventually.',
-  `thumbUrl` varchar(255) DEFAULT NULL COMMENT 'A URL to a thumbnail image of the design. Relative paths should probably be relative to some designs folder.',
-  `duration` int(8) DEFAULT NULL COMMENT 'Default duration of this design',
-  PRIMARY KEY (`designId`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='Catalogue of wall styles';
-
-DROP TABLE IF EXISTS `users`;
-CREATE TABLE `users` (
-  `userId` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `email` varchar(255) NOT NULL,
-  PRIMARY KEY (`userId`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='Users of wall system';
 
 DROP TABLE IF EXISTS `characters`;
 DROP TABLE IF EXISTS `sessions`;

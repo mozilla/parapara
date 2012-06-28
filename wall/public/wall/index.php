@@ -6,10 +6,24 @@
 require_once("../../lib/parapara.inc");
 require_once("../../lib/db.inc");
 require_once("../../lib/UriUtils.inc");
+require_once("../../lib/walls.inc");
 
-$wallId = intval($_GET["wallId"]);
-$connection = getConnection();
+$connection = NULL;
 try {
+  // Parse wall name
+  $url = $_SERVER["REDIRECT_URL"];
+  $match = preg_match('/^\/wall\/([^\/]+)$/', $url, $matches);
+//  $match = preg_match('/wall\/([^\/]+)$/', $url, $matches);
+  if ($match != 1) {
+    throwException("no wall found");
+  }
+  $wallName = $matches[1];
+  $wallId = getWallIdFromPath($wallName);
+  if (!$wallId) {
+    throwException("no wall found");
+  }
+  $connection = getConnection();
+
   $query = "SELECT W.duration AS duration,D.name AS design, D.duration AS defaultduration, S.sessionId AS sessionId, S.endDate AS endDate FROM walls AS W ,designs AS D, sessions AS S WHERE W.wallId=$wallId AND D.designId=W.designId AND W.wallId=S.wallId ORDER BY S.sessionId DESC LIMIT 1";
   $resultset = mysql_query($query, $connection) or throwException(mysql_error());
   if ($row = mysql_fetch_array($resultset)) {
@@ -26,7 +40,9 @@ try {
   header("Content-Type: text/plain; charset=UTF-8");
   $message = $e->getMessage();
   echo "$message\n";
-  mysql_close($connection);
+  if ($connection) {
+    mysql_close($connection);
+  }
   return;
 }
 

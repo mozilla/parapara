@@ -238,7 +238,7 @@ function getWallIdFromPath($path) {
   $conn =& getDbConnection();
   $res =& $conn->queryOne(
       'SELECT wallId FROM walls WHERE urlPath = '
-      . $conn->quote($path, 'text')
+      . $conn->quote(rawurlencode($path), 'text')
       . ' LIMIT 1',
       'integer');
   if (PEAR::isError($res)) {
