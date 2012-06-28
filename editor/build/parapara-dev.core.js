@@ -7,17 +7,6 @@ var ParaPara = ParaPara || {};
 ParaPara.SVG_NS   = "http://www.w3.org/2000/svg";
 ParaPara.XLINK_NS = "http://www.w3.org/1999/xlink";
 
-ParaPara.XHR_TIMEOUT = 8000;
-
-// Return codes for sending animation
-ParaPara.SEND_OK                    = 0;
-ParaPara.SEND_ERROR_NO_ANIMATION    = 1;
-ParaPara.SEND_ERROR_TIMEOUT         = 2;
-ParaPara.SEND_ERROR_FAILED_SEND     = 3;
-ParaPara.SEND_ERROR_NO_ACCESS       = 4; // 404, cross-domain etc.
-ParaPara.SEND_ERROR_SERVER_ERROR    = 5; // Server rejects request
-ParaPara.SEND_ERROR_SERVER_NOT_LIVE = 6; // Server not accepting submissions
-
 // contentGroup is an empty <g> where ParaPara can add its content
 ParaPara.init = function(contentGroup) {
   console.assert(!contentGroup.hasChildNodes(),
@@ -125,119 +114,26 @@ ParaPara.send = function(uploadPath, successCallback, failureCallback, metadata)
   console.assert(ParaPara.animator, "No animator found");
   var anim = ParaPara.animator.exportAnimation(metadata.title, metadata.author);
   if (!anim) {
-    failureCallback(ParaPara.SEND_ERROR_NO_ANIMATION);
+    failureCallback('no-animation');
     return;
   }
 
   // Prepare payload
-  var payloadObject = metadata;
+  var payload = metadata;
   var serializer = new XMLSerializer();
   var serializedAnim = serializer.serializeToString(anim);
-  payloadObject.svg = serializedAnim;
-  payloadObject.y   = 0;
-  var payload = JSON.stringify(payloadObject);
-
-  // Prepare custom failure handler to translate "not_live" codes
-  var paraparaFailureCallback = function(code, detail) {
-    if (code == ParaPara.SEND_ERROR_SERVER_ERROR &&
-        typeof(detail) != "undefined" &&
-        detail.error_key == "not_live") {
-      failureCallback(ParaPara.SEND_ERROR_SERVER_NOT_LIVE);
-    } else {
-      failureCallback(code);
-    }
-  }
+  payload.svg = serializedAnim;
 
   // Send
-  ParaPara.sendAsyncRequest(uploadPath, payload, successCallback,
-                            paraparaFailureCallback);
-
+  ParaPara.postRequest(uploadPath, payload, successCallback,
+                       failureCallback);
 }
 
 ParaPara.sendEmail = function(email, animationId, uploadPath, successCallback,
                               failureCallback) {
-  // Prepare payload
-  var payloadObject = { address: email, id: animationId };
-  var payload = JSON.stringify(payloadObject);
-
-  // Send
-  ParaPara.sendAsyncRequest(uploadPath, payload, successCallback,
-                            failureCallback);
-}
-
-ParaPara.sendAsyncRequest = function(url, json, successCallback,
-                                     failureCallback) {
-  // Create request
-  var req = new XMLHttpRequest();
-  req.open("POST", url, true);
-
-  // Set headers
-  req.setRequestHeader("Content-Length", json.length);
-  req.setRequestHeader("Content-Type", "application/json");
-
-  // Event listeners
-  req.addEventListener("load",
-    function(evt) {
-      var xhr = evt.target;
-      // 200 is for HTTP request, 0 is for local files (this allows us to test
-      // without running a local webserver)
-      if (xhr.status == 200 || xhr.status == 0) {
-        try {
-          var response = JSON.parse(xhr.responseText);
-          if (response.error_key) {
-            switch (response.error_key) {
-              case "not_live":
-                failureCallback(ParaPara.SEND_ERROR_SERVER_NOT_LIVE);
-                break;
-
-              default:
-                console.log("Error sending to server, key: "
-                  + response.error_key
-                  + ", detail: \"" + response.error_detail + "\"");
-                failureCallback(ParaPara.SEND_ERROR_SERVER_ERROR);
-                break;
-            }
-          } else {
-            successCallback(response);
-          }
-        } catch (e) {
-          if (e instanceof SyntaxError) {
-            console.log("Error sending to server, could not parse response: "
-              + xhr.responseText);
-            failureCallback(ParaPara.SEND_ERROR_SERVER_ERROR);
-          } else {
-            throw e;
-          }
-        }
-      } else {
-        console.debug(xhr);
-        failureCallback(ParaPara.SEND_ERROR_NO_ACCESS);
-      }
-    }, false);
-  req.addEventListener("error",
-    function(evt) {
-      failureCallback(ParaPara.SEND_ERROR_NO_ACCESS);
-    }, false);
-
-  // Send away
-  try {
-    req.send(json);
-  } catch (e) {
-    console.debug(e);
-    failureCallback(ParaPara.SEND_ERROR_FAILED_SEND);
-    return;
-  }
-
-  // Add timeout
-  window.setTimeout(
-    function() {
-      if (req.readyState != 4) {
-        req.abort();
-        failureCallback(ParaPara.SEND_ERROR_TIMEOUT);
-      }
-    },
-    ParaPara.XHR_TIMEOUT
-  );
+  var payload = { address: email, id: animationId };
+  ParaPara.postRequest(uploadPath, payload, successCallback,
+                       failureCallback);
 }
 
 ParaPara.fixPrecision = function(x) { return x.toFixed(2); }
@@ -2096,6 +1992,74 @@ if (document.readyState != 'complete') {
 
 }(self));
 
+}
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+var ParaPara = ParaPara || {};
+
+ParaPara.XHR_TIMEOUT = 8000;
+
+ParaPara.postRequest = function(url, payload, successCallback,
+                                failureCallback) {
+  // Create JSON payload
+  var json = JSON.stringify(payload);
+
+  // Create request
+  var req = new XMLHttpRequest();
+  req.open("POST", url, true);
+
+  // Set headers
+  req.setRequestHeader("Content-Type", "application/json");
+
+  // Event listeners
+  req.onreadystatechange = function() {
+    if (req.readyState != 4)
+      return;
+    // 200 is for HTTP request, 0 is for local files (this allows us to test
+    // without running a local webserver)
+    if (req.status == 200 || req.status == 0) {
+      try {
+        var response = JSON.parse(req.responseText);
+        if (response.error_key) {
+          failureCallback(response.error_key, response.error_detail);
+        } else {
+          successCallback(JSON.parse(req.responseText));
+        }
+      } catch (e) {
+        if (e instanceof SyntaxError) {
+          console.debug("Error sending to server, could not parse response: "
+            + req.responseText);
+          failureCallback('server-fail');
+        } else {
+          throw e;
+        }
+      }
+    } else {
+      failureCallback('no-access')
+    }
+  };
+
+  // Send away
+  try {
+    req.send(json);
+  } catch (e) {
+    console.debug(e);
+    failureCallback('send-fail');
+    return;
+  }
+
+  // Add timeout
+  window.setTimeout(
+    function() {
+      if (req.readyState != 4) {
+        req.abort();
+        failureCallback('timeout');
+      }
+    },
+    ParaPara.XHR_TIMEOUT
+  );
 }
 // ------------- Javascript bind support for older browsers ------------------
 //

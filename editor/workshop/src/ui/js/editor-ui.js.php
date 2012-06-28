@@ -45,7 +45,6 @@ EditorUI.init = function() {
   // Check we have a wall to post to
   // (In future we'll just turn the "Send" button into a "Save" button in this
   // case)
-  console.log(EditorUI.getWallName());
   if (!EditorUI.getWallName()) {
     EditorUI.displayNote("noteNoWall");
   }
@@ -131,7 +130,7 @@ EditorUI.send = function() {
   var wallName = EditorUI.getWallName();
   if (!wallName) {
     console.log("Bad wall name");
-    EditorUI.sendFail(ParaPara.SEND_ERROR_NO_ACCESS);
+    EditorUI.sendFail('no-access');
     return;
   }
   var uploadPath = [server,'wall',wallName,'upload'].join('/');
@@ -187,41 +186,41 @@ EditorUI.sendSuccess = function(response) {
   }
 }
 
-EditorUI.sendFail = function(code) {
-  switch (code) {
-    case ParaPara.SEND_ERROR_NO_ANIMATION:
+EditorUI.sendFail = function(key) {
+  switch (key) {
+    case 'no-animation':
       EditorUI.displayNote("noteNoAnimation");
       console.debug("No animation to send");
       break;
 
-    case ParaPara.SEND_ERROR_TIMEOUT:
+    case 'timeout':
       EditorUI.displayNote("noteSendingFailed");
       console.debug("Timed out sending animation");
       break;
 
-    case ParaPara.SEND_ERROR_FAILED_SEND:
+    case 'send-fail':
       EditorUI.displayNote("noteSendingFailedFatal");
       console.debug("Failed to send animation");
       break;
 
-    case ParaPara.SEND_ERROR_NO_ACCESS:
+    case 'no-access':
       EditorUI.displayNote("noteSendingFailed");
       console.debug("No access to remote server");
       break;
 
-    case ParaPara.SEND_ERROR_SERVER_ERROR:
+    case 'server-error':
       EditorUI.displayNote("noteSendingFailed");
       console.debug("Server error");
       break;
 
-    case ParaPara.SEND_ERROR_SERVER_NOT_LIVE:
+    case 'no-active-session':
       EditorUI.displayNote("noteNotLive");
-      console.debug("Server not live");
+      console.debug("No active session");
       break;
 
     default:
       EditorUI.displayNote("noteSendingFailed");
-      console.debug("Unknown error");
+      console.debug("Sending failed:" + key);
       break;
   }
 }
@@ -352,8 +351,9 @@ EditorUI.sendEmailSuccess = function() {
   EditorUI.setEmailStatus("ok");
 }
 
-EditorUI.sendEmailFail = function() {
+EditorUI.sendEmailFail = function(key) {
   // Update status
+  console.log("Failed to send email: " + key);
   EditorUI.setEmailStatus("failed");
   document.getElementById("email-button").disabled = false;
 }

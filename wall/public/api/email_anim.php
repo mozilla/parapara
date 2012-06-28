@@ -9,8 +9,15 @@ require_once("UriUtils.inc");
 require_once("template.inc");
 require_once("Mail.php");
 
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
+header('Access-Control-Allow-Headers: content-type');
+header('Access-Control-Max-Age: 86400');
+
+if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS')
+  exit;
+
 header("Content-Type: text/plain; charset=UTF-8");
-header("Access-Control-Allow-Origin: *");
 
 // Read JSON request
 $handle = fopen('php://input','r');

@@ -12,7 +12,8 @@ deps = $(patsubst %,$(srcdir)/%,$(_deps))
 # Modules
 _modules = parapara.js \
 			  	 eraser.js \
-					 svgClassList.js
+					 svgClassList.js \
+					 xhr.js
 modules = $(patsubst %,$(srcdir)/%,$(_modules))
 
 # File list
