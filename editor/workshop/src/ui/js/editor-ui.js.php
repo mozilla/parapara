@@ -554,6 +554,7 @@ EditorUI.initAnimControls = function() {
 
   var send = document.getElementById("send");
   send.addEventListener("click", EditorUI.promptMetadata, false);
+  send.addEventListener("touchend", EditorUI.promptMetadata, false);
 
   var animControls = document.getElementById("anim-controls");
   animControls.addEventListener("transitionend",
