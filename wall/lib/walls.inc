@@ -4,7 +4,7 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 require_once("parapara.inc");
-require_once("MDB2.php");
+require_once("db.inc");
 require_once("exceptions.inc");
 require_once("UriUtils.inc");
 
@@ -23,21 +23,6 @@ define("WALLMAKER_SESSION_NAME", "WMSESSID");
 //
 // The results will be sorted by creation date such that recently created walls 
 // sort before older walls.
-
-// XXX Move this to db.inc once we convert everything over to MDB2
-$conn = null;
-function getDbConnection() {
-  global $config, $conn;
-  if (!$conn) {
-    $conn =& MDB2::factory($config['db']['dsn']);
-    if (PEAR::isError($conn)) {
-      error_log('Error connecting to DB: ' . $mdb2->getMessage()
-                 . ', ' . $mdb2->getDebugInfo());
-      throw new KeyedException('db-error');
-    }
-  }
-  return $conn;
-}
 
 function getWallSummaryForUser($email) {
   // XXX Convert this to use exceptions
@@ -266,7 +251,7 @@ function getWallIdFromPath($path) {
 function startNewSession($wallId, $datetime) {
   $conn =& getDbConnection();
   $qwallid = $conn->quote($wallId, 'integer');
-  $qdatetime = $conn->quote($datetime, 'text');
+  $qdatetime = $conn->quote($datetime, 'timestamp');
   $query = 'INSERT INTO sessions(wallId,beginDate) VALUES('.$wallId.','.$qdatetime.')';
   $res =& $conn->query($query);
   if (PEAR::isError($res)) {
@@ -279,7 +264,7 @@ function startNewSession($wallId, $datetime) {
 function closeLastSession($wallId, $datetime) {
   $conn =& getDbConnection();
   $qwallid = $conn->quote($wallId, 'integer');
-  $qdatetime = $conn->quote($datetime, 'text');
+  $qdatetime = $conn->quote($datetime, 'timestamp');
   //makes temp table for (You can't specify target table 'sessions' for update in FROM clause)
   $query = 'UPDATE sessions SET endDate='.$qdatetime.' WHERE endDate IS NULL AND wallId='.$wallId.' AND sessionId=(SELECT temp.sessionId FROM (SELECT MAX(sessionId) AS sessionID FROM sessions WHERE wallId='.$wallId.') AS temp)';
   $res =& $conn->query($query);
@@ -288,6 +273,25 @@ function closeLastSession($wallId, $datetime) {
     throw new KeyedException('db-error');
   }
   $conn->disconnect();
+}
+
+// Returns NULL if there is no active session for the wall
+function getActiveSession($wallId) {
+  $conn =& getDbConnection();
+  $date = gmdate('Y-m-d H:i:s');
+  $qdate = $conn->quote($date, 'timestamp');
+
+  $res =& $conn->queryOne(
+      'SELECT sessionId FROM sessions WHERE'
+      . ' wallId = ' . $conn->quote($wallId, 'integer')
+      . ' AND beginDate < ' . $qdate
+      . ' AND (endDate IS NULL OR endDate > ' . $qdate . ')',
+      'integer');
+  if (PEAR::isError($res)) {
+    error_log($res->getMessage() . ', ' . $res->getDebugInfo());
+    throw new KeyedException('db-error');
+  }
+  return $res;
 }
 
 function isTitleUnique($title) {

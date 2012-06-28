@@ -140,7 +140,7 @@ function fileToUrl($file)
   $scheme      = @$_SERVER['HTTPS'] ? 'https://' : 'http://';
   $defaultPort = @$_SERVER['HTTPS'] ? '443' : '80';
   $port        = $_SERVER['SERVER_PORT'] != $defaultPort
-               ? ':' + $_SERVER['SERVER_PORT']
+               ? ':' . $_SERVER['SERVER_PORT']
                : '';
   $url         = $scheme . $_SERVER['SERVER_NAME'] . $port . $path;
 

@@ -134,7 +134,6 @@ ParaPara.send = function(uploadPath, successCallback, failureCallback, metadata)
   var serializer = new XMLSerializer();
   var serializedAnim = serializer.serializeToString(anim);
   payloadObject.svg = serializedAnim;
-  payloadObject.y   = 0;
   var payload = JSON.stringify(payloadObject);
 
   // Prepare custom failure handler to translate "not_live" codes

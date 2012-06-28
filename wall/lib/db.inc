@@ -4,6 +4,8 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 require_once("parapara.inc");
+require_once("MDB2.php");
+require_once("exceptions.inc");
 
 function getConnection() {
   global $config;
@@ -16,5 +18,19 @@ function getConnection() {
 
 function throwException($message = null,$code = null) {
   throw new Exception($message, $code);
+}
+
+$conn = null;
+function getDbConnection() {
+  global $config, $conn;
+  if (!$conn) {
+    $conn =& MDB2::factory($config['db']['dsn']);
+    if (PEAR::isError($conn)) {
+      error_log('Error connecting to DB: ' . $mdb2->getMessage()
+                 . ', ' . $mdb2->getDebugInfo());
+      throw new KeyedException('db-error');
+    }
+  }
+  return $conn;
 }
 ?>

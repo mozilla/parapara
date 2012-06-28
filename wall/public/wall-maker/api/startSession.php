@@ -28,7 +28,7 @@ if (!isset($wallId)) {
   bailWithError('logged-out');
 }
 
-$currentdatetime = date("Y-m-d H:i:s", time());
+$currentdatetime = gmdate("Y-m-d H:i:s");
 closeLastSession($wallId, $currentdatetime);
 startNewSession($wallId, $currentdatetime);
 
