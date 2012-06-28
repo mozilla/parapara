@@ -98,10 +98,10 @@
  <!-- Plus frame -->
  <g id="plus-frame">
    <use xlink:href="#frame-bg"/>
-   <rect x="36" y="36" width="60" height="60" rx="15" class="plus-button-back"/>
+   <rect x="40" y="36" width="60" height="60" rx="15" class="plus-button-back"/>
    <g fill="white">
-    <rect x="62" y="50" width="8" height="32" rx="5"/>
-    <rect x="50" y="62" width="32" height="8" rx="5"/>
+    <rect x="66" y="50" width="8" height="32" rx="5"/>
+    <rect x="54" y="62" width="32" height="8" rx="5"/>
    </g>
  </g>
  <script type="text/javascript">
