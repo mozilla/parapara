@@ -1,3 +1,8 @@
+<?php
+/* vim: syn=javascript */
+require_once("../../../../../wall/lib/parapara.inc");
+header("Content-Type: application/javascript; charset=UTF-8");
+?>
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -12,8 +17,9 @@ EditorUI.SPEED_STEP_FPS    = 0.3;
 EditorUI.LONG_PRESS_DELAY_MS = 350;
 EditorUI.LONG_PRESS_RATE_MS  = 120;
 
-EditorUI.UPLOAD_PATH       = "api/upload_anim.php";
-EditorUI.SEND_EMAIL_PATH   = "api/email_anim.php";
+EditorUI.UPLOAD_SERVER   = "<?php echo $config['editor']['upload_server']; ?>";
+EditorUI.UPLOAD_SCRIPT   = "upload";
+EditorUI.SEND_EMAIL_PATH = EditorUI.UPLOAD_SERVER + "api/email_anim";
 
 EditorUI.init = function() {
   var paraparaRoot = document.getElementById("parapara");
@@ -35,6 +41,14 @@ EditorUI.init = function() {
   }
   */
   EditorUI.updateLayout();
+
+  // Check we have a wall to post to
+  // (In future we'll just turn the "Send" button into a "Save" button in this
+  // case)
+  console.log(EditorUI.getWallName());
+  if (!EditorUI.getWallName()) {
+    EditorUI.displayNote("noteNoWall");
+  }
 }
 window.addEventListener("load", EditorUI.init, false);
 
@@ -94,6 +108,12 @@ EditorUI.reset = function() {
   EditorUI.initControls();
 }
 
+EditorUI.getWallName = function() {
+  var wallName = document.location.pathname.replace(/^\//, '');
+  // Test the wall name is at least one char long and has no slashes or dots
+  return /^[^\/.]+$/.test(wallName) ? wallName : null;
+}
+
 // -------------- Sending -----------
 
 EditorUI.promptMetadata = function() {
@@ -105,8 +125,18 @@ EditorUI.send = function() {
   var metadata = {};
   metadata.title  = document.forms[0].title.value.trim();
   metadata.author = document.forms[0].name.value.trim();
-  ParaPara.send(EditorUI.UPLOAD_PATH, EditorUI.sendSuccess, EditorUI.sendFail,
-                metadata);
+
+  // Build path
+  var server   = EditorUI.UPLOAD_SERVER.replace(/\/$/, '');
+  var wallName = EditorUI.getWallName();
+  if (!wallName) {
+    console.log("Bad wall name");
+    EditorUI.sendFail(ParaPara.SEND_ERROR_NO_ACCESS);
+    return;
+  }
+  var uploadPath = [server,'wall',wallName,'upload'].join('/');
+
+  ParaPara.send(uploadPath, EditorUI.sendSuccess, EditorUI.sendFail, metadata);
 }
 
 EditorUI.getRadioValue = function(radio) {

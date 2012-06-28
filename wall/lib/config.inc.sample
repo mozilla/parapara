@@ -35,6 +35,9 @@ $config = array(
   ),
   'net' => array(
     'certfile' => realpath(dirname(__FILE__) . '/CACerts/cacert.pem')
+  ),
+  'editor' => array(
+    'upload_server' => 'http://parapara.mozlabs.jp/'
   )
 );
 ?>
