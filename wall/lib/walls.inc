@@ -248,6 +248,21 @@ function updateWall($wallId, $name, $value, $type) {
   $conn->disconnect();
 }
 
+// Returns NULL if the wall is not found
+function getWallIdFromPath($path) {
+  $conn =& getDbConnection();
+  $res =& $conn->queryOne(
+      'SELECT wallId FROM walls WHERE urlPath = '
+      . $conn->quote($path, 'text')
+      . ' LIMIT 1',
+      'integer');
+  if (PEAR::isError($res)) {
+    error_log($res->getMessage() . ', ' . $res->getDebugInfo());
+    throw new KeyedException('db-error');
+  }
+  return $res;
+}
+
 function startNewSession($wallId, $datetime) {
   $conn =& getDbConnection();
   $qwallid = $conn->quote($wallId, 'integer');
