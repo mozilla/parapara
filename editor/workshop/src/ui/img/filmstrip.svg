@@ -135,20 +135,47 @@
     }
 
     // Plug in the new content
-    // XXX Still undecided which method is better
-    if (true) {
-      var scale = 92 / 300;
-      content.setAttribute("transform", "scale(" + scale + ")");
+    // There are two approaches here, either:
+    // i)  Scale all thumbnails by the same amount
+    //     (means some thumbnails may not fit inside the preview window
+    //      depending on the size of the users's screen, unless we analyse all
+    //      frames--and update all frames--to find the appropriate size)
+    // ii) Use a viewBox to scale the image
+    //     (means the relative position and size of images may differ between
+    //      thumbnails)
+    // We do (i) unless we detect that the image will overflow the bounds.
+
+    // Calculate scale factor as height of preview window over the height of the
+    // canvas
+    // (The height of the canvas is fixed at 300, but the width varies with the
+    //  screen size.)
+    var scaleFactor = 92 / 300;
+    
+    // Get bounds
+    var scaledWidth = null;
+    var bbox = null;
+    try {
+      // getBBox can throw in Gecko when svg is not attached to a tree
+      bbox = svg.getBBox();
+      scaledWidth = bbox.width * scaleFactor;
+    } catch (e) {
+      // Do nothing, leave scaledWidth as null
+    }
+
+    // Choose appropriate scaling method
+    if (scaledWidth === null || scaledWidth <= 130) {
+      // (i) Fixed scale
+      content.setAttribute("transform", "scale(" + scaleFactor + ")");
       g.appendChild(content);
     } else {
+      // (ii) Wrap in SVG
       var svgWrapper = document.createElementNS(SVG_NS, "svg");
       svgWrapper.setAttribute("width", "130");
       svgWrapper.setAttribute("height", "92");
-      svgWrapper.appendChild(content);
-      g.appendChild(svgWrapper);
-      var bbox = content.getBBox();
       svgWrapper.setAttribute("viewBox",
         [bbox.x,bbox.y,bbox.width,bbox.height].join(" "));
+      svgWrapper.appendChild(content);
+      g.appendChild(svgWrapper);
     }
   };
 
