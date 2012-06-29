@@ -146,7 +146,7 @@
           <button type="submit" class="text" id="metadata-button"
             onclick="EditorUI.clearNote(); EditorUI.send()">送信</button>
           <button type="button" class="text"
-            onclick="EditorUI.clearNote()">キャンセル</button>
+            onclick="EditorUI.returnToAnimation()">キャンセル</button>
         </div>
         <div class="overlay-contents" id="noteShare"
           style="padding-top: 1.2em; padding-bottom: 1em">
@@ -174,7 +174,7 @@
         <div class="overlay-contents error" id="noteNoAnimation">
           アニメーションがありません<br/><br/>
           <button type="button" class="text"
-            onclick="EditorUI.clearNote()">OK</button>
+            onclick="EditorUI.returnToAnimation()">OK</button>
         </div>
         <div class="overlay-contents" id="noteConfirmDelete">
           このフレームを削除してよろしいですか<br/><br/>

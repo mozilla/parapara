@@ -83,12 +83,26 @@ ParaPara.animate = function(fps) {
   ParaPara.editContent.setAttribute("display", "none");
   ParaPara.animator = new ParaPara.Animator(fps, ParaPara.contentGroup);
   ParaPara.animator.makeAnimation();
+  ParaPara.svgRoot.unpauseAnimations();
 }
 
-ParaPara.removeAnimation = function(fps) {
+ParaPara.pauseAnimation = function() {
+  if (ParaPara.animator) {
+    ParaPara.svgRoot.pauseAnimations();
+  }
+}
+
+ParaPara.resumeAnimation = function() {
+  if (ParaPara.animator) {
+    ParaPara.svgRoot.unpauseAnimations();
+  }
+}
+
+ParaPara.removeAnimation = function() {
   if (ParaPara.animator) {
     ParaPara.animator.removeAnimation();
     ParaPara.animator = null;
+    ParaPara.svgRoot.unpauseAnimations();
   }
   ParaPara.editContent.removeAttribute("display");
   if (ParaPara.currentTool) {
@@ -97,7 +111,7 @@ ParaPara.removeAnimation = function(fps) {
 }
 
 // Returns "draw" | "erase" | "animate"
-ParaPara.getMode = function(fps) {
+ParaPara.getMode = function() {
   if (ParaPara.currentTool === ParaPara.drawControls)
     return "draw";
   if (ParaPara.currentTool === ParaPara.eraseControls)

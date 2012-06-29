@@ -1,5 +1,5 @@
 <?php
-/* vim: syn=javascript */
+/* vim: set syn=javascript: */
 require_once("../../../../../wall/lib/parapara.inc");
 header("Content-Type: application/javascript; charset=UTF-8");
 ?>
@@ -116,6 +116,9 @@ EditorUI.getWallName = function() {
 // -------------- Sending -----------
 
 EditorUI.promptMetadata = function() {
+  // We pause animations before putting up prompts because Fennec (14) flickers 
+  // pretty badly when we overlay stuff on top of the animation.
+  ParaPara.pauseAnimation();
   EditorUI.displayNote("noteMetadata");
 }
 
@@ -223,6 +226,11 @@ EditorUI.sendFail = function(key) {
       console.debug("Sending failed:" + key);
       break;
   }
+}
+
+EditorUI.returnToAnimation = function() {
+  EditorUI.clearNote();
+  ParaPara.resumeAnimation();
 }
 
 EditorUI.clearNoteAndReset = function() {
