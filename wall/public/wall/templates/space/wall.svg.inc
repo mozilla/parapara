@@ -49,7 +49,7 @@
         from="0 1700 1700" to="360 1700 1700" repeatCount="indefinite"
         additive="sum" dur="240s"/>
       <path id="main-layer-path" pathLength="1"
-        style="fill:none;stroke:none;stroke-width:2"
+        style="fill:none;stroke:lime;opacity:0.01;stroke-width:2"
         d="M2560.75,993.206C2655.477,1008.112,2737,1061,2769,1109
         c156.546-24.52,148,4,100,116c116,156-55.213,271.946-55.213,271.946s7.713,148.378,7.713,211.054
         c0,80.212,7.804,92.91-8.359,168.295c74.843,53.446,90.96,61.39,90.96,94.499S2845,2045,2845,2045s28,60-8,104
