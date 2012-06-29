@@ -285,6 +285,29 @@ div.overlay-contents {
   font-size: 1.5em;
   display: none;
 }
+@media screen and (max-height: 400px) {
+  div.overlay-contents {
+    font-size: 1em;
+  }
+  button.text {
+    font-size: 16px;
+    padding: 7px 15px;
+  }
+}
+@media screen and (max-height: 500px) {
+  #animation-link img {
+    display: none;
+  }
+}
+@media screen and (max-width: 250px) {
+  div.overlay-contents {
+    font-size: 1em;
+  }
+  button.text {
+    font-size: 10px;
+    padding: 7px 15px;
+  }
+}
 div.overlay-contents input {
   font-size: 1em;
 }
