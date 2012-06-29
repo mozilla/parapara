@@ -25,9 +25,7 @@ var Main = {
 
   start: function() {
     Main.timebase = document.getElementById("time-base");
-    Main.main_layer = document.getElementById("main-layer");
-    Database.start(Main.timebase, Main.showCharacter);
-  },
+    Main.main_layer = document.getElementById("main-layer"); Database.start(Main.timebase, Main.showCharacter); },
 
   showCharacter: function(character, currentActiveTime, currentSimpleTime, currentRate, durationRate) {
     // Create a group to wrap the character and its animation
@@ -68,11 +66,12 @@ var Main = {
     animateMotion.setAttribute("rotate", "auto");
     animateMotion.setAttribute("from", (-CHARACTER_WIDTH)+" 0");
     animateMotion.setAttribute("to", "1280 0");
+
     // When the animation finishes, remove the character
     animateMotion.addEventListener("endEvent", function(e) {
       var gElement = e.originalTarget.parentNode;
       gElement.parentNode.removeChild(gElement);
-//      console.error("remove:"+character.id);
+      //console.error("remove:"+character.id);
     }, true);
 
     // Add the animation to the group, then add the group to the scene
