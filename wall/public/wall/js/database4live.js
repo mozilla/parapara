@@ -12,14 +12,16 @@ var Database = {
     Database.characters = [];
     Database.listener = characterListener;
     Database.timebase = timebase;
+	/*
     Database.timebase.addEventListener("repeatEvent", function(e) {
       for (var i = 0, n = Database.characters.length; i < n; i++) {
         Database.characters[i].sent = false;
       }
     }, true);
-
+	*/
     //changes animate duration. [dur]
     Database.duration_rate = Utility.applyDuration(Database.timebase, BASE_TIME, BEGIN_TIME+(new Date()).getTime()-BEFORE_LOADED_TIME);
+    Database.begin_rate = BEGIN_TIME/BASE_TIME;
     Database.loadAllCharacters(function() {
     });
   },
@@ -32,8 +34,16 @@ var Database = {
     // Get simple time as a ratio of the simple duration (i.e. how far are we
     // through the current iteration)
     var currentRate = currentSimpleTime/simpleDuration;
+    currentRate += Database.begin_rate;
+    if (currentRate > 1) {
+        currentRate = currentRate-1;
+    }
+    if (currentRate < Database.current_rate) {
+      for (var i = 0, n = Database.characters.length; i < n; i++) {
+        Database.characters[i].sent = false;
+      }
+    }
     Database.current_rate = currentRate;
-    
     // Go through and add waiting characters
     for (var i = 0, n = Database.characters.length; i < n; i++) {
       var character = Database.characters[i];
@@ -42,6 +52,8 @@ var Database = {
       var rate = character.x;
       if (character.sent != true && rate < currentRate) {
 //      if (character.sent != true) { //for debug
+//      console.error("******"+rate+":"+currentRate);
+
         Database.listener(character, currentActiveTime, currentSimpleTime, currentRate, Database.duration_rate);
         character.sent = true;
       }
