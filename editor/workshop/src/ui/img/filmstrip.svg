@@ -603,8 +603,90 @@
     var plusFrame = document.getElementById('plus-frame');
     plusFrame.addEventListener('click', addFrame, true);
     addFrame(false);
+
+    if ('ontouchstart' in window) {
+      window.addEventListener('touchstart', scrollStart, true);
+      window.addEventListener('touchmove', scrollMove, true);
+      window.addEventListener('touchend', scrollEnd, true);
+      window.addEventListener('touchcancel', scrollEnd, true);
+    } else {
+      window.addEventListener('mousedown', scrollStart, true);
+      window.addEventListener('mousemove', scrollMove, true);
+      window.addEventListener('mouseup', scrollEnd, true);
+    }
   }
   init();
+
+  // This will be set to true during a mouse drag, or the touch identifier
+  // during a touch drag
+  var drag = null;
+  var dragStartX = null;
+  var dragStartTransX = null;
+  var realDrag = false;
+
+  function scrollStart(evt) {
+    if (drag !== null || evt.button)
+      return;
+
+    if (evt.changedTouches) {
+      var touch = evt.changedTouches[0];
+      drag = touch.identifier;
+      dragStartX = touch.clientX;
+    } else {
+      drag = true;
+      dragStartX = evt.clientX;
+      evt.preventDefault();
+    }
+    dragStartTransX = document.documentElement.currentTranslate.x;
+    realDrag = false;
+  }
+
+  function scrollMove(evt) {
+    if (drag === null)
+      return;
+
+    var x = null;
+    if (evt.changedTouches) {
+      for (var i = 0; i < evt.changedTouches.length; ++i) {
+        if (evt.changedTouches[i].identifier === drag) {
+          x = evt.changedTouches[i].clientX;
+          break;
+        }
+      }
+    } else {
+      x = evt.clientX;
+    }
+    var xDiff = dragStartX - x;
+
+    // Wait until we get a significant difference before starting a drag
+    if (!realDrag && Math.abs(xDiff) < 20)
+      return;
+    realDrag = true;
+    var newTrans = Math.min(0, dragStartTransX - xDiff);
+    document.documentElement.currentTranslate.x = newTrans;
+  }
+
+  function scrollEnd(evt) {
+    if (drag === null)
+      return;
+
+    if (evt.changedTouches) {
+      for (var i = 0; i < evt.changedTouches.length; ++i) {
+        if (evt.changedTouches[i].identifier === drag) {
+          drag = null;
+          break;
+        }
+      }
+    } else {
+      drag = null;
+      evt.stopPropagation();
+      evt.preventDefault();
+    }
+
+    if (drag === null) {
+      realDrag = false;
+    }
+  }
  ]]>
  </script>
 </svg>
