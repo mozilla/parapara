@@ -307,9 +307,12 @@ div.overlay-contents div.field-note {
 div.field-row + div.field-note {
   margin-top: -0.3em;
 }
-@media screen and (max-width: 600px) and (max-height: 700px) {
+#spam-filter-note {
+  display: none;
+}
+@media screen and (min-width: 600px) and (min-height: 700px) {
   #spam-filter-note {
-    display: none;
+    display: inline;
   }
 }
 div.async-progress {
