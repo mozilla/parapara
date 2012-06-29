@@ -193,6 +193,12 @@ svg#canvas {
  }
 }
 
+@media screen and (orientation: portrait) and (max-width: 210px) {
+  div.tool-box #picker {
+    width: 35%;
+  }
+}
+
 /*
  * Credit form
  */
