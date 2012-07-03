@@ -26,7 +26,7 @@ var Database = {
     });
   },
 
-  idle: function() {
+  preidle: function() {
     var currentActiveTime = Main.timebase.getCurrentTime();
     var simpleDuration = Main.timebase.getSimpleDuration();
     // Get the time within the current repeat iteration
@@ -44,15 +44,39 @@ var Database = {
       }
     }
     Database.current_rate = currentRate;
+    Database.timeout_id = setTimeout(Database.idle, 100);
+  },
+
+  idle: function() {
+    var currentActiveTime = Main.timebase.getCurrentTime();
+    var simpleDuration = Main.timebase.getSimpleDuration();
+    // Get the time within the current repeat iteration
+    var currentSimpleTime = currentActiveTime % simpleDuration;
+    // Get simple time as a ratio of the simple duration (i.e. how far are we
+    // through the current iteration)
+    var currentRate = currentSimpleTime/simpleDuration;
+    currentRate += Database.begin_rate;
+    if (currentRate > 1) {
+        currentRate = currentRate-1;
+    }
+    if (currentRate < Database.current_rate) {
+      for (var i = 0, n = Database.characters.length; i < n; i++) {
+        var character = Database.characters[i];
+        character.sent = false;
+        character.isNew = false;
+      }
+    }
+    var previousRate = Database.current_rate;
+    Database.current_rate = currentRate;
     // Go through and add waiting characters
     for (var i = 0, n = Database.characters.length; i < n; i++) {
       var character = Database.characters[i];
       // If the character is not ready to appear or has already been added
       // skip it
       var rate = character.x;
-      if (character.sent != true && rate < currentRate) {
+      if (character.sent != true && rate < currentRate && (character.isNew == true || previousRate < rate)) {
 //      if (character.sent != true) { //for debug
-//      console.error("******"+rate+":"+currentRate);
+//      console.error("******"+rate+":"+currentRate+" "+previousRate);
 
         Database.listener(character, currentActiveTime, currentSimpleTime, currentRate, Database.duration_rate);
         character.sent = true;
@@ -68,7 +92,7 @@ var Database = {
     var url = API_DIR+"get_uncompleted_characters.php?x="+
               parameter+"&sessionId="+SESSION_ID+"&"+(new Date()).getTime();
     $.getJSON(url, function(json) {
-      Database.append(json);
+      Database.append(json, true);
       setTimeout(Database.loadUncompletedCharacters, 1000);
     });
   },
@@ -79,18 +103,19 @@ var Database = {
     var url = API_DIR+"get_all_characters.php?threshold="+
               NUM_CHARACTERS_THRESHOLD+"&sessionId="+SESSION_ID+"&"+(new Date()).getTime();
     $.getJSON(url, function(json) {
-      Database.append(json);
-      Database.idle();
+      Database.append(json, false);
+      Database.preidle();
       Database.loadUncompletedCharacters();
       callback();
     });
   },
 
-  append: function(json) {
+  append: function(json, isNew) {
     for (var i = 0, n = json.length; i < n; i++) {
       var characterOfJson = json[i];
       var character = new Character();
       character.setup(characterOfJson);
+      character.isNew = isNew;
       Database.characters.push(character);
     }
   }
