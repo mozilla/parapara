@@ -6,10 +6,10 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>パラパラアニメーション</title>
-    <link rel="stylesheet" href="ui/css/editor.css" type="text/css">
-    <link rel="stylesheet" href="ui/css/parapara.css" type="text/css">
+    <link rel="stylesheet" href="css/editor.css" type="text/css">
+    <link rel="stylesheet" href="css/parapara.css" type="text/css">
     <script type="text/javascript" src="js/parapara.core.js"></script>
-    <script type="text/javascript" src="ui/js/editor-ui.js"></script>
+    <script type="text/javascript" src="js/editor-ui.js"></script>
     <!-- The following QRCode library is only used as a fallback in case the
          server doesn't send a QR Code. If we know the server will always
          provide a QR code we can leave the following library out. -->
@@ -24,19 +24,19 @@
     <div class="container" id="container">
       <div class="controlPanel tool-box">
         <div class="inner-border">
-          <object data="ui/img/tool-picker.svg" class="panelContents"
+          <object data="img/tool-picker.svg" class="panelContents"
             id="picker" data-aspect-ratio="0.6845"></object>
-          <object data="ui/img/width-picker.svg" class="panelContents"
+          <object data="img/width-picker.svg" class="panelContents"
             id="widths" data-aspect-ratio="2.490"></object>
           <div id="play-container" class="safari-click-catcher">
-            <object data="ui/img/play.svg" class="panelContents"
+            <object data="img/play.svg" class="panelContents"
               id="play" data-aspect-ratio="1"></object>
           </div>
         </div>
       </div>
       <div class="canvas-container">
         <div class="controlPanel film-strip">
-          <object data="ui/img/filmstrip.svg" width="100%" height="100%"
+          <object data="img/filmstrip.svg" width="100%" height="100%"
             id="filmstrip"></object>
         </div>
         <svg viewBox="0 0 300 300" id="canvas">
@@ -48,9 +48,9 @@
                So, as a fallback, we have a duplicate background image sitting
                behind the real one so that at least the viewport should be
                filled with something for most screen sizes. -->
-          <image width="600" height="300" xlink:href="ui/img/space-bg.jpg"/>
+          <image width="600" height="300" xlink:href="img/space-bg.jpg"/>
           <image width="100%" height="100%" preserveAspectRatio="xMinYMax slice"
-            xlink:href="ui/img/space-bg.jpg"/>
+            xlink:href="img/space-bg.jpg"/>
           <!-- The ground pattern.
 
                Patterns on iOS Safari 5.1 are quite broken. Even after applying
@@ -62,7 +62,7 @@
                -->
           <defs>
             <image y="273" width="380" height="27"
-              xlink:href="ui/img/jimen-long.png" id="jimen-long"/>
+              xlink:href="img/jimen-long.png" id="jimen-long"/>
           </defs>
           <use xlink:href="#jimen-long"/>
           <use x="379" xlink:href="#jimen-long"/>
@@ -105,7 +105,7 @@
       <div class="overlay-inner">
         <div class="overlay-contents" id="noteSending">
           送信中<br/><br/>
-          <img src="ui/img/loader.gif" width="43" height="11"
+          <img src="img/loader.gif" width="43" height="11"
             alt="送信中">
         </div>
         <div class="overlay-contents error" id="noteSendingFailed">
@@ -159,7 +159,7 @@
                 onfocus="EditorUI.toggleEmailPlaceholder()"
                 oninput="EditorUI.clearEmailStatus()">
               <button type="submit" class="text" id="email-button">
-                <img src="ui/img/email.png" width="16" height="16">
+                <img src="img/email.png" width="16" height="16">
               </button>
               <div id="email-progress" class="async-progress"></div>
             </div>
