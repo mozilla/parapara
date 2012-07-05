@@ -859,15 +859,15 @@ ParaPara.Animator.prototype.exportAnimation = function(title, author) {
   // Bound viewBox of animation by parent viewBox
   var parentViewBox = ParaPara.svgRoot.getAttribute("viewBox");
   console.assert(parentViewBox, "No parent viewBox");
-  var parentViewBox = parentViewBox.split(" ");
-  var minX = Math.max(minX, parentViewBox[0]);
-  var maxX = Math.min(maxX, parentViewBox[0] + parentViewBox[2]);
+  parentViewBox = parentViewBox.trim().split(" ").map(parseFloat);
+  minX = Math.max(minX, parentViewBox[0]);
+  maxX = Math.min(maxX, parentViewBox[0] + parentViewBox[2]);
   // Currently we set the y coordinates of the viewBox to those of the editor
-  // workspace. This way, if for example, we have some ground in the background
+  // workspace. This way, if, for example, we have some ground in the background
   // of the editor, the author can line up their animation vertically with the
   // ground.
-  var minY = parentViewBox[1];
-  var maxY = parentViewBox[1] + parentViewBox[3];
+  minY = parentViewBox[1];
+  maxY = parentViewBox[1] + parentViewBox[3];
   svg.setAttribute("viewBox", [minX, minY, maxX-minX, maxY-minY].join(" "));
 
   return doc;
