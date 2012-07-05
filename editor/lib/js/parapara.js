@@ -318,7 +318,7 @@ ParaPara.FreehandLine.prototype.cancelLine = function() {
 }
 
 ParaPara.FreehandLine.prototype.createPathFromPoints = function(points) {
-  if (points.length == 1) {
+  if (points.numberOfItems == 1) {
     return this.createPoint(points);
   }
 
@@ -349,7 +349,7 @@ ParaPara.FreehandLine.prototype.createPathFromPoints = function(points) {
 }
 
 ParaPara.FreehandLine.prototype.createPoint = function(points) {
-  console.assert(points.length == 1, "Expected only one point");
+  console.assert(points.numberOfItems === 1, "Expected only one point");
   var path = document.createElementNS(ParaPara.SVG_NS, "circle");
   path.setAttribute("r", ParaPara.currentStyle.strokeWidth / 2);
   path.setAttribute("cx", points.getItem(0).x);
