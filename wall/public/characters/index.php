@@ -21,7 +21,7 @@ $connection = getConnection();
   $base_url = $_SERVER['HTTPS'] == 'on' ? "https://" : "http://";
   $base_url .= $_SERVER['HTTP_HOST'];
   $base_url .= substr($self, 0, strrpos($self, '/') + 1);
-  $query = "SELECT id, author, title, active FROM characters";
+  $query = "SELECT charId, author, title, active FROM characters";
   $result = mysql_query($query, $connection) or throwException(mysql_error());
   while ($row = mysql_fetch_array($result, MYSQL_NUM)) {
     $url = $base_url . $row[0] . ".svg";

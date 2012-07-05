@@ -318,7 +318,7 @@ ParaPara.FreehandLine.prototype.cancelLine = function() {
 }
 
 ParaPara.FreehandLine.prototype.createPathFromPoints = function(points) {
-  if (points.length == 1) {
+  if (points.numberOfItems == 1) {
     return this.createPoint(points);
   }
 
@@ -349,7 +349,7 @@ ParaPara.FreehandLine.prototype.createPathFromPoints = function(points) {
 }
 
 ParaPara.FreehandLine.prototype.createPoint = function(points) {
-  console.assert(points.length == 1, "Expected only one point");
+  console.assert(points.numberOfItems === 1, "Expected only one point");
   var path = document.createElementNS(ParaPara.SVG_NS, "circle");
   path.setAttribute("r", ParaPara.currentStyle.strokeWidth / 2);
   path.setAttribute("cx", points.getItem(0).x);
@@ -802,6 +802,11 @@ ParaPara.Animator.prototype.exportAnimation = function(title, author) {
   svg.setAttribute("width", "100%");
   svg.setAttribute("height", "100%");
 
+  // Pause the doc since if we don't, removing the style attribute later on (to
+  // work around another Safari bug) will have no effect since the animation
+  // will cause it to be added again.
+  svg.pauseAnimations();
+
   // Add metadata
   if (title) {
     var titleElem = doc.createElementNS(ParaPara.SVG_NS, "title");
@@ -837,21 +842,32 @@ ParaPara.Animator.prototype.exportAnimation = function(title, author) {
     minY = Math.floor(Math.min(minY, bbox.y));
     maxY = Math.ceil(Math.max(maxY, bbox.y + bbox.height));
 
-    svg.appendChild(doc.importNode(frame, true));
+    // Import and tweak
+    //
+    // Safari seems to serialise the animation state using the style attribute
+    // (despite the fact that we are serializing the animation too meaning that
+    // the serialized result doesn't match what you see on screen).
+    //
+    // Pretty soon half of the code in this project will be workarounds for
+    // Safari bugs.
+    var importedFrame = doc.importNode(frame, true);
+    importedFrame.removeAttribute("style");
+
+    svg.appendChild(importedFrame);
   }
 
   // Bound viewBox of animation by parent viewBox
   var parentViewBox = ParaPara.svgRoot.getAttribute("viewBox");
   console.assert(parentViewBox, "No parent viewBox");
-  var parentViewBox = parentViewBox.split(" ");
-  var minX = Math.max(minX, parentViewBox[0]);
-  var maxX = Math.min(maxX, parentViewBox[0] + parentViewBox[2]);
+  parentViewBox = parentViewBox.trim().split(" ").map(parseFloat);
+  minX = Math.max(minX, parentViewBox[0]);
+  maxX = Math.min(maxX, parentViewBox[0] + parentViewBox[2]);
   // Currently we set the y coordinates of the viewBox to those of the editor
-  // workspace. This way, if for example, we have some ground in the background
+  // workspace. This way, if, for example, we have some ground in the background
   // of the editor, the author can line up their animation vertically with the
   // ground.
-  var minY = parentViewBox[1];
-  var maxY = parentViewBox[1] + parentViewBox[3];
+  minY = parentViewBox[1];
+  maxY = parentViewBox[1] + parentViewBox[3];
   svg.setAttribute("viewBox", [minX, minY, maxX-minX, maxY-minY].join(" "));
 
   return doc;
