@@ -802,6 +802,11 @@ ParaPara.Animator.prototype.exportAnimation = function(title, author) {
   svg.setAttribute("width", "100%");
   svg.setAttribute("height", "100%");
 
+  // Pause the doc since if we don't, removing the style attribute later on (to
+  // work around another Safari bug) will have no effect since the animation
+  // will cause it to be added again.
+  svg.pauseAnimations();
+
   // Add metadata
   if (title) {
     var titleElem = doc.createElementNS(ParaPara.SVG_NS, "title");
@@ -837,7 +842,18 @@ ParaPara.Animator.prototype.exportAnimation = function(title, author) {
     minY = Math.floor(Math.min(minY, bbox.y));
     maxY = Math.ceil(Math.max(maxY, bbox.y + bbox.height));
 
-    svg.appendChild(doc.importNode(frame, true));
+    // Import and tweak
+    //
+    // Safari seems to serialise the animation state using the style attribute
+    // (despite the fact that we are serializing the animation too meaning that
+    // the serialized result doesn't match what you see on screen).
+    //
+    // Pretty soon half of the code in this project will be workarounds for
+    // Safari bugs.
+    var importedFrame = doc.importNode(frame, true);
+    importedFrame.removeAttribute("style");
+
+    svg.appendChild(importedFrame);
   }
 
   // Bound viewBox of animation by parent viewBox
