@@ -15,14 +15,16 @@ try {
   if (!isset($_GET["sessionId"])) {
     throwException("no session id");
   }
-  if (!isset($_GET["x"])) {
-    throwException("no x");
+  if (!isset($_GET["charId"])) {
+    throwException("no charId");
+  } else if (!is_numeric($_GET["charId"])) {
+    throwException("invalid charId");
   }
-  $x = intval($_GET["x"]);
+  $charId = intval($_GET["charId"]);
   $sessionId = intval($_GET["sessionId"]);
 
   $query =
-    "SELECT charId,title,author,y FROM characters WHERE x IS NULL AND active = 1 AND sessionId=".$sessionId;
+    "SELECT charId,title,author,y,x FROM characters WHERE charId > ".$charId." AND sessionId=".$sessionId." AND active = 1";
   $resultset = mysql_query($query, $connection) or
                throwException(mysql_error());
 
@@ -34,7 +36,7 @@ try {
     $character["title"] = $row["title"];
     $character["author"] = $row["author"];
     $character["y"] = intval($row["y"]);
-    $character["x"] = $x;
+    $character["x"] = intval($row["x"]);
     array_push($list, $character);
     if (strlen($ids) != 0) {
       $ids .= ",";
@@ -42,11 +44,6 @@ try {
     $ids .= $id;
   }
   mysql_free_result($resultset);
-  // Update
-  if (strlen($ids) != 0) {
-    $query4update = "UPDATE characters set x=$x WHERE charId IN ($ids)";
-    mysql_query($query4update, $connection) or throwException(mysql_error());
-  } 
 } catch (Exception $e) {
   $list["error"] = $e->getMessage();
 }

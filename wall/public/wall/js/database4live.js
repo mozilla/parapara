@@ -9,6 +9,7 @@ var Database = {
 
   start: function(timebase, characterListener) {
     Database.current_rate = 0;
+    Database.latest_character_id = 0;
     Database.characters = [];
     Database.listener = characterListener;
     Database.timebase = timebase;
@@ -88,8 +89,8 @@ var Database = {
   // Get the characters that have not yet been assigned an x value
   loadUncompletedCharacters: function() {
     // Send ratio in the duration.
-    var parameter = Math.round(Database.current_rate*1000);
-    var url = API_DIR+"get_uncompleted_characters.php?x="+
+    var parameter = Database.latest_character_id;
+    var url = API_DIR+"get_uncompleted_characters.php?charId="+
               parameter+"&sessionId="+SESSION_ID+"&"+(new Date()).getTime();
     $.getJSON(url, function(json) {
       Database.append(json, true);
@@ -116,6 +117,7 @@ var Database = {
       var character = new Character();
       character.setup(characterOfJson);
       character.isNew = isNew;
+      Database.latest_character_id = Math.max(Database.latest_character_id, character.id);
       Database.characters.push(character);
     }
   }

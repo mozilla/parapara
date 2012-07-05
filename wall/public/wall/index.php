@@ -52,9 +52,7 @@ $walltype = $design;
 $templatepath = "./templates/$walltype";
 $database = $endDate == NULL ? "database4live.js" : "database4gallery.js";
 $basetime = $duration == 0 ? $defaultduration : $duration;
-$timeparts = explode(" ",microtime());
-$currentTimeMillis = bcadd(($timeparts[0]*1000),bcmul($timeparts[1],1000));
-$begintime = $currentTimeMillis % $basetime;
+$begintime = getCurrentWallTimeByDuration($basetime);
 
 ?>
 <?xml version="1.0" standalone="no"?>

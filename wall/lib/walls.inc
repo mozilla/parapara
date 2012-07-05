@@ -354,4 +354,51 @@ function recordExists($table, $field, $value, $type) {
   return $exists;
 }
 
+function getCurrentWallTimeByWallId($wallId) {
+  $conn =& getDbConnection();
+  $res =& $conn->query(
+      'SELECT walls.duration AS duration,designs.duration AS defaultduration FROM walls,designs WHERE walls.designId = designs.designId AND wallId = '
+    . $conn->quote($wallId, 'integer')
+  );
+  if (PEAR::isError($res)) {
+    error_log($res->getMessage() . ', ' . $res->getDebugInfo());
+    throw new KeyedException('db-error');
+  }
+  $conn->setFetchMode(MDB2_FETCHMODE_ASSOC);
+  $currentDuration = 0;
+  if ($row = $res->fetchRow()) {
+    $duration = intval($row['duration']);
+    $defaultDuration = intval($row['defaultduration']);
+    $currentDuration = $duration != 0 ? $duration : $defaultDuration;
+  }
+  $conn->disconnect();
+  return getCurrentWallTimeByDuration($currentDuration);
+}
+
+function getCurrentWallDuration($wallId) {
+  $conn =& getDbConnection();
+  $res =& $conn->query(
+      'SELECT walls.duration AS duration,designs.duration AS defaultduration FROM walls,designs WHERE walls.designId = designs.designId AND wallId = '
+    . $conn->quote($wallId, 'integer')
+  );
+  if (PEAR::isError($res)) {
+    error_log($res->getMessage() . ', ' . $res->getDebugInfo());
+    throw new KeyedException('db-error');
+  }
+  $conn->setFetchMode(MDB2_FETCHMODE_ASSOC);
+  $currentDuration = 0;
+  if ($row = $res->fetchRow()) {
+    $duration = intval($row['duration']);
+    $defaultDuration = intval($row['defaultduration']);
+    $currentDuration = $duration != 0 ? $duration : $defaultDuration;
+  }
+  $conn->disconnect();
+  return $currentDuration;
+}
+
+function getCurrentWallTimeByDuration($duration) {
+  $timeparts = explode(" ",microtime());
+  $currentTimeMillis = bcadd(($timeparts[0]*1000),bcmul($timeparts[1],1000));
+  return $currentTimeMillis % $duration;
+}
 ?>

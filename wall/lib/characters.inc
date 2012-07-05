@@ -6,6 +6,7 @@
 require_once("parapara.inc");
 require_once("exceptions.inc");
 require_once("UriUtils.inc");
+require_once("walls.inc");
 
 function addCharacter($wallId, $svg, $title, $author) {
   // Get connection
@@ -26,13 +27,19 @@ function addCharacter($wallId, $svg, $title, $author) {
 
   // Insert record
   $date = gmdate('Y-m-d H:i:s');
+  // calculate X value
+  $currentWallDuration = getCurrentWallDuration($wallId);
+  $currentWallTime = getCurrentWallTimeByDuration($currentWallDuration);
+  $x = floor($currentWallTime / $currentWallDuration * 1000);
+  
   $query =
     'INSERT INTO characters'
-    . ' (sessionId, title, author, y, createDate, active)'
+    . ' (sessionId, title, author, x, y, createDate, active)'
     . ' VALUES '
     . '(' . $conn->quote($sessionId, 'integer')
     . ',' . $conn->quote($title, 'text')
     . ',' . $conn->quote($author, 'text')
+    . ',' . $conn->quote($x, 'integer')
     . ',0' // y
     . ',' . $conn->quote($date, 'timestamp')
     . ',TRUE' // active 
