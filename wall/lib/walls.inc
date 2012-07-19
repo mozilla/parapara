@@ -38,7 +38,7 @@ function getWallSummaryForUser($email) {
   // Run query
   $res =& $mdb2->query(
       'SELECT walls.wallId, walls.eventName, designs.thumbUrl,'
-    . ' walls.galleryDisplay, walls.createDate, walls.modifyDate'
+    . ' walls.galleryDisplay, walls.createDate, walls.modifyDate, walls.designId'
     . ' FROM users, walls'
     . ' LEFT JOIN designs on designs.designId = walls.designId'
     . ' WHERE users.email = '
@@ -60,6 +60,7 @@ function getWallSummaryForUser($email) {
         'wallId' => $row['wallid'],
         'eventName' => $row['eventname'],
         'thumb' => $row['thumburl'],
+        'designId' => intval($row['designid']),
         'galleryDisplay' => !!($row['gallerydisplay']),
         'createDate' => $row['createdate'],
         'modifyDate' => $row['modifydate']

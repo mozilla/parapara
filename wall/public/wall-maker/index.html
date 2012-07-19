@@ -18,8 +18,8 @@
   <script src="js/ui.js"></script>
 </head>
 <body>
+
   <div id="navBar" style="display: block">
-    <h1>壁</h1>
     <div id="loginStatus">
       <div id="loginStatusNo" style="display: none">
         <a href="login" id="browserid"
@@ -34,6 +34,9 @@
       </div>
     </div>
   </div>
+
+<div id="main-container">
+  <header></header>
   <div class="screen" id="loading" style="display: block">
     <p>Loading&hellip;</p>
   </div>
@@ -50,9 +53,10 @@
     </div>
   </div>
   <div class="screen" id="screen-home">
-    <div class="callout newWallLink">
-      <p><a href="new">新しい壁を作る</a></p>
-    </div>
+    <a href="new">
+      <div class="callout newWallLink button">新しい壁を作る</div>
+    </a>
+    <hr/>
     <div id="prevWalls">
       <h2>壁の管理</h2>
       <div id="wallList" class="thumbnailGrid"></div>
@@ -63,27 +67,32 @@
       Error message goes here
     </div>
     <form name="createWall" action="javascript:CreateWallController.create()">
-      <input type="text" name="eventName" required autocomplete="off"
-        maxlength="255" class="eventName" id="create-eventName"
-        placeholder="壁のタイトル">
-      <div class="designGrid" id="designSelector">
-        <p>壁のデザイン：</p>
-        <label class="graphical">
-          <input type="radio" name="design" value="1" required>
-          <div class="designThumb">
-            <object data="img/design-1-preview.svg"></object>
-          </div>
-        </label>
-        <label class="graphical">
-          <input type="radio" name="design" value="2" required>
-          <div class="designThumb">
-            <object data="img/design-2-preview.svg"></object>
-          </div>
-        </label>
+      <h2>壁の作成</h2>
+      <div class="form-container">
+        <h3>タイトル</h3>
+        <input type="text" name="eventName" required autocomplete="off"
+          maxlength="255" class="eventName" id="create-eventName">
+        <h3>背景の選択</h3>
+        <div class="designGrid" id="designSelector">
+          <label class="graphical">
+            <input type="radio" name="design" value="1" required>
+            <div class="designThumb">
+              <object data="img/design-1-preview.svg"></object>
+            </div>
+          </label>
+          <label class="graphical">
+            <input type="radio" name="design" value="2" required>
+            <div class="designThumb">
+              <object data="img/design-2-preview.svg"></object>
+            </div>
+          </label>
+        </div>
+        <div class="center">
+          <button type="submit" name="作成" class="submitButton">作成</button>
+          <button type="button" class="cancelButton"
+            onclick="javascript:CreateWallController.cancel()">キャンセル</button>
+        </div>
       </div>
-      <button type="submit" name="作成" class="submitButton">作成</button>
-      <button type="button" class="cancelButton"
-        onclick="javascript:CreateWallController.cancel()">キャンセル</button>
     </form>
   </div>
   <div class="screen" id="screen-manage">
@@ -197,4 +206,5 @@
       <h3>セッション２</h3>
     </div>
   </div>
+</div>
 </body>

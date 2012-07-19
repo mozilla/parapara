@@ -25,19 +25,35 @@ function refreshWallList(wallList) {
     listContainer.removeChild(listContainer.lastChild);
   }
   if (wallList.length) {
-    var list = document.createElement("ul");
+    var list = document.createElement('ul');
     listContainer.appendChild(list);
     for (var i = 0; i < wallList.length; ++i) {
-      var li = document.createElement("li");
-      var a = document.createElement("a");
-      a.textContent = wallList[i]['eventName'];
-      var href = "manage/"+wallList[i]['wallId'];
-      a.setAttribute("href", href);
-      li.appendChild(a);
+      var wall = wallList[i];
+      var li = document.createElement('li');
+      var container = document.createElement('div');
+
+      var a = document.createElement('a');
+      var thumbnailContainer = document.createElement('div');
+      thumbnailContainer.setAttribute('class', 'thumbnail');
+      var thumbnailImg = document.createElement('img');
+      // temporary: have to use 'thumb' 
+      thumbnailImg.setAttribute('src', 'img/design-'+wall['designId']+'-preview.svg');
+      thumbnailContainer.appendChild(thumbnailImg);
+      var href = 'manage/'+wall['wallId'];
+      a.setAttribute('href', href);
+      a.appendChild(thumbnailContainer);
+      container.appendChild(a);
+      
+      var eventLabel = document.createElement('div');
+      eventLabel.setAttribute('class', 'label');
+      eventLabel.textContent = wall['eventName'];
+      container.appendChild(eventLabel);
+      
+      li.appendChild(container);
       list.appendChild(li);
       //manage
       registerLinkHandler(href, function(e) { 
-        goToScreen(e.target.getAttribute("href"));
+        goToScreen(e.currentTarget.getAttribute('href'));
       });
     }
     document.getElementById('prevWalls').style.display = 'block';
@@ -53,4 +69,4 @@ function getWallsFailed(reason, detail) {
   console.log(reason, detail);
 }
 
-//window.addEventListener("load", init, false);
+//window.addEventListener('load', init, false);

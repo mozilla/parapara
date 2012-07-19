@@ -27,8 +27,8 @@ function goToScreen(path) {
 // The path is read from document.location and hence this should be updated
 // before calling this function.
 function goToCurrentScreen() {
-  console.log("goToCurrentScreen");
   var path = document.location.pathname;
+//  console.log("goToCurrentScreen:"+path);
 
   if (path.match(WallMaker.newRe)) {
     screenId = "screen-new";
