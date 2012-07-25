@@ -1,0 +1,18 @@
+<?php
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+$config = array(
+  'webdriver' => array(
+    // 127.0.0.1 for a local selenium standalone server
+    'host' => '127.0.0.1',
+    'port' => '4444',
+    // browser desired capabilities
+    'browserName' => 'firefox',
+    'version' => '14',
+    'platform' => 'WINDOWS'
+  ),
+  'editor_url' => "http://parapara-editor.mozlabs.jp/test"
+);
+?>
