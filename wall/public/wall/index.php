@@ -12,8 +12,8 @@ $connection = NULL;
 try {
   // Parse wall name
   $url = $_SERVER["REDIRECT_URL"];
-  $match = preg_match('/^\/wall\/([^\/]+)$/', $url, $matches);
-//  $match = preg_match('/wall\/([^\/]+)$/', $url, $matches);
+//  $match = preg_match('/^\/wall\/([^\/]+)$/', $url, $matches);
+  $match = preg_match('/wall\/([^\/]+)$/', $url, $matches);
   if ($match != 1) {
     throwException("no wall found");
   }
