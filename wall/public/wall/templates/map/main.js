@@ -43,7 +43,7 @@ var Main = {
     image.setAttributeNS("http://www.w3.org/1999/xlink", "href", character.uri);
     image.setAttribute("width", CHARACTER_WIDTH);
     image.setAttribute("height", CHARACTER_HEIGHT);
-    image.setAttribute("transform", "translate("+(-CHARACTER_WIDTH/2)+" "+CHARACTER_HEIGHT*0.9+") scale(1 -1)");
+    image.setAttribute("transform", "translate("+(CHARACTER_WIDTH/2)+" "+CHARACTER_HEIGHT*0.9+") scale(-1 -1)");
     g.appendChild(image);
 
     // Add a shadow to the character
