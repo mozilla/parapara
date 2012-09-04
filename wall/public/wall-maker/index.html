@@ -86,6 +86,14 @@
               <object data="img/design-2-preview.svg"></object>
             </div>
           </label>
+          <label class="graphical">
+            <input type="radio" name="design" value="3" required>
+            <div class="designThumb">
+              <!--
+              <object data="img/design-2-preview.svg"></object>
+              -->
+            </div>
+          </label>
         </div>
         <div class="center">
           <button type="submit" name="作成" class="submitButton">作成</button>
@@ -96,9 +104,19 @@
     </form>
   </div>
   <div class="screen" id="screen-manage">
+    <h2>壁の管理</h2>
+
+    <div id="abstract">
+      <ul>
+        <li id="abstract-thumbnail"><div><img src="img/design-1-preview.svg"></div></li>
+        <li id="abstract-title"><div></div></li>
+        <li id="abstract-date"><div></div></li>
+        <li id="abstract-description"><div></div></li>
+      </ul>
+    </div>
+
     <h2>イベントの名前</h2>
-      <input type="text" id="manage-eventName"><label id="manage-eventName-message" class="manage-message"></label>
-      </h2>
+    <input type="text" id="manage-eventName"><label id="manage-eventName-message" class="manage-message"></label>
     <div>
       基本情報
       <ul>
@@ -142,6 +160,14 @@
           <input type="radio" name="manage-designId" value="2">
           <div class="designThumb">
             <object data="img/design-2-preview.svg"></object>
+          </div>
+        </label>
+        <label class="graphical">
+          <input type="radio" name="manage-designId" value="3">
+          <div class="designThumb">
+          <!--
+            <object data="img/design-2-preview.svg"></object>
+          -->
           </div>
         </label>
         <label id="manage-designId-message" class="manage-message"></label>

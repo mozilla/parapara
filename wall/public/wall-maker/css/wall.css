@@ -234,6 +234,42 @@ header {
   margin-bottom: 2em;
 }
 
+/*
+ * Manage wall
+ */
+#about {
+}
+
+#abstract-thumbnail {
+  display: inline-block;
+}
+
+#abstract-thumbnail div {
+  width: 14em;
+  height: 10em;
+  line-height: 10em;
+  border-radius: 10px;
+  background-color: rgb(61, 51, 20);
+  vertical-align: middle;
+  text-align: center;
+}
+
+#abstract-thumbnail div img {
+  width: 12em;
+  height: 8em;
+  border-radius: 10px;
+  vertical-align: middle;
+}
+
+#abstract-title {
+}
+
+#abstract-title {
+}
+
+#abstract-description {
+}
+
 div.error {
   background: rgb(255, 221, 221);
   border: 1px dashed red;
