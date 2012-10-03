@@ -1,0 +1,38 @@
+Parapara UI test suite 
+======================
+
+Coverage:
+---------
+Editor: drawing a path, circle and deleting them.
+Wall: none
+
+Software Prerequisites:
+-----------------------
+- phpunit (unit testing framework): http://www.phpunit.de/
+- php-webdriver (php language bindings for Selenium WebDriver): https://github.com/Element-34/php-webdriver
+- Java/selenium standalone server (browser API): http://code.google.com/p/selenium/downloads/list
+- Windows and Firefox
+
+Setting up the Selenium Server:
+-------------------------------
+The Selenium Server sits inbetween the test code and the browser. It can direct commands to several browsers at once.
+
+After downloading the selenium-server-standalone-x.jar, run from a command line:
+java -jar selenium-server-standalone-x.jar 
+Selenium will be able to locate the Firefox binary if it is in a default location
+
+If you have Firefox in a non-standard location use:
+java -jar selenium-server-standalone-x.jar -Dwebdriver.firefox.bin="C:\path\to\Firefox"
+
+Running the tests:
+------------------
+From terminal/command line run:
+phpunit SvgCanvasTest.php
+
+The tests will send a command to the Selenium Server to start a browser session and perform the tests.
+Until [this bug][https://bugzilla.mozilla.org/show_bug.cgi?id=702605] is resolved you will need to keep the mouse cursor over the Firefox window while the test is running. Sorry about that!
+
+[Optional]
+Setup a Selenium Grid/Server to facilitate cross-browser testing.
+If this Grid is on a separate machine, modify the config.inc file to point to the IP address of the grid.
+A quick way to get started with a Selenium Grid is to use the Web QA team's Grid framework
