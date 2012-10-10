@@ -9,17 +9,24 @@ header("Content-Type: application/javascript; charset=UTF-8");
 
 var EditorUI = EditorUI || {};
 
+// -------------- Constants -----------
+
+// Speed control
 EditorUI.MIN_SPEED_FPS     = 0.65;
 EditorUI.MAX_SPEED_FPS     = 12.5;
 EditorUI.INITIAL_SPEED_FPS = 3.3;
 EditorUI.SPEED_STEP_FPS    = 0.3;
 
+// UI key repeat control
 EditorUI.LONG_PRESS_DELAY_MS = 350;
 EditorUI.LONG_PRESS_RATE_MS  = 120;
 
+// API paths
 EditorUI.UPLOAD_SERVER   = "<?php echo $config['editor']['upload_server']; ?>";
 EditorUI.UPLOAD_SCRIPT   = "upload";
 EditorUI.SEND_EMAIL_PATH = EditorUI.UPLOAD_SERVER + "api/email_anim";
+
+// -------------- Initialisation -----------
 
 EditorUI.init = function() {
   var paraparaRoot = document.getElementById("parapara");
@@ -78,6 +85,14 @@ EditorUI.initControls = function() {
 EditorUI.catchAll = function(e) {
   e.preventDefault();
 }
+
+// -------------- Localization -----------
+
+EditorUI.localized = function() {
+  document.documentElement.lang = document.webL10n.getLanguage();
+  document.documentElement.dir = document.webL10n.getDirection();
+}
+window.addEventListener('localized', EditorUI.localized, false);
 
 // -------------- Navigation -----------
 
