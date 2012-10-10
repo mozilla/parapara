@@ -43,7 +43,7 @@ clean:
 
 # Export the output to elsewhere in the project
 
-export_paths = workshop/src/js
+export_paths = public/js
 
 export: $(parapara) $(parapara-dev)
 	for path in $(export_paths); do \

@@ -1,6 +1,6 @@
 <?php
 /* vim: set syn=javascript: */
-require_once("../../../../wall/lib/parapara.inc");
+require_once("../../../wall/lib/parapara.inc");
 header("Content-Type: application/javascript; charset=UTF-8");
 ?>
 /* This Source Code Form is subject to the terms of the Mozilla Public
