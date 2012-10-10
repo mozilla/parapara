@@ -1,5 +1,6 @@
 # Source dir
 srcdir = lib/js
+sharedjsdir = ../shared/js
 
 # Build dir
 builddir = build
@@ -10,11 +11,10 @@ _deps = bind.js \
 deps = $(patsubst %,$(srcdir)/%,$(_deps))
 
 # Modules
-_modules = parapara.js \
-			  	 eraser.js \
-					 svgClassList.js \
-					 xhr.js
-modules = $(patsubst %,$(srcdir)/%,$(_modules))
+modules =	$(srcdir)/parapara.js \
+					$(srcdir)/eraser.js \
+					$(srcdir)/svgClassList.js \
+					$(sharedjsdir)/xhr.js
 
 # File list
 files = $(modules) $(deps)
