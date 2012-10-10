@@ -1,3 +1,0 @@
-[submodule "shared/lib/webL10n"]
-	path = shared/lib/webL10n
-	url = git://github.com/fabi1cazenave/webL10n.git
