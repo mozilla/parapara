@@ -5,7 +5,7 @@ srcdir = lib/js
 builddir = build
 
 # Dependencies
-_deps = compat.js \
+_deps = bind.js \
 			  uuid.core.js
 deps = $(patsubst %,$(srcdir)/%,$(_deps))
 
