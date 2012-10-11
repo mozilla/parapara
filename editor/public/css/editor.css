@@ -113,6 +113,9 @@ div.film-strip {
   width: 25%;
   height: 25%;
 }
+#send text:lang(ja) {
+  font-size: 20px;
+}
 #anim-controls .overlay-shading {
   fill: white;
   opacity: 0.3;
