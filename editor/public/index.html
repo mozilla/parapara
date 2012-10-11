@@ -129,7 +129,7 @@
         <div class="overlay-contents" id="noteSending">
           <span data-l10n-id="sending">Sending</span><br><br>
           <img src="img/loader.gif" width="43" height="11"
-            alt="Sending" id="sending-graphic">
+            alt="Sending" data-l10n-id="sending-graphic">
         </div>
         <div class="overlay-contents" id="noteSendingComplete"
           data-l10n-id="send-success">Animation sent!
@@ -168,8 +168,8 @@
           <button type="button" class="text" data-l10n-id="ok"
             onclick="EditorUI.clearNoteAndReset()">OK</button>
         </div>
-        <div class="overlay-contents error" id="noteNotLive">
-          <span data-l10n-id="not-live">Not live</span><br><br>
+        <div class="overlay-contents error" id="noteNotActive">
+          <span data-l10n-id="not-active">Not active</span><br><br>
           <button type="button" class="text" data-l10n-id="cancel"
             onclick="EditorUI.clearNoteAndReset()">Cancel</button>
           <button type="button" class="text" data-l10n-id="resend"

@@ -232,7 +232,7 @@ EditorUI.sendFail = function(key) {
       break;
 
     case 'no-active-session':
-      EditorUI.displayNote("noteNotLive");
+      EditorUI.displayNote("noteNotActive");
       console.debug("No active session");
       break;
 
