@@ -299,23 +299,7 @@ EditorUI.finishFade = function(evt) {
 EditorUI.clearEmailForm = function() {
   var form = document.forms["email-form"];
   form.reset();
-  form.email.classList.add("placeholder");
-  EditorUI.toggleEmailPlaceholder();
   EditorUI.clearEmailStatus();
-}
-
-EditorUI.toggleEmailPlaceholder = function() {
-  var emailField = document.forms["email-form"].email;
-  if (document.activeElement == emailField) {
-    if (emailField.classList.contains("placeholder")) {
-      emailField.value = "";
-      emailField.classList.remove("placeholder");
-    }
-  } else if (!emailField.value) {
-    emailField.classList.add("placeholder");
-    emailField.value = "例：parapara@yahoo.co.jp";
-    emailField.validity.valid = true;
-  }
 }
 
 EditorUI.sendEmail = function() {
@@ -324,7 +308,7 @@ EditorUI.sendEmail = function() {
   // If no email, ignore
   var emailField = document.forms["email-form"].email;
   var email = emailField.value.trim();
-  if (!email || emailField.classList.contains("placeholder"))
+  if (!email)
     return;
 
   // Email address validation: For UAs that support HTML5 form validation, we
