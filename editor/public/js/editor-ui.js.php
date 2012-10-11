@@ -287,6 +287,9 @@ EditorUI.fadeNote = function(callback) {
     ? function(evt) { EditorUI.finishFade(evt); callback(); }
     : EditorUI.finishFade;
   currentNote.addEventListener("animationend", onend, false);
+  currentNote.addEventListener("webkitAnimationEnd", onend, false);
+  currentNote.addEventListener("oanimationend", onend, false);
+  currentNote.addEventListener("MSAnimationEnd", onend, false);
 }
 
 EditorUI.finishFade = function(evt) {
