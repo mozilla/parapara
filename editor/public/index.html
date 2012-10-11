@@ -105,33 +105,6 @@
     </div>
     <div class="overlay" id="overlay" style="display:none">
       <div class="overlay-inner">
-        <div class="overlay-contents" id="noteSending">
-          <span data-l10n-id="sending">Sending</span><br><br>
-          <img src="img/loader.gif" width="43" height="11"
-            alt="Sending" id="sending-graphic">
-        </div>
-        <div class="overlay-contents error" id="noteSendingFailed">
-          <span data-l10n-id="sending-failed">Sending failed</span><br><br>
-          <button type="button" class="text" data-l10n-id="cancel"
-            onclick="EditorUI.clearNoteAndReset()">Cancel</button>
-          <button type="button" class="text" data-l10n-id="resend"
-            onclick="EditorUI.send()">Resend</button>
-        </div>
-        <div class="overlay-contents error" id="noteSendingFailedFatal">
-          <span data-l10n-id="sending-failed">Sending failed</span><br><br>
-          <button type="button" class="text" data-l10n-id="ok"
-            onclick="EditorUI.clearNoteAndReset()">OK</button>
-        </div>
-        <div class="overlay-contents error" id="noteNotLive">
-          <span data-l10n-id="not-live">Not live</span><br><br>
-          <button type="button" class="text" data-l10n-id="cancel"
-            onclick="EditorUI.clearNoteAndReset()">Cancel</button>
-          <button type="button" class="text" data-l10n-id="resend"
-            onclick="EditorUI.send()">Resend</button>
-        </div>
-        <div class="overlay-contents" id="noteSendingComplete"
-          data-l10n-id="send-success">Animation sent!
-        </div>
         <div class="overlay-contents" id="noteMetadata"
           style="padding-top: 1.2em; padding-bottom: 1em">
           <span data-l10n-id="add-title">Add a title</span>
@@ -152,6 +125,14 @@
             data-l10n-id="send">Send</button>
           <button type="button" class="text" data-l10n-id="cancel"
             onclick="EditorUI.returnToAnimation()">Cancel</button>
+        </div>
+        <div class="overlay-contents" id="noteSending">
+          <span data-l10n-id="sending">Sending</span><br><br>
+          <img src="img/loader.gif" width="43" height="11"
+            alt="Sending" id="sending-graphic">
+        </div>
+        <div class="overlay-contents" id="noteSendingComplete"
+          data-l10n-id="send-success">Animation sent!
         </div>
         <div class="overlay-contents" id="noteShare"
           style="padding-top: 1.2em; padding-bottom: 1em">
@@ -174,6 +155,25 @@
           </form>
           <button type="button" class="text" style="margin-top: 0.6em"
             onclick="EditorUI.clearNoteAndReset()" data-l10n-id="ok">OK</button>
+        </div>
+        <div class="overlay-contents error" id="noteSendingFailed">
+          <span data-l10n-id="sending-failed">Sending failed</span><br><br>
+          <button type="button" class="text" data-l10n-id="cancel"
+            onclick="EditorUI.clearNoteAndReset()">Cancel</button>
+          <button type="button" class="text" data-l10n-id="resend"
+            onclick="EditorUI.send()">Resend</button>
+        </div>
+        <div class="overlay-contents error" id="noteSendingFailedFatal">
+          <span data-l10n-id="sending-failed">Sending failed</span><br><br>
+          <button type="button" class="text" data-l10n-id="ok"
+            onclick="EditorUI.clearNoteAndReset()">OK</button>
+        </div>
+        <div class="overlay-contents error" id="noteNotLive">
+          <span data-l10n-id="not-live">Not live</span><br><br>
+          <button type="button" class="text" data-l10n-id="cancel"
+            onclick="EditorUI.clearNoteAndReset()">Cancel</button>
+          <button type="button" class="text" data-l10n-id="resend"
+            onclick="EditorUI.send()">Resend</button>
         </div>
         <div class="overlay-contents error" id="noteNoAnimation">
           <span data-l10n-id="no-animation">No animation</span><br><br>
