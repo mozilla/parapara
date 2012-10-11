@@ -5,7 +5,7 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>パラパラアニメーション</title>
+    <title data-l10n-id="title">パラパラアニメーション</title>
     <link rel="stylesheet" href="css/editor.css" type="text/css">
     <link rel="stylesheet" href="css/parapara.css" type="text/css">
     <link rel="resource" type="application/l10n" href="locales.ini">
@@ -59,7 +59,7 @@
                scale(1,-1) they were still in the wrong position.
                Eventually I gave up and just made up some images to repeat.
 
-               I've now discovered that use elements appears to be broken in
+               I've now discovered that use elements appear to be broken in
                Chrome.
                -->
           <defs>
@@ -95,9 +95,9 @@
             preserveAspectRatio="xMaxYMax">
             <circle cx="100" cy="100" r="100" class="overlay-shading"/>
             <text fill="black" text-anchor="end"
-             x="91" y="81" font-size="25" data-l10n-id="send">おくる</text>
+             x="91" y="81" font-size="25" data-l10n-id="complete">OK</text>
             <text class="overlay-icon" text-anchor="end"
-             x="90" y="80" font-size="25" data-l10n-id="send">おくる</text>
+             x="90" y="80" font-size="25" data-l10n-id="complete">OK</text>
            </svg>
          </div>
         </div>
@@ -106,88 +106,91 @@
     <div class="overlay" id="overlay" style="display:none">
       <div class="overlay-inner">
         <div class="overlay-contents" id="noteSending">
-          送信中<br/><br/>
+          <span data-l10n-id="sending">Sending</span><br><br>
           <img src="img/loader.gif" width="43" height="11"
-            alt="送信中">
+            alt="Sending" id="sending-graphic">
         </div>
         <div class="overlay-contents error" id="noteSendingFailed">
-          送信失敗しました<br/><br/>
-          <button type="button" class="text"
-            onclick="EditorUI.clearNoteAndReset()">キャンセル</button>
-          <button type="button" class="text"
-            onclick="EditorUI.send()">再送信</button>
+          <span data-l10n-id="sending-failed">Sending failed</span><br><br>
+          <button type="button" class="text" data-l10n-id="cancel"
+            onclick="EditorUI.clearNoteAndReset()">Cancel</button>
+          <button type="button" class="text" data-l10n-id="resend"
+            onclick="EditorUI.send()">Resend</button>
         </div>
         <div class="overlay-contents error" id="noteSendingFailedFatal">
-          送信失敗しました<br/><br/>
-          <button type="button" class="text"
+          <span data-l10n-id="sending-failed">Sending failed</span><br><br>
+          <button type="button" class="text" data-l10n-id="ok"
             onclick="EditorUI.clearNoteAndReset()">OK</button>
         </div>
         <div class="overlay-contents error" id="noteNotLive">
-          ただいま、このエベントは終了となりました<br/><br/>
-          <button type="button" class="text"
-            onclick="EditorUI.clearNoteAndReset()">キャンセル</button>
-          <button type="button" class="text"
-            onclick="EditorUI.send()">再送信</button>
+          <span data-l10n-id="not-live">Not live</span><br><br>
+          <button type="button" class="text" data-l10n-id="cancel"
+            onclick="EditorUI.clearNoteAndReset()">Cancel</button>
+          <button type="button" class="text" data-l10n-id="resend"
+            onclick="EditorUI.send()">Resend</button>
         </div>
-        <div class="overlay-contents" id="noteSendingComplete">
-          送信しました！
+        <div class="overlay-contents" id="noteSendingComplete"
+          data-l10n-id="send-success">Animation sent!
         </div>
         <div class="overlay-contents" id="noteMetadata"
           style="padding-top: 1.2em; padding-bottom: 1em">
-          タイトルを付けましょう！
+          <span data-l10n-id="add-title">Add a title</span>
           <form id="metadata-form">
             <div class="field-row">
               <input type="text" name="title" id="title" size="23"
-                autocomplete="off" placeholder="タイトル">
+                autocomplete="off" placeholder="Title"
+                data-l10n-id="anim-title">
             </div>
             <div class="field-row">
               <input type="text" name="name" id="name" size="23"
-                autocomplete="off" placeholder="おなまえ">
+                autocomplete="off" placeholder="Your name"
+                data-l10n-id="anim-author">
             </div>
           </form>
           <button type="submit" class="text" id="metadata-button"
-            onclick="EditorUI.clearNote(); EditorUI.send()">送信</button>
-          <button type="button" class="text"
-            onclick="EditorUI.returnToAnimation()">キャンセル</button>
+            onclick="EditorUI.clearNote(); EditorUI.send()"
+            data-l10n-id="send">Send</button>
+          <button type="button" class="text" data-l10n-id="cancel"
+            onclick="EditorUI.returnToAnimation()">Cancel</button>
         </div>
         <div class="overlay-contents" id="noteShare"
           style="padding-top: 1.2em; padding-bottom: 1em">
-          作品をシェアーしましょう！
+          <span data-l10n-id="share-title">Let's share your animation!</span>
           <form id="email-form" action="javascript:EditorUI.sendEmail()">
             <div class="field-row">
               <input type="email" name="email" id="email" size="23"
                 style="ime-mode: inactive" autocomplete="off"
-                onblur="EditorUI.toggleEmailPlaceholder()"
-                onfocus="EditorUI.toggleEmailPlaceholder()"
-                oninput="EditorUI.clearEmailStatus()">
+                data-l10-id="email" placeholder="e.g. parapara@gmail.com">
               <button type="submit" class="text" id="email-button">
                 <img src="img/email.png" width="16" height="16">
               </button>
               <div id="email-progress" class="async-progress"></div>
             </div>
-            <div class="field-note" id="spam-filter-note">携帯アドレスに送信する場合は、受信を許可するドメインに「mozilla-japan.org」を追加してからご利用ください。</div>
+            <div class="field-note" id="spam-filter-note"
+              data-l10n-id="spam-filter-note"></div>
             <div id="animation-link">
               <!-- The content here is dynamically inserted -->
             </div>
           </form>
           <button type="button" class="text" style="margin-top: 0.6em"
-            onclick="EditorUI.clearNoteAndReset()">OK</button>
+            onclick="EditorUI.clearNoteAndReset()" data-l10n-id="ok">OK</button>
         </div>
         <div class="overlay-contents error" id="noteNoAnimation">
-          アニメーションがありません<br/><br/>
+          <span data-l10n-id="no-animation">No animation</span><br><br>
           <button type="button" class="text"
-            onclick="EditorUI.returnToAnimation()">OK</button>
+            onclick="EditorUI.returnToAnimation()" data-l10n-id="ok">OK</button>
         </div>
         <div class="overlay-contents" id="noteConfirmDelete">
-          このフレームを削除してよろしいですか<br/><br/>
-          <button type="button" class="text"
-            id="confirmDeleteButton">削除</button>
-          <button type="button" class="text"
-            onclick="EditorUI.clearNote()">キャンセル</button>
+          <span data-l10n-id="confirm-delete-frame">Delete this
+            frame?</span><br><br>
+          <button type="button" class="text" data-l10n-id="delete"
+            id="confirmDeleteButton">Delete</button>
+          <button type="button" class="text" data-l10n-id="cancel"
+            onclick="EditorUI.clearNote()">Cancel</button>
         </div>
         <!-- In future we should be able to remove this -->
-        <div class="overlay-contents" id="noteNoWall">
-          壁が指名されていません。
+        <div class="overlay-contents" id="noteNoWall" data-l10n-id="no-wall">
+          No wall
         </div>
       </div>
     </div>
