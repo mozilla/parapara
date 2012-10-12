@@ -37,7 +37,7 @@ try {
 // Prepare result
 $result = array('wallId' => $wallId);
 // start session
-$currentdatetime = date("Y-m-d H:i:s", time());
+$currentdatetime = gmdate("Y-m-d H:i:s");
 startNewSession($wallId, $currentdatetime);
 
 // Return the result
