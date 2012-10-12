@@ -92,6 +92,89 @@ div.film-strip {
   height: 15%;
   margin-left: -15px; /* Overlap with rounded edges of toolbox */
   padding-left: 15px;
+  overflow: visible;
+}
+#filmstrip {
+  width: 100%;
+  width: calc(100% - 41px);
+  width: -moz-calc(100% - 41px);
+  width: -webkit-calc(100% - 41px);
+  display: inline-block;
+  vertical-align: top;
+}
+
+/*
+ * Language selection
+ */
+.langMenu {
+  position: absolute;
+  right: 0%;
+  width: 40px;
+  height: 100%;
+  display: inline-block;
+  color: white;
+  background: #1c1916;
+}
+.langMenu:hover {
+  background: #8a7a6a;
+}
+.langMenu details {
+  height: 100%;
+}
+details summary::-webkit-details-marker {
+  display:none;
+}
+.langMenu summary {
+  position: relative;
+  top: 50%; /* Should be close enough for browsers that don't do calc() */
+  top: calc(50% - 5px);
+  top: -moz-calc(50% - 5px);
+  top: -webkit-calc(50% - 5px);
+}
+.langMenu .langSummary {
+  margin-left: 12px;
+  padding-left: 60px; /* Push the text offscreen */
+}
+.langMenu .langSummary:lang(en) {
+  background: url("../img/flags/gb.png") no-repeat;
+}
+.langMenu .langSummary:lang(ja) {
+  background: url("../img/flags/jp.png") no-repeat;
+}
+
+.langMenu menu {
+  background: #1c1916;
+  position: absolute;
+  margin: 0;
+  padding: 0;
+  top: 100%;
+  right: 0%;
+  overflow: hidden;
+  text-align: left;
+  min-width: 130px;
+  height: 0;
+}
+.langMenu:hover menu {
+  height: auto;
+}
+
+.langMenu li {
+  padding: 0.5em 1em;
+  list-style-position: inside;
+  border: 1.5px solid transparent;
+}
+.langMenu li:lang(en) {
+  list-style-image: url("../img/flags/gb.png");
+}
+.langMenu li:lang(ja) {
+  list-style-image: url("../img/flags/jp.png");
+}
+.langMenu li[aria-checked=true] {
+  background: #c7b099;
+  border: 1.5px solid #7a6c5e;
+}
+.langMenu li:hover {
+  border: 1.5px solid #7a6c5e;
 }
 
 /*

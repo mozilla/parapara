@@ -38,8 +38,19 @@
       </div>
       <div class="canvas-container">
         <div class="controlPanel film-strip">
-          <iframe src="img/filmstrip.svg" width="100%" height="100%"
+          <iframe src="img/filmstrip.svg" height="100%"
             id="filmstrip"></iframe>
+          <nav class="langMenu" role="navigation">
+            <details>
+              <summary>
+                <span class="langSummary" lang="en">English</span>
+              </summary>
+              <menu>
+                <li aria-checked=true arial-role=menuitemradio lang="en">English
+                <li aria-checked=false aria-role=menuitemradio lang="ja">日本語
+              </menu>
+            </details>
+          </nav>
         </div>
         <svg viewBox="0 0 300 300" id="canvas">
           <rect width="100%" height="100%" fill="black"/>
