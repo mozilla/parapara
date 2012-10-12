@@ -20,6 +20,27 @@ div.controlPanel {
   z-index: 1;
 }
 
+/*
+ * Fonts
+ */
+@font-face{
+  font-family: 'Signika';
+  font-weight: normal;
+  src: url('../fonts/signika-regular.woff');
+}
+@font-face{
+  font-family: 'Signika';
+  font-weight: bold;
+  src: url('../fonts/signika-bold.woff');
+}
+*:lang(en) {
+  font-family: 'Signika', sans-serif;
+}
+*:lang(ja) {
+  font-family: 'Signika', sans-serif;
+  font-weight: 500;
+}
+
 /* 
  * Tool box
  */
@@ -112,6 +133,9 @@ div.film-strip {
   right: 0;
   width: 25%;
   height: 25%;
+}
+#send text:lang(en) {
+  font-size: 40px;
 }
 #send text:lang(ja) {
   font-size: 20px;
@@ -226,14 +250,9 @@ button.right {
   right: 0;
 }
 button.text {
-  background: -moz-linear-gradient(top, #ebebeb, #a1a1a1);
-  background: -o-linear-gradient(top, #ebebeb, #a1a1a1);
-  background: -webkit-linear-gradient(top, #ebebeb, #a1a1a1);
-  background: -ms-linear-gradient(top, #ebebeb, #a1a1a1);
-  background: linear-gradient(top, #ebebeb, #a1a1a1);
   border: none;
   border-radius: 8px;
-  color: #FFFFFF;
+  color: white;
   font-weight: bold;
   font-size: 20px;
   letter-spacing: 1px;
@@ -241,7 +260,15 @@ button.text {
   margin-right: auto;
   margin-bottom: 0.3em;
   padding: 7px 25px;
-  text-shadow: 0 1px 1px black;
+  text-shadow: 0 2px 2px black;
+}
+button.text,
+button.text:disabled:hover {
+  background: -moz-linear-gradient(top, #ebebeb, #a1a1a1);
+  background: -o-linear-gradient(top, #ebebeb, #a1a1a1);
+  background: -webkit-linear-gradient(top, #ebebeb, #a1a1a1);
+  background: -ms-linear-gradient(top, #ebebeb, #a1a1a1);
+  background: linear-gradient(top, #ebebeb, #a1a1a1);
 }
 button.text:hover {
   background: -moz-linear-gradient(top,  #04acec,  #0186ba);
@@ -249,13 +276,6 @@ button.text:hover {
   background: -webkit-linear-gradient(top,  #04acec,  #0186ba);
   background: -ms-linear-gradient(top,  #04acec,  #0186ba);
   background: linear-gradient(top,  #04acec,  #0186ba);
-}
-button.text:disabled:hover {
-  background: -moz-linear-gradient(top, #ebebeb, #a1a1a1);
-  background: -o-linear-gradient(top, #ebebeb, #a1a1a1);
-  background: -webkit-linear-gradient(top, #ebebeb, #a1a1a1);
-  background: -ms-linear-gradient(top, #ebebeb, #a1a1a1);
-  background: linear-gradient(top, #ebebeb, #a1a1a1);
 }
 
 /* Error/notice overlay */
@@ -313,6 +333,7 @@ div.overlay-contents {
 }
 div.overlay-contents input {
   font-size: 1em;
+  padding: 0 0.25em;
 }
 div.overlay-contents div.field-row {
   margin: 0.5em 0;
