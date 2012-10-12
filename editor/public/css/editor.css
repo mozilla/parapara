@@ -33,12 +33,8 @@ div.controlPanel {
   font-weight: bold;
   src: url('../fonts/signika-bold.woff');
 }
-*:lang(en) {
+body {
   font-family: 'Signika', sans-serif;
-}
-*:lang(ja) {
-  font-family: 'Signika', sans-serif;
-  font-weight: 500;
 }
 
 /* 
