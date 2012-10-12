@@ -534,7 +534,7 @@ EditorUI.initNavControls = function() {
                                         false);
   play.contentDocument.showPlay();
 
-  // iOS Safari seems to have trouble listening to click events on <object>
+  // iOS Safari seems to have trouble listening to click events on <iframe>
   // elements (at least for SVG) so we wrap the object in a <div> and listen on
   // that instead.
   var playContainer = document.getElementById("play-container");
