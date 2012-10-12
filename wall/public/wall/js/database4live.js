@@ -131,6 +131,8 @@ Character.prototype = {
     this.x = parseInt(json.x)/1000;
     this.id = json.id;
     this.sent = false;
+    this.author = json.author;
+    this.title = json.title;
     this.uri = CHARACTERS_DIR+this.id+".svg";
   }
 }

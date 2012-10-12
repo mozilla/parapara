@@ -32,6 +32,22 @@ var Main = {
     var g = document.createElementNS("http://www.w3.org/2000/svg", "g");
     g.setAttribute("id", character.id);
 
+    if (character.isNew == true) {
+      // displays author name if the character is new.
+      var authorText =
+        document.createElementNS("http://www.w3.org/2000/svg", "text");
+      var text = character.author ? character.author : "NEW!";
+      text += " : ";
+      text += character.title ? character.title : "untitled";
+      authorText.textContent = text;
+      
+      authorText.setAttribute("font-family", "helvetica");
+      authorText.setAttribute("font-size", "40");
+      authorText.setAttribute("text-anchor", "middle");
+      authorText.setAttribute("x", CHARACTER_WIDTH/2);
+      g.appendChild(authorText);
+    }
+
     // Create the character image
     var image =
       document.createElementNS("http://www.w3.org/2000/svg", "image");
@@ -43,9 +59,7 @@ var Main = {
     var yOfCharacter = 700 - CHARACTER_HEIGHT;
     g.setAttribute("transform", "translate(0, "+yOfCharacter+")");
     g.appendChild(image);
-
-//    console.error("show:"+character.id+" "+currentSimpleTime);
-
+    
     // Add a shadow to the character
     var use = document.createElementNS("http://www.w3.org/2000/svg", "use");
     use.setAttribute("transform", "matrix(1 0 0 -0.5 0 400)");
@@ -77,6 +91,7 @@ var Main = {
     // Add the animation to the group, then add the group to the scene
     g.appendChild(animateMotion);
     Main.main_layer.appendChild(g);
+    
     // Update the character's status so we don't add it again
     character.repeatCount++;
   }
