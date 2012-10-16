@@ -71,6 +71,7 @@ EditorUI.initControls = function() {
   EditorUI.initFrameControls();
   EditorUI.initNavControls();
   EditorUI.initAnimControls();
+  EditorUI.initLangMenu();
 
   EditorUI.currentSpeed = EditorUI.INITIAL_SPEED_FPS;
 
@@ -89,8 +90,30 @@ EditorUI.catchAll = function(e) {
 // -------------- Localization -----------
 
 EditorUI.localized = function() {
-  document.documentElement.lang = document.webL10n.getLanguage();
+  var selectedLang = document.webL10n.getLanguage();
+
+  // Update document element
+  document.documentElement.lang = selectedLang;
   document.documentElement.dir = document.webL10n.getDirection();
+
+  // Update UI
+
+  // Clear menu selection
+  var options = document.querySelectorAll(".langMenu menu li")
+  for (var i = 0; i < options.length; i++) {
+    options[i].setAttribute("aria-checked", "false");
+  }
+
+  // Select one item
+  var selectedLangItem =
+    document.querySelector(".langMenu menu li:lang(" + selectedLang + ")");
+  selectedLangItem.setAttribute("aria-checked", "true");
+
+  // Update summary icon
+  var summarySpan = document.getElementById("langSummary");
+  summarySpan.setAttribute("lang", selectedLang);
+  summarySpan.textContent = selectedLangItem.textContent.trim();
+
 }
 window.addEventListener('localized', EditorUI.localized, false);
 
@@ -679,6 +702,45 @@ EditorUI.vibrate = function(millis) {
   } else if (navigator.webkitVibrate) {
     navigator.webkitVibrate(millis);
   }
+}
+
+// -------------- Language menu -----------
+
+EditorUI.initLangMenu = function() {
+  var menus = document.getElementsByClassName("langMenu");
+  for (var i = 0; i < menus.length; i++) {
+    menus[i].addEventListener("click", EditorUI.toggleLangMenu, false);
+  }
+
+  var langOptions = document.querySelectorAll(".langMenu menu li");
+  for (var i = 0; i < langOptions.length; i++) {
+    langOptions[i].addEventListener("click", EditorUI.selectLang, false);
+  }
+}
+
+EditorUI.toggleLangMenu = function(evt) {
+  var details = evt.currentTarget.getElementsByTagName("details");
+  if (!details.length)
+    return;
+  var details = details[0];
+
+  if (details.hasAttribute("open")) {
+    details.removeAttribute("open");
+  } else {
+    details.setAttribute("open", "open");
+  } 
+}
+
+EditorUI.selectLang = function(evt) {
+  var options = evt.currentTarget.parentNode.getElementsByTagName("li");
+  var selectedLang;
+  for (var i = 0; i < options.length; i++) {
+    if (options[i] === evt.currentTarget) {
+      selectedLang = options[i].getAttribute("lang");
+      break;
+    }
+  }
+  document.webL10n.setLanguage(selectedLang);
 }
 
 // -------------- UI layout -----------
