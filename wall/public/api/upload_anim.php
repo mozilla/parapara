@@ -39,8 +39,7 @@ $json = json_decode($jsonString,true);
 fclose($handle);
 
 // Parse request
-$title = $json["title"];
-$author = $json["author"];
+$metadata = $json["metadata"];
 $svg = $json["svg"];
 
 // Check svg isn't empty
@@ -50,7 +49,7 @@ if (!strlen($svg)) {
 
 // Run the query
 try {
-  $charId = addCharacter($wallId, $svg, $title, $author);
+  $charId = addCharacter($wallId, $svg, $metadata);
 } catch (KeyedException $e) {
   bailWithError($e->getKey(), $e->getDetail());
 }

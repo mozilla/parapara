@@ -133,14 +133,16 @@ ParaPara.send = function(uploadPath, successCallback, failureCallback, metadata)
   }
 
   // Prepare payload
-  var payload = metadata;
+  var payload = { metadata: metadata };
   var serializer = new XMLSerializer();
-  var serializedAnim = serializer.serializeToString(anim);
+  var serializedAnim = serializer.serializeToString(anim.doc);
   payload.svg = serializedAnim;
+  payload.metadata.groundOffset = anim.groundOffset;
+  payload.metadata.width        = anim.width;
+  payload.metadata.height       = anim.height;
 
   // Send
-  ParaPara.postRequest(uploadPath, payload, successCallback,
-                       failureCallback);
+  ParaPara.postRequest(uploadPath, payload, successCallback, failureCallback);
 }
 
 ParaPara.sendEmail = function(email, animationId, uploadPath, successCallback,
@@ -862,15 +864,27 @@ ParaPara.Animator.prototype.exportAnimation = function(title, author) {
   parentViewBox = parentViewBox.trim().split(" ").map(parseFloat);
   minX = Math.max(minX, parentViewBox[0]);
   maxX = Math.min(maxX, parentViewBox[0] + parentViewBox[2]);
-  // Currently we set the y coordinates of the viewBox to those of the editor
-  // workspace. This way, if, for example, we have some ground in the background
-  // of the editor, the author can line up their animation vertically with the
-  // ground.
-  minY = parentViewBox[1];
-  maxY = parentViewBox[1] + parentViewBox[3];
+  minY = Math.max(minY, parentViewBox[1]);
+  maxY = Math.min(maxY, parentViewBox[1] + parentViewBox[3]);
   svg.setAttribute("viewBox", [minX, minY, maxX-minX, maxY-minY].join(" "));
 
-  return doc;
+  // Store the offset from the ground so we can line up the character with the
+  // ground later even if the coordinate space of the combined animation is
+  // quite different.
+  var groundOffset =
+    (parentViewBox[3] - maxY) / (parentViewBox[3] - parentViewBox[1]);
+
+  // We store this in the metadata but we also return it and the bbox
+  // width/height separately. This is because we go to display the animation
+  // using an <image> element as part of a combined graphic, the DOM interface
+  // in SVG 1.1 doesn't make it easy for us to query this metadata so we just
+  // store it in the database as well and get it from there.
+  // In SVG 2 hopefully we will have an <iframe> element with a contentDocument
+  // we can use for this.
+  svg.setAttribute("data-ground-offset", groundOffset.toFixed(3));
+
+  return { doc: doc, groundOffset: groundOffset,
+           width: maxX-minX, height: maxY-minY };
 }
 
 ParaPara.Animator.prototype.setSpeed = function(fps) {

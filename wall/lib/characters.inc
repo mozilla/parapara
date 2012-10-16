@@ -8,7 +8,7 @@ require_once("exceptions.inc");
 require_once("UriUtils.inc");
 require_once("walls.inc");
 
-function addCharacter($wallId, $svg, $title, $author) {
+function addCharacter($wallId, $svg, $metadata) {
   // Get connection
   $conn =& getDbConnection();
 
@@ -34,13 +34,16 @@ function addCharacter($wallId, $svg, $title, $author) {
   
   $query =
     'INSERT INTO characters'
-    . ' (sessionId, title, author, x, y, createDate, active)'
+    . ' (sessionId, title, author, x, groundOffset, width, height, createDate,'
+    . '  active)'
     . ' VALUES '
     . '(' . $conn->quote($sessionId, 'integer')
-    . ',' . $conn->quote($title, 'text')
-    . ',' . $conn->quote($author, 'text')
+    . ',' . $conn->quote($metadata['title'], 'text')
+    . ',' . $conn->quote($metadata['author'], 'text')
     . ',' . $conn->quote($x, 'integer')
-    . ',0' // y
+    . ',' . $conn->quote($metadata['groundOffset'], 'decimal')
+    . ',' . $conn->quote($metadata['width'], 'float')
+    . ',' . $conn->quote($metadata['height'], 'float')
     . ',' . $conn->quote($date, 'timestamp')
     . ',TRUE' // active 
     . ')';
