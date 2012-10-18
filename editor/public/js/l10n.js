@@ -866,7 +866,7 @@ document.webL10n = (function(window, document, undefined) {
   }
 
   function getChildElementCount(element) {
-    // WebKit browsers don't seem to support children on SVG elements.
+    // WebKit browsers don't currently support 'children' on SVG elements.
     if (element.children)
       return element.children.length;
     if (typeof element.childElementCount !== "undefined")
@@ -874,7 +874,7 @@ document.webL10n = (function(window, document, undefined) {
 
     var count = 0;
     for (var i = 0; i < element.childNodes.length; i++) {
-      count += element.nodeType === 3 ? 1 : 0;
+      count += element.nodeType === 1 ? 1 : 0;
     }
     return count;
   }
