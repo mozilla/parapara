@@ -90,30 +90,43 @@ EditorUI.catchAll = function(e) {
 // -------------- Localization -----------
 
 EditorUI.localized = function() {
+  // Get the language we apparently applied
   var selectedLang = document.webL10n.getLanguage();
+  var dir = document.webL10n.getDirection();
 
-  // Update document element
+  // Check if we actually offer this language or if we fell back to the default 
+  // resource
+  var selectedLangItem =
+    document.querySelector(".langMenu menu li:lang(" + selectedLang + ")");
+
+  // If not, use the default language. This needs to be synced with locales.ini
+  if (!selectedLangItem) {
+    // NOTE: If we ever offer en-UK and en-US we'll need to make this reflect 
+    // the default resource
+    selectedLangItem =
+      document.querySelector(".langMenu menu li:lang(en)");
+    selectedLang = "en";
+    dir = "ltr";
+  }
+
+  // Update document element -- this lets our CSS use language selectors that 
+  // reflect what language we're currently showing
   document.documentElement.lang = selectedLang;
-  document.documentElement.dir = document.webL10n.getDirection();
+  document.documentElement.dir = dir;
 
   // Update UI
 
-  // Clear menu selection
+  // Update menu selection
   var options = document.querySelectorAll(".langMenu menu li")
   for (var i = 0; i < options.length; i++) {
-    options[i].setAttribute("aria-checked", "false");
+    options[i].setAttribute("aria-checked",
+      options[i] === selectedLangItem ? "true" : "false");
   }
-
-  // Select one item
-  var selectedLangItem =
-    document.querySelector(".langMenu menu li:lang(" + selectedLang + ")");
-  selectedLangItem.setAttribute("aria-checked", "true");
 
   // Update summary icon
   var summarySpan = document.getElementById("langSummary");
   summarySpan.setAttribute("lang", selectedLang);
   summarySpan.textContent = selectedLangItem.textContent.trim();
-
 }
 window.addEventListener('localized', EditorUI.localized, false);
 
