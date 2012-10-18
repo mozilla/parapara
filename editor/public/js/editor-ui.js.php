@@ -130,6 +130,22 @@ EditorUI.localized = function() {
 }
 window.addEventListener('localized', EditorUI.localized, false);
 
+// Set the preferred language on the document
+//
+// We need to do this before webL10n does its start-up sequence which is 
+// triggered by the DOMContentLoaded event. So long as this script is not 
+// included async (defer is ok) the following should run before 
+// DOMContentLoaded.
+//
+// (The alternative, detecting if webL10n has started or not, and whether it has
+// started but is still waiting for resources to load, far more complex.)
+{
+  var preferredLang = localStorage.getItem("preferredLang");
+  if (preferredLang !== null) {
+    document.documentElement.lang = preferredLang;
+  }
+}
+
 // -------------- Navigation -----------
 
 EditorUI.animate = function() {
@@ -754,6 +770,7 @@ EditorUI.selectLang = function(evt) {
     }
   }
   document.webL10n.setLanguage(selectedLang);
+  localStorage.setItem("preferredLang", selectedLang);
 }
 
 // -------------- UI layout -----------
