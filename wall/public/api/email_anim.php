@@ -65,8 +65,9 @@ if (!strlen($address)) {
 $url = shortenUrl(getGalleryUrlForId($id));
 
 // Make up email template
-// XXX Localize this too
-$template = compileEmailTemplate("email_anim.inc",
+$locale = trim(@$json["locale"]);
+$templateFile = getTemplateFileForLocale($locale);
+$template = compileEmailTemplate($templateFile,
   array("url" => $url, "author" => $author, "title" => $title));
 if (!$template) {
   bailWithError('template-failed');
@@ -94,5 +95,15 @@ if (PEAR::isError($send_result)) {
 }
 
 print "{}"; // Success, empty response
+
+function getTemplateFileForLocale($locale) {
+  $reLangCode = "/^([[:alpha:]]{1,8})(-[[:alpha:]]{1,8})?$/";
+  if ($locale && preg_match($reLangCode, $locale)) {
+    $test = "email_anim." . $locale . ".inc";
+    if (getTemplateFile($test))
+      return $test;
+  }
+  return "email_anim.en-US.inc";
+}
 
 ?>
