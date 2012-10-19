@@ -4,6 +4,7 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 require_once("../../lib/parapara.inc");
+require_once("api.inc");
 require_once("db.inc");
 require_once("UriUtils.inc");
 require_once("template.inc");
@@ -26,28 +27,35 @@ $json = json_decode($jsonString,true);
 fclose($handle);
 
 // Validate ID and get metadata
-$id     = $json["id"];
+$id = $json["id"];
+if (!is_int($id) or $id < 0) {
+  bailWithError('bad-id', 'Invalid ID');
+}
 $title  = "";
 $author = "";
-$connection = getConnection();
-try {
-  $query = "SELECT charId, title, author FROM characters WHERE charId = $id";
-  $result = mysql_query($query, $connection) or throwException(mysql_error());
-  $row = mysql_fetch_array($result, MYSQL_ASSOC);
-  if (!$row) {
-    print "{\"error_key\":\"anim_not_found\",\"error_detail\":\"".$id."\"}\n\n";
-    return;
-  }
-  $title  = $row['title'];
-  $author = $row['author'];
-} catch (Exception $e) {
-  $message = $e->getMessage();
-  print "{\"error_key\":\"db_error\",\"error_detail\":\"$message\"}\n\n";
-  return;
+$conn =& getDbConnection();
+$res =& $conn->query(
+  'SELECT charId, title, author FROM characters WHERE charId = '
+  . $conn->quote($id, 'integer')
+);
+if (PEAR::isError($res)) {
+  error_log($res->getMessage() . ', ' . $res->getDebugInfo());
+  bailWithError('db-error');
 }
+if ($res->numRows() != 1) {
+  bailWithError('anim-not-found', $id);
+}
+$conn->setFetchMode(MDB2_FETCHMODE_ASSOC);
+$row = $res->fetchRow();
+$title  = $row['title'];
+$author = $row['author'];
+$conn->disconnect();
 
 // Validate address
-$address = $json["address"];
+$address = trim($json["address"]);
+if (!strlen($address)) {
+  bailWithError('no-address', 'No email address supplied');
+}
 // We'd like to use filter_var($address, FILTER_VALIDATE_EMAIL) here but I'm 
 // pretty sure it doesn't support IDNs and idn_to_ascii operates on a domain 
 // not an email address (and splitting out the domain, converting it, and 
@@ -57,11 +65,11 @@ $address = $json["address"];
 $url = shortenUrl(getGalleryUrlForId($id));
 
 // Make up email template
+// XXX Localize this too
 $template = compileEmailTemplate("email_anim.inc",
   array("url" => $url, "author" => $author, "title" => $title));
 if (!$template) {
-  print "{\"error_key\":\"template_failed\"}\n\n";
-  return;
+  bailWithError('template-failed');
 }
 
 // Prepare mail
@@ -74,17 +82,15 @@ $headers['Content-Transfer-Encoding'] = "8bit";
 $mail_object =&
   Mail::factory($config['mail']['transport'], $config['mail']['params']);
 if (PEAR::isError($mail_object)) {
-  print "{\"error_key\":\"sending_failed\"," .
-         "\"error_detail\":\"" . $mail_object->getMessage() . "\"}\n\n";
-  return;
+  error_log($mail_object->getMessage() . ', ' . $mail_object->getDebugInfo());
+  bailWithError('sending-failed');
 }
 
 // Send mail
 $send_result = $mail_object->send($address, $headers, $template['body']);
 if (PEAR::isError($send_result)) {
-  print "{\"error_key\":\"sending_failed\"," .
-         "\"error_detail\":\"" . $send_result->getMessage() . "\"}\n\n";
-  return;
+  error_log($send_result->getMessage() . ', ' . $send_result->getDebugInfo());
+  bailWithError('sending-failed');
 }
 
 print "{}"; // Success, empty response
