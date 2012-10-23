@@ -386,7 +386,8 @@ EditorUI.sendEmail = function() {
 
   // Send away
   EditorUI.setEmailStatus("waiting");
-  ParaPara.sendEmail(email, animationId, EditorUI.SEND_EMAIL_PATH,
+  ParaPara.sendEmail(email, animationId, document.webL10n.getLanguage(),
+                     EditorUI.SEND_EMAIL_PATH,
                      EditorUI.sendEmailSuccess, EditorUI.sendEmailFail);
 }
 

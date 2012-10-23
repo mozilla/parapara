@@ -15,7 +15,10 @@ deps = $(patsubst %,$(srcdir)/%,$(_deps))
 
 # External dependencies (these are simply copied alongside the library when the
 # 'export' step is run)
-extdeps =	$(shareddir)/webL10n/l10n.js
+# Removing webL10n for now since we've made local modifications to it that are
+# yet to be merged upstream
+# extdeps =	$(shareddir)/webL10n/l10n.js
+extdeps =	
 
 # Modules (these are combined into the library)
 modules =	$(srcdir)/parapara.js \

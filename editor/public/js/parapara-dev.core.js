@@ -145,9 +145,9 @@ ParaPara.send = function(uploadPath, successCallback, failureCallback, metadata)
   ParaPara.postRequest(uploadPath, payload, successCallback, failureCallback);
 }
 
-ParaPara.sendEmail = function(email, animationId, uploadPath, successCallback,
-                              failureCallback) {
-  var payload = { address: email, id: animationId };
+ParaPara.sendEmail = function(email, animationId, locale, uploadPath,
+                              successCallback, failureCallback) {
+  var payload = { address: email, id: animationId, locale: locale };
   ParaPara.postRequest(uploadPath, payload, successCallback,
                        failureCallback);
 }
