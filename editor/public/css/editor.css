@@ -263,6 +263,8 @@ svg#canvas {
   margin-left: -15px; /* Move left to fill the space around the curved edges of
                        * the tool palette. */
   top: 15%;
+  background: url('../img/jimen.png') left bottom repeat-x, url('../img/space-bg.jpg') black;
+  background-size: auto 9%, cover;
 } 
 
 /*
