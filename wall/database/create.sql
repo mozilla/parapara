@@ -63,3 +63,5 @@ CREATE TABLE `characters` (
   FOREIGN KEY (`sessionId`) REFERENCES sessions(`sessionId`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
+INSERT INTO designs (designId, name, duration) VALUES(1, 'space', 240000);
+INSERT INTO designs (designId, name, duration) VALUES(2, 'street', 120000);
