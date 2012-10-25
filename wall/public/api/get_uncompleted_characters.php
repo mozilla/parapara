@@ -24,9 +24,8 @@ try {
   $sessionId = intval($_GET["sessionId"]);
 
   $query =
-    "SELECT charId,title,author,y,x FROM characters WHERE charId > ".$charId." AND sessionId=".$sessionId." AND active = 1";
-  $resultset = mysql_query($query, $connection) or
-               throwException(mysql_error());
+    "SELECT charId,title,author,x,width,height,groundOffset FROM characters WHERE charId > ".$charId." AND sessionId=".$sessionId." AND active = 1";
+  $resultset = mysql_query($query, $connection) or throwException(mysql_error());
 
   $ids = "";
   while ($row = mysql_fetch_array($resultset)) {
@@ -35,8 +34,10 @@ try {
     $character["id"] = $id;
     $character["title"] = $row["title"];
     $character["author"] = $row["author"];
-    $character["y"] = intval($row["y"]);
     $character["x"] = intval($row["x"]);
+    $character["width"] = intval($row["width"]);
+    $character["height"] = intval($row["height"]);
+    $character["groundOffset"] = floatval($row["groundOffset"]);
     array_push($list, $character);
     if (strlen($ids) != 0) {
       $ids .= ",";

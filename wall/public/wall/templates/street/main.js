@@ -31,6 +31,9 @@ var Main = {
     // Create a group to wrap the character and its animation
     var g = document.createElementNS("http://www.w3.org/2000/svg", "g");
     g.setAttribute("id", character.id);
+    //bounds of image
+    var wOfBounding = character.width;
+    var hOfBounding = character.height;
 
     if (character.isNew == true) {
       // displays author name if the character is new.
@@ -44,7 +47,7 @@ var Main = {
       authorText.setAttribute("font-family", "helvetica");
       authorText.setAttribute("font-size", "40");
       authorText.setAttribute("text-anchor", "middle");
-      authorText.setAttribute("x", CHARACTER_WIDTH/2);
+      authorText.setAttribute("x", wOfBounding/2);
       g.appendChild(authorText);
     }
 
@@ -54,15 +57,20 @@ var Main = {
     var imageid = character.id+"i";
     image.setAttribute("id", imageid);
     image.setAttributeNS("http://www.w3.org/1999/xlink", "href", character.uri);
-    image.setAttribute("width", CHARACTER_WIDTH);
-    image.setAttribute("height", CHARACTER_HEIGHT);
-    var yOfCharacter = 700 - CHARACTER_HEIGHT;
+//    image.setAttribute("width", CHARACTER_WIDTH);
+//    image.setAttribute("height", CHARACTER_HEIGHT);
+    image.setAttribute("width", wOfBounding);
+    image.setAttribute("height", hOfBounding);
+    image.setAttribute("overflow", "visible");
+    var yOfCharacter = 700 - 700*character.groundOffset-hOfBounding;
     g.setAttribute("transform", "translate(0, "+yOfCharacter+")");
     g.appendChild(image);
     
     // Add a shadow to the character
     var use = document.createElementNS("http://www.w3.org/2000/svg", "use");
-    use.setAttribute("transform", "matrix(1 0 0 -0.5 0 400)");
+//    use.setAttribute("transform", "matrix(1 0 0 -0.5 0 400)");
+    var ymat = hOfBounding+400*character.groundOffset;
+    use.setAttribute("transform", "matrix(1 0 0 -0.5 0 "+ymat+")");
     use.setAttribute("filter", "url(#shadow)");
     use.setAttributeNS("http://www.w3.org/1999/xlink", "href", "#"+imageid);
     g.appendChild(use);

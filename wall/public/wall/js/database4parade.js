@@ -61,5 +61,8 @@ Character.prototype = {
     this.id = json.id;
     this.sent = false;
     this.uri = CHARACTERS_DIR+this.id+".svg";
+    this.groundOffset = json.groundOffset;
+    this.width = json.width;
+    this.height = json.height;
   }
 }

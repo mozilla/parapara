@@ -19,13 +19,13 @@ try {
   $sessionId = intval($_GET["sessionId"]);
 
   if ($threshold >= 0) {
-    $query = "SELECT charId,x,y FROM " .
-      "(SELECT charId,x,y FROM characters WHERE x IS NOT NULL AND active = 1 AND sessionId=".$sessionId.
+    $query = "SELECT charId,x,width,height groundOffset FROM " .
+      "(SELECT charId,x,width,height,groundOffset FROM characters WHERE x IS NOT NULL AND active = 1 AND sessionId=".$sessionId.
       " ORDER BY createDate DESC LIMIT " . $threshold . ") " .
       "AS latestShown ORDER BY x";
   } else {
     $query =
-      "SELECT charId,x,y FROM characters WHERE x IS NOT NULL AND active = 1 AND sessionId=".$sessionId.
+      "SELECT charId,x,width,height,groundOffset FROM characters WHERE x IS NOT NULL AND active = 1 AND sessionId=".$sessionId.
       " ORDER BY x";
   }
   $resultset = mysql_query($query, $connection) or
@@ -35,7 +35,9 @@ try {
     $character = array();
     $character["id"] = intval($row["charId"]);
     $character["x"] = intval($row["x"]);
-    $character["y"] = intval($row["y"]);
+    $character["width"] = intval($row["width"]);
+    $character["height"] = intval($row["height"]);
+    $character["groundOffset"] = floatval($row["groundOffset"]);
     array_push($list, $character);
   }
   

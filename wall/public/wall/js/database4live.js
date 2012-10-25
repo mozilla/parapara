@@ -134,5 +134,8 @@ Character.prototype = {
     this.author = json.author;
     this.title = json.title;
     this.uri = CHARACTERS_DIR+this.id+".svg";
+    this.groundOffset = json.groundOffset;
+    this.width = json.width;
+    this.height = json.height;
   }
 }
