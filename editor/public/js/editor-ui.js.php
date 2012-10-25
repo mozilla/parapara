@@ -34,19 +34,6 @@ EditorUI.init = function() {
   EditorUI.editMode = 'draw'; // 'draw' | 'animate'
   EditorUI.stillPressing = false;
   EditorUI.initControls();
-  // Disabling full-screen mode for now since:
-  // a) there's no UI for it for tablets
-  // b) it prevents our overlays from appearing
-  /*
-  var elem = document.getElementById("container");
-  if (elem.requestFullScreen) {
-    elem.requestFullScreen();
-  } else if (elem.mozRequestFullScreen) {
-    elem.mozRequestFullScreen();
-  } else if (elem.webkitRequestFullScreen) {
-    elem.webkitRequestFullScreen();
-  }
-  */
   EditorUI.updateLayout();
 
   // Check we have a wall to post to
