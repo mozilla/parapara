@@ -398,8 +398,7 @@ function getCurrentWallDuration($wallId) {
 }
 
 function getCurrentWallTimeByDuration($duration) {
-  $timeparts = explode(" ",microtime());
-  $currentTimeMillis = bcadd(($timeparts[0]*1000),bcmul($timeparts[1],1000));
-  return $currentTimeMillis % $duration;
+  $currentTimeMillis = bcmul(microtime(true), 1000);
+  return bcmod($currentTimeMillis, $duration);
 }
 ?>
