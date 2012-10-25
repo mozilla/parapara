@@ -19,7 +19,7 @@ try {
   $sessionId = intval($_GET["sessionId"]);
 
   if ($threshold >= 0) {
-    $query = "SELECT charId,x,width,height groundOffset FROM " .
+    $query = "SELECT charId,x,width,height,groundOffset FROM " .
       "(SELECT charId,x,width,height,groundOffset FROM characters WHERE x IS NOT NULL AND active = 1 AND sessionId=".$sessionId.
       " ORDER BY createDate DESC LIMIT " . $threshold . ") " .
       "AS latestShown ORDER BY x";
