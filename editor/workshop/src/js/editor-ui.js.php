@@ -109,6 +109,7 @@ EditorUI.reset = function() {
 
 EditorUI.getWallName = function() {
   var wallName = document.location.pathname.replace(/^\//, '');
+//  var wallName = document.location.pathname.replace(/\//g, '');
   // Test the wall name is at least one char long and has no slashes or dots
   return /^[^\/.]+$/.test(wallName) ? wallName : null;
 }
