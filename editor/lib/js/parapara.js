@@ -897,7 +897,7 @@ ParaPara.Animator.prototype.getDecoratedBbox = function(frame) {
 
   // Calculate max stroke width
   var maxStrokeWidth = 0;
-  var geometryNodes = frame.querySelectorAll("path, circle");
+  var geometryNodes = frame.querySelectorAll("path");
   for (var i = 0; i < geometryNodes.length; i++) {
     var strokeWidth =
       parseInt(window.getComputedStyle(geometryNodes[i]).strokeWidth);
