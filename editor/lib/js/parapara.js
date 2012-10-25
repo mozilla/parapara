@@ -145,9 +145,9 @@ ParaPara.send = function(uploadPath, successCallback, failureCallback, metadata)
   ParaPara.postRequest(uploadPath, payload, successCallback, failureCallback);
 }
 
-ParaPara.sendEmail = function(email, animationId, uploadPath, successCallback,
-                              failureCallback) {
-  var payload = { address: email, id: animationId };
+ParaPara.sendEmail = function(email, animationId, locale, uploadPath,
+                              successCallback, failureCallback) {
+  var payload = { address: email, id: animationId, locale: locale };
   ParaPara.postRequest(uploadPath, payload, successCallback,
                        failureCallback);
 }
@@ -289,25 +289,29 @@ ParaPara.DrawControls.prototype.getLocalCoords = function(x, y, elem) {
 // -------------------- Freehand line --------------------
 
 ParaPara.FreehandLine = function(x, y, frame) {
+  // Create polyline element
   this.polyline = document.createElementNS(ParaPara.SVG_NS, "polyline");
+  ParaPara.currentStyle.styleStroke(this.polyline);
   frame.appendChild(this.polyline);
 
-  // Once Bug 629200 lands we should use the PointList API instead
-  this.pts = [x,y].map(ParaPara.fixPrecision).join(",") + " ";
-  this.polyline.setAttribute("points", this.pts);
-  ParaPara.currentStyle.styleStroke(this.polyline);
+  // Add an initial point
+  var pt = ParaPara.svgRoot.createSVGPoint();
+  pt.x = x;
+  pt.y = y;
+  this.polyline.points.appendItem(pt);
 }
 
 ParaPara.FreehandLine.prototype.addPoint = function(x, y) {
   console.assert(this.polyline, "Adding point to finished/cancelled line?")
-  this.pts += [x,y].map(ParaPara.fixPrecision).join(",") + " ";
-  this.polyline.setAttribute("points", this.pts);
+  var pt = ParaPara.svgRoot.createSVGPoint();
+  pt.x = x;
+  pt.y = y;
+  this.polyline.points.appendItem(pt);
 }
 
 ParaPara.FreehandLine.prototype.finishLine = function() {
   console.assert(this.polyline, "Line already finished/cancelled?")
-  var points = this.polyline.points;
-  var path = this.createPathFromPoints(points);
+  var path = this.createPathFromPoints(this.polyline.points);
   this.polyline.parentNode.appendChild(path);
   this.polyline.parentNode.removeChild(this.polyline);
   this.polyline = null;

@@ -1,20 +1,30 @@
-# Source dir
-srcdir = lib/js
+# Make file for parapara library and editor
 
-# Build dir
+# Source directories
+srcdir = lib/js
+shareddir = ../shared
+sharedjsdir = $(shareddir)/js
+
+# Output directory
 builddir = build
 
-# Dependencies
-_deps = compat.js \
+# Dependencies (these are combined into the library)
+_deps = bind.js \
 			  uuid.core.js
 deps = $(patsubst %,$(srcdir)/%,$(_deps))
 
-# Modules
-_modules = parapara.js \
-			  	 eraser.js \
-					 svgClassList.js \
-					 xhr.js
-modules = $(patsubst %,$(srcdir)/%,$(_modules))
+# External dependencies (these are simply copied alongside the library when the
+# 'export' step is run)
+# Removing webL10n for now since we've made local modifications to it that are
+# yet to be merged upstream
+# extdeps =	$(shareddir)/webL10n/l10n.js
+extdeps =	
+
+# Modules (these are combined into the library)
+modules =	$(srcdir)/parapara.js \
+					$(srcdir)/eraser.js \
+					$(srcdir)/svgClassList.js \
+					$(sharedjsdir)/xhr.js
 
 # File list
 files = $(modules) $(deps)
@@ -43,9 +53,9 @@ clean:
 
 # Export the output to elsewhere in the project
 
-export_paths = workshop/src/js
+export_paths = public/js
 
-export: $(parapara) $(parapara-dev)
+export: $(parapara) $(parapara-dev) $(extdeps)
 	for path in $(export_paths); do \
 		mkdir -p $$path; \
 		cp $^ $$path; \

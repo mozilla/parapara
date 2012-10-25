@@ -9,9 +9,8 @@ require_once("parapara.inc");
 function compileTemplate($file, $vars)
 {
   global $config;
-  $file = $config['templates']['path'] . $file;
-  // Check file exists and is readable
-  if (!is_readable($file) || !is_file($file))
+  $file = getTemplateFile($file);
+  if (!$file)
     return null;
 
   // Setup environment
@@ -48,6 +47,14 @@ function compileEmailTemplate($file, $vars)
   $body = preg_replace("/((?<!\r)\n)|(\r(?!\n))/", "\r\n", $parts[1]);
 
   return array('subject' => $subject, 'body' => $body);
+}
+
+function getTemplateFile($file)
+{
+  global $config;
+  $file = $config['templates']['path'] . $file;
+  // Check file exists and is readable
+  return is_readable($file) && is_file($file) ? $file : null;
 }
 
 ?>
