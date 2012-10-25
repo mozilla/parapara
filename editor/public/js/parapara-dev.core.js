@@ -296,8 +296,6 @@ ParaPara.FreehandLine = function(x, y, frame) {
 
   // Add an initial point
   var pt = ParaPara.svgRoot.createSVGPoint();
-  // XXX Factor this out... and see if it's really needed
-  // ... it's probably not since we should never serialize this
   pt.x = x;
   pt.y = y;
   this.polyline.points.appendItem(pt);
@@ -842,9 +840,7 @@ ParaPara.Animator.prototype.exportAnimation = function(title, author) {
     console.assert(frame.childNodes.length,
       "Empty frames should have already been dropped");
 
-    // We really should extend this by the stroke width... but that's kind of
-    // complicated. Or we could just wait for SVG 2 ;)
-    var bbox = frame.getBBox();
+    var bbox = this.getDecoratedBbox(frame);
     minX = Math.floor(Math.min(minX, bbox.x));
     maxX = Math.ceil(Math.max(maxX, bbox.x + bbox.width));
     minY = Math.floor(Math.min(minY, bbox.y));
@@ -891,6 +887,32 @@ ParaPara.Animator.prototype.exportAnimation = function(title, author) {
 
   return { doc: doc, groundOffset: groundOffset,
            width: maxX-minX, height: maxY-minY };
+}
+
+// A *very* rudimentary attempt to factor stroke width into the bounding box.
+// Hopefully SVG 2 will provide this for us in the future.
+ParaPara.Animator.prototype.getDecoratedBbox = function(frame) {
+  // Get geometric bounding box
+  var bbox = frame.getBBox();
+
+  // Calculate max stroke width
+  var maxStrokeWidth = 0;
+  var geometryNodes = frame.querySelectorAll("path, circle");
+  for (var i = 0; i < geometryNodes.length; i++) {
+    var strokeWidth =
+      parseInt(window.getComputedStyle(geometryNodes[i]).strokeWidth);
+    maxStrokeWidth = Math.max(maxStrokeWidth, strokeWidth);
+  }
+
+  // Enlarge geometric bounding box by half the max stroke-width on each side
+  // (This doesn't take into account miters and so on but we're using round line
+  //  joins so we should be ok)
+  bbox.x -= maxStrokeWidth / 2;
+  bbox.y -= maxStrokeWidth / 2;
+  bbox.width  += maxStrokeWidth;
+  bbox.height += maxStrokeWidth;
+
+  return bbox;
 }
 
 ParaPara.Animator.prototype.setSpeed = function(fps) {
