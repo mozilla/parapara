@@ -30,6 +30,34 @@ $config = array(
     // The values for 'transport' and 'params' are passed directly onto PEAR 
     // Mail and are documented there:
     // http://pear.php.net/manual/en/package.mail.mail.factory.php
+    //
+    // If this is not set, the mail function will be disabled
+    //
+    // e.g. (1) Use mail
+    //  'transport' => 'mail',
+    //  'params' => ''
+    //
+    // e.g. (2) Use SMTP server
+    //  'transport' => 'smtp',
+    //  'params' => array(
+    //    'host' => 'ssl://smtp.server...',
+    //    'port' => '465',
+    //    'auth' => true,
+    //    'username' => 'username',
+    //    'password' => 'password',
+    //    'timeout' => 5,
+    //  )
+    //
+    // NOTE: In order to use SSL it is necessary to install the following files
+    // which are not included in the repository due to differing license
+    // requirements
+    //
+    //   wall/lib/PEAR/Net/SMTP.php
+    //   wall/lib/PEAR/Net/Socket.php
+    //
+    // e.g. (3) Disable mail
+    // 'transport' => ''
+    //
     'transport' => 'mail',
     'params' => ''
   ),
