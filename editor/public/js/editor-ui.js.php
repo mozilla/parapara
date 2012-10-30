@@ -24,7 +24,6 @@ EditorUI.LONG_PRESS_RATE_MS  = 120;
 // API paths
 EditorUI.UPLOAD_SERVER   = "<?php echo $config['editor']['upload_server']; ?>";
 EditorUI.UPLOAD_SCRIPT   = "upload";
-EditorUI.SEND_EMAIL_PATH = EditorUI.UPLOAD_SERVER + "api/email_anim";
 
 // -------------- Initialisation -----------
 
@@ -209,28 +208,39 @@ EditorUI.sendSuccess = function(response) {
   if (response.url) {
     // If we have a URL, prepare the sharing screen to be shown after the
     // success screen
-    var parts = [];
-    if (response.qrcode) {
-      parts.push("<img src=\"" + response.qrcode + "\" class=\"qrcode\">");
+
+    // Prepare email part of form
+    if (response.emailUrl) {
+      EditorUI.clearEmailForm();
+      var form = document.forms["email-form"];
+      form['animation-id'].value = response.id;
+      form['email-url'].value    = response.emailUrl;
     } else {
-      var qr = new QRCode(0, QRCode.QRErrorCorrectLevel.M);
-      qr.addData(response.url);
-      qr.make();
-      var image = qr.getImage(4 /*cell size*/);
-      parts.push("<img src=\"" + image.data +
-                 "\" width=\"" + image.width +
-                 "\" height\"" + image.height +
-                 "\" alt=\"" + response.url + "\">");
+      EditorUI.hideEmailForm();
     }
+
+    // Prepare the link block
+    var parts = [];
+
+    // Prepare QR code
+    var qr = new QRCode(0, QRCode.QRErrorCorrectLevel.M);
+    qr.addData(response.url);
+    qr.make();
+    var image = qr.getImage(4 /*cell size*/);
+    parts.push("<img src=\"" + image.data +
+               "\" width=\"" + image.width +
+               "\" height\"" + image.height +
+               "\" alt=\"" + response.url + "\">");
+
     // We deliberately DON'T wrap the URL in an <a> element since we don't
     // really want users following the link and navigating away from the editor.
     // It's just there so they can copy it down into a notepad as a last resort.
     parts.push("<div class=\"url\">" + response.url + "</div>");
-    parts.push("<input type=\"hidden\" name=\"animation-id\" value=\"" +
-      response.id + "\">");
+
+    // Set the link block
     var linkBlock = document.getElementById("animation-link");
     linkBlock.innerHTML = parts.join("");
-    EditorUI.clearEmailForm();
+
     // Sharing screen is ready, queue it to display after the success note has
     // ended
     EditorUI.fadeNote(
@@ -345,6 +355,11 @@ EditorUI.clearEmailForm = function() {
   EditorUI.clearEmailStatus();
 }
 
+EditorUI.hideEmailForm = function() {
+  var form = document.forms["email-form"];
+  form.style.display = 'none';
+}
+
 EditorUI.sendEmail = function() {
   EditorUI.clearEmailStatus();
 
@@ -368,6 +383,17 @@ EditorUI.sendEmail = function() {
     return;
   }
 
+  // Get the URL to send to
+  var emailUrl =
+    document.forms["email-form"].elements["email-url"].value;
+  if (!emailUrl) {
+    // Generally we should hide the email field if there is no URL to send to so
+    // if we're reaching here, something has gone unexpectedly wrong.
+    console.warn("Email URL not valid");
+    EditorUI.setEmailStatus("failed");
+    return;
+  }
+
   // Disable submit button so we don't get double-submits from those who like to
   // double-click everything
   document.getElementById("email-button").disabled = true;
@@ -375,7 +401,7 @@ EditorUI.sendEmail = function() {
   // Send away
   EditorUI.setEmailStatus("waiting");
   ParaPara.sendEmail(email, animationId, document.webL10n.getLanguage(),
-                     EditorUI.SEND_EMAIL_PATH,
+                     emailUrl,
                      EditorUI.sendEmailSuccess, EditorUI.sendEmailFail);
 }
 

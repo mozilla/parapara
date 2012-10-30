@@ -132,10 +132,12 @@
             <div class="field-note" id="spam-filter-note"
               data-l10n-id="spam-filter-note"
               data-l10n-args='{ "send.domain": "mozilla-japan.org" }'></div>
-            <div id="animation-link">
-              <!-- The content here is dynamically inserted -->
-            </div>
+            <input type="hidden" name="animation-id">
+            <input type="hidden" name="email-url">
           </form>
+          <div id="animation-link">
+            <!-- The content here is dynamically inserted -->
+          </div>
           <button type="button" class="text" style="margin-top: 0.6em"
             onclick="EditorUI.clearNoteAndReset()" data-l10n-id="ok">OK</button>
         </div>

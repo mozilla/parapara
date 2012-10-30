@@ -55,8 +55,21 @@ try {
 }
 
 // Prepare result
-$url = shortenUrl(getGalleryUrlForId($charId));
-$result = array('id' => $charId, 'url' => $url);
+$result = array('id' => $charId);
+
+// Add URL but only if we are supposed to publish them
+// (e.g. we disable publishing URLs when running on an ad-hoc network)
+if (!isset($config['characters']) ||
+    !isset($config['characters']['publish_url']) ||
+    $config['characters']['publish_url'] !== false) {
+  $result['url'] = shortenUrl(getGalleryUrlForId($charId));
+}
+
+// If email is enabled, provide the URL to use
+if (isset($config['mail']) && isset($config['mail']['transport']) &&
+    strlen($config['mail']['transport'])) {
+  $result['emailUrl'] = fileToUrl("email_anim.php");
+}
 
 // Return the result
 print json_encode($result);

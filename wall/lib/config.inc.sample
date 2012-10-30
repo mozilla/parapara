@@ -17,7 +17,13 @@ $config = array(
   ),
   'characters' => array(
     'path' => '../characters/',
-    'accept_new' => true 
+    // Should URLs to the characters be published after sending the animation?
+    // We disable this when running on an ad-hoc network for example since the
+    // URLs won't be useful.
+    //
+    // If this parameter is absent or *anything* other than false it we will
+    // publish the URL
+    'publish_url' => true
   ),
   'templates' => array(
     'path' => '../../templates/'
