@@ -13,6 +13,7 @@ $config = array(
   ),
   'editor' => array(
     'url' => 'http://parapara-editor.mozlabs.jp/',
+    'upload_server' => 'http://parapara.mozlabs.jp/'
   ),
   'characters' => array(
     'path' => '../characters/',
@@ -63,9 +64,6 @@ $config = array(
   ),
   'net' => array(
     'certfile' => realpath(dirname(__FILE__) . '/CACerts/cacert.pem')
-  ),
-  'editor' => array(
-    'upload_server' => 'http://parapara.mozlabs.jp/'
   )
 );
 ?>
