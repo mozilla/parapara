@@ -256,15 +256,20 @@ div.canvas-container {
   width: 83%; 
   overflow: visible;
 }
-svg#canvas {
+div.canvas-background {
   position: relative;
-  border: 2px solid black;
   margin: 0;
+  top: 15%; /* The filmstrip is 15% high */
   margin-left: -15px; /* Move left to fill the space around the curved edges of
                        * the tool palette. */
-  top: 15%;
-  background: url('../img/jimen.png') left bottom repeat-x, url('../img/space-bg.jpg') black;
+  padding-left: 15px;
+  background: url('../img/jimen.png') left bottom repeat-x,
+              url('../img/space-bg.jpg') black;
   background-size: auto 9%, cover;
+}
+svg#canvas {
+  display: block; /* This stops us getting extra space added around the SVG */
+  margin: 0;
 } 
 
 /*
@@ -285,6 +290,11 @@ svg#canvas {
    width: 100%; 
    height: 83%;
  }
+ div.canvas-background {
+   margin-left: 0;
+   padding-left: 0;
+   padding-bottom: 15px;
+ }
  div.tool-box .panelContents {
    vertical-align: middle;
    display: inline-block;
@@ -304,9 +314,6 @@ svg#canvas {
  div.tool-box #play {
    height: 88%;
    max-width: 20%;
- }
- svg#canvas {
-  margin-left: 0;
  }
 }
 

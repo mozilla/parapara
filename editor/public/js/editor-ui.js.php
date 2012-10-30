@@ -792,15 +792,9 @@ EditorUI.selectLang = function(evt) {
 
 EditorUI.updateLayout = function() {
   /*
-   * We size the SVG manually. This is because we want to resize the viewBox for
-   * the following reasons:
-   *
-   * a) Regardless of the size and orientation of the device, we want to keep
-   *    the HEIGHT of the characters roughly the same. The width can flex as
-   *    needed.
-   * b) By resizing the viewbox, we can have graphics such as a ground pattern,
-   *    with height / width 100% and be sure it will fill the viewable area
-   *    regardless of the setting of preserveAspectRatio.
+   * We size the SVG manually. This is because regardless of the size and 
+   * orientation of the device, we want to keep the HEIGHT of the characters 
+   * roughly the same. The width can flex as needed.
    *
    * In future I think we need to make the viewBox property settable via media
    * queries so you can have responsive graphics that change aspect ratio.
@@ -818,14 +812,7 @@ EditorUI.updateLayout = function() {
   }
   var availHeight = window.innerHeight - controlsHeight;
   var availWidth  = window.innerWidth - controlsWidth;
-  // We need to account for the fact that we have a bit of overlap with the
-  // control panel
-  if (window.innerWidth > window.innerHeight) {
-    availWidth += 15;
-  } else {
-    availHeight += 15;
-  }
-  var vbHeight = 300;
+  var vbHeight = 300; // This is fixed
   var vbWidth = vbHeight * availWidth / availHeight;
 
   // Set the SVG canvas size explicitly.
