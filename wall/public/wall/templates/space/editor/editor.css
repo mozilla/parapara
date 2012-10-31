@@ -4,3 +4,6 @@ div.canvas-background {
               url('space-bg.jpg') black;
   background-size: auto 9%, cover;
 }
+#anim-controls .overlay-shading {
+  fill: white;
+}
