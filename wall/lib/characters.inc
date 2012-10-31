@@ -28,9 +28,9 @@ function addCharacter($wallId, $svg, $metadata) {
   // Insert record
   $date = gmdate('Y-m-d H:i:s');
   // calculate X value
-  $currentWallDuration = getCurrentWallDuration($wallId);
-  $currentWallTime = getCurrentWallTimeByDuration($currentWallDuration);
-  $x = floor($currentWallTime / $currentWallDuration * 1000);
+  $duration = getWallDuration($wallId);
+  $currentWallTime = getCurrentWallTimeForDuration($duration);
+  $x = floor($currentWallTime / $duration * 1000);
   
   $query =
     'INSERT INTO characters'

@@ -13,7 +13,6 @@ try {
   // Parse wall name
   $url = $_SERVER["REDIRECT_URL"];
   $match = preg_match('/^\/wall\/([^\/]+)$/', $url, $matches);
-//  $match = preg_match('/wall\/([^\/]+)$/', $url, $matches);
   if ($match != 1) {
     throwException("no wall found");
   }
@@ -24,11 +23,9 @@ try {
   }
   $connection = getConnection();
 
-  $query = "SELECT W.duration AS duration,D.name AS design, D.duration AS defaultduration, S.sessionId AS sessionId, S.endDate AS endDate FROM walls AS W ,designs AS D, sessions AS S WHERE W.wallId=$wallId AND D.designId=W.designId AND W.wallId=S.wallId ORDER BY S.sessionId DESC LIMIT 1";
+  $query = "SELECT D.name AS design, S.sessionId AS sessionId, S.endDate AS endDate FROM walls AS W ,designs AS D, sessions AS S WHERE W.wallId=$wallId AND D.designId=W.designId AND W.wallId=S.wallId ORDER BY S.sessionId DESC LIMIT 1";
   $resultset = mysql_query($query, $connection) or throwException(mysql_error());
   if ($row = mysql_fetch_array($resultset)) {
-    $duration = intval($row["duration"]);
-    $defaultduration = intval($row["defaultduration"]);
     $design = $row["design"];
     $endDate = $row["endDate"];
     $sessionId = $row["sessionId"];
@@ -51,8 +48,8 @@ header("Content-Type: image/svg+xml; charset=UTF-8");
 $walltype = $design;
 $templatepath = "./templates/$walltype";
 $database = $endDate == NULL ? "database4live.js" : "database4gallery.js";
-$basetime = $duration == 0 ? $defaultduration : $duration;
-$begintime = getCurrentWallTimeByDuration($basetime);
+$duration = getWallDuration($wallId);
+$beginTime = getCurrentWallTimeForDuration($duration);
 
 ?>
 <?xml version="1.0" standalone="no"?>
@@ -66,8 +63,8 @@ $begintime = getCurrentWallTimeByDuration($basetime);
   <script>
       var WALL_ID = <?php echo $wallId ?>;
       var SESSION_ID = <?php echo $sessionId ?>;
-      var BASE_TIME = <?php echo $basetime ?>;
-      var BEGIN_TIME = <?php echo $begintime ?>;
+      var BASE_TIME = <?php echo $duration ?>;
+      var BEGIN_TIME = <?php echo $beginTime ?>;
       var BEFORE_LOADED_TIME = (new Date()).getTime();
   </script>
   <script xlink:href="js/jquery-1.7.1.min.js"></script>

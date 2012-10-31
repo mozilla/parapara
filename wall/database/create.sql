@@ -3,7 +3,7 @@ CREATE TABLE `designs` (
   `designId` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL COMMENT 'A descriptive name for the type of design. This will need to be localized eventually.',
   `thumbUrl` varchar(255) DEFAULT NULL COMMENT 'A URL to a thumbnail image of the design. Relative paths should probably be relative to some designs folder.',
-  `duration` int(8) DEFAULT NULL COMMENT 'Default duration of this design',
+  `duration` int(8) DEFAULT NULL COMMENT 'Default duration of this design in milliseconds',
   PRIMARY KEY (`designId`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='Catalogue of wall styles';
 
@@ -29,7 +29,7 @@ CREATE TABLE `walls` (
   `urlPath` varchar(255) NOT NULL COMMENT 'The path component of the URL, e.g. ''fukushima-100''',
   `shortUrl` varchar(40) DEFAULT NULL COMMENT 'Shortened URL for the wall',
   `editorShortUrl` varchar(40) DEFAULT NULL COMMENT 'Shortened URL for the editor associated with this wall',
-  `duration` int(8) DEFAULT NULL COMMENT 'The number of milliseconds for a single iteration?',
+  `duration` int(8) DEFAULT NULL COMMENT 'The number of milliseconds for a single iteration',
   `createDate` datetime NOT NULL COMMENT 'Creation datetime in UTC',
   `modifyDate` datetime NOT NULL COMMENT 'Modification datetime in UTC',
   PRIMARY KEY (`wallId`),
