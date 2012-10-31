@@ -266,7 +266,8 @@ div.canvas-background {
   background-color: #ddd;
   background-image: -moz-linear-gradient(transparent 99%, #bbb 99%, #bbb),
                    -moz-linear-gradient(90deg, transparent 99%, #bbb 99%, #bbb);
-  background-image: -webkit-linear-gradient(transparent 99%, #bbb 99%, #bbb),
+  background-image:
+             -webkit-linear-gradient(0deg, transparent 99%, #bbb 99%, #bbb),
              -webkit-linear-gradient(90deg, transparent 99%, #bbb 99%, #bbb);
   background-image: -o-linear-gradient(transparent 99%, #bbb 99%, #bbb),
                     -o-linear-gradient(90deg, transparent 99%, #bbb 99%, #bbb);
