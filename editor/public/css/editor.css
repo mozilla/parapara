@@ -106,7 +106,7 @@ div.film-strip {
 /*
  * Language selection
  */
-.langMenu {
+.settingsMenu {
   position: absolute;
   right: 0%;
   width: 40px;
@@ -114,18 +114,18 @@ div.film-strip {
   display: inline-block;
   color: white;
 }
-.langMenu details {
+.settingsMenu details {
   display: block;
   background: #1c1916;
   height: 100%;
 }
-.langMenu:hover details, .langMenu details[open=open] {
+.settingsMenu:hover details, .settingsMenu details[open=open] {
   background: #8a7a6a;
 }
 summary::-webkit-details-marker {
   display:none;
 }
-.langMenu summary {
+.settingsMenu summary {
   pointer-events: none; /* Stops the summary stealing the focus on Chrome */
   position: relative;
   top: 50%; /* Should be close enough for browsers that don't do calc() */
@@ -148,7 +148,7 @@ summary::-webkit-details-marker {
 }
 
 /* Pop-out menu */
-.langMenu menu {
+.settingsMenu menu {
   background: #1c1916;
   position: absolute;
   margin: 0;
@@ -157,29 +157,38 @@ summary::-webkit-details-marker {
   right: 0%;
   overflow: hidden;
   text-align: left;
-  min-width: 130px;
+  min-width: 140px;
   display: none;
 }
-.langMenu details[open=open] menu {
+.settingsMenu details[open=open] menu {
   display: block;
 }
-.langMenu li {
+.settingsMenu li {
   padding: 0.5em 1em;
   list-style-position: inside;
   border: 1.5px solid transparent;
   cursor: pointer;
 }
-.langMenu li:lang(en) {
+.settingsMenu li.lang:lang(en) {
   list-style-image: url("../img/flags/gb.png");
 }
-.langMenu li:lang(ja) {
+.settingsMenu li.lang:lang(ja) {
   list-style-image: url("../img/flags/jp.png");
 }
-.langMenu li[aria-checked=true] {
+.settingsMenu li[aria-role=menuitemcheckbox] {
+  list-style: none;
+}
+.settingsMenu li[aria-role=menuitemcheckbox][aria-checked=true]:before {
+  content: "\002611  ";
+}
+.settingsMenu li[aria-role=menuitemcheckbox][aria-checked=false]:before {
+  content: "\002610  ";
+}
+.settingsMenu li[aria-checked=true] {
   background: #c7b099;
   border: 1.5px solid #7a6c5e;
 }
-.langMenu li:hover {
+.settingsMenu li:hover {
   border: 1.5px solid #7a6c5e;
 }
 

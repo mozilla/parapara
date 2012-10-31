@@ -57,7 +57,7 @@ EditorUI.initControls = function() {
   EditorUI.initFrameControls();
   EditorUI.initNavControls();
   EditorUI.initAnimControls();
-  EditorUI.initLangMenu();
+  EditorUI.initSettingsMenu();
 
   EditorUI.currentSpeed = EditorUI.INITIAL_SPEED_FPS;
 
@@ -83,14 +83,14 @@ EditorUI.localized = function() {
   // Check if we actually offer this language or if we fell back to the default 
   // resource
   var selectedLangItem =
-    document.querySelector(".langMenu menu li:lang(" + selectedLang + ")");
+    document.querySelector(".settingsMenu li.lang:lang(" + selectedLang + ")");
 
   // If not, use the default language. This needs to be synced with locales.ini
   if (!selectedLangItem) {
     // NOTE: If we ever offer en-UK and en-US we'll need to make this reflect 
     // the default resource
     selectedLangItem =
-      document.querySelector(".langMenu menu li:lang(en)");
+      document.querySelector(".settingsMenu li.lang:lang(en)");
     selectedLang = "en";
     dir = "ltr";
   }
@@ -103,7 +103,7 @@ EditorUI.localized = function() {
   // Update UI
 
   // Update menu selection
-  var options = document.querySelectorAll(".langMenu menu li")
+  var options = document.querySelectorAll(".settingsMenu li.lang")
   for (var i = 0; i < options.length; i++) {
     options[i].setAttribute("aria-checked",
       options[i] === selectedLangItem ? "true" : "false");
@@ -747,21 +747,45 @@ EditorUI.vibrate = function(millis) {
   }
 }
 
-// -------------- Language menu -----------
+// -------------- Settings menu -----------
 
-EditorUI.initLangMenu = function() {
-  var menus = document.getElementsByClassName("langMenu");
+EditorUI.initSettingsMenu = function() {
+  // Init menu expansion
+  var menus = document.getElementsByClassName("settingsMenu");
   for (var i = 0; i < menus.length; i++) {
-    menus[i].addEventListener("click", EditorUI.toggleLangMenu, false);
+    menus[i].addEventListener("click", EditorUI.toggleSettingsMenu, false);
   }
 
-  var langOptions = document.querySelectorAll(".langMenu menu li");
-  for (var i = 0; i < langOptions.length; i++) {
-    langOptions[i].addEventListener("click", EditorUI.selectLang, false);
+  // Init full-screen item
+  var fullscreen = document.getElementById('full-screen-menu');
+  // Full screen is currently disabled since there are the following bugs on 
+  // mobile:
+  // * 3 times out of 4 the window is position somewhat offset from the top-left
+  //   making some UI inaccessible and the touch position not align with what is
+  //   drawn
+  // * Media queries on landscape mode don't appear to work---we get the wrong 
+  //   set of pencils
+  // * Overlays don't display while in full-screen mode (works on desktop)
+  // * Check box glyphs are rendered as solid boxes
+  if (false && (document.fullScreenEnabled ||
+      document.mozFullScreenEnabled ||
+      document.webkitFullScreenEnabled)) {
+    fullscreen.addEventListener("click", EditorUI.toggleFullScreen, false);
+    document.addEventListener("fullscreenchange", EditorUI.fullScreenChange, 
+      false);
+    document.addEventListener("mozfullscreenchange", EditorUI.fullScreenChange, 
+      false);
+    document.addEventListener("webkitfullscreenchange", 
+      EditorUI.fullScreenChange, false);
+  } else {
+    fullscreen.style.display = "none";
   }
+
+  // Init language menu
+  EditorUI.initLangMenu();
 }
 
-EditorUI.toggleLangMenu = function(evt) {
+EditorUI.toggleSettingsMenu = function(evt) {
   var details = evt.currentTarget.getElementsByTagName("details");
   if (!details.length)
     return;
@@ -772,6 +796,54 @@ EditorUI.toggleLangMenu = function(evt) {
   } else {
     details.setAttribute("open", "open");
   } 
+}
+
+EditorUI.isFullScreen = function() {
+  return !!document.fullscreenElement ||
+         !!document.fullScreenElement ||
+         !!document.mozFullScreenElement ||
+         !!document.webkitFullScreenElement;
+}
+
+EditorUI.toggleFullScreen = function(evt) {
+  if (EditorUI.isFullScreen()) {
+    if (document.cancelFullScreen) {
+      document.cancelFullScreen();
+    } else if (document.exitFullscreen) {
+      document.exitFullscreen();
+    } else if (document.mozCancelFullScreen) {
+      document.mozCancelFullScreen();
+    } else if (document.webkitCancelFullScreen) {
+      document.webkitCancelFullScreen();
+    }
+  } else {
+    var elem = document.body;
+    if (elem.requestFullScreen) {
+      elem.requestFullScreen();
+    } else if (elem.requestFullscreen) {
+      elem.requestFullscreen();
+    } else if (elem.mozRequestFullScreen) {
+      elem.mozRequestFullScreen();
+    } else if (elem.webkitRequestFullScreen) {
+      elem.webkitRequestFullScreen();
+    }
+  }
+}
+
+EditorUI.fullScreenChange = function(evt) {
+  var fullscreen = document.getElementById('full-screen-menu');
+  fullscreen.setAttribute("aria-checked",
+    EditorUI.isFullScreen() ? "true" : "false");
+  EditorUI.updateLayout();
+}
+
+// -------------- Language menu -----------
+
+EditorUI.initLangMenu = function() {
+  var langOptions = document.querySelectorAll(".settingsMenu menu li.lang");
+  for (var i = 0; i < langOptions.length; i++) {
+    langOptions[i].addEventListener("click", EditorUI.selectLang, false);
+  }
 }
 
 EditorUI.selectLang = function(evt) {

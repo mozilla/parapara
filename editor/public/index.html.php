@@ -45,14 +45,18 @@
         <div class="controlPanel film-strip">
           <iframe src="img/filmstrip.svg" height="100%"
             id="filmstrip"></iframe>
-          <nav class="langMenu" role="navigation">
+          <nav class="settingsMenu" role="navigation">
             <details>
               <summary>
                 <span class="langSummary" lang=en id=langSummary>English</span>
               </summary>
               <menu>
-                <li aria-checked=true arial-role=menuitemradio lang=en>English
-                <li aria-checked=false aria-role=menuitemradio lang=ja>日本語
+                <li aria-checked=false aria-role=menuitemcheckbox
+                  data-l10n-id="fullscreen" id="full-screen-menu">Fullscreen
+                <li class=lang aria-checked=true aria-role=menuitemradio 
+                  lang=en>English
+                <li class=lang aria-checked=false aria-role=menuitemradio 
+                  lang=ja>日本語
               </menu>
             </details>
           </nav>
