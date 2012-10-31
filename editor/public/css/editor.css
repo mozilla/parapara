@@ -263,9 +263,18 @@ div.canvas-background {
   margin-left: -15px; /* Move left to fill the space around the curved edges of
                        * the tool palette. */
   padding-left: 15px;
-  background: url('../img/jimen.png') left bottom repeat-x,
-              url('../img/space-bg.jpg') black;
-  background-size: auto 9%, cover;
+  background-color: #ddd;
+  background-image: -moz-linear-gradient(transparent 99%, #bbb 99%, #bbb),
+                   -moz-linear-gradient(90deg, transparent 99%, #bbb 99%, #bbb);
+  background-image: -webkit-linear-gradient(transparent 99%, #bbb 99%, #bbb),
+             -webkit-linear-gradient(90deg, transparent 99%, #bbb 99%, #bbb);
+  background-image: -o-linear-gradient(transparent 99%, #bbb 99%, #bbb),
+                    -o-linear-gradient(90deg, transparent 99%, #bbb 99%, #bbb);
+  background-image: linear-gradient(transparent 99%, #bbb 99%, #bbb),
+                    linear-gradient(90deg, transparent 99%, #bbb 99%, #bbb);
+  -webkit-background-size: 50px 50px;
+  -moz-background-size: 50px 50px;
+  background-size: 50px 50px;
 }
 svg#canvas {
   display: block; /* This stops us getting extra space added around the SVG */

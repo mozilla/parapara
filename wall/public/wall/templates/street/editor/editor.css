@@ -1,0 +1,7 @@
+div.canvas-background {
+  background-color: white;
+  background: url('tree.png') right -50px bottom no-repeat,
+              url('mountains.jpg') left 10% top repeat-x,
+              white;
+  background-size: auto 70%, auto 60%;
+}

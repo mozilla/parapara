@@ -5,16 +5,21 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title data-l10n-id="title">パラパラアニメーション</title>
-    <link rel="stylesheet" href="css/editor.css" type="text/css">
+    <title data-l10n-id="title">Parapara Animation</title>
     <link rel="stylesheet" href="css/parapara.css" type="text/css">
+    <link rel="stylesheet" href="css/editor.css" type="text/css">
+<?php
+  require_once("../lib/php/editor-util.inc");
+  $stylesheet = getStylesheet();
+  if ($stylesheet) {
+    echo '    <link rel="stylesheet" href="' .  $stylesheet .
+         '" type="text/css">' . PHP_EOL;
+  }
+?>
     <link rel="resource" type="application/l10n" href="locales.ini">
     <script type="text/javascript" src="js/l10n.js"></script>
     <script type="text/javascript" src="js/parapara.core.js" defer></script>
     <script type="text/javascript" src="js/editor-ui.js" defer></script>
-    <!-- The following QRCode library is only used as a fallback in case the
-         server doesn't send a QR Code. If we know the server will always
-         provide a QR code we can leave the following library out. -->
     <script type="text/javascript" src="js/qrcode.js" async></script>
     <meta name="viewport"
       content="width=device-width, initial-scale=1.0, user-scalable=no">

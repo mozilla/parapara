@@ -113,7 +113,7 @@ function createWall($params) {
   // Get URLs
   $path      = getPathForTitle($title);
   $wallUrl   = getWallUrlForPath($path);
-  $editorUrl = getWallUrlForPath($path);
+  $editorUrl = getEditorUrlForPath($path);
 
   $shortUrl = shortenUrl($wallUrl);
   if ($shortUrl == $wallUrl)
