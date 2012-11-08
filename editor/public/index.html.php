@@ -19,7 +19,7 @@
     <link rel="resource" type="application/l10n" href="locales.ini">
     <script type="text/javascript" src="js/l10n.js"></script>
     <script type="text/javascript" src="js/parapara.core.js" defer></script>
-    <script type="text/javascript" src="js/editor-ui.js" defer></script>
+    <script type="text/javascript" src="js/editor-ui.js"></script>
     <script type="text/javascript" src="js/qrcode.js" async></script>
     <meta name="viewport"
       content="width=device-width, initial-scale=1.0, user-scalable=no">
