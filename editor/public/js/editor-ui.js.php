@@ -119,9 +119,9 @@ window.addEventListener('localized', EditorUI.localized, false);
 // Set the preferred language on the document
 //
 // We need to do this before webL10n does its start-up sequence which is 
-// triggered by the DOMContentLoaded event. So long as this script is not 
-// included async (defer is ok) the following should run before 
-// DOMContentLoaded.
+// triggered by the DOMContentLoaded event. That means that *this* script should
+// not be included as async or defer to ensure the following runs before 
+// DOMContentLoaded is fired on webL10n.
 //
 // (The alternative, detecting if webL10n has started or not, and whether it has
 // started but is still waiting for resources to load, far more complex.)
