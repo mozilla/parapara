@@ -635,9 +635,9 @@ EditorUI.initAnimControls = function() {
   var animControls = document.getElementById("anim-controls");
   animControls.addEventListener("transitionend",
     EditorUI.finishAnimControlsFade, false);
-  animControls.addEventListener("webkitTransitionend",
+  animControls.addEventListener("webkitTransitionEnd",
     EditorUI.finishAnimControlsFade, false);
-  animControls.addEventListener("oTransitionend",
+  animControls.addEventListener("otransitionend",
     EditorUI.finishAnimControlsFade, false);
   animControls.addEventListener("MSTransitionend",
     EditorUI.finishAnimControlsFade, false);
