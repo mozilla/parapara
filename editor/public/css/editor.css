@@ -448,7 +448,7 @@ div.overlay-contents {
     padding: 7px 15px;
   }
 }
-@media screen and (max-height: 300px) {
+@media screen and (max-height: 200px) {
   div.overlay-contents {
     font-size: 0.7em;
   }
