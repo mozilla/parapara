@@ -1,6 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg"
   xmlns:xlink="http://www.w3.org/1999/xlink"
   width="100%" height="100%" viewBox="0 0 145 144.6">
+ <defs>
+  <style type="text/css">
+    .hitRegion {
+      opacity: 0;
+      pointer-events: all;
+    }
+  </style>
+ </defs>
  <path fill="#FEDCA4" opacity="0.8"
        d="m124.2 70.2c0.01 12.12 0.03 24.24-0.02 36.36-0.01 2.09-0.18 4.21-0.58 6.26-1.49 7.7-5.25 10.91-12.91 10.93-21.16 0.06-42.32 0.35-63.47-0.13-5.93-0.13-11.9 1.08-17.78-0.22-7.3-1.61-10.12-5.01-10.14-12.42-0.06-24.05-0.06-48.09-0.02-72.14 0-3.13 0.31-6.24 0.3-9.4-0.02-6.39 5.05-10.56 12.04-10.57 20.74-0.02 41.48 0.3 62.2-0.17 5.71-0.13 11.37 0.3 17.05 0.2 8.55-0.15 13.15 4.22 13.27 12.8 0.1 12.73 0 25.55 0 38.38z"/>
  <path fill="#D6BA8A" opacity="0.5"
@@ -67,6 +75,8 @@
  <animate xlink:href="#play" attributeName="opacity"
    from="0" to="1" dur="0.3s" fill="freeze"
    begin="playanim.begin+0.2s"/>
+ <!-- Hit testing region for Safari -->
+ <rect width="100%" height="100%" class="hitRegion"/>
  <script type="text/javascript">
  <![CDATA[
   document.showPlay = function() {
@@ -88,6 +98,23 @@
   function getOpacity(id) {
     var elem = document.getElementById(id);
     return window.getComputedStyle(elem).opacity;
+  }
+
+  // This is needed for Safari on iOS since it can't seem to catch clicks on the
+  // containing iframe element.
+  if (window.frameElement) {
+    var hitRegions = document.getElementsByClassName("hitRegion");
+    for (var i = 0; i < hitRegions.length; i++) {
+      hitRegions[i].addEventListener("click",
+        function(evt) {
+          evt.preventDefault();
+          evt.stopPropagation();
+          var newClick = document.createEvent("MouseEvents");
+          newClick.initEvent("click", true, true);
+          window.frameElement.dispatchEvent(newClick);
+        },
+        false);
+    }
   }
  ]]>
  </script>

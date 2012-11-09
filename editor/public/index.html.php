@@ -35,10 +35,8 @@
             id="picker" data-aspect-ratio="0.6845"></iframe>
           <iframe src="img/width-picker.svg" class="panelContents"
             id="widths" data-aspect-ratio="2.490"></iframe>
-          <div id="play-container" class="safari-click-catcher">
-            <iframe src="img/play.svg" class="panelContents"
-              id="play" data-aspect-ratio="1"></iframe>
-          </div>
+          <iframe src="img/play.svg" class="panelContents"
+            id="play" data-aspect-ratio="1"></iframe>
         </div>
       </div>
       <div class="canvas-container">

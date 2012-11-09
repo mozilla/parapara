@@ -318,9 +318,6 @@ svg#canvas {
    vertical-align: middle;
    display: inline-block;
  }
- div.safari-click-catcher {
-   display: inline;
- }
  div.tool-box #picker {
    height: 88%;
    max-width: 45%;

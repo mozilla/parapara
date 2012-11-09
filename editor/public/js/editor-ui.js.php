@@ -596,23 +596,16 @@ EditorUI.updateThumbnails = function() {
 
 EditorUI.initNavControls = function() {
   var play = document.getElementById("play");
-  play.contentDocument.addEventListener("click", EditorUI.toggleEditMode,
-                                        false);
+  play.addEventListener("click", EditorUI.toggleEditMode, false);
   play.contentDocument.showPlay();
-
-  // iOS Safari seems to have trouble listening to click events on <iframe>
-  // elements (at least for SVG) so we wrap the object in a <div> and listen on
-  // that instead.
-  var playContainer = document.getElementById("play-container");
-  playContainer.addEventListener("click", EditorUI.toggleEditMode, false);
 }
 
 EditorUI.toggleEditMode = function() {
- if (EditorUI.editMode === 'draw') {
-   EditorUI.animate();
- } else {
-   EditorUI.returnToEditing();
- }
+  if (EditorUI.editMode === 'draw') {
+    EditorUI.animate();
+  } else {
+    EditorUI.returnToEditing();
+  }
 }
 
 // -------------- Anim control -----------
