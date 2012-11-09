@@ -448,6 +448,15 @@ div.overlay-contents {
     padding: 7px 15px;
   }
 }
+@media screen and (max-height: 300px) {
+  div.overlay-contents {
+    font-size: 0.7em;
+  }
+  button.text {
+    font-size: 12px;
+    padding: 5px 12px;
+  }
+}
 div.overlay-contents input {
   font-size: 1em;
   padding: 0 0.25em;
