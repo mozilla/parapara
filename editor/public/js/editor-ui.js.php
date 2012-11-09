@@ -80,6 +80,12 @@ EditorUI.localized = function() {
   var selectedLang = document.webL10n.getLanguage();
   var dir = document.webL10n.getDirection();
 
+  // Temporary hack to replace ja-JP with ja.
+  // XXX This needs to be incorporated into the matching below.
+  if (selectedLang.toLowerCase() === "ja-jp") {
+    selectedLang = "ja";
+  }
+
   // Check if we actually offer this language or if we fell back to the default 
   // resource
   var selectedLangItem =
