@@ -71,9 +71,13 @@ div.inner-border {
 div.tool-box .panelContents {
   position: relative;
   width: 100%;
+  margin: 0 auto;
+}
+iframe.panelContents {
+  display: block;
 }
 div.tool-box #picker {
- width: 95%;
+  width: 95%;
 }
 div.tool-box #widths {
   width: 85%;
@@ -95,10 +99,10 @@ div.film-strip {
   overflow: visible;
 }
 #filmstrip {
-  width: 100%;
-  width: calc(100% - 41px);
+  width: 96%;
   width: -moz-calc(100% - 41px);
   width: -webkit-calc(100% - 41px);
+  width: calc(100% - 41px);
   display: inline-block;
   vertical-align: top;
 }
@@ -129,9 +133,9 @@ summary::-webkit-details-marker {
   pointer-events: none; /* Stops the summary stealing the focus on Chrome */
   position: relative;
   top: 50%; /* Should be close enough for browsers that don't do calc() */
-  top: calc(50% - 5px);
   top: -moz-calc(50% - 5px);
   top: -webkit-calc(50% - 5px);
+  top: calc(50% - 5px);
 }
 
 /* Summary text */

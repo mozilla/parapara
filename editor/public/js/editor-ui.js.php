@@ -861,6 +861,21 @@ EditorUI.selectLang = function(evt) {
 // -------------- UI layout -----------
 
 EditorUI.updateLayout = function() {
+  // A bunch of hacks to work around limitations in layout on the Web platform.
+  // Hopefully we can remove most or all of this code when:
+  // a) CSS calc is widely implemented
+  // b) CSS flexbox is widely available
+  // c) SVG2 promotes viewbox to a CSS property
+  // d) Safari on iOS resizes SVG files properly (fixed in iOS6???)
+
+  EditorUI.updateSVGCanvasSize();
+  EditorUI.updateToolbox();
+  EditorUI.updateFilmstrip();
+}
+window.addEventListener("resize", EditorUI.updateLayout, false);
+window.addEventListener("orientationchange", EditorUI.updateLayout, false);
+
+EditorUI.updateSVGCanvasSize = function() {
   /*
    * We size the SVG manually. This is because regardless of the size and 
    * orientation of the device, we want to keep the HEIGHT of the characters 
@@ -868,6 +883,9 @@ EditorUI.updateLayout = function() {
    *
    * In future I think we need to make the viewBox property settable via media
    * queries so you can have responsive graphics that change aspect ratio.
+   *
+   * (I've proposed this for SVG 2 and, if I get time, will see to it that it 
+   * gets added to the spec.)
    */
   var controlsHeight = controlsWidth = 0;
   var controls = document.getElementsByClassName("controlPanel");
@@ -890,44 +908,161 @@ EditorUI.updateLayout = function() {
   canvas.setAttribute("width", availWidth);
   canvas.setAttribute("height", availHeight);
   canvas.setAttribute("viewBox", [0, 0, vbWidth, vbHeight].join(" "));
-
-  // Workaround Safari bugs regarding resizing SVG by setting the height of
-  // referenced SVG files explicitly
-  var contents = document.getElementsByClassName("panelContents");
-  for (var i = 0; i < contents.length; i++) {
-    var specifiedRatio =
-      parseFloat(contents[i].getAttribute('data-aspect-ratio'));
-    if (!specifiedRatio)
-       continue;
-    var style = window.getComputedStyle(contents[i]);
-    var actualRatio = parseInt(style.width) / parseInt(style.height);
-    // If the actual ratio differs from the specified ratio by more than 5%
-    // update the height
-    var error = Math.abs(specifiedRatio - actualRatio) / specifiedRatio;
-    if (Math.abs(specifiedRatio - actualRatio) / specifiedRatio >= 0.05) {
-      var adjustedHeight = parseInt(style.width) / specifiedRatio;
-      contents[i].setAttribute("height", adjustedHeight);
-    }
-  }
-
-  // Manually perform calc() behavior for browsers that don't support it
-  var portrait = window.matchMedia("(orientation: portrait)").matches;
-  var borders = document.getElementsByClassName("inner-border");
-  for (var i = 0; i < borders.length; i++) {
-    var border = borders[i];
-    var style = window.getComputedStyle(border);
-    var actualHeight = parseInt(style.height) || 0;
-    var borderWidth =
-      parseInt(style.getPropertyValue('border-top-width')) || 0;
-    var margin = parseInt(style.getPropertyValue('margin-top')) || 0;
-    var parentHeight = portrait
-           ? parseInt(window.getComputedStyle(border.parentNode).height) || 0
-           : window.innerHeight;
-    var minHeight = parentHeight - (borderWidth + margin) * 2;
-    if (actualHeight != minHeight) {
-      border.style.height = minHeight + 'px';
-    }
-  }
 }
-window.addEventListener("resize", EditorUI.updateLayout, false);
-window.addEventListener("orientationchange", EditorUI.updateLayout, false);
+
+EditorUI.updateToolbox = function() {
+  // This bunch of hacks is to compensate for:
+  // * Lack of calc support in Safari on iOS 5.
+  // * Safari on iOS 5's disregard for the intrinsic aspect ratio of SVG images
+  // * Lack of enabled flexbox support in shipping browsers
+
+  var portrait = window.matchMedia("(orientation: portrait)").matches;
+
+  // First, determine and adjust the area we have to play with
+  console.assert(document.getElementsByClassName("inner-border").length === 1,
+    "More containers than expected");
+  var border = document.getElementsByClassName("inner-border")[0];
+  var borderStyle = window.getComputedStyle(border);
+  var borderWidth =
+    parseInt(borderStyle.getPropertyValue('border-top-width')) || 0;
+  var borderMargin = parseInt(borderStyle.getPropertyValue('margin-top')) || 0;
+  var parentHeight =
+    parseInt(window.getComputedStyle(border.parentNode).height) || 0;
+  var borderHeight = parentHeight - (borderWidth + borderMargin) * 2;
+  border.style.height = borderHeight + 'px';
+  var borderWidth = parseInt(borderStyle.getPropertyValue('width')) || 0;
+
+  // Second, perform the following three steps for each panel:
+  // - determine the available space to play with
+  // - determine the preferred width/height of each panel and set the size
+  //   (this fixes Safari)
+  // - calculate the desired space required
+  var availWidth  = borderWidth;
+  var availHeight = borderHeight;
+  var desiredWidth  = 0;
+  var desiredHeight = 0;
+  var contents = border.getElementsByClassName("panelContents");
+  for (var i = 0; i < contents.length; i++) {
+    var panel = contents[i];
+    // Reset width/height set on element style
+    // (This mostly matter when we switch between portait and landscape mode 
+    // since we rely on one of the dimensions being set to some percentage of 
+    // the available space)
+    panel.style.width  = "";
+    panel.style.height = "";
+    var style = window.getComputedStyle(panel);
+    var ratio = EditorUI.getAspectRatio(panel);
+    if (portrait) {
+      var hMargin = (parseFloat(style.paddingLeft) || 0) +
+                    (parseFloat(style.paddingRight) || 0) +
+                    (parseFloat(style.marginLeft) || 0) +
+                    (parseFloat(style.marginRight) || 0);
+      availWidth  -= hMargin;
+      // In portrait mode, we simply say the picker has a minimum width of 40% 
+      // of the available space which we can't calculate until later
+      if (panel.id !== 'picker') {
+        var desiredPanelWidth = parseFloat(style.height) * ratio;
+        panel.style.width = desiredPanelWidth + 'px';
+        desiredWidth += desiredPanelWidth;
+      }
+    } else {
+      var vMargin = (parseFloat(style.paddingTop) || 0) +
+                    (parseFloat(style.paddingBottom) || 0) +
+                    (parseFloat(style.marginTop) || 0) +
+                    (parseFloat(style.marginBottom) || 0);
+      availHeight -= vMargin;
+      var desiredPanelHeight = parseFloat(style.width) / ratio;
+      panel.style.height = desiredPanelHeight + 'px';
+      desiredHeight += desiredPanelHeight;
+    }
+  }
+
+  // Handle the picker specially because it has unusual resizing behaviour in 
+  // portrait mode
+  var usedWidth = desiredWidth;
+  if (portrait) {
+    var picker = document.getElementById("picker");
+    desiredWidth += availWidth * 0.4;
+  }
+
+  // Thirdly, if the desired space is less than the available space, do some 
+  // scaling
+  var avail   = portrait ? availWidth   : availHeight;
+  var desired = portrait ? desiredWidth : desiredHeight;
+  if (avail < desired) {
+    var scale = avail / desired;
+    for (var i = 0; i < contents.length; i++) {
+      var panel = contents[i];
+      var style = window.getComputedStyle(panel);
+      var ratio = EditorUI.getAspectRatio(panel);
+      if (portrait) {
+        if (panel.id !== 'picker') {
+          panel.style.width = parseFloat(style.height) * ratio * scale + 'px';
+        }
+        usedWidth *= scale;
+      } else {
+        panel.style.height = parseFloat(style.width) / ratio * scale + 'px';
+      }
+    }
+  }
+
+  // Make sure, after scaling, the picker still has the correct aspect ratio
+  var picker = document.getElementById("picker");
+  if (portrait) {
+    // In portrait mode, the desired size of the picker is simply 40% of the 
+    // toolbox since the aspect ratio changes to fill the space
+    // desiredWidth += availWidth * 0.4;
+    var remainingWidth = availWidth - usedWidth;
+    picker.style.width = remainingWidth + 'px';
+    // picker.style.height = parseFloat(picker.style.width) * ratio + 'px';
+  } else {
+    var ratio = EditorUI.getAspectRatio(picker);
+    picker.style.width = parseFloat(picker.style.height) * ratio + 'px';
+  }
+  // Needed for WebKit
+  picker.contentDocument.updateViewbox();
+}
+
+EditorUI.getAspectRatio = function(panel) {
+  // For the picker we just always return a fixed aspect ratio.
+  // This is the ratio when the picker is in portrait orientation.
+  // Somehow this just works.
+  if (panel.id === 'picker') {
+    return 0.6845;
+  }
+  var viewBox = panel.contentDocument.documentElement.getAttribute("viewBox");
+  var parts = viewBox.split(" ");
+  return parseFloat(parts[2]) / parseFloat(parts[3]);
+}
+
+EditorUI.updateFilmstrip = function() {
+  if (EditorUI.isCalcSupported())
+    return;
+
+  var filmstrip = document.getElementById("filmstrip");
+  filmstrip.style.width = '100%';
+  var settingsMenu = document.getElementsByClassName("settingsMenu")[0];
+  filmstrip.style.width =
+    parseFloat(window.getComputedStyle(filmstrip).width) -
+    parseFloat(window.getComputedStyle(settingsMenu).width) + 'px';
+}
+
+EditorUI._calcSupported = null;
+
+EditorUI.isCalcSupported = function() {
+  if (EditorUI._calcSupported !== null)
+    return EditorUI._calcSupported;
+
+  // This code is based on Modernizr, used under MIT license
+  // https://github.com/Modernizr/Modernizr/blob/master/feature-detects/css-calc.js
+  var prop = 'width:';
+  var value = 'calc(10px);';
+  var el = document.createElement('div');
+
+  el.style.cssText = prop + "-moz-" + value
+                   + prop + "-webkit-" + value
+                   + prop + value;
+
+  EditorUI._calcSupported = !!el.style.length;
+  return EditorUI._calcSupported;
+};

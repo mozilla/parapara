@@ -21,8 +21,7 @@
     <script type="text/javascript" src="js/parapara.core.js" defer></script>
     <script type="text/javascript" src="js/editor-ui.js"></script>
     <script type="text/javascript" src="js/qrcode.js" async></script>
-    <meta name="viewport"
-      content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style"
       content="black-translucent">
@@ -32,11 +31,10 @@
       <div class="controlPanel tool-box">
         <div class="inner-border">
           <iframe src="img/tool-picker.svg" class="panelContents"
-            id="picker" data-aspect-ratio="0.6845"></iframe>
+            id="picker"></iframe>
           <iframe src="img/width-picker.svg" class="panelContents"
-            id="widths" data-aspect-ratio="2.490"></iframe>
-          <iframe src="img/play.svg" class="panelContents"
-            id="play" data-aspect-ratio="1"></iframe>
+            id="widths"></iframe>
+          <iframe src="img/play.svg" class="panelContents" id="play"></iframe>
         </div>
       </div>
       <div class="canvas-container">

@@ -436,7 +436,7 @@
     }
   }
 
-  function updateViewbox() {
+  document.updateViewbox = function() {
     var palette = getActivePalette();
     if (!palette)
       return;
@@ -447,7 +447,7 @@
     } else {
       svg.setAttribute('viewBox', initialViewBox);
     }
-  }
+  };
 
   function init() {
     // Register click listeners
@@ -463,10 +463,12 @@
     // We use the approach outlined in:
     // http://www.paulrhayes.com/2011-11/use-css-transitions-to-link-media-queries-and-javascript/
     var transElem = document.getElementById('sizeChange');
-    transElem.addEventListener('transitionend', updateViewbox, false);
-    transElem.addEventListener('webkitTransitionend', updateViewbox, false);
-    transElem.addEventListener('oTransitionend', updateViewbox, false);
-    transElem.addEventListener('MSTransitionend', updateViewbox, false);
+    transElem.addEventListener('transitionend', document.updateViewbox, false);
+    transElem.addEventListener('webkitTransitionend', document.updateViewbox,
+      false);
+    transElem.addEventListener('oTransitionend', document.updateViewbox, false);
+    transElem.addEventListener('MSTransitionend', document.updateViewbox,
+      false);
 
     // There seems to be a bug with Gecko's where, when this file is embedded in
     // another changes to the parent window that affect our viewport update us
@@ -478,16 +480,16 @@
     // one.
     if (window.parent) {
       window.parent.matchMedia("screen and (orientation:landscape)").
-        addListener(updateViewbox);
+        addListener(document.updateViewbox);
     }
 
     initialViewBox = document.documentElement.getAttribute("viewBox");
-    updateViewbox();
+    document.updateViewbox();
 
     // Safari desktop seems to apply the media query after page load and so
     // running updateViewbox above will detect that the wrong palette is
     // showing. Hence we run it again in a moment.
-    window.setTimeout(updateViewbox, 1);
+    window.setTimeout(document.updateViewbox, 1);
   }
   init();
  ]]>
