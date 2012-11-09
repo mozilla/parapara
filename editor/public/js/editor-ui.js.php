@@ -991,6 +991,7 @@ EditorUI.updateToolbox = function() {
   var desired = portrait ? desiredWidth : desiredHeight;
   if (avail < desired) {
     var scale = avail / desired;
+    usedWidth *= scale;
     for (var i = 0; i < contents.length; i++) {
       var panel = contents[i];
       var style = window.getComputedStyle(panel);
@@ -999,7 +1000,6 @@ EditorUI.updateToolbox = function() {
         if (panel.id !== 'picker') {
           panel.style.width = parseFloat(style.height) * ratio * scale + 'px';
         }
-        usedWidth *= scale;
       } else {
         panel.style.height = parseFloat(style.width) / ratio * scale + 'px';
       }
@@ -1009,12 +1009,10 @@ EditorUI.updateToolbox = function() {
   // Make sure, after scaling, the picker still has the correct aspect ratio
   var picker = document.getElementById("picker");
   if (portrait) {
-    // In portrait mode, the desired size of the picker is simply 40% of the 
-    // toolbox since the aspect ratio changes to fill the space
-    // desiredWidth += availWidth * 0.4;
+    // In portrait mode, the desired size of the picker is simply the remaining 
+    // space
     var remainingWidth = availWidth - usedWidth;
     picker.style.width = remainingWidth + 'px';
-    // picker.style.height = parseFloat(picker.style.width) * ratio + 'px';
   } else {
     var ratio = EditorUI.getAspectRatio(picker);
     picker.style.width = parseFloat(picker.style.height) * ratio + 'px';
