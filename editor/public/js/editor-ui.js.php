@@ -982,7 +982,7 @@ EditorUI.updateToolbox = function() {
   var usedWidth = desiredWidth;
   if (portrait) {
     var picker = document.getElementById("picker");
-    desiredWidth += availWidth * 0.4;
+    desiredWidth += availWidth * 0.45;
   }
 
   // Thirdly, if the desired space is less than the available space, do some 
@@ -1012,7 +1012,7 @@ EditorUI.updateToolbox = function() {
     // In portrait mode, the desired size of the picker is simply the remaining 
     // space
     var remainingWidth = availWidth - usedWidth;
-    picker.style.width = remainingWidth + 'px';
+    picker.style.width = remainingWidth - 1 + 'px';
   } else {
     var ratio = EditorUI.getAspectRatio(picker);
     picker.style.width = parseFloat(picker.style.height) * ratio + 'px';

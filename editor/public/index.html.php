@@ -29,13 +29,11 @@
   <body>
     <div class="container" id="container">
       <div class="controlPanel tool-box">
-        <div class="inner-border">
-          <iframe src="img/tool-picker.svg" class="panelContents"
-            id="picker"></iframe>
-          <iframe src="img/width-picker.svg" class="panelContents"
-            id="widths"></iframe>
-          <iframe src="img/play.svg" class="panelContents" id="play"></iframe>
-        </div>
+        <div class="inner-border"><iframe src="img/tool-picker.svg" 
+          class="panelContents"
+            id="picker"></iframe><iframe src="img/width-picker.svg" 
+          class="panelContents" id="widths"></iframe><iframe 
+            src="img/play.svg" class="panelContents" id="play"></iframe></div>
       </div>
       <div class="canvas-container">
         <div class="controlPanel film-strip">

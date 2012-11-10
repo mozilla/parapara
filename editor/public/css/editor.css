@@ -321,19 +321,21 @@ svg#canvas {
  div.tool-box .panelContents {
    vertical-align: middle;
    display: inline-block;
+   margin-left: 3px;
  }
  div.tool-box #picker {
    height: 88%;
-   max-width: 45%;
+   max-width: 45%; /* XXX Remove */
  }
  div.tool-box #widths {
    margin-top: -2%; /* Little tweak to improve appearance on iOS Safari */
-   height: 88%;
-   max-width: 30%;
+   height: 75%;
+   /* XXX Remove and set height to 70% */
+   max-width: 45%;
  }
  div.tool-box #play {
    height: 88%;
-   max-width: 20%;
+   max-width: 20%; /* XXX Remove */
  }
 }
 
