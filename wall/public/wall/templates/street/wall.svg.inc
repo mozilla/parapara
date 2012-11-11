@@ -13,7 +13,7 @@
   ]]></style>
 
   <defs>
-    <filter id="shadow" x="-5%" width="110%" height="200%">
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
       <feGaussianBlur in="SourceAlpha" result="blur" stdDeviation="8"/>
     </filter>
   </defs>

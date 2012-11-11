@@ -57,23 +57,26 @@ var Main = {
     var imageid = character.id+"i";
     image.setAttribute("id", imageid);
     image.setAttributeNS("http://www.w3.org/1999/xlink", "href", character.uri);
-//    image.setAttribute("width", CHARACTER_WIDTH);
-//    image.setAttribute("height", CHARACTER_HEIGHT);
     image.setAttribute("width", wOfBounding);
     image.setAttribute("height", hOfBounding);
     image.setAttribute("overflow", "visible");
     var yOfCharacter = 700 - 700*character.groundOffset-hOfBounding;
     g.setAttribute("transform", "translate(0, "+yOfCharacter+")");
     g.appendChild(image);
-    
+
     // Add a shadow to the character
     var use = document.createElementNS("http://www.w3.org/2000/svg", "use");
-//    use.setAttribute("transform", "matrix(1 0 0 -0.5 0 400)");
-    var ymat = hOfBounding+400*character.groundOffset;
+    // Position the shadow below the image
+    // We use a measure of 1.5 times the height:
+    //  - 1 for the height of the character,
+    //  - 0.5 for the height of the shadow.
+    // The extra 2 is just so the shape overlaps the shadow *just* a little
+    var ymat = hOfBounding * 1.5 - 2;
     use.setAttribute("transform", "matrix(1 0 0 -0.5 0 "+ymat+")");
     use.setAttribute("filter", "url(#shadow)");
     use.setAttributeNS("http://www.w3.org/1999/xlink", "href", "#"+imageid);
-    g.appendChild(use);
+    // Add shadow *behind* character
+    g.insertBefore(use, image);
 
     // Create the animation
     var animateMotion =
