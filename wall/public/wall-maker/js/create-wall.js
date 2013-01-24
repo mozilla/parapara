@@ -57,7 +57,7 @@ var CreateWallController =
     this.clearAll();
     updateWalls();
     sessionStorage.setItem("messageKey", "create-wall-success");
-    goToScreen("manage/" + id + "#event");
+    goToScreen("wall/" + id + "#event");
   },
 
   createError: function(key, detail) {

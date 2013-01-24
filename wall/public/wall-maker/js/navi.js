@@ -8,17 +8,17 @@
 
 var WallMaker = WallMaker || {};
 
-WallMaker.newRe                = /(^|\/)new$/;
-WallMaker.manageRe             = /(^|\/)manage\/(\d+)$/;
-WallMaker.manageReOptionalHash = /(^|\/)manage\/(\d+)($|#)/;
+WallMaker.newRe              = /(^|\/)new$/;
+WallMaker.wallRe             = /(^|\/)wall\/(\d+)$/;
+WallMaker.wallReOptionalHash = /(^|\/)wall\/(\d+)($|#)/;
 
 function goToScreen(path) {
   console.log("goToScreen: " + path);
   // For the management screen we don't want to generate history entries every
   // time we change tab so if we're already looking at a management screen, just
   // update the history location
-  if (document.location.pathname.match(WallMaker.manageRe) &&
-      path.match(WallMaker.manageReOptionalHash)) {
+  if (document.location.pathname.match(WallMaker.wallRe) &&
+      path.match(WallMaker.wallReOptionalHash)) {
     history.replaceState({}, null, path);
   } else {
     history.pushState({}, null, path);
@@ -37,7 +37,7 @@ function goToCurrentScreen() {
   if (path.match(WallMaker.newRe)) {
     screenId = "screen-new";
     CreateWallController.show();
-  } else if (path.match(WallMaker.manageRe)) {
+  } else if (path.match(WallMaker.wallRe)) {
     // Parse anchor refs but for managing we DON'T want to add history
     // references every time we switch tabs. This might need some changes
     // upstream.

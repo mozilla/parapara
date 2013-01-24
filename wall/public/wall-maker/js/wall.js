@@ -35,7 +35,7 @@ function refreshWallList(wallList) {
       thumbnailImg.setAttribute('src',
         WallMaker.rootUrl + '/img/design-'+wall['designId']+'-preview.svg');
       thumbnailContainer.appendChild(thumbnailImg);
-      var href = WallMaker.rootUrl + '/manage/'+wall['wallId'];
+      var href = WallMaker.rootUrl + '/wall/'+wall['wallId'];
       a.setAttribute('href', href);
       a.appendChild(thumbnailContainer);
       container.appendChild(a);
