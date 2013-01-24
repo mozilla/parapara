@@ -288,7 +288,7 @@ div.error.hidden {
 .designThumb:hover {
   border-color: blue;
 }
-.designThumb object {
+.designThumb iframe {
   width:12em;
   height:8em;
   border-radius: 10px;

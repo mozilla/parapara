@@ -33,7 +33,8 @@
     <div id="loginStatusNo" style="display: none">
     <a href="<?php echo $wallMakerRoot ?>/login" id="browserid"
         title="Mozilla Personaでサインインする"><img
-        src="<?php echo $wallMakerRoot ?>/img/sign_in_blue.png" alt="サインイン" border="0"></a>
+        src="<?php echo $wallMakerRoot ?>/img/sign_in_blue.png" alt="サインイン"
+        border="0"></a>
     </div>
     <div id="loginStatusYes" style="display: none">
       <span class="login-mail" id="loginMail"></span>
@@ -87,20 +88,23 @@
           <label class="graphical">
             <input type="radio" name="design" value="1" required>
             <div class="designThumb">
-            <object data="<?php echo $wallMakerRoot ?>/img/design-1-preview.svg"></object>
+            <iframe src="<?php
+              echo $wallMakerRoot ?>/img/design-1-preview.svg"></iframe>
             </div>
           </label>
           <label class="graphical">
             <input type="radio" name="design" value="2" required>
             <div class="designThumb">
-            <object data="<?php echo $wallMakerRoot ?>/img/design-2-preview.svg"></object>
+            <iframe src="<?php
+              echo $wallMakerRoot ?>/img/design-2-preview.svg"></iframe>
             </div>
           </label>
         </div>
         <div class="center">
           <button type="submit" name="作成" class="submitButton">作成</button>
           <button type="button" class="cancelButton"
-            onclick="javascript:CreateWallController.cancel()">キャンセル</button>
+            onclick="javascript:CreateWallController.cancel()"
+            >キャンセル</button>
         </div>
       </div>
     </form>
@@ -144,15 +148,15 @@
         <label class="graphical">
           <input type="radio" name="manage-designId" value="1">
           <div class="designThumb">
-            <object data="<?php
-              echo $wallMakerRoot ?>/img/design-1-preview.svg"></object>
+            <iframe src="<?php
+              echo $wallMakerRoot ?>/img/design-1-preview.svg"></iframe>
           </div>
         </label>
         <label class="graphical">
           <input type="radio" name="manage-designId" value="2">
           <div class="designThumb">
-            <object data="<?php
-              echo $wallMakerRoot ?>/img/design-2-preview.svg"></object>
+            <iframe src="<?php
+              echo $wallMakerRoot ?>/img/design-2-preview.svg"></iframe>
           </div>
         </label>
         <label id="manage-designId-message" class="manage-message"></label>

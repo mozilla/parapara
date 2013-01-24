@@ -148,21 +148,21 @@ WallMaker.AnimatedThumb = function(thumbElem) {
   };
 
   this.initAnim = function() {
-    // Inside the thumb element we expect to find an <object> containing an
+    // Inside the thumb element we expect to find an <iframe> containing an
     // (animated) SVG element.
-    var objects = this.thumbElem.getElementsByTagName("object");
-    if (!objects.length)
+    var iframes = this.thumbElem.getElementsByTagName("iframe");
+    if (!iframes.length)
       return;
 
     // Check if the content document has actually loaded yet
     // (Not sure what the correct behaviour here should be but some browsers
     // dispatch the load event before these documents are loaded.)
-    var object = objects[0];
-    if (!object.contentDocument ||
-        object.contentDocument.readyState !== "complete") {
-      object.addEventListener("load", this.initAnim.bind(this), false);
+    var iframe = iframes[0];
+    if (!iframe.contentDocument ||
+        iframe.contentDocument.readyState !== "complete") {
+      iframe.addEventListener("load", this.initAnim.bind(this), false);
     } else {
-      this.anim = object.contentDocument.documentElement;
+      this.anim = iframe.contentDocument.documentElement;
       this.pause();
     }
   };
