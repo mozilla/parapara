@@ -3,12 +3,6 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /*
-function init() {
-  LoginController.relogin();
-}
-*/
-
-/*
  * Navigation
  */
 
@@ -68,5 +62,3 @@ function getWallsFailed(reason, detail) {
   // XXX If the error is that we're logged out, do login stuff
   console.log(reason, detail);
 }
-
-//window.addEventListener('load', init, false);

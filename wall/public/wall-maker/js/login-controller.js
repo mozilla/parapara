@@ -10,7 +10,8 @@ var LoginController =
     this.Login = new ParaPara.Login('WMSESSID',
                                     this.loggedIn.bind(this),
                                     this.loggedOut.bind(this),
-                                    this.loginError.bind(this));
+                                    this.loginError.bind(this),
+                                    { siteName: 'パラパラアニメーション' });
   },
 
   relogin: function() {

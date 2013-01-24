@@ -5,62 +5,106 @@
 var ParaPara = ParaPara || {};
 
 ParaPara.Login = function(sessionName, loggedIn, loggedOut, loginError,
-                          usePersistentLogin) {
+                          loginOptions) {
   this.sessionName        = sessionName;
   this.loggedIn           = loggedIn;
   this.loggedOut          = loggedOut;
   this.loginError         = loginError;
-  this.usePersistentLogin = !!usePersistentLogin;
+  this.loginOptions       = loginOptions;
+  this.watching           = false;
 }
 
+// This tries to re-establish the previous session if there was one and must be
+// called first.
+ParaPara.Login.prototype.relogin = function() {
+  // Persona doesn't call our login/logout method if it agrees about who (if
+  // anyone) is logged in so we should go ahead and call this.loggedIn/loggedOut
+  // and if Persona disagrees it will tell us about it later.
+  var alreadyLoggedIn =
+      function(response) {
+        this.startWatching(response.email, true /* don't report errors */);
+        this.loggedIn(response.email);
+      }.bind(this);
+  var notLoggedIn = function() {
+        this.startWatching(null, true /* don't report errors */);
+        this.loggedOut();
+      }.bind(this);
+
+  // in so we should act as if we're logged in and Persona will tell us to
+  // log us out if it disagrees.
+  // See if we still have a valid session, otherwise try a silent login
+  if (this.haveSessionCookie()) {
+    ParaPara.postRequest('api/whoami', null,
+      // Got a cookie and the server recognises the session
+      alreadyLoggedIn,
+      // Server error, probably session has expired
+      notLoggedIn
+    );
+  } else {
+    notLoggedIn();
+  }
+}
+
+// This must be called in a trusted context, e.g. a click handler
 ParaPara.Login.prototype.login = function() {
-  navigator.id.get(this.gotAssertion.bind(this),
-                   { allowPersistent: this.usePersistentLogin });
+  // Check watch() has been called
+  if (!this.watching) {
+    this.startWatching();
+  }
+  // Set up options object
+  if (!this.loginOptions) {
+    this.loginOptions = {};
+  }
+  this.loginOptions.oncancel = this.onlogout.bind(this);
+  // Do login
+  navigator.id.request(this.loginOptions);
 }
 
+// This must be called in a trusted context, e.g. a click handler
 ParaPara.Login.prototype.logout = function() {
-  this.clearSessionCookie();
+  // Check watch() has been called
+  if (!this.watching) {
+    this.startWatching();
+  }
   navigator.id.logout();
+}
+
+// ----------------------------
+// Internal helpers
+// ----------------------------
+
+// Register with Persona for login/logout calls
+ParaPara.Login.prototype.startWatching = function(email, silent) {
+  if (this.watching)
+    return;
+  this.watching = true;
+  navigator.id.watch({
+    loggedInUser: email,
+    onlogin: function(assertion) {
+      this.gotAssertion(assertion, silent);
+    }.bind(this),
+    onlogout: this.onlogout.bind(this)
+  });
+}
+
+// Clear login state (but DON'T call Persona since this is called in situations
+// where Persona already knows we're logged out)
+ParaPara.Login.prototype.onlogout = function() {
+  this.clearSessionCookie();
   this.loggedOut();
 }
 
-ParaPara.Login.prototype.relogin = function() {
-  // See if we still have a valid session, otherwise try a silent login
-  if (this.haveSessionCookie()) {
-    ParaPara.postRequest('api/whoami', null, this.loginSuccess.bind(this),
-                         this.reloginFailed.bind(this));
-  } else {
-    this.reloginFailed();
-  }
-}
-
-ParaPara.Login.prototype.reloginFailed = function() {
-  if (this.usePersistentLogin) {
-    navigator.id.get(
-      function(assertion) {
-        return this.gotAssertion(assertion, /*silent=*/ true);
-      }.bind(this),
-      { silent: true }
-    );
-  } else {
-    this.loggedOut();
-  }
-}
-
+// Verify an assertion and if it's ok, finish logging in
 ParaPara.Login.prototype.gotAssertion = function(assertion, silent) {
-  if (assertion !== null) {
-    ParaPara.postRequest('api/login', { assertion: assertion },
-                         this.loginSuccess.bind(this),
-                         function(reason, detail) {
-                           return this.loginFail(reason, detail, silent);
-                         }.bind(this));
-  } else {
-    logout();
-  }
-}
-
-ParaPara.Login.prototype.loginSuccess = function(response) {
-  this.loggedIn(response.email);
+  ParaPara.postRequest('api/login', { assertion: assertion },
+                       // Success, finish logging in
+                       function(response) {
+                         this.loggedIn(response.email);
+                       }.bind(this),
+                       // Couldn't verify
+                       function(reason, detail) {
+                         return this.loginFail(reason, detail, silent);
+                       }.bind(this));
 }
 
 ParaPara.Login.prototype.loginFail = function(reason, detail, silent) {
