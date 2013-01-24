@@ -8,7 +8,8 @@
 
 function updateWalls() {
   // XXX Display spinner while loading
-  ParaPara.postRequest('api/mywalls', null, refreshWallList, getWallsFailed);
+  ParaPara.postRequest(WallMaker.rootUrl + '/api/mywalls', null,
+                       refreshWallList, getWallsFailed);
 }
 
 function refreshWallList(wallList) {
@@ -31,9 +32,10 @@ function refreshWallList(wallList) {
       thumbnailContainer.setAttribute('class', 'thumbnail');
       var thumbnailImg = document.createElement('img');
       // temporary: have to use 'thumb' 
-      thumbnailImg.setAttribute('src', 'img/design-'+wall['designId']+'-preview.svg');
+      thumbnailImg.setAttribute('src',
+        WallMaker.rootUrl + '/img/design-'+wall['designId']+'-preview.svg');
       thumbnailContainer.appendChild(thumbnailImg);
-      var href = 'manage/'+wall['wallId'];
+      var href = WallMaker.rootUrl + '/manage/'+wall['wallId'];
       a.setAttribute('href', href);
       a.appendChild(thumbnailContainer);
       container.appendChild(a);

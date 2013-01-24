@@ -43,7 +43,7 @@ var ManageWallController =
 
     //ここで ajax アクセスして、基本情報をとる
     var payload = {wallId: wallId};
-    ParaPara.postRequest('../api/getWall', payload,
+    ParaPara.postRequest(WallMaker.rootUrl + '/api/getWall', payload,
                          this.loadSuccess.bind(this),
                          this.loadError.bind(this));
   },
@@ -56,11 +56,11 @@ var ManageWallController =
   },
   
   clickOnStartSession: function(e) {
-    this.sendCommand('../api/startSession', {wallId: this.wallId}, document.getElementById("manage-startSession-message"));
+    this.sendCommand(WallMaker.rootUrl + '/api/startSession', {wallId: this.wallId}, document.getElementById("manage-startSession-message"));
   },
   
   clickOnCloseSession: function(e) {
-    this.sendCommand('../api/closeSession', {wallId: this.wallId}, document.getElementById("manage-closeSession-message"));
+    this.sendCommand(WallMaker.rootUrl + '/api/closeSession', {wallId: this.wallId}, document.getElementById("manage-closeSession-message"));
   },
 
   installClickObserver: function(name, callbackFunction) {
@@ -83,7 +83,8 @@ var ManageWallController =
     var value = target.value;
     var payload = {wallId: this.wallId, name: name, value: value};
     var messageElement = document.getElementById(id+"-message");
-    this.sendCommand('../api/updateWall', payload, messageElement);
+    this.sendCommand(WallMaker.rootUrl + '/api/updateWall', payload,
+                     messageElement);
   },
   
   sendCommand: function(url, payload, messageElement) {

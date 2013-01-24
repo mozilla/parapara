@@ -2,33 +2,43 @@
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this file,
    - You can obtain one at http://mozilla.org/MPL/2.0/.  -->
+<?php
+  // We have to make everything absolute so that when the access resources from 
+  // e.g. 'server/wall-maker/manage/8' we can still find all the resources
+  $wallMakerRoot = dirname($_SERVER['SCRIPT_NAME']);
+?>
 <html lang="ja">
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <title>パラパラアニメーション・壁の作成・管理</title>
-  <link rel="stylesheet" href="css/wall.css">
-  <script src="https://browserid.org/include.js"></script>
-  <script src="js/xhr.js"></script>
-  <script src="js/login.js"></script>
-  <script src="js/wall.js"></script>
-  <script src="js/navi.js"></script>
-  <script src="js/create-wall.js"></script>
-  <script src="js/manage-wall.js"></script>
-  <script src="js/login-controller.js"></script>
-  <script src="js/ui.js"></script>
+  <link rel="stylesheet" href="<?php echo $wallMakerRoot; ?>/css/wall.css">
+  <script src="https://login.persona.org/include.js"></script>
+  <script>
+    var WallMaker = WallMaker || {};
+    WallMaker.rootUrl = '<?php echo $wallMakerRoot ?>';
+  </script>
+  <script src="<?php echo $wallMakerRoot ?>/js/xhr.js"></script>
+  <script src="<?php echo $wallMakerRoot ?>/js/login.js"></script>
+  <script src="<?php echo $wallMakerRoot ?>/js/wall.js"></script>
+  <script src="<?php echo $wallMakerRoot ?>/js/navi.js"></script>
+  <script src="<?php echo $wallMakerRoot ?>/js/create-wall.js"></script>
+  <script src="<?php echo $wallMakerRoot ?>/js/manage-wall.js"></script>
+  <script src="<?php echo $wallMakerRoot ?>/js/login-controller.js"></script>
+  <script src="<?php echo $wallMakerRoot ?>/js/ui.js"></script>
 </head>
 <body>
 
 <div id="navBar" style="display: block">
   <div id="loginStatus">
     <div id="loginStatusNo" style="display: none">
-      <a href="login" id="browserid"
+    <a href="<?php echo $wallMakerRoot ?>/login" id="browserid"
         title="Mozilla Personaでサインインする"><img
-        src="img/sign_in_blue.png" alt="サインイン" border="0"></a>
+        src="<?php echo $wallMakerRoot ?>/img/sign_in_blue.png" alt="サインイン" border="0"></a>
     </div>
     <div id="loginStatusYes" style="display: none">
       <span class="login-mail" id="loginMail"></span>
-      <span class="logout">(<a href="logout" id="logout">Logout</a>)</span>
+      <span class="logout">(<a href="<?php echo $wallMakerRoot ?>/logout"
+        id="logout">Logout</a>)</span>
     </div>
     <div id="loginError" style="display: none">
     </div>
@@ -53,7 +63,7 @@
     </div>
   </div>
   <div class="screen" id="screen-home">
-    <a href="new">
+    <a href="<?php echo $wallMakerRoot ?>/new">
       <div class="callout newWallLink button">新しい壁を作る</div>
     </a>
     <hr/>
@@ -77,13 +87,13 @@
           <label class="graphical">
             <input type="radio" name="design" value="1" required>
             <div class="designThumb">
-              <object data="img/design-1-preview.svg"></object>
+            <object data="<?php echo $wallMakerRoot ?>/img/design-1-preview.svg"></object>
             </div>
           </label>
           <label class="graphical">
             <input type="radio" name="design" value="2" required>
             <div class="designThumb">
-              <object data="img/design-2-preview.svg"></object>
+            <object data="<?php echo $wallMakerRoot ?>/img/design-2-preview.svg"></object>
             </div>
           </label>
         </div>
@@ -98,7 +108,6 @@
   <div class="screen" id="screen-manage">
     <h2>イベントの名前</h2>
       <input type="text" id="manage-eventName"><label id="manage-eventName-message" class="manage-message"></label>
-      </h2>
     <div>
       基本情報
       <ul>
@@ -135,13 +144,15 @@
         <label class="graphical">
           <input type="radio" name="manage-designId" value="1">
           <div class="designThumb">
-            <object data="img/design-1-preview.svg"></object>
+            <object data="<?php
+              echo $wallMakerRoot ?>/img/design-1-preview.svg"></object>
           </div>
         </label>
         <label class="graphical">
           <input type="radio" name="manage-designId" value="2">
           <div class="designThumb">
-            <object data="img/design-2-preview.svg"></object>
+            <object data="<?php
+              echo $wallMakerRoot ?>/img/design-2-preview.svg"></object>
           </div>
         </label>
         <label id="manage-designId-message" class="manage-message"></label>

@@ -42,7 +42,7 @@ var CreateWallController =
     // XXX Show loading screen
     // Send request
     var payload = CreateWallForm.getFormValues();
-    ParaPara.postRequest('api/createWall', payload,
+    ParaPara.postRequest(WallMaker.rootUrl + '/api/createWall', payload,
                          this.createSuccess.bind(this),
                          this.createError.bind(this));
   },

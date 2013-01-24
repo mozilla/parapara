@@ -34,7 +34,7 @@ ParaPara.Login.prototype.relogin = function() {
   // log us out if it disagrees.
   // See if we still have a valid session, otherwise try a silent login
   if (this.haveSessionCookie()) {
-    ParaPara.postRequest('api/whoami', null,
+    ParaPara.postRequest(WallMaker.rootUrl + '/api/whoami', null,
       // Got a cookie and the server recognises the session
       alreadyLoggedIn,
       // Server error, probably session has expired
@@ -96,7 +96,8 @@ ParaPara.Login.prototype.onlogout = function() {
 
 // Verify an assertion and if it's ok, finish logging in
 ParaPara.Login.prototype.gotAssertion = function(assertion, silent) {
-  ParaPara.postRequest('api/login', { assertion: assertion },
+  ParaPara.postRequest(WallMaker.rootUrl + '/api/login',
+                       { assertion: assertion },
                        // Success, finish logging in
                        function(response) {
                          this.loggedIn(response.email);

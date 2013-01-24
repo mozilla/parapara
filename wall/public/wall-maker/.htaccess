@@ -4,5 +4,7 @@
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteCond %{REQUEST_URI} !index
   RewriteBase /wall-maker/
-  RewriteRule (.*) index.html [L]
+  # Match anything that doesn't have a / or a . in it
+  # or that begins with 'manage/'
+  RewriteRule ^(manage/)?[^/.]*$ index.html.php [L]
 </ifModule>
