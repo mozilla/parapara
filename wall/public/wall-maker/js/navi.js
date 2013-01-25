@@ -13,14 +13,17 @@ WallMaker.wallRe             = /(^|\/)wall\/(\d+)$/;
 WallMaker.wallReOptionalHash = /(^|\/)wall\/(\d+)($|#)/;
 
 function goToScreen(path) {
+  var absPath = path.indexOf(WallMaker.rootUrl) === 0
+              ? path
+              : WallMaker.rootUrl + '/' + path;
   // For the management screen we don't want to generate history entries every
   // time we change tab so if we're already looking at a management screen, just
   // update the history location
   if (document.location.pathname.match(WallMaker.wallRe) &&
       path.match(WallMaker.wallReOptionalHash)) {
-    history.replaceState({}, null, path);
+    history.replaceState({}, null, absPath);
   } else {
-    history.pushState({}, null, path);
+    history.pushState({}, null, absPath);
   }
   goToCurrentScreen();
 }
@@ -79,6 +82,7 @@ function navInit() {
     });
   registerLinkHandler('login', function() { LoginController.login(); });
   registerLinkHandler('logout', function() { LoginController.logout(); });
+  registerLinkHandler('', function() { goToScreen(''); });
 
   // Handle history changes (e.g. using the back button)
   window.addEventListener('popstate',

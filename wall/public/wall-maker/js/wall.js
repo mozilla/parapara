@@ -31,7 +31,7 @@ function refreshWallList(wallList) {
       var thumbnailContainer = document.createElement('div');
       thumbnailContainer.setAttribute('class', 'thumbnail');
       var thumbnailImg = document.createElement('img');
-      // temporary: have to use 'thumb' 
+      // temporary: have to use 'thumb'
       thumbnailImg.setAttribute('src',
         WallMaker.rootUrl + '/img/design-'+wall['designId']+'-preview.svg');
       thumbnailContainer.appendChild(thumbnailImg);
@@ -48,7 +48,7 @@ function refreshWallList(wallList) {
       li.appendChild(container);
       list.appendChild(li);
       //manage
-      registerLinkHandler(href, function(e) { 
+      registerLinkHandler('wall/' + wall['wallId'], function(e) { 
         goToScreen(e.currentTarget.getAttribute('href'));
       });
     }
