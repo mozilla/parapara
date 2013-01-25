@@ -221,5 +221,9 @@
       <h3>セッション２</h3>
     </div>
   </div>
+  <div class="screen" id="screen-error">
+    <div class="error">
+    </div>
+  </div>
 </div>
 </body>

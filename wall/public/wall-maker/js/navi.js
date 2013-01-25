@@ -13,7 +13,6 @@ WallMaker.wallRe             = /(^|\/)wall\/(\d+)$/;
 WallMaker.wallReOptionalHash = /(^|\/)wall\/(\d+)($|#)/;
 
 function goToScreen(path) {
-  console.log("goToScreen: " + path);
   // For the management screen we don't want to generate history entries every
   // time we change tab so if we're already looking at a management screen, just
   // update the history location
@@ -32,7 +31,6 @@ function goToScreen(path) {
 // before calling this function.
 function goToCurrentScreen() {
   var path = document.location.pathname;
-//  console.log("goToCurrentScreen:"+path);
 
   if (path.match(WallMaker.newRe)) {
     screenId = "screen-new";
@@ -64,6 +62,12 @@ function showScreen(screenId, transition /*="none"*/) {
       screen.style.display = "none";
     }
   }
+}
+
+function showErrorPage(msg) {
+  var msgBlock = document.querySelector("#screen-error .error");
+  msgBlock.innerHTML = msg;
+  showScreen("screen-error");
 }
 
 function navInit() {

@@ -54,7 +54,7 @@ var ManageWallController =
       elements[i].textContent = "";
     }
   },
-  
+
   clickOnStartSession: function(e) {
     this.sendCommand(WallMaker.rootUrl + '/api/startSession', {wallId: this.wallId}, document.getElementById("manage-startSession-message"));
   },
@@ -74,7 +74,7 @@ var ManageWallController =
     element.removeEventListener("change", this.valueChanged.bind(this), false);
     element.addEventListener("change", this.valueChanged.bind(this), false);
   },
-  
+
   valueChanged: function(e) {
     var target = e.target;
     var id = target.getAttribute("id");
@@ -86,7 +86,7 @@ var ManageWallController =
     this.sendCommand(WallMaker.rootUrl + '/api/updateWall', payload,
                      messageElement);
   },
-  
+
   sendCommand: function(url, payload, messageElement) {
     ParaPara.postRequest(url, payload,
        function(response) {
@@ -103,7 +103,7 @@ var ManageWallController =
        }
      );
   },
-  
+
   loadSuccess: function(response) {
     document.getElementById("manage-eventName").value = response.eventName;
     document.getElementById("manage-eventDescr").value = response.eventDescr;
@@ -127,30 +127,18 @@ var ManageWallController =
       radios[1].checked = false;
     }
   },
-  
+
   loadError: function(key, detail) {
-    // XXX Translate error messages
-    this.setError("Something went wrong.");
-  },
-
-  showErrors: function(msg) {
-    var error = sessionStorage.getItem('create-error');
-    var errorBlock = document.getElementById('create-error');
-    if (error) {
-      errorBlock.innerHTML = error;
-      errorBlock.classList.remove("hidden");
-    } else {
-      errorBlock.classList.add("hidden");
+    // XXX Need to translate errors here
+    var msg = "エラー";
+    switch (key) {
+      case 'access-denied':
+        msg = "アクセスできません。";
+        break;
+      case 'not-found':
+        msg = "壁が見つかりませんでした。";
+        break;
     }
-  },
-
-  setError: function(msg) {
-    sessionStorage.setItem('create-error', msg);
-    this.showErrors();
-  },
-
-  clearError: function() {
-    sessionStorage.removeItem('create-error');
-    this.showErrors();
-  },
+    showErrorPage(msg);
+  }
 };
