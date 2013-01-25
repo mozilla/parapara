@@ -219,6 +219,7 @@
       <h3>セッション１</h3>
       <h3>セッション２</h3>
     </div>
+    <a href="<?php echo $wallMakerRoot ?>/" class="button">戻る</a>
   </div>
   <div class="screen" id="screen-error">
     <div class="error">
