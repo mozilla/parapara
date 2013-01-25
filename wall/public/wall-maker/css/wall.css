@@ -36,7 +36,7 @@ h3:before {
   margin: 0 auto;
 }
 
-.button {
+a.button, button {
   width: 200px;
   border-radius: 10px;
   vertical-align: middle;
@@ -47,24 +47,17 @@ h3:before {
   color: white;
 }
 
-.button:hover {
+a.button {
+  text-decoration: none;
+  display: block;
+}
+
+a.button:hover, button:hover {
   background-color: black;
 }
 
 button {
-  width: 200px;
-  border-radius: 10px;
-  vertical-align: middle;
-  background-color: rgb(61, 51, 20);
-  text-align: center;
-  padding: 0.5em 0;
-  margin: 2em auto 1.5em auto;
-  color: white;
   font-size: 16px;
-}
-
-button:hover {
-  background-color: black;
 }
 
 .center {
@@ -114,7 +107,6 @@ header {
  */
 
 .callout {
-  /*
   width: 80%;
   max-width: 800px;
   margin: 0.3em;
@@ -124,7 +116,6 @@ header {
   line-height: 1.8em;
   margin-left: auto;
   margin-right: auto;
-  */
 }
 
 /*
@@ -150,19 +141,8 @@ header {
   text-decoration: none;
 }
 
-.newWallLink {
+a.newWallLink {
   width: 200px;
-  border-radius: 10px;
-  vertical-align: middle;
-  background-color: rgb(61, 51, 20);
-  text-align: center;
-  padding: 0.5em 0;
-  margin: 2em auto 1.5em auto;
-  color: white;
-}
-
-.newWallLink:hover {
-  background-color: black;
 }
 
 #screen-home hr {
@@ -177,9 +157,6 @@ header {
 /*
  * wall list
  */
-#wallList {
-}
-
 #wallList li {
   display: inline-block;
   width: 14em;

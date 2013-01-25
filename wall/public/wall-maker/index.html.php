@@ -64,9 +64,8 @@
     </div>
   </div>
   <div class="screen" id="screen-home">
-    <a href="<?php echo $wallMakerRoot ?>/new">
-      <div class="callout newWallLink button">新しい壁を作る</div>
-    </a>
+    <a href="<?php echo $wallMakerRoot ?>/new"
+      class="button newWallLink">新しい壁を作る</a>
     <hr/>
     <div id="prevWalls">
       <h2>壁の管理</h2>
@@ -224,6 +223,7 @@
   <div class="screen" id="screen-error">
     <div class="error">
     </div>
+    <a href="<?php echo $wallMakerRoot ?>/" class="button">戻る</a>
   </div>
 </div>
 </body>
