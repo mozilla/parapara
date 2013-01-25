@@ -190,34 +190,53 @@ function getOrCreateUserIdFromEmail($email) {
   return $ownerId;
 }
 
-function getWall($wallId) {
+function getWallDetails($wallId, $email) {
   $conn =& getDbConnection();
-  $res =& $conn->query(
-      'SELECT walls.designId,eventName,eventDescr,eventLocation,eventType,eventFinish,urlPath,shortUrl,editorShortUrl,walls.duration,galleryDisplay,passcode,designs.duration AS defaultduration FROM walls,designs WHERE walls.designId = designs.designId AND wallId = '
-    . $conn->quote($wallId, 'integer')
+  $row =& $conn->queryRow(
+      'SELECT walls.designId,'
+    . ' eventName, eventDescr, eventLocation, eventType, eventFinish,'
+    . ' urlPath, shortUrl, editorShortUrl,'
+    . ' walls.duration, galleryDisplay, passcode,'
+    . ' designs.duration AS defaultduration,'
+    . ' users.userId IS NOT NULL AS isOwner'
+    . ' FROM walls'
+    . ' INNER JOIN designs ON walls.designId = designs.designId'
+    . ' LEFT JOIN users ON'
+    . '   walls.owner = users.userId AND'
+    . '   users.email = ' . $conn->quote($email, 'text')
+    . ' WHERE wallId = ' . $conn->quote($wallId, 'integer')
+    . ' LIMIT 1',
+    null,
+    MDB2_FETCHMODE_ASSOC
   );
-  if (PEAR::isError($res)) {
-    error_log($res->getMessage() . ', ' . $res->getDebugInfo());
+  $conn->disconnect();
+
+  if (PEAR::isError($row)) {
+    error_log($row->getMessage() . ', ' . $row->getDebugInfo());
     throw new KeyedException('db-error');
   }
-  $result = array();
-  $conn->setFetchMode(MDB2_FETCHMODE_ASSOC);
-  if ($row = $res->fetchRow()) {
-    $result["designId"] = $row['designid'];
-    $result["eventName"] = $row['eventname'];
-    $result["eventDescr"] = $row['eventdescr'];
-    $result["eventLocation"] = $row['eventlocation'];
-    $result["eventType"] = $row['eventtype'];
-    $result["eventFinish"] = $row['eventfinish'];
-    $result["urlPath"] = $row['urlpath'];
-    $result["shortUrl"] = $row['shorturl'];
-    $result["editorShortUrl"] = $row['editorshorturl'];
-    $result["galleryDisplay"] = $row['gallerydisplay'];
-    $result["duration"] = $row['duration'];
-    $result["defaultDuration"] = $row['defaultduration'];
-    $result["passcode"] = $row['passcode'] != NULL ? strlen($row['passcode']) : 0;
+  if ($row === null) {
+    throw new KeyedException('not-found');
   }
-  $conn->disconnect();
+  if (!$row['isowner']) {
+    error_log("Access denied to wall (#$wallId) by $email");
+    throw new KeyedException('access-denied',
+      "$email is not the owner of this wall");
+  }
+  $result["designId"] = $row['designid'];
+  $result["eventName"] = $row['eventname'];
+  $result["eventDescr"] = $row['eventdescr'];
+  $result["eventLocation"] = $row['eventlocation'];
+  $result["eventType"] = $row['eventtype'];
+  $result["eventFinish"] = $row['eventfinish'];
+  $result["urlPath"] = $row['urlpath'];
+  $result["shortUrl"] = $row['shorturl'];
+  $result["editorShortUrl"] = $row['editorshorturl'];
+  $result["galleryDisplay"] = $row['gallerydisplay'];
+  $result["duration"] = $row['duration'];
+  $result["defaultDuration"] = $row['defaultduration'];
+  $result["passcode"] = $row['passcode'] != NULL ? strlen($row['passcode']) : 0;
+
   return $result;
 }
 
