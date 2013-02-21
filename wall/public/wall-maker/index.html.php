@@ -87,15 +87,15 @@
           <label class="graphical">
             <input type="radio" name="design" value="1" required>
             <div class="designThumb">
-            <iframe src="<?php
-              echo $wallMakerRoot ?>/img/design-1-preview.svg"></iframe>
+              <iframe src="<?php
+                echo $wallMakerRoot ?>/img/design-1-preview.svg"></iframe>
             </div>
           </label>
           <label class="graphical">
             <input type="radio" name="design" value="2" required>
             <div class="designThumb">
-            <iframe src="<?php
-              echo $wallMakerRoot ?>/img/design-2-preview.svg"></iframe>
+              <iframe src="<?php
+                echo $wallMakerRoot ?>/img/design-2-preview.svg"></iframe>
             </div>
           </label>
         </div>

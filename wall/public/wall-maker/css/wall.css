@@ -269,6 +269,9 @@ div.error.hidden {
   width:12em;
   height:8em;
   border-radius: 10px;
+  border-width: 1px;
+  border-color: black;
+  overflow: hidden;
 }
 
 /*

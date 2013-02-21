@@ -75,7 +75,7 @@ WallMaker.GraphicalRadio = function(radio) {
     //   <label>
     //     <input type="radio">
     //     <div class="designThumb"></div>
-    //   </thumb>
+    //   </label>
     //
     // So we navigate up to the parent label and then down to the thumb
     var node = radio;
