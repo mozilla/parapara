@@ -2,31 +2,34 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/*
- * Note that the create wall wizard operates quite differently to the manage
- * wall feature.
- *
- * With the wizard, we create a new history entry each time you go backwards or
- * forwards. Hence, you can use the back/forwards buttons to navigate the
- * wizard. This matches the linear flow of the wizard.
- *
- * However, the URL does not change. It is always wall-maker/new. This is
- * because it doesn't make sense to provide a link to mid-way through a wizard.
- * We remember the current page using session storage so that if the user
- * refreshes during the wizard, we return to the correct page.
- *
- * The manage wall feature on the other hand does not create history entries but
- * DOES update the URL because it makes sense to be able to point to an
- * individual tab in the interface with a URL but you don't want to generate
- * millions of history entries every time you change tab. Restoring the correct
- * tab when you refresh the browser is managed by using document.location.hash.
- */
-
 var ManageWallController =
 {
-  show: function(wallId) {
-    this.clearAllMessage();
-    this.wallId = wallId;
+  init: function() {
+    // Manage tab changing
+    var tablinks = document.querySelectorAll("a[aria-role=tab]");
+    for (var i = 0; i < tablinks.length; i++) {
+      tablinks[i].addEventListener("click",
+        function(e) {
+          // Select the tab
+          var tabName = e.target.getAttribute("href").substr(1);
+          ManageWallController.selectTab(tabName);
+
+          // Update URL
+          history.replaceState({}, null, "#" + tabName);
+
+          // Don't follow the link
+          e.preventDefault();
+        },
+        false
+      );
+    }
+
+    // Create graphical radio buttons
+    new WallMaker.GraphicalRadioGroup(
+      document.forms["manage-designId"], "manage-designId");
+
+    // Watch for changes to fields so we can update immediately
+    // XXX Rewrite this
     this.installObserver("manage-eventName");
     this.installObserver("manage-eventDescr");
     this.installObserver("manage-eventLocation");
@@ -35,42 +38,75 @@ var ManageWallController =
     this.installObserver("manage-galleryDisplay");
     this.installObserver("manage-designId");
 
-    this.installClickObserver("manage-startSession", this.clickOnStartSession.bind(this));
-    this.installClickObserver("manage-closeSession", this.clickOnCloseSession.bind(this));
+    this.installClickObserver("manage-startSession",
+      this.clickOnStartSession.bind(this));
+    this.installClickObserver("manage-closeSession",
+      this.clickOnCloseSession.bind(this));
+  },
 
-    //ui
-    new WallMaker.GraphicalRadioGroup(document.forms["manage-designId"], "manage-designId");
+  show: function(wallId, tabName) {
+    this.wallId = wallId;
 
-    //ここで ajax アクセスして、基本情報をとる
-    var payload = {wallId: wallId};
+    // Show loading screen
+    $("wall-info").setAttribute("aria-hidden", "true");
+    $("wall-loading").setAttribute("aria-hidden", "false");
+
+    // ここで ajax アクセスして、基本情報をとる
+    var payload = { wallId: wallId };
     ParaPara.postRequest(WallMaker.rootUrl + '/api/getWall', payload,
-                         this.loadSuccess.bind(this),
+                         function(response) {
+                           this.loadSuccess(response, tabName);
+                         }.bind(this),
                          this.loadError.bind(this));
   },
 
-  clearAllMessage: function() {
-    var elements = document.getElementsByClassName("manage-message");
-    for (var i = 0; i < elements.length; i++) {
-      elements[i].textContent = "";
+  selectTab: function(tabName) {
+    var selectedTabPage = null;
+
+    // Update tabs
+    var tabs = document.querySelectorAll("a[aria-role=tab]");
+    for (var j = 0; j < tabs.length; j++) {
+      var tab = tabs[j];
+
+      // Check if the target of the tab matches tabName
+      var matches = tab.getAttribute("href").substr(1) === tabName;
+      tab.setAttribute("aria-selected", matches ? "true" : "false");
+
+      // If the tab matches, record what it controls
+      if (matches) {
+        selectedTabPage = tab.getAttribute("aria-controls");
+      }
+    }
+
+    // Update panels
+    var panels = document.querySelectorAll("section[aria-role=tabpanel]");
+    for (var j = 0; j < panels.length; j++) {
+      var panel = panels[j];
+      panel.setAttribute("aria-hidden",
+                         panel.id === selectedTabPage ? "false" : "true");
     }
   },
 
   clickOnStartSession: function(e) {
-    this.sendCommand(WallMaker.rootUrl + '/api/startSession', {wallId: this.wallId}, document.getElementById("manage-startSession-message"));
+    this.sendCommand(WallMaker.rootUrl + '/api/startSession',
+      {wallId: this.wallId},
+      $("manage-startSession-message"));
   },
-  
+
   clickOnCloseSession: function(e) {
-    this.sendCommand(WallMaker.rootUrl + '/api/closeSession', {wallId: this.wallId}, document.getElementById("manage-closeSession-message"));
+    this.sendCommand(WallMaker.rootUrl + '/api/closeSession',
+      {wallId: this.wallId},
+      $("manage-closeSession-message"));
   },
 
   installClickObserver: function(name, callbackFunction) {
-    var element = document.getElementById(name);
+    var element = $(name);
     element.removeEventListener("click", callbackFunction, false);
     element.addEventListener("click", callbackFunction, false);
   },
 
   installObserver: function(name) {
-    var element = document.getElementById(name);
+    var element = $(name);
     element.removeEventListener("change", this.valueChanged.bind(this), false);
     element.addEventListener("change", this.valueChanged.bind(this), false);
   },
@@ -82,12 +118,13 @@ var ManageWallController =
     var name = id.substring(7);//removes "manage-"
     var value = target.value;
     var payload = {wallId: this.wallId, name: name, value: value};
-    var messageElement = document.getElementById(id+"-message");
+    var messageElement = $(id+"-message");
     this.sendCommand(WallMaker.rootUrl + '/api/updateWall', payload,
                      messageElement);
   },
 
   sendCommand: function(url, payload, messageElement) {
+    // XXX Display the error somewhere now that I've removed the message labels
     ParaPara.postRequest(url, payload,
        function(response) {
           messageElement.classList.remove("error");
@@ -104,20 +141,20 @@ var ManageWallController =
      );
   },
 
-  loadSuccess: function(response) {
-    document.getElementById("manage-eventName").value = response.eventName;
-    document.getElementById("manage-eventDescr").value = response.eventDescr;
-    document.getElementById("manage-eventLocation").value = response.eventLocation;
-    document.getElementById("manage-duration").value = response.duration == null ? "" : response.duration/1000;
+  loadSuccess: function(response, tabName) {
+    $("manage-eventName").value = response.eventName;
+    $("manage-eventDescr").value = response.eventDescr;
+    $("manage-eventLocation").value = response.eventLocation;
+    $("manage-duration").value = response.duration == null ? "" : response.duration/1000;
     var dummypasscode = "";
     for (var i = 0; i < response.passcode; i++) {
       dummypasscode += "x";
     }
-    document.getElementById("manage-passcode").value = dummypasscode;
-    document.getElementById("manage-urlPath").textContent = response.urlPath;
-    document.getElementById("manage-shortUrl").textContent = response.shortUrl;
-    document.getElementById("manage-editorShortUrl").textContent = response.editorShortUrl;
-    document.getElementById("manage-defaultDuration").textContent = response.defaultDuration/1000;
+    $("manage-passcode").value = dummypasscode;
+    $("manage-urlPath").textContent = response.urlPath;
+    $("manage-shortUrl").textContent = response.shortUrl;
+    $("manage-editorShortUrl").textContent = response.editorShortUrl;
+    $("manage-defaultDuration").textContent = response.defaultDuration/1000;
     var radios = document.getElementsByName("manage-galleryDisplay");
     if (response.galleryDisplay == 0) {
       radios[0].checked = false;
@@ -126,6 +163,15 @@ var ManageWallController =
       radios[0].checked = true;
       radios[1].checked = false;
     }
+
+    // Switch to appropriate tab
+    if (tabName) {
+      this.selectTab(tabName);
+    }
+
+    // Hide loading and show page
+    $("wall-loading").setAttribute("aria-hidden", "true");
+    $("wall-info").setAttribute("aria-hidden", "false");
   },
 
   loadError: function(key, detail) {
@@ -142,3 +188,6 @@ var ManageWallController =
     Navigation.showErrorPage(msg);
   }
 };
+
+window.addEventListener('load',
+  ManageWallController.init.bind(ManageWallController), false);

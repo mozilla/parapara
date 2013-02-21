@@ -5,37 +5,39 @@
 /*
  * Base styles
  */
-
 body {
   margin: 0;
   padding: 0;
+}
+h2, h3 {
+  font-weight: normal;
+}
+h3 {
+  margin-left: 1em;
+}
+.center {
+  text-align: center;
+}
+div[aria-hidden=true], section[aria-hidden=true] {
+  display: none;
+}
+
+/*
+ * Main setup
+ */
+body {
   background-color: #F5F1E8;
   background-image: url(../img/bg-sand.png);
   background-repeat: repeat-x;
 }
-
-h2 {
-  font-weight: normal;
-}
-
-h2:before {
-  content:"◆　";
-}
-
-h3 {
-  font-weight: normal;
-  margin-left: 1em;
-}
-
-h3:before {
-  content:"●　";
-}
-
 #main-container {
   width: 600px;
   margin: 0 auto;
 }
 
+/*
+ * Buttons
+ */
 a.button, button {
   width: 200px;
   border-radius: 10px;
@@ -46,36 +48,26 @@ a.button, button {
   margin: 2em auto 1.5em auto;
   color: white;
 }
-
 a.button {
   text-decoration: none;
   display: block;
 }
-
 a.button:hover, button:hover {
   background-color: black;
 }
-
 button {
   font-size: 16px;
-}
-
-.center {
-  text-align: center;
 }
 
 /*
  * Header bar
  */
-
 #navBar > * {
   display: inline-block;
 }
-
 #navBar {
   text-align: right;
 }
-
 header {
   width: 600px;
   height: 100px;
@@ -90,7 +82,6 @@ header {
 #loginStatus {
   font-size: 12px;
 }
-
 #loginError {
   color: red;
 }
@@ -121,7 +112,6 @@ header {
 /*
  * Login screen
  */
-
 .wallExplain {
   background: #fc3;
   border: 1px solid #a40;
@@ -140,11 +130,9 @@ header {
 #screen-home a {
   text-decoration: none;
 }
-
 a.newWallLink {
   width: 200px;
 }
-
 #screen-home hr {
   background: url(../img/line.png) no-repeat;
   width: 560px;
@@ -155,18 +143,16 @@ a.newWallLink {
 }
 
 /*
- * wall list
+ * Wall list
  */
 #wallList li {
   display: inline-block;
   width: 14em;
   margin-bottom: 1em;
 }
-
-#wallList li:nth-child(odd){
+#wallList li:nth-child(odd) {
   margin-right: 3em;
 }
-
 #wallList .thumbnail {
   width: 14em;
   height: 10em;
@@ -176,14 +162,12 @@ a.newWallLink {
   vertical-align: middle;
   text-align: center;
 }
-
 #wallList .thumbnail img {
   width: 12em;
   height: 8em;
   border-radius: 10px;
   vertical-align: middle;
 }
-
 #wallList .label {
   text-align: center;
 }
@@ -200,17 +184,14 @@ a.newWallLink {
   padding: 0.4em 1.2em;
   margin: 0 0.3em;
 }
-
 #create-eventName {
   max-width: 20em;
   margin-left: 2em;
   margin-bottom: 1em;
 }
-
 #designSelector {
   margin-bottom: 2em;
 }
-
 div.error {
   background: rgb(255, 221, 221);
   border: 1px dashed red;
@@ -302,30 +283,30 @@ label.optional:after {
   color: grey;
   font-size: smaller;
 }
-
 label.manage-title {
   font-weight: bold;
 }
-
 label.manage-title:after {
   font-weight: bold;
   content: "：";
 }
-
 label.manage-message {
   color: black;
 }
-
 label.manage-message.error {
   color: red;
 }
-
 .tab {
   border: 1px solid gray;
   margin: 16px;
 }
-
 .clickable {
   color: orange;
   cursor: pointer;
+}
+
+/*
+ * Tab pages
+ */
+section[aria-role=tabpanel] {
 }

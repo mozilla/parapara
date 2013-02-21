@@ -39,12 +39,10 @@ var Navigation =
       screenId = "screen-new";
       CreateWallController.show();
     } else if (path.match(this.wallRe)) {
-      // Parse anchor refs but for managing we DON'T want to add history
-      // references every time we switch tabs. This might need some changes
-      // upstream.
       screenId = "screen-manage";
       var wallId = RegExp.$2;
-      ManageWallController.show(wallId);
+      var tab = document.location.hash.substr(1);
+      ManageWallController.show(wallId, tab);
     } else {
       screenId = "screen-home";
     }
@@ -77,7 +75,7 @@ var Navigation =
       function() {
         CreateWallController.start();
         this.goToScreen("new");
-      });
+      }.bind(this));
     this.registerLinkHandler('login', function() { LoginController.login(); });
     this.registerLinkHandler('logout',
                              function() { LoginController.logout(); });

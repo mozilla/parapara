@@ -109,117 +109,139 @@
     </form>
   </div>
   <div class="screen" id="screen-manage">
-    <h2>イベントの名前</h2>
-      <input type="text" id="manage-eventName"><label id="manage-eventName-message" class="manage-message"></label>
-    <div>
-      基本情報
-      <ul>
-        <li><label class="manage-title">URL</label><label id="manage-urlPath" class="manage-value"></label></li>
-        <li><label class="manage-title">ショートURL</label><label id="manage-shortUrl" class="manage-value"></label></li>
-        <li><label class="manage-title">エディタURL</label><label id="manage-editorShortUrl" class="manage-value"></label></li>
-        <li>チラシのリンク</li>
-      </ul>
+    <nav aria-role="navigation">
+      <a href="<?php echo $wallMakerRoot ?>/" class="button">戻る</a>
+    </nav>
+    <div id="wall-loading" aria-hidden="false">
+      Loading&hellip;
     </div>
-    <div class="tab" id="manage-running">
-      <ul>
-        <li>
-          <a class="clickable" id="manage-startSession">新セッションをスタートする</a>
-          <label id="manage-startSession-message" class="manage-message"></label>
-          (今のキャラクターが全部見えなくなるよという説明）
-        </li>
-        <li>
-          <a class="clickable" id="manage-closeSession">セッションを終了する</a>
-          <label id="manage-closeSession-message" class="manage-message"></label>
-        </li>
-        <li>
-          <label class="manage-title">現在のアニメーションスピード</label>
-          <input type="number" name="duration" autocomplete="off"
-           maxlength="10" class="duration" id="manage-duration">秒
-          <label id="manage-duration-message" class="manage-message"></label>
-        </li>
-        <li><label class="manage-title">既存のアニメーションスピード</label><label id="manage-defaultDuration" class="manage-value"></label>秒</li>
-      </ul>
+    <div id="wall-info" aria-hidden="true">
+      <section id="wall-summary">
+        <h2>イベントの名前</h2>
+        <input type="text" id="manage-eventName">
+        <ul>
+          <li><label class="manage-title">URL</label><label
+            id="manage-urlPath" class="manage-value"></label></li>
+          <li><label class="manage-title">ショートURL</label><label
+            id="manage-shortUrl" class="manage-value"></label></li>
+          <li><label class="manage-title">エディタURL</label><label
+            id="manage-editorShortUrl" class="manage-value"></label></li>
+          <li>チラシのリンク</li>
+        </ul>
+      </section>
+      <div id="wall-details">
+        <menu type="toolbar" aria-role="tablist">
+          <a href="#event" aria-role="tab" aria-selected="true"
+            aria-controls="manage-event">イベント</a><a
+            href="#running" aria-role="tab" aria-selected="false"
+            aria-controls="manage-running">実行</a><a
+            href="#design" aria-role="tab" aria-selected="false"
+            aria-controls="manage-design">デザイン</a><a
+            href="#privacy" aria-role="tab" aria-selected="false"
+            aria-controls="manage-privacy">プライバシー</a><a
+            href="#collaboration" aria-role="tab" aria-selected="false"
+            aria-controls="manage-collaboration">共同制作</a><a
+            href="#characters" aria-role="tab" aria-selected="false"
+            aria-controls="manage-characters">キャラクター</a>
+        </menu>
+        <div class="tab-pages">
+          <section id="manage-event" aria-role="tabpanel" aria-hidden="false">
+            <dl>
+              <dt><label class="optional"
+                for="create-eventLocation">場所</label></dt>
+              <dd>
+                <input type="text" name="eventLocation" autocomplete="off"
+                 maxlength="255" class="eventLocation" id="manage-eventLocation">
+                <div class="fieldExplain">場所の例</div>
+              </dd>
+              <dt><label class="optional"
+                for="create-eventDescr">イベントの説明</label></dt>
+              <dd>
+                <textarea name="eventDescr" class="eventDescr"
+                  id="manage-eventDescr"></textarea>
+              </dd>
+            </dl>
+          </section>
+          <section id="manage-running" aria-role="tabpanel" aria-hidden="true">
+            <ul>
+              <li>
+                <a class="clickable" id="manage-startSession">新セッションをスタートする</a>
+                (今のキャラクターが全部見えなくなるよという説明）
+              </li>
+              <li>
+                <a class="clickable" 
+                  id="manage-closeSession">セッションを終了する</a>
+              </li>
+              <li>
+                <label class="manage-title">現在のアニメーションスピード</label>
+                <input type="number" name="duration" autocomplete="off"
+                 maxlength="10" class="duration" id="manage-duration">秒
+              </li>
+              <li><label class="manage-title">既存のアニメーションスピード</label><label id="manage-defaultDuration" class="manage-value"></label>秒</li>
+            </ul>
+          </section>
+          <section id="manage-design" aria-role="tabpanel" aria-hidden="true">
+            <div class="designGrid">
+              <p>壁のデザイン：</p>
+              <form id="manage-designId">
+              <label class="graphical">
+                <input type="radio" name="manage-designId" value="1">
+                <div class="designThumb">
+                  <iframe src="<?php
+                    echo $wallMakerRoot ?>/img/design-1-preview.svg"></iframe>
+                </div>
+              </label>
+              <label class="graphical">
+                <input type="radio" name="manage-designId" value="2">
+                <div class="designThumb">
+                  <iframe src="<?php
+                    echo $wallMakerRoot ?>/img/design-2-preview.svg"></iframe>
+                </div>
+              </label>
+              </form>
+            </div>
+          </section>
+          <section id="manage-privacy" aria-role="tabpanel" aria-hidden="true">
+            <dl>
+              <dt>ギャラリーに表示</dt>
+              <dd class="alongside">
+                <form id="manage-galleryDisplay">
+                  <label>
+                    <input type="radio" name="manage-galleryDisplay" value="1" checked>
+                    On
+                  </label>
+                  <label>
+                    <input type="radio" name="manage-galleryDisplay" value="0">
+                    Off
+                  </label>
+                </form>
+                <div class="fieldExplain">ギャラリーの説明</div>
+              </dd>
+              <dt><label class="optional">エディターのパスコード</label></dt>
+              <dd>
+                <input type="password" name="passcode" autocomplete="off"
+                 maxlength="50" class="passcode" id="manage-passcode">
+                <div class="fieldExplain">パスコードの説明</div>
+              </dd>
+            </dl>
+          </section>
+          <section id="manage-collaboration" aria-role="tabpanel" 
+            aria-hidden="true">
+            <dl>
+              <dt><label class="optional">共同制作者</label></dt>
+              <dd>
+                <div class="fieldExplain">共同制作者の説明</div>
+              </dd>
+            </dl>
+          </section>
+          <section id="manage-characters" aria-role="tabpanel" 
+            aria-hidden="true">
+            <h3>セッション１</h3>
+            <h3>セッション２</h3>
+          </section>
+        </div>
+      </section>
     </div>
-    <div class="tab" id="manage-design">
-      <div class="designGrid">
-        <p>壁のデザイン：</p>
-        <form id="manage-designId">
-        <label class="graphical">
-          <input type="radio" name="manage-designId" value="1">
-          <div class="designThumb">
-            <iframe src="<?php
-              echo $wallMakerRoot ?>/img/design-1-preview.svg"></iframe>
-          </div>
-        </label>
-        <label class="graphical">
-          <input type="radio" name="manage-designId" value="2">
-          <div class="designThumb">
-            <iframe src="<?php
-              echo $wallMakerRoot ?>/img/design-2-preview.svg"></iframe>
-          </div>
-        </label>
-        <label id="manage-designId-message" class="manage-message"></label>
-        </form>
-      </div>
-    </div>
-    <div class="tab" id="manage-event">
-      <dl>
-        <dt><label class="optional"
-          for="create-eventLocation">場所</label></dt>
-        <dd>
-          <input type="text" name="eventLocation" autocomplete="off"
-           maxlength="255" class="eventLocation" id="manage-eventLocation">
-          <label id="manage-eventLocation-message" class="manage-message"></label>
-          <div class="fieldExplain">場所の例</div>
-        </dd>
-        <dt><label class="optional"
-          for="create-eventDescr">イベントの説明</label></dt>
-        <dd>
-          <textarea name="eventDescr" class="eventDescr"
-            id="manage-eventDescr"></textarea>
-          <label id="manage-eventDescr-message" class="manage-message"></label>
-        </dd>
-      </dl>
-    </div>
-    <div class="tab" id="manage-privacy">
-      <dl>
-        <dt>ギャラリーに表示</dt>
-        <dd class="alongside">
-          <form id="manage-galleryDisplay">
-            <label>
-              <input type="radio" name="manage-galleryDisplay" value="1" checked>
-              On
-            </label>
-            <label>
-              <input type="radio" name="manage-galleryDisplay" value="0">
-              Off
-            </label>
-            <label id="manage-galleryDisplay-message" class="manage-message"></label>
-          </form>
-          <div class="fieldExplain">ギャラリーの説明</div>
-        </dd>
-        <dt><label class="optional">エディターのパスコード</label></dt>
-        <dd>
-          <input type="password" name="passcode" autocomplete="off"
-           maxlength="50" class="passcode" id="manage-passcode">
-          <label id="manage-passcode-message" class="manage-message"></label>
-          <div class="fieldExplain">パスコードの説明</div>
-        </dd>
-      </dl>
-    </div>
-    <div class="tab" id="manage-collaboration">
-      <dl>
-        <dt><label class="optional">共同制作者</label></dt>
-        <dd>
-          <div class="fieldExplain">共同制作者の説明</div>
-        </dd>
-      </dl>
-    </div>
-    <div class="tab" id="manage-characters">
-      <h3>セッション１</h3>
-      <h3>セッション２</h3>
-    </div>
-    <a href="<?php echo $wallMakerRoot ?>/" class="button">戻る</a>
   </div>
   <div class="screen" id="screen-error">
     <div class="error">

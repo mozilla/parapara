@@ -3,8 +3,16 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /*
+ * Common utility stuff
+ *
+ * Move this to a utils.js?
+ */
+var $ = function(id) { return document.getElementById(id); };
+
+/*
  * Navigation
  */
+
 
 function updateWalls() {
   // XXX Display spinner while loading
