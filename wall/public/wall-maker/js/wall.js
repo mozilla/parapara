@@ -47,9 +47,9 @@ function refreshWallList(wallList) {
       
       li.appendChild(container);
       list.appendChild(li);
-      //manage
-      registerLinkHandler('wall/' + wall['wallId'], function(e) { 
-        goToScreen(e.currentTarget.getAttribute('href'));
+      // Manage
+      Navigation.registerLinkHandler('wall/' + wall['wallId'], function(e) { 
+        Navigation.goToScreen(e.currentTarget.getAttribute('href'));
       });
     }
     document.getElementById('prevWalls').style.display = 'block';

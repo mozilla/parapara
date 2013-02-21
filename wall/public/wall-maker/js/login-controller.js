@@ -48,7 +48,7 @@ var LoginController =
     document.getElementById('loginMail').textContent = email;
     document.getElementById('loginStatusYes').style.display = 'block';
     document.getElementById('loginStatusNo').style.display = 'none';
-    goToCurrentScreen();
+    Navigation.goToCurrentScreen();
     // XXX Point this to the ManageWallController when it's built
     updateWalls();
   },
@@ -56,7 +56,7 @@ var LoginController =
   loggedOut: function() {
     document.getElementById('loginStatusYes').style.display = 'none';
     document.getElementById('loginStatusNo').style.display = 'block';
-    showScreen('loggedOut');
+    Navigation.showScreen('loggedOut');
   },
 
   loginError: function() {

@@ -33,7 +33,7 @@ var CreateWallController =
   },
 
   cancel: function() {
-    goToScreen("./");
+    Navigation.goToScreen("./");
     this.clearAll();
   },
 
@@ -57,7 +57,7 @@ var CreateWallController =
     this.clearAll();
     updateWalls();
     sessionStorage.setItem("messageKey", "create-wall-success");
-    goToScreen("wall/" + id + "#event");
+    Navigation.goToScreen("wall/" + id + "#event");
   },
 
   createError: function(key, detail) {

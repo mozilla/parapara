@@ -139,6 +139,6 @@ var ManageWallController =
         msg = "壁が見つかりませんでした。";
         break;
     }
-    showErrorPage(msg);
+    Navigation.showErrorPage(msg);
   }
 };
