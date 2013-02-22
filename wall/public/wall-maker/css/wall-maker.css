@@ -5,10 +5,6 @@
 /*
  * Base styles
  */
-body {
-  margin: 0;
-  padding: 0;
-}
 h2, h3 {
   font-weight: normal;
 }
@@ -20,19 +16,6 @@ h3 {
 }
 div[aria-hidden=true], section[aria-hidden=true] {
   display: none;
-}
-
-/*
- * Main setup
- */
-body {
-  background-color: #F5F1E8;
-  background-image: url(../img/bg-sand.png);
-  background-repeat: repeat-x;
-}
-#main-container {
-  width: 600px;
-  margin: 0 auto;
 }
 
 /*
@@ -62,25 +45,21 @@ button {
 /*
  * Header bar
  */
-#navBar > * {
-  display: inline-block;
-}
-#navBar {
-  text-align: right;
-}
 header {
-  width: 600px;
-  height: 100px;
-  background-image: url(../img/header_wall_image.png);
-  background-repeat: none;
+  background-image: url('../img/bg-diamond.png');
+}
+header .heading {
+  background-image: url('../img/header-wall-maker.png');
+  background-repeat: no-repeat;
+  background-position: top right;
 }
 
 /*
  * Login
  */
-
 #loginStatus {
-  font-size: 12px;
+  display: inline-block;
+  font-size: 13px;
 }
 #loginError {
   color: red;

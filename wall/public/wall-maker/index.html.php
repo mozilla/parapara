@@ -11,7 +11,9 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <title>パラパラアニメーション・壁の作成・管理</title>
-  <link rel="stylesheet" href="<?php echo $wallMakerRoot; ?>/css/wall.css">
+  <link rel="stylesheet" href="/css/parapara.css">
+  <link rel="stylesheet"
+    href="<?php echo $wallMakerRoot; ?>/css/wall-maker.css">
   <script src="https://login.persona.org/include.js"></script>
   <script>
     var WallMaker = WallMaker || {};
@@ -28,26 +30,36 @@
 </head>
 <body>
 
-<div id="navBar" style="display: block">
-  <div id="loginStatus">
-    <div id="loginStatusNo" style="display: none">
-    <a href="<?php echo $wallMakerRoot ?>/login" id="browserid"
-        title="Mozilla Personaでサインインする"><img
-        src="<?php echo $wallMakerRoot ?>/img/sign_in_blue.png" alt="サインイン"
-        border="0"></a>
-    </div>
-    <div id="loginStatusYes" style="display: none">
-      <span class="login-mail" id="loginMail"></span>
-      <span class="logout">(<a href="<?php echo $wallMakerRoot ?>/logout"
-        id="logout">Logout</a>)</span>
-    </div>
-    <div id="loginError" style="display: none">
+<div class="top-runner"></div>
+<!-- Header -->
+<header>
+  <div class="header-contents">
+    <!-- Login status and Mozilla tab -->
+    <nav>
+      <div id="loginStatus">
+        <div id="loginStatusNo" style="display: none">
+          <a href="<?php echo $wallMakerRoot ?>/login" id="browserid"
+              title="Mozilla Personaでサインインする">サインイン</a>
+        </div>
+        <div id="loginStatusYes" style="display: none">
+          <span class="login-mail" id="loginMail"></span>
+          <span class="logout">(<a href="<?php echo $wallMakerRoot ?>/logout"
+            id="logout">Logout</a>)</span>
+        </div>
+        <div id="loginError" style="display: none">
+        </div>
+      </div>
+      <a href="http://www.mozilla.org" class="mozilla-tab"><img 
+        src="/img/tab.png"></a>
+    </nav>
+    <!-- Title part -->
+    <div class="heading">
+      <h1>壁メーカー</h1>
     </div>
   </div>
-</div>
+</header>
 
-<div id="main-container">
-  <header></header>
+<div id="page">
   <div class="screen" id="loading" style="display: block">
     <p>Loading&hellip;</p>
   </div>

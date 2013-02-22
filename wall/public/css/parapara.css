@@ -1,0 +1,68 @@
+/*
+ * Common styles for Parapara wall site including the wall maker, gallery
+ * listing, and other supporting materials.
+ */
+
+/*
+ * Base styles
+ */
+body {
+  margin: 0;
+  padding: 0;
+}
+
+/*
+ * Page style
+ */
+body {
+  background-color: #F5F1E8;
+  background-image: url(/img/bg-sand.png);
+  background-repeat: repeat-x;
+}
+#page, header {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+/*
+ * Tab bar
+ */
+.top-runner {
+  border-top: 2px solid #fff;
+}
+header {
+  border-bottom: 1px solid #523326;
+  width: 100%;
+}
+header nav {
+  display: block;
+  text-align: right;
+  width: 100%;
+}
+header nav > * {
+  vertical-align: middle;
+}
+a.mozilla-tab {
+  display: inline-block;
+}
+a.mozilla-tab img {
+  border-width: 0;
+}
+
+/*
+ * Heading
+ */
+header .heading {
+  margin: 0.4em 0 0;
+  padding: 0 0.3em 0em;
+  height: 100px;
+  position: relative;
+}
+header h1 {
+  color: #362d10;
+  font-size: 2.2em;
+  display: inline-block;
+  margin: 0 0.5em 0.5em;
+  position: absolute;
+  bottom: 0;
+}
