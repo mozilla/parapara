@@ -117,6 +117,7 @@
     <nav aria-role="navigation">
       <a href="<?php echo $wallMakerRoot ?>/" class="button">戻る</a>
     </nav>
+    <hr>
     <div id="wall-loading" aria-hidden="false">
       Loading&hellip;
     </div>
@@ -134,6 +135,7 @@
           <li>チラシのリンク</li>
         </ul>
       </section>
+      <hr>
       <div id="wall-details">
         <menu type="toolbar" aria-role="tablist">
           <a href="#event" aria-role="tab" aria-selected="true"

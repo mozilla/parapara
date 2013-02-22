@@ -28,7 +28,7 @@ a.button, button {
   background-color: rgb(61, 51, 20);
   text-align: center;
   padding: 0.5em 0;
-  margin: 2em auto 1.5em auto;
+  margin: 1em auto;
   color: white;
 }
 a.button {
@@ -63,6 +63,9 @@ header .heading {
  */
 .screen {
   display: none;
+  /* Prevent margin collapsing */
+  padding-top: 1px;
+  padding-bottom: 1px;
 }
 
 /*
@@ -104,13 +107,13 @@ header .heading {
 a.newWallLink {
   width: 200px;
 }
-#screen-home hr {
-  background: url(../img/line.png) no-repeat;
-  width: 560px;
-  height: 15px;
-  margin-left: auto;
-  margin-right: auto;
+hr {
   border: none;
+  border-top: 2px dashed black;
+  width: 95%;
+  height: 1px:
+  display: block;
+  margin: 20px auto;
 }
 
 /*
@@ -267,17 +270,52 @@ label.manage-message {
 label.manage-message.error {
   color: red;
 }
-.tab {
-  border: 1px solid gray;
-  margin: 16px;
-}
 .clickable {
   color: orange;
   cursor: pointer;
 }
 
 /*
+ * Management screen layout
+ */
+#wall-details, #wall-summary {
+  margin: 0.3em 1.5em;
+}
+
+/*
  * Tab pages
  */
+menu[aria-role=tablist] {
+  margin: 0;
+  float: left;
+  width: 150px;
+  display: block;
+  padding-left: 0; /* Override UA stylesheet for menus */
+  margin-top: 0.5em; /* Sit below tab page's border rounding */
+}
+menu[aria-role=tablist] a {
+  background: #dec881;
+  color: white;
+  text-decoration: none; /* Remove link underline */
+  display: block;
+  padding: 0.6em 0 0.6em 0.8em;
+  margin: 0.3em 0; /* Add vertical space between tabs */
+  margin-left: 1.5em; /* Push non-selected tabs in from left */
+  border-radius: 0.5em 0 0 0.5em; /* Round only the left side */
+}
+menu[aria-role=tablist] a[aria-selected=true] {
+  color: black;
+  font-weight: bold;
+  margin-left: 0; /* Selected tab sticks out further */
+  outline: none; /* Remove focus rect from tab */
+}
+menu[aria-role=tablist] a[aria-selected=true],
 section[aria-role=tabpanel] {
+  background: #fcf6e1;
+}
+section[aria-role=tabpanel] {
+  padding: 0.25em 1em; /* Bring controls in from sides */
+  border-radius: 0.6em;
+  margin-left: 150px; /* Match width of vertical tabs */
+  min-height: 16em; /* Match height of vertical tab stack */
 }

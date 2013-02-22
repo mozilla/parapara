@@ -23,6 +23,9 @@ body {
   max-width: 960px;
   margin: 0 auto;
 }
+#page {
+  background: #faefc6;
+}
 
 /*
  * Tab bar
