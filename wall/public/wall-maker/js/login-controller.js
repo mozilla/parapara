@@ -19,7 +19,7 @@ var LoginController =
   },
 
   login: function() {
-    document.getElementById('loginError').style.display = 'none';
+    $('loginError').setAttribute('aria-hidden', 'true');
     this.Login.login();
   },
 
@@ -33,6 +33,7 @@ var LoginController =
     // to a timeout and not a deliberate request to clear everything.
     //
     // XXX Clear list of walls
+    $('loginMail').textContent = '';
     CreateWallController.clearAll();
     sessionStorage.clear();
   },
@@ -45,24 +46,21 @@ var LoginController =
   },
 
   loggedIn: function(email) {
-    document.getElementById('loginMail').textContent = email;
-    document.getElementById('loginStatusYes').style.display = 'block';
-    document.getElementById('loginStatusNo').style.display = 'none';
+    $('loginMail').textContent = email;
+    $('loginStatus').setAttribute('aria-hidden', 'false');
     Navigation.goToCurrentScreen();
-    // XXX Point this to the ManageWallController when it's built
     updateWalls();
   },
 
   loggedOut: function() {
-    document.getElementById('loginStatusYes').style.display = 'none';
-    document.getElementById('loginStatusNo').style.display = 'block';
+    $('loginStatus').setAttribute('aria-hidden', 'true');
     Navigation.showScreen('loggedOut');
   },
 
   loginError: function() {
-    var errorBlock = document.getElementById('loginError');
+    var errorBlock = $('loginError');
     errorBlock.textContent = "Login failed. Please try again.";
-    errorBlock.style.display = 'block';
+    errorBlock.setAttribute('aria-hidden', 'false');
   },
 };
 LoginController.init();

@@ -12,27 +12,30 @@ ParaPara.Login = function(sessionName, loggedIn, loggedOut, loginError,
   this.loginError         = loginError;
   this.loginOptions       = loginOptions;
   this.watching           = false;
+  this.silent             = false;
 }
 
 // This tries to re-establish the previous session if there was one and must be
 // called first.
 ParaPara.Login.prototype.relogin = function() {
   // Persona doesn't call our login/logout method if it agrees about who (if
-  // anyone) is logged in so we should go ahead and call this.loggedIn/loggedOut
-  // and if Persona disagrees it will tell us about it later.
+  // anyone) is logged in, so if we have a valid session we should go ahead and
+  // call this.loggedIn/loggedOut and if Persona disagrees it will tell us about
+  // it later (after we start watching).
   var alreadyLoggedIn =
       function(response) {
-        this.startWatching(response.email, true /* don't report errors */);
+        this.startWatching(response.email);
         this.loggedIn(response.email);
       }.bind(this);
   var notLoggedIn = function() {
-        this.startWatching(null, true /* don't report errors */);
+        this.startWatching(null);
         this.loggedOut();
       }.bind(this);
 
-  // in so we should act as if we're logged in and Persona will tell us to
-  // log us out if it disagrees.
-  // See if we still have a valid session, otherwise try a silent login
+  // Don't call loginError if this causes problems
+  this.silent = true;
+
+  // See if we still have a valid session
   if (this.haveSessionCookie()) {
     ParaPara.postRequest(WallMaker.rootUrl + '/api/whoami', null,
       // Got a cookie and the server recognises the session
@@ -56,6 +59,8 @@ ParaPara.Login.prototype.login = function() {
     this.loginOptions = {};
   }
   this.loginOptions.oncancel = this.onlogout.bind(this);
+  // Do report errors since this is an explicit login request (not a relogin)
+  this.silent = false;
   // Do login
   navigator.id.request(this.loginOptions);
 }
@@ -74,15 +79,13 @@ ParaPara.Login.prototype.logout = function() {
 // ----------------------------
 
 // Register with Persona for login/logout calls
-ParaPara.Login.prototype.startWatching = function(email, silent) {
+ParaPara.Login.prototype.startWatching = function(email) {
   if (this.watching)
     return;
   this.watching = true;
   navigator.id.watch({
     loggedInUser: email,
-    onlogin: function(assertion) {
-      this.gotAssertion(assertion, silent);
-    }.bind(this),
+    onlogin: this.gotAssertion.bind(this),
     onlogout: this.onlogout.bind(this)
   });
 }
@@ -95,7 +98,7 @@ ParaPara.Login.prototype.onlogout = function() {
 }
 
 // Verify an assertion and if it's ok, finish logging in
-ParaPara.Login.prototype.gotAssertion = function(assertion, silent) {
+ParaPara.Login.prototype.gotAssertion = function(assertion) {
   ParaPara.postRequest(WallMaker.rootUrl + '/api/login',
                        { assertion: assertion },
                        // Success, finish logging in
@@ -103,12 +106,10 @@ ParaPara.Login.prototype.gotAssertion = function(assertion, silent) {
                          this.loggedIn(response.email);
                        }.bind(this),
                        // Couldn't verify
-                       function(reason, detail) {
-                         return this.loginFail(reason, detail, silent);
-                       }.bind(this));
+                       this.loginFail.bind(this));
 }
 
-ParaPara.Login.prototype.loginFail = function(reason, detail, silent) {
+ParaPara.Login.prototype.loginFail = function(reason, detail) {
   // Known reasons (roughly in order of when they might happen):
   //
   //   send-fail :      something went wrong with sending the request
@@ -125,7 +126,7 @@ ParaPara.Login.prototype.loginFail = function(reason, detail, silent) {
   }
   console.debug(debugMsg);
 
-  if (!silent && this.loginError) {
+  if (!this.silent && this.loginError) {
     this.loginError(reason, detail);
   }
   this.logout();

@@ -15,7 +15,7 @@ h3 {
   text-align: center;
 }
 div[aria-hidden=true], section[aria-hidden=true] {
-  display: none;
+  display: none !important;
 }
 
 /*
@@ -53,16 +53,9 @@ header .heading {
   background-repeat: no-repeat;
   background-position: top right;
 }
-
-/*
- * Login
- */
 #loginStatus {
   display: inline-block;
   font-size: 13px;
-}
-#loginError {
-  color: red;
 }
 
 /*
@@ -75,7 +68,6 @@ header .heading {
 /*
  * Common styles
  */
-
 .callout {
   width: 80%;
   max-width: 800px;
@@ -91,9 +83,9 @@ header .heading {
 /*
  * Login screen
  */
-.wallExplain {
-  background: #fc3;
-  border: 1px solid #a40;
+#loginError {
+  background: papayawhip;
+  border: 1px solid #aa0;
 }
 .loginExplain {
   background: #cfc;

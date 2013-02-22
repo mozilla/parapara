@@ -14,6 +14,8 @@
   <link rel="stylesheet" href="/css/parapara.css">
   <link rel="stylesheet"
     href="<?php echo $wallMakerRoot; ?>/css/wall-maker.css">
+  <link rel="stylesheet"
+    href="<?php echo $wallMakerRoot; ?>/css/persona.css">
   <script src="https://login.persona.org/include.js"></script>
   <script>
     var WallMaker = WallMaker || {};
@@ -37,17 +39,9 @@
     <!-- Login status and Mozilla tab -->
     <nav>
       <div id="loginStatus">
-        <div id="loginStatusNo" style="display: none">
-          <a href="<?php echo $wallMakerRoot ?>/login" id="browserid"
-              title="Mozilla Personaでサインインする">サインイン</a>
-        </div>
-        <div id="loginStatusYes" style="display: none">
-          <span class="login-mail" id="loginMail"></span>
-          <span class="logout">(<a href="<?php echo $wallMakerRoot ?>/logout"
-            id="logout">Logout</a>)</span>
-        </div>
-        <div id="loginError" style="display: none">
-        </div>
+        <span class="login-mail" id="loginMail"></span>
+        <span class="logout">(<a href="<?php echo $wallMakerRoot ?>/logout"
+          id="logout">サインアウト</a>)</span>
       </div>
       <a href="http://www.mozilla.org" class="mozilla-tab"><img 
         src="/img/tab.png"></a>
@@ -64,14 +58,13 @@
     <p>Loading&hellip;</p>
   </div>
   <div class="screen" id="loggedOut">
-    <div class="callout wallExplain">
-      <p>壁の説明</p>
+    <div id="loginError" aria-hidden="true" class="callout">
     </div>
     <div class="callout loginExplain">
-      <p>ログイン (Mozilla Personaについて説明する)</p>
+      <p>(Mozilla Personaについて説明する)</p>
       <div class="loginButtonLarge">
-        <button onclick="javascript:LoginController.login()"
-          type="button">Login</button>
+        <a href="<?php echo $wallMakerRoot ?>/login"
+          class="persona-button orange"><span>サインイン</span></a>
       </div>
     </div>
   </div>
