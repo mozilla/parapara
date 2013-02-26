@@ -22,24 +22,78 @@ div[aria-hidden=true], section[aria-hidden=true] {
  * Buttons
  */
 a.button, button {
+  display: inline-block;
   width: 200px;
-  border-radius: 10px;
+  border-radius: 12px;
   vertical-align: middle;
   background-color: rgb(61, 51, 20);
   text-align: center;
   padding: 0.5em 0;
-  margin: 1em auto;
+  margin: 1em 2em;
   color: white;
+  font-size: 18px;
 }
 a.button {
   text-decoration: none;
-  display: block;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+button {
+  border-width: 0;
+  -moz-box-sizing: content-box;
+  box-sizing: content-box;
 }
 a.button:hover, button:hover {
   background-color: black;
 }
-button {
-  font-size: 16px;
+a.button.center, button.center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/*
+ * Arrow buttons
+ */
+button.arrow, a.button.arrow {
+  position: relative;
+}
+button.arrow.left, a.button.arrow.left {
+  border-top-left-radius: 14px !important;
+  border-bottom-left-radius: 14px !important;
+}
+button.arrow.right, a.button.arrow.right {
+  border-top-right-radius: 14px !important;
+  border-bottom-right-radius: 14px !important;
+}
+button.arrow:before, a.button.arrow:before {
+  content: " ";
+  display: block;
+  width: 0;
+  height: 0;
+  border: 1em solid transparent;
+  border-right-width: 1.7em;
+  border-left-width: 1.7em;
+  position: absolute;
+  top: 50%;
+  margin-top: -1em;
+  z-index: 1;
+}
+button.arrow.left:before, a.button.arrow.left:before {
+  border-right-color: rgb(61, 51, 20);
+  right: 189px;
+}
+button.arrow.right:before, a.button.arrow.right:before {
+  border-left-color: rgb(61, 51, 20);
+  left: 189;
+}
+button.arrow.left:hover:before, a.button.arrow.left:hover:before {
+  border-right-color: black;
+}
+button.arrow.right:hover:before, a.button.arrow.right:hover:before {
+  border-left-color: black;
 }
 
 /*
@@ -155,8 +209,8 @@ hr {
   margin-right: auto;
 }
 #screen-new button {
-  padding: 0.4em 1.2em;
-  margin: 0 0.3em;
+  margin-left: 0.3em;
+  margin-right: 0.3em;
 }
 #create-eventName {
   max-width: 20em;

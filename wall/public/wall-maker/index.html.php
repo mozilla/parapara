@@ -70,7 +70,7 @@
   </div>
   <div class="screen" id="screen-home">
     <a href="<?php echo $wallMakerRoot ?>/new"
-      class="button newWallLink">新しい壁を作る</a>
+      class="button newWallLink center">新しい壁を作る</a>
     <hr/>
     <div id="prevWalls">
       <h2>壁の管理</h2>
@@ -115,7 +115,8 @@
   </div>
   <div class="screen" id="screen-manage">
     <nav aria-role="navigation">
-      <a href="<?php echo $wallMakerRoot ?>/" class="button">戻る</a>
+      <a href="<?php echo $wallMakerRoot ?>/"
+        class="button left arrow">戻る</a><br>
     </nav>
     <hr>
     <div id="wall-loading" aria-hidden="false">
@@ -253,7 +254,8 @@
   <div class="screen" id="screen-error">
     <div class="error">
     </div>
-    <a href="<?php echo $wallMakerRoot ?>/" class="button">戻る</a>
+    <a href="<?php echo $wallMakerRoot ?>/"
+      class="button arrow left">戻る</a>
   </div>
 </div>
 </body>
