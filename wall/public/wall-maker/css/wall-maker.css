@@ -43,6 +43,7 @@ a.button {
 button {
   border-width: 0;
   -moz-box-sizing: content-box;
+  -webkit-box-sizing: content-box;
   box-sizing: content-box;
 }
 a.button:hover, button:hover {
@@ -58,42 +59,22 @@ a.button.center, button.center {
  * Arrow buttons
  */
 button.arrow, a.button.arrow {
-  position: relative;
+  background-size: 100% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: transparent;
 }
 button.arrow.left, a.button.arrow.left {
-  border-top-left-radius: 14px !important;
-  border-bottom-left-radius: 14px !important;
+  background-image: url("data:image/svg+xml,<svg viewBox='0 0 200 36' height='100%' width='100%' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none'><path fill='rgb(61, 51, 20)' d='M200,5c0,-2,-2,-5,-5,-5h-168c-6,0,-26,14,-26,18c0,4,20,18,26,18h168c3,0,5,-2,5,-5z'/></svg>");
 }
 button.arrow.right, a.button.arrow.right {
-  border-top-right-radius: 14px !important;
-  border-bottom-right-radius: 14px !important;
+  background-image: url("data:image/svg+xml,<svg viewBox='0 0 200 36' height='100%' width='100%' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none'><path fill='rgb(61, 51, 20)' d='M0,5c0,-2,2,-5,5,-5h168c6,0,26,14,26,18c0,4,-20,18,-26,18h-168c-3,0,-5,-2,-5,-5z'/></svg>");
 }
-button.arrow:before, a.button.arrow:before {
-  content: " ";
-  display: block;
-  width: 0;
-  height: 0;
-  border: 1em solid transparent;
-  border-right-width: 1.7em;
-  border-left-width: 1.7em;
-  position: absolute;
-  top: 50%;
-  margin-top: -1em;
-  z-index: 1;
+button.arrow.left:hover, a.button.arrow.left:hover {
+  background-image: url("data:image/svg+xml,<svg viewBox='0 0 200 36' height='100%' width='100%' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none'><path fill='black' d='M200,5c0,-2,-2,-5,-5,-5h-168c-6,0,-26,14,-26,18c0,4,20,18,26,18h168c3,0,5,-2,5,-5z'/></svg>");
 }
-button.arrow.left:before, a.button.arrow.left:before {
-  border-right-color: rgb(61, 51, 20);
-  right: 189px;
-}
-button.arrow.right:before, a.button.arrow.right:before {
-  border-left-color: rgb(61, 51, 20);
-  left: 189;
-}
-button.arrow.left:hover:before, a.button.arrow.left:hover:before {
-  border-right-color: black;
-}
-button.arrow.right:hover:before, a.button.arrow.right:hover:before {
-  border-left-color: black;
+button.arrow.right:hover, a.button.arrow.right:hover {
+  background-image: url("data:image/svg+xml,<svg viewBox='0 0 200 36' height='100%' width='100%' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none'><path fill='black' d='M0,5c0,-2,2,-5,5,-5h168c6,0,26,14,26,18c0,4,-20,18,-26,18h-168c-3,0,-5,-2,-5,-5z'/></svg>");
 }
 
 /*
