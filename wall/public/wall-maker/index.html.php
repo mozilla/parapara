@@ -250,14 +250,14 @@
             <h3>セッション２</h3>
           </section>
         </div>
-      </section>
+      </div>
     </div>
   </div>
   <div class="screen" id="screen-error">
     <div class="error">
     </div>
     <a href="<?php echo $wallMakerRoot ?>/"
-      class="button arrow left">戻る</a>
+      class="button arrow left center">戻る</a>
   </div>
 </div>
 </body>
