@@ -29,7 +29,7 @@ a.button, button {
   background-color: rgb(61, 51, 20);
   text-align: center;
   padding: 0.5em 0;
-  margin: 1em 2em;
+  margin: 0 1em;
   color: white;
   font-size: 18px;
 }
@@ -101,6 +101,9 @@ header .heading {
   /* Prevent margin collapsing */
   padding-top: 1px;
   padding-bottom: 1px;
+}
+.screen nav {
+  margin: 1em;
 }
 
 /*

@@ -69,8 +69,10 @@
     </div>
   </div>
   <div class="screen" id="screen-home">
-    <a href="<?php echo $wallMakerRoot ?>/new"
-      class="button newWallLink center">新しい壁を作る</a>
+    <nav aria-role="navigation">
+      <a href="<?php echo $wallMakerRoot ?>/new"
+        class="button newWallLink center">新しい壁を作る</a>
+    </nav>
     <hr/>
     <div id="prevWalls">
       <h2>壁の管理</h2>
