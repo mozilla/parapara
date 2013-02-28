@@ -47,7 +47,7 @@ function getEditorStyleSheetForDesign($designName) {
 //   (thumbnail) - the thumbnail graphic, if any, used to represent this design
 //   (video) - the video preview, if any, used to represent this design
 //   duration - the default duration for this design
-function getDesignSummary($path) {
+function getDesignSummary() {
   $conn =& getDbConnection();
   $res =& $conn->query(
     'SELECT name, mediaName, duration FROM designs ORDER BY designId');
@@ -60,12 +60,49 @@ function getDesignSummary($path) {
   $result = array();
   $conn->setFetchMode(MDB2_FETCHMODE_ASSOC);
   while ($row = $res->fetchRow()) {
-    $result[] =
+    $design =
       array(
         'name' => $row['name'],
         'duration' => $row['duration']
       );
+    $media = _getMedia($row['medianame']);
+    $result[] = array_merge($design, $media);
   }
+
+  return $result;
+}
+
+function _getMedia($mediaName) {
+  $result = array();
+
+  // If we ever allow users to enter designs into the database then we'll need 
+  // to sanitize mediaName here
+  $mediaPath = dirname(__FILE__) . '/../public/wall-maker/designs/';
+
+  // Check for SVG file
+  if (file_exists($mediaPath . $mediaName . '.svg')) {
+    $result['svg'] = "designs/$mediaName.svg";
+  }
+
+  // Check for thumbnail
+  $extensions = array('png', 'jpg', 'jpeg', 'gif');
+  foreach ($extensions as $extension) {
+    if (file_exists($mediaPath . $mediaName . '.' . $extension)) {
+      $result['thumbnail'] = "designs/$mediaName.$extension";
+      break;
+    }
+  }
+
+  // Check for videos
+  $extensions = array('mp4', 'webm');
+  $videos = array();
+  foreach ($extensions as $extension) {
+    if (file_exists($mediaPath . $mediaName . '.' . $extension)) {
+      $videos[] = "designs/$mediaName.$extension";
+    }
+  }
+  if (count($videos))
+    $result['video'] = $videos;
 
   return $result;
 }
