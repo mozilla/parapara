@@ -26,8 +26,8 @@ function getDbConnection() {
   if (!$conn) {
     $conn =& MDB2::factory($config['db']['dsn']);
     if (PEAR::isError($conn)) {
-      error_log('Error connecting to DB: ' . $mdb2->getMessage()
-                 . ', ' . $mdb2->getDebugInfo());
+      error_log('Error connecting to DB: ' . $conn->getMessage()
+                 . ', ' . $conn->getDebugInfo());
       throw new KeyedException('db-error');
     }
   }

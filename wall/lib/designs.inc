@@ -39,4 +39,35 @@ function getEditorStyleSheetForDesign($designName) {
   return file_exists($fsPath) ? $styleSheetPath : null;
 }
 
+// Get the summary of all designs
+//
+// Returns
+//   name - design name (not needed?)
+//   (svg) - the SVG file, if any, used to represent this design
+//   (thumbnail) - the thumbnail graphic, if any, used to represent this design
+//   (video) - the video preview, if any, used to represent this design
+//   duration - the default duration for this design
+function getDesignSummary($path) {
+  $conn =& getDbConnection();
+  $res =& $conn->query(
+    'SELECT name, mediaName, duration FROM designs ORDER BY designId');
+
+  if (PEAR::isError($res)) {
+    error_log($res->getMessage() . ', ' . $res->getDebugInfo());
+    throw new KeyedException('db-error');
+  }
+
+  $result = array();
+  $conn->setFetchMode(MDB2_FETCHMODE_ASSOC);
+  while ($row = $res->fetchRow()) {
+    $result[] =
+      array(
+        'name' => $row['name'],
+        'duration' => $row['duration']
+      );
+  }
+
+  return $result;
+}
+
 ?>
