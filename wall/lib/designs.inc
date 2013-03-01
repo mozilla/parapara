@@ -50,7 +50,7 @@ function getEditorStyleSheetForDesign($designName) {
 function getDesignSummary() {
   $conn =& getDbConnection();
   $res =& $conn->query(
-    'SELECT name, mediaName, duration FROM designs ORDER BY designId');
+    'SELECT name, duration FROM designs ORDER BY designId');
 
   if (PEAR::isError($res)) {
     error_log($res->getMessage() . ', ' . $res->getDebugInfo());
@@ -65,30 +65,30 @@ function getDesignSummary() {
         'name' => $row['name'],
         'duration' => $row['duration']
       );
-    $media = _getMedia($row['medianame']);
+    $media = _getMedia($row['name']);
     $result[] = array_merge($design, $media);
   }
 
   return $result;
 }
 
-function _getMedia($mediaName) {
+function _getMedia($name) {
   $result = array();
 
   // If we ever allow users to enter designs into the database then we'll need 
-  // to sanitize mediaName here
-  $mediaPath = dirname(__FILE__) . '/../public/wall-maker/designs/';
+  // to sanitize name here
+  $mediaPath = dirname(__FILE__) . '/../public/designs/';
 
   // Check for SVG file
-  if (file_exists($mediaPath . $mediaName . '.svg')) {
-    $result['svg'] = "designs/$mediaName.svg";
+  if (file_exists("$mediaPath$name/preview/$name.svg")) {
+    $result['svg'] = "/designs/$name/preview/$name.svg";
   }
 
   // Check for thumbnail
   $extensions = array('png', 'jpg', 'jpeg', 'gif');
   foreach ($extensions as $extension) {
-    if (file_exists($mediaPath . $mediaName . '.' . $extension)) {
-      $result['thumbnail'] = "designs/$mediaName.$extension";
+    if (file_exists("$mediaPath$name/preview/$name.$extension")) {
+      $result['thumbnail'] = "/designs/$name/preview/$name.$extension";
       break;
     }
   }
@@ -97,8 +97,8 @@ function _getMedia($mediaName) {
   $extensions = array('mp4', 'webm');
   $videos = array();
   foreach ($extensions as $extension) {
-    if (file_exists($mediaPath . $mediaName . '.' . $extension)) {
-      $videos[] = "designs/$mediaName.$extension";
+    if (file_exists("$mediaPath$name/preview/$name.$extension")) {
+      $videos[] = "/designs/$name/preview/$name.$extension";
     }
   }
   if (count($videos))

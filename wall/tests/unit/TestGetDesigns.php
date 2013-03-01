@@ -9,25 +9,36 @@ require_once('ParaparaTestCase.php');
 
 class GetDesignsTestCase extends ParaparaTestCase {
 
-  protected $mediaPath;
+  protected $designsPath;
+  protected $testFolder;
 
   function __construct() {
     parent::__construct();
-    $this->mediaPath = dirname(__FILE__) . '/../../public/wall-maker/designs/';
+    $this->designsPath = dirname(__FILE__) . '/../../public/designs/';
   }
 
   function setUp() {
     // Add a test row
     $query =
       'INSERT INTO designs'
-      . ' (name, mediaName, duration)'
-      . ' VALUES ("test", "test-media", 3000)';
+      . ' (name, duration)'
+      . ' VALUES ("test", 3000)';
     $res =& $this->getConnection()->query($query);
     if (PEAR::isError($res)) {
       die($res->getMessage() . ', ' . $res->getDebugInfo());
     }
-
-    $this->cleanUpFiles();
+    // Add folder for files
+    if (!file_exists($this->designsPath . "test")) {
+      if (!mkdir($this->designsPath . "test")) {
+        die("Couldn't create test folder");
+      }
+    }
+    if (!file_exists($this->designsPath . "test/preview")) {
+      if (!mkdir($this->designsPath . "test/preview")) {
+        die("Couldn't create preview folder");
+      }
+    }
+    $this->testFolder = $this->designsPath . "test/preview/";
   }
 
   function tearDown() {
@@ -37,13 +48,25 @@ class GetDesignsTestCase extends ParaparaTestCase {
     if (PEAR::isError($res)) {
       die($res->getMessage() . ', ' . $res->getDebugInfo());
     }
-
+    // Clean up test files
     $this->cleanUpFiles();
   }
 
   function cleanUpFiles() {
-    foreach (glob($this->mediaPath . 'test-media.*') as $filename) {
-      unlink($filename);
+    // Remove test/preview
+    if (file_exists($this->testFolder)) {
+      foreach (glob($this->testFolder . '*.*') as $filename) {
+        unlink($filename);
+      }
+      if (!rmdir($this->testFolder)) {
+        die("Couldn't remove preview folder");
+      }
+    }
+    // Remove test
+    if (file_exists($this->designsPath . "test")) {
+      if (!rmdir($this->designsPath . "test")) {
+        die("Couldn't remove test folder");
+      }
     }
   }
 
@@ -79,13 +102,13 @@ class GetDesignsTestCase extends ParaparaTestCase {
                       "Unexpected svg entry in design");
 
     // Add an SVG file
-    $this->createMediaFile('test-media.svg');
+    $this->createMediaFile('test.svg');
 
     // Fetch again
     $design = $this->getTestDesign();
     $this->assertTrue(array_key_exists('svg', $design),
                       "SVG entry should exist");
-    $this->assertTrue($design['svg'] == 'designs/test-media.svg',
+    $this->assertTrue($design['svg'] == '/designs/test/preview/test.svg',
                       "Unexpected SVG file: " . $design['svg']);
   }
 
@@ -97,28 +120,28 @@ class GetDesignsTestCase extends ParaparaTestCase {
                       "Unexpected thumbnail entry in design");
 
     // Add a JPG file
-    $this->createMediaFile('test-media.jpg');
+    $this->createMediaFile('test.jpg');
     $this->checkForThumbnail('jpg');
 
     // Add a PNG file (should win)
-    $this->createMediaFile('test-media.png');
+    $this->createMediaFile('test.png');
     $this->checkForThumbnail('png');
 
     // Remove PNG and JPG should be back
-    unlink($this->mediaPath . 'test-media.png');
+    unlink($this->testFolder . 'test.png');
     $this->checkForThumbnail('jpg');
 
     // Add GIF (JPG should win)
-    $this->createMediaFile('test-media.gif');
+    $this->createMediaFile('test.gif');
     $this->checkForThumbnail('jpg');
 
     // Remove JPG
-    unlink($this->mediaPath . 'test-media.jpg');
+    unlink($this->testFolder . 'test.jpg');
     $this->checkForThumbnail('gif');
   }
 
   function checkForThumbnail($extension) {
-    $expected = "designs/test-media.$extension";
+    $expected = "/designs/test/preview/test.$extension";
     $design = $this->getTestDesign();
     $this->assertTrue(array_key_exists('thumbnail', $design),
                       "Thumbnail entry should exist, expected: $expected");
@@ -137,7 +160,7 @@ class GetDesignsTestCase extends ParaparaTestCase {
                       "Unexpected video entry in design");
 
     // Add MP4
-    $this->createMediaFile('test-media.mp4');
+    $this->createMediaFile('test.mp4');
     $design = $this->getTestDesign();
     $this->assertTrue(array_key_exists('video', $design),
                       "Video entry should exist");
@@ -145,24 +168,24 @@ class GetDesignsTestCase extends ParaparaTestCase {
       "Video entry should be an array");
     $this->assertTrue(count($design['video']) === 1,
       "Should be only one video entry");
-    $this->assertTrue($design['video'][0] == 'designs/test-media.mp4',
+    $this->assertTrue($design['video'][0] == '/designs/test/preview/test.mp4',
       "Unexpected video file: " . $design['video'][0]);
 
     // Add WebM
-    $this->createMediaFile('test-media.webm');
+    $this->createMediaFile('test.webm');
     $design = $this->getTestDesign();
     $this->assertTrue(count($design['video']) === 2,
       "Should be two video entries");
-    $this->assertTrue($design['video'][0] == 'designs/test-media.mp4',
+    $this->assertTrue($design['video'][0] == '/designs/test/preview/test.mp4',
       "Unexpected video file: " . $design['video'][0]);
-    $this->assertTrue($design['video'][1] == 'designs/test-media.webm',
+    $this->assertTrue($design['video'][1] == '/designs/test/preview/test.webm',
       "Unexpected video file: " . $design['video'][1]);
   }
 
   function getDesigns() {
     // Make request
     global $config;
-    $url = $config['test']['wall_server'] . 'wall-maker/api/designs';
+    $url = $config['test']['wall_server'] . 'designs';
     $response = $this->get($url);
 
     // Check response
@@ -192,7 +215,7 @@ class GetDesignsTestCase extends ParaparaTestCase {
   }
 
   function createMediaFile($filename) {
-    $file = $this->mediaPath . $filename;
+    $file = $this->testFolder . $filename;
     $handle = fopen($file, 'w');
     fclose($handle);
   }

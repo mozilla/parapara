@@ -11,6 +11,7 @@ Wall API
 /wall/<wall-name>/sessions/<session-id>[GET; text/json] - return times etc. for
                                                           session
 /wall/<wall-name>/characters - return live list of characters for the given wall
+                               [_Server-sent events_]
 /wall/<wall-name>/characters[POST] - upload a character for a given wall at
                                      a given position
 /wall/<wall-name>/sessions/<session-id>/characters - return (non-live) list of
@@ -38,6 +39,6 @@ Example media:
 /designs/<design-name>/preview.{mp4,webm}
 
 /wall/<wall-name>/session/<session-id>/gallery - show gallery view of wall
-/wall/<wall-name>/gallery - show all characters from all sessions in order
+/wall/<wall-name>/gallery - show all (non-hidden) characters from all sessions in order of submission
 
 /gallery - list all walls that are publicly listed as galleries

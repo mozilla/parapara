@@ -18,27 +18,27 @@
     </filter>
   </defs>
 
-  <image xlink:href="templates/space/images/back01.jpg" width="2560" height="1024">
+  <image xlink:href="images/back01.jpg" width="2560" height="1024">
     <animateTransform attributeName="transform" type="translate"
       from="-2555 -200" to="2555 -200" begin="-60s" repeatCount="indefinite"
       dur="120s"/>
   </image>
-  <image xlink:href="templates/space/images/back02.jpg" width="2560" height="1024">
+  <image xlink:href="images/back02.jpg" width="2560" height="1024">
     <animateTransform attributeName="transform" type="translate"
       from="-2555 -200" to="2555 -200" repeatCount="indefinite" dur="120s"/>
   </image>
 
-  <image xlink:href="templates/space/images/ground.png" transform="translate(0 564)"
+  <image xlink:href="images/ground.png" transform="translate(0 564)"
     width="1280" height="254"/>
 
   <g transform="translate(-1050 20)" >
-    <image xlink:href="templates/space/images/oku.png" width="3400" height="3400">
+    <image xlink:href="images/oku.png" width="3400" height="3400">
       <animateTransform attributeName="transform" type="rotate"
         from="0 1700 1700" to="360 1700 1700"
         repeatCount="indefinite" additive="sum" dur="300s" />
     </image>
 
-    <image xlink:href="templates/space/images/naka.png" width="3400" height="3400">
+    <image xlink:href="images/naka.png" width="3400" height="3400">
       <animateTransform attributeName="transform" type="rotate"
         from="0 1700 1700" to="360 1700 1700"
         repeatCount="indefinite" additive="sum" dur="240s"/>
@@ -62,7 +62,7 @@
 
     </g>
 
-    <image xlink:href="templates/space/images/temae.png" width="3400" height="3400">
+    <image xlink:href="images/temae.png" width="3400" height="3400">
       <animateTransform attributeName="transform" type="rotate"
         from="0 1700 1700" to="360 1700 1700" repeatCount="indefinite"
         additive="sum" dur="200s"/>

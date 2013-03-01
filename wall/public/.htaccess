@@ -1,2 +1,10 @@
 Options -Indexes +MultiViews
 DirectoryIndex index.html index.htm index.svg index.php
+
+<ifModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+  # Make designs go to designs/index.php
+  DirectorySlash Off
+  RewriteRule ^designs$ designs/index.php [L]
+</ifModule>

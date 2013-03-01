@@ -18,13 +18,13 @@
     </filter>
   </defs>
 
-  <image xlink:href="templates/street/images/layer1.jpg" width="1524" height="279">
+  <image xlink:href="images/layer1.jpg" width="1524" height="279">
     <animateTransform attributeName="transform" type="translate"
       from="-1524 0" to="1524 0" repeatCount="indefinite"
       dur="120s"/>
   </image>
 
-  <image xlink:href="templates/street/images/layer2.jpg" width="1832" height="400">
+  <image xlink:href="images/layer2.jpg" width="1832" height="400">
     <animateTransform attributeName="transform" type="translate"
       from="-1832 350" to="1832 350" repeatCount="indefinite"
       dur="80s"/>
@@ -33,7 +33,7 @@
   <g id="main-layer">
   </g>
 
-  <image xlink:href="templates/street/images/layer3.png" width="2048" height="800">
+  <image xlink:href="images/layer3.png" width="2048" height="800">
     <animateTransform attributeName="transform" type="translate"
       from="-2048 0" to="2048 0" repeatCount="indefinite"
       dur="60s"/>

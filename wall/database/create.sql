@@ -7,8 +7,7 @@ DROP TABLE IF EXISTS `users`;
 
 CREATE TABLE `designs` (
   `designId` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL COMMENT 'A descriptive name for the type of design. This will need to be localized eventually.',
-  `mediaName` varchar(255) DEFAULT NULL COMMENT 'The filename prefix of the thumbnail, video preview etc.',
+  `name` varchar(255) NOT NULL COMMENT 'The filename path of this design',
   `duration` int(8) DEFAULT NULL COMMENT 'Default duration of this design in milliseconds',
   PRIMARY KEY (`designId`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='Catalogue of wall styles';
@@ -65,5 +64,5 @@ CREATE TABLE `characters` (
   FOREIGN KEY (`sessionId`) REFERENCES sessions(`sessionId`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
-INSERT INTO designs (designId, name, mediaName, duration) VALUES(1, 'space', 'space', 240000);
-INSERT INTO designs (designId, name, mediaName, duration) VALUES(2, 'street', 'wa', 120000);
+INSERT INTO designs (designId, name, duration) VALUES(1, 'space', 240000);
+INSERT INTO designs (designId, name, duration) VALUES(2, 'wa', 120000);
