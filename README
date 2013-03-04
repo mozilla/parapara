@@ -8,12 +8,9 @@ creating & sharing on the web.
 Currently the project consists of two parts:
 
 1. An (client-side) editor for creating individual animations to be added to the
-   master.
+   master animation.
 2. A "wall" feature (server-side) which collects and displays the individual
-   animations in one master presentation. 
-
-The first part is maintained in a separate parapara-editor repository. This
-repository contains the second, server-side, part.
+   animations in one master animation.
 
 LICENSE
 
