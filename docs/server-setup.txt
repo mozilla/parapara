@@ -2,6 +2,7 @@ Parapara server setup
 =====================
 
 Requirements:
+* Apache 2.*
 * PHP 5
 * MySQL
 
@@ -83,14 +84,20 @@ Stuff for secure mail (PHP license):
 Testing framework:
 
   SimpleTest (LGPL)
+  See: http://www.simpletest.org/en/download.html
 
 Configuration
 =============
 
-config.inc.sample
+Need to copy 'config.inc.sample' in wall/lib to 'config.inc' and adjust the
+parameters.
+
+For running tests, you need to do the same with config.test.inc.sample.
 
 Running tests
 =============
 
-Need to install PHPUnit:
-https://github.com/sebastianbergmann/phpunit
+If you are using the same Apache setup as above, you should be able to browse
+and run the tests by opening:
+
+  http://localhost:8081/tests/
