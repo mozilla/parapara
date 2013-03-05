@@ -22,24 +22,19 @@ function getStylesheet() {
   // Get design name
   $design = null;
   try {
-    $design = getDesignForWallPath($wall);
+    $design = DesignGallery::getByWallPath($wall);
   } catch (KeyedException $e) {
     error_log(print_r($e, true));
   }
-  if (!$design || !isset($design['name']) || strlen($design['name']) == 0)
-    return null;
-
-  // Get stylesheet
-  $stylesheet = getEditorStyleSheetForDesign($design['name']);
-  if (!$stylesheet)
+  if (!$design || $design->editorStylesheet === null)
     return null;
 
   // Construct URL to stylesheet
+  // XXX Rename upload_server to wall_server
   $server_path = $config['editor']['upload_server'];
   // Make sure server path ends with a /
   if (substr($server_path, -1) !== "/")
     $server_path .= "/";
-  // XXX Rename upload_server to wall_server
-  return $server_path . $stylesheet;
+  return $server_path . $design->editorStylesheet;
 }
 ?>

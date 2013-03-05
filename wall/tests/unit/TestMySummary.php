@@ -61,7 +61,7 @@ class TestMySummary extends WallMakerTestCase {
                       "Unexpected wall id: " . $wall['wallId']);
     $this->assertTrue($wall['eventName'] === "Test wall",
                       "Unexpected event name: " . $wall['eventName']);
-    $this->assertTrue($wall['thumbnail'] === "designs/test/preview/test.jpg",
+    $this->assertTrue($wall['thumbnail'] === "/designs/test/preview/test.jpg",
                       "Unexpected thumbnail: " . $wall['thumbnail']);
     $this->assertTrue($wall['galleryDisplay'] === true,
                       "Unexpected gallery display: " . $wall['galleryDisplay']);

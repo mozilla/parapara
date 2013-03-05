@@ -7,6 +7,7 @@ require_once("parapara.inc");
 require_once("db.inc");
 require_once("exceptions.inc");
 require_once("UriUtils.inc");
+require_once("designs.inc");
 
 // When updating this, be sure to update wall.js as well
 define("WALLMAKER_SESSION_NAME", "WMSESSID");
@@ -30,7 +31,7 @@ function getWallSummaryForUser($email) {
 
   // Run query
   $res =& $conn->query(
-      'SELECT walls.wallId, walls.eventName, designs.name,'
+      'SELECT walls.wallId, walls.eventName, designs.designId,'
     . ' walls.galleryDisplay, walls.createDate, walls.modifyDate,'
     . ' walls.designId'
     . ' FROM users, walls'
@@ -49,11 +50,17 @@ function getWallSummaryForUser($email) {
   $result = array();
   $conn->setFetchMode(MDB2_FETCHMODE_ASSOC);
   while ($row = $res->fetchRow()) {
+    // Get design
+    $design = DesignGallery::getById(intval($row['designid']));
+    $thumbnail = $design && $design->thumbnail
+               ? $design->thumbnail
+               : null;
+
     $result[] =
       array(
         'wallId' => intval($row['wallid']),
         'eventName' => $row['eventname'],
-        'thumbnail' => 'XXX',
+        'thumbnail' => $thumbnail,
         'galleryDisplay' => !!($row['gallerydisplay']),
         'createDate' => $row['createdate'],
         'modifyDate' => $row['modifydate']
