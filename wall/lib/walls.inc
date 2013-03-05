@@ -25,42 +25,35 @@ define("WALLMAKER_SESSION_NAME", "WMSESSID");
 // sort before older walls.
 
 function getWallSummaryForUser($email) {
-  // XXX Convert this to use exceptions
   // Get connection
-  global $config;
-  $mdb2 =& MDB2::factory($config['db']['dsn']);
-  if (PEAR::isError($mdb2)) {
-    error_log('Error connecting to DB: ' . $mdb2->getMessage()
-               . ', ' . $mdb2->getDebugInfo());
-    return null;
-  }
+  $conn =& getDbConnection();
 
   // Run query
-  $res =& $mdb2->query(
-      'SELECT walls.wallId, walls.eventName, designs.thumbUrl,'
-    . ' walls.galleryDisplay, walls.createDate, walls.modifyDate, walls.designId'
+  $res =& $conn->query(
+      'SELECT walls.wallId, walls.eventName, designs.name,'
+    . ' walls.galleryDisplay, walls.createDate, walls.modifyDate,'
+    . ' walls.designId'
     . ' FROM users, walls'
     . ' LEFT JOIN designs on designs.designId = walls.designId'
     . ' WHERE users.email = '
-    . $mdb2->quote($email, 'text')
+    . $conn->quote($email, 'text')
     . '   AND walls.owner = users.userId'
     . ' ORDER BY walls.createDate DESC');
   if (PEAR::isError($res)) {
     error_log($res->getMessage() . ', ' . $res->getDebugInfo());
-    return null;
+    throw new KeyedException('db-error');
   }
 
   // Process each array so we can tweak the values and make them a little less 
   // bound to the db schema
   $result = array();
-  $mdb2->setFetchMode(MDB2_FETCHMODE_ASSOC);
+  $conn->setFetchMode(MDB2_FETCHMODE_ASSOC);
   while ($row = $res->fetchRow()) {
     $result[] =
       array(
-        'wallId' => $row['wallid'],
+        'wallId' => intval($row['wallid']),
         'eventName' => $row['eventname'],
-        'thumb' => $row['thumburl'],
-        'designId' => intval($row['designid']),
+        'thumbnail' => 'XXX',
         'galleryDisplay' => !!($row['gallerydisplay']),
         'createDate' => $row['createdate'],
         'modifyDate' => $row['modifydate']
@@ -68,7 +61,7 @@ function getWallSummaryForUser($email) {
   }
 
   // Tidy up and finish
-  $mdb2->disconnect();
+  $conn->disconnect();
 
   return $result;
 }

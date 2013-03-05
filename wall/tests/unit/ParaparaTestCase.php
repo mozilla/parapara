@@ -11,16 +11,25 @@ require_once('simpletest/web_tester.php');
 // See: http://sourceforge.net/tracker/?func=detail&aid=3473481&group_id=76550&atid=547455
 SimpleTest::ignore('WebTestCase');
 
+/*
+ * An abstract base class for all Parapara tests.
+ *
+ * This base class wraps up direct access to the database.
+ */
 abstract class ParaparaTestCase extends WebTestCase {
 
   // Database connection singleton
   static private $conn = null;
+
+  // Path to designs folder
+  protected $designsPath;
 
   function __construct($name = false) {
     parent::__construct($name);
     if (self::$conn === null) {
       self::initDb();
     }
+    $this->designsPath = dirname(__FILE__) . '/../../public/designs/';
   }
 
   private static function initDb() {
