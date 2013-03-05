@@ -3,8 +3,6 @@
 
 require_once(dirname(__FILE__) . "/../../../wall/lib/parapara.inc");
 require_once('designs.inc');
-// require_once("UriUtils.inc");
-// require_once('walls.inc');
 
 function getWall() {
   $uri = $_SERVER['REQUEST_URI'];

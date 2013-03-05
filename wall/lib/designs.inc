@@ -31,7 +31,7 @@ function getEditorStyleSheetForDesign($designName) {
   $designName = basename($designName);
 
   // Work out where the stylesheet *should* be
-  $styleSheetPath = "wall/templates/$designName/editor/editor.css";
+  $styleSheetPath = "designs/$designName/editor/editor.css";
   $baseDir = dirname(__FILE__) . '/../public/';
   $fsPath = $baseDir . $styleSheetPath;
 
