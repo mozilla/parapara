@@ -21,7 +21,7 @@ class Design {
   public function __construct($id, $name, $duration) {
     $this->id       = intval($id);
     $this->name     = $name;
-    $this->duration = $duration;
+    $this->duration = intval($duration);
     $this->filePath = dirname(__FILE__) . '/../public/designs/' . $name . '/';
   }
 

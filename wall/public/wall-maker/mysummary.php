@@ -17,13 +17,20 @@ if (!isset($_SESSION['email'])) {
   bailWithError('logged-out');
 }
 
-// Run the query
+// Get walls
 $walls = getWallSummaryForUser($_SESSION['email']);
 if ($walls === null) {
   bailWithError('db-error');
 }
-
 $result['walls'] = $walls;
+
+// Get designs
+try {
+  $designs = getDesignSummary();
+} catch (KeyedException $e) {
+  bailWithError($e->getKey(), $e->getDetail());
+}
+$result['designs'] = $designs;
 
 // Return the result
 print json_encode($result);

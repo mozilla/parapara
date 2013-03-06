@@ -65,18 +65,45 @@ class TestMySummary extends WallMakerTestCase {
                       "Unexpected thumbnail: " . $wall['thumbnail']);
     $this->assertTrue($wall['galleryDisplay'] === true,
                       "Unexpected gallery display: " . $wall['galleryDisplay']);
-    /* Check the dates are set and are in the right format
-        'createDate' => $row['createdate'],
-        'modifyDate' => $row['modifydate']
-     */
+    $dateRegEx = '/2\d{3}-[01]\d-[0-3]\d [0-2]\d:[0-5]\d:[0-5]\d/';
+    $this->assertTrue(preg_match($dateRegEx, $wall['createDate']),
+                      "Unexpected create date: " . $wall['createDate']);
+    $this->assertTrue(preg_match($dateRegEx, $wall['modifyDate']),
+                      "Unexpected modify date: " . $wall['modifyDate']);
 
     // Tidy up by removing the wall
     $this->removeWall($wallId);
   }
 
   function testDesigns() {
-    // Add a design
-    // Check its details
+    // We should have at least one design initially since
+    // WallMakerTestCase::setUp creates one
+    $this->login();
+    $summary = $this->getMySummary();
+    $this->assertTrue(array_key_exists('designs', $summary) &&
+                      is_array($summary['designs']) &&
+                      count($summary['designs']) >= 1,
+                      "Should have at least one design");
+
+    // Check the test design is there as expected
+    $testDesign = null;
+    foreach ($summary['designs'] as $design) {
+      if ($design['name'] === 'test') {
+        $testDesign = $design;
+        break;
+      }
+    }
+    $this->assertTrue($testDesign !== null, "Test design not found.");
+
+    // Check it has the expected information
+    $this->assertTrue(array_key_exists('id', $testDesign) &&
+                      is_int($testDesign['id']),
+                      "Design does not include designId or not numeric");
+    $this->assertTrue(array_key_exists('duration', $testDesign) &&
+                      is_int($testDesign['duration']),
+                      "Design does not include duration or not numeric");
+    $this->assertTrue(array_key_exists('thumbnail', $testDesign),
+                      "Design does not include thumbnail");
   }
 
   function getMySummary() {
