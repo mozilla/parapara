@@ -80,7 +80,7 @@
         壁ある
       </div>
       <div id="wallSummaryLoading">
-        壁読み込み中
+        <img src="img/spinner.gif">
       </div>
       <div id="wallSummaryError" aria-hidden="true">
         壁エラー

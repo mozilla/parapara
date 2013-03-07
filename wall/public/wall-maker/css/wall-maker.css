@@ -184,6 +184,10 @@ hr {
   margin-top: 5px;
   text-align: center;
 }
+#wallSummaryLoading {
+  text-align: center;
+  padding: 2em 0;
+}
 
 /*
  * Create wall wizard
