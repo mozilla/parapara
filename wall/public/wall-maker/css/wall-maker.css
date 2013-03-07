@@ -157,30 +157,31 @@ hr {
 /*
  * Wall list
  */
-#wallList li {
+#wallSummary {
+  margin-top: 2em;
+}
+#wallSummary ul {
+  padding: 0;
+  text-align: center;
+  margin: 0.5em 0;
+}
+#wallSummary li {
   display: inline-block;
-  width: 14em;
-  margin-bottom: 1em;
+  margin: 0 15px 1em 15px;
 }
-#wallList li:nth-child(odd) {
-  margin-right: 3em;
-}
-#wallList .thumbnail {
-  width: 14em;
-  height: 10em;
-  line-height: 10em;
+#wallSummary .thumbnail {
+  display: block;
+  padding: 15px;
   border-radius: 10px;
   background-color: rgb(61, 51, 20);
   vertical-align: middle;
-  text-align: center;
 }
-#wallList .thumbnail img {
-  width: 12em;
-  height: 8em;
+#wallSummary .thumbnail img {
   border-radius: 10px;
   vertical-align: middle;
 }
-#wallList .label {
+#wallSummary .label {
+  margin-top: 5px;
   text-align: center;
 }
 

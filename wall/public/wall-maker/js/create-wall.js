@@ -55,7 +55,7 @@ var CreateWallController =
 
     var id = response.wallId;
     this.clearAll();
-    updateWalls();
+    UserData.updateWalls();
     sessionStorage.setItem("messageKey", "create-wall-success");
     Navigation.goToScreen("wall/" + id + "#event");
   },

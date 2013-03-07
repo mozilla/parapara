@@ -32,9 +32,10 @@ var LoginController =
     // We do this here and not in loggedOut since we can arrive at loggedOut due
     // to a timeout and not a deliberate request to clear everything.
     //
-    // XXX Clear list of walls
     $('loginMail').textContent = '';
     CreateWallController.clearAll();
+    WallSummaryController.clear();
+    // XXX Clear manage screen details
     sessionStorage.clear();
   },
 
@@ -49,7 +50,7 @@ var LoginController =
     $('loginMail').textContent = email;
     $('loginStatus').setAttribute('aria-hidden', 'false');
     Navigation.goToCurrentScreen();
-    updateWalls();
+    UserData.update(); // Update walls, designs list, prefs etc.
   },
 
   loggedOut: function() {

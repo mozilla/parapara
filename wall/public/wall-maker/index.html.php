@@ -21,9 +21,10 @@
     var WallMaker = WallMaker || {};
     WallMaker.rootUrl = '<?php echo $wallMakerRoot ?>';
   </script>
+  <script src="<?php echo $wallMakerRoot ?>/js/utils.js"></script>
   <script src="<?php echo $wallMakerRoot ?>/js/xhr.js"></script>
   <script src="<?php echo $wallMakerRoot ?>/js/login.js"></script>
-  <script src="<?php echo $wallMakerRoot ?>/js/wall.js"></script>
+  <script src="<?php echo $wallMakerRoot ?>/js/user-data.js"></script>
   <script src="<?php echo $wallMakerRoot ?>/js/navi.js"></script>
   <script src="<?php echo $wallMakerRoot ?>/js/create-wall.js"></script>
   <script src="<?php echo $wallMakerRoot ?>/js/manage-wall.js"></script>
@@ -69,14 +70,30 @@
     </div>
   </div>
   <div class="screen" id="screen-home">
-    <nav aria-role="navigation">
-      <a href="<?php echo $wallMakerRoot ?>/new"
-        class="button newWallLink center">新しい壁を作る</a>
-    </nav>
-    <hr/>
-    <div id="prevWalls">
-      <h2>壁の管理</h2>
-      <div id="wallList" class="thumbnailGrid"></div>
+    <div id="wallSummaryHome">
+      <nav aria-role="navigation">
+        <a href="<?php echo $wallMakerRoot ?>/new"
+          class="button newWallLink center">新しい壁を作る</a>
+      </nav>
+      <hr/>
+      <div id="wallSummary" class="thumbnailGrid" aria-hidden="true">
+        壁ある
+      </div>
+      <div id="wallSummaryLoading">
+        壁読み込み中
+      </div>
+      <div id="wallSummaryError" aria-hidden="true">
+        壁エラー
+      </div>
+    </div>
+    <div id="firstTimeHome" class="callout" aria-hidden="true">
+      <p>
+        壁まだありませんので、作りましょう～
+      </p>
+      <nav aria-role="navigation">
+        <a href="<?php echo $wallMakerRoot ?>/new"
+          class="button newWallLink center">新しい壁を作る</a>
+      </nav>
     </div>
   </div>
   <div class="screen" id="screen-new">
