@@ -55,7 +55,7 @@ var LoginController =
 
   loggedOut: function() {
     $('loginStatus').setAttribute('aria-hidden', 'true');
-    Navigation.showScreen('loggedOut');
+    Navigation.showScreen('screen-loggedOut');
   },
 
   loginError: function() {

@@ -58,7 +58,7 @@
   <div class="screen" id="screen-loading">
     <img src="<?php echo $wallMakerRoot?>/img/spinner.gif">
   </div>
-  <div class="screen" id="loggedOut" aria-hidden="true">
+  <div class="screen" id="screen-loggedOut" aria-hidden="true">
     <div id="loginError" aria-hidden="true" class="callout">
     </div>
     <div class="callout loginExplain">
