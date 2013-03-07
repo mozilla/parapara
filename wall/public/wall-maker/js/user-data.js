@@ -2,35 +2,90 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/*
+ * Fetches critical data needed for the application to run such as:
+ *
+ * - the list of available designs
+ * - the user's walls
+ * - user preferences (TODO)
+ *
+ * This class is complicated by the fact that when we want to *only* update the
+ * list of walls (e.g. because we created a new one), we use the same API and
+ * same class and just set a flag to say, "only update the walls" and just
+ * ignore the rest of the data.
+ *
+ * These cases behave quite differently. In the case where we're updating
+ * everything, failure means nothing works. Hence we blank out the whole screen
+ * during loading and error. Other actions may block on this happenning.
+ *
+ * When we're just updating the walls no-one really cares.
+ */
 var UserData =
 {
-  update: function (path) {
-    WallSummaryController.showLoading();
+  connectionMaxRetries: 2,
+  connectionTimeout: 6000,
+  onupdate: null,
+
+  update: function (onupdate) {
+    // When we're fetching user data we blank out the whole interface since it
+    // doesn't make sense to allow the user to do things while we're missing
+    // critical data.
+    //
+    // onupdate should restore the screen
+    Navigation.showScreen('screen-loading');
+
+    // This is the action to perform on success
+    if (onupdate) {
+      UserData.onupdate = onupdate;
+    }
+
     ParaPara.postRequest(WallMaker.rootUrl + '/mysummary', null,
                          UserData._gotUserData,
-                         UserData._gotUserDataFailed);
+                         UserData._gotUserDataFailed,
+                         UserData.connectionMaxRetries,
+                         UserData.connectionTimeout);
   },
 
-  _gotUserData: function (response, updateWallsOnly) {
+  _gotUserData: function (response, wallsOnly) {
     WallSummaryController.update(response['walls']);
-    if (!updateWallsOnly) {
+    if (!wallsOnly) {
       UserData._updateDesigns(response['designs']);
+      if (UserData.onupdate) {
+        UserData.onupdate();
+      } else {
+        Navigation.goToCurrentScreen();
+      }
     }
   },
 
-  _gotUserDataFailed: function (reason, detail) {
-    // XXX
-    console.log("XXX Failed: " + reason + ", " + detail);
+  _gotUserDataFailed: function (reason, detail, wallsOnly) {
+    if (wallsOnly) {
+      WallSummaryController._showError();
+    } else {
+      Navigation.showErrorPage("接続できませんでした",
+        { 'retry': function() {
+            Navigation.showScreen('screen-loading');
+            UserData.update();
+          }
+        });
+    }
+    console.debug("Failed to get user data: " + reason + ", " + detail);
   },
 
-  updateWalls: function (path) {
+  updateWalls: function () {
     WallSummaryController.showLoading();
-    ParaPara.postRequest(WallMaker.rootUrl + '/mysummary', null,
-                         function (response) {
-                           UserData._gotUserData(response,
-                             true /* update walls only */);
-                         },
-                         UserData._gotUserDataFailed);
+    var wallsOnly = true;
+    ParaPara.postRequest(
+      WallMaker.rootUrl + '/mysummary', null,
+      function (response) {
+        UserData._gotUserData(response, wallsOnly);
+      },
+      function (reason, detail) {
+        UserData._gotUserDataFailed(reason, detail, wallsOnly);
+      },
+      UserData.connectionMaxRetries,
+      UserData.connectionTimeout
+    );
   },
 
   _updateDesigns: function (designs) {
@@ -144,7 +199,6 @@ var WallSummaryController =
 
   _showError: function() {
     WallSummaryController._togglePage('wallSummaryError');
-    // XXX Set error message
   },
 
   clear: function() {

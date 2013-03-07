@@ -14,7 +14,7 @@ h3 {
 .center {
   text-align: center;
 }
-div[aria-hidden=true], section[aria-hidden=true] {
+*[aria-hidden=true] {
   display: none !important;
 }
 
@@ -197,6 +197,9 @@ hr {
   background: #cfc;
   border: 1px solid #0d0;
 }
+#wallSummaryError {
+  text-align: center;
+}
 
 /*
  * Create wall wizard
@@ -219,13 +222,13 @@ hr {
   margin-bottom: 2em;
 }
 div.error {
-  background: rgb(255, 221, 221);
-  border: 1px dashed red;
-  border-radius: 1em;
+  background: rgba(255, 221, 221, 0.6);
+  width: 60%;
+  text-align: center;
   padding: 1em;
-  margin: 1em;
-  -moz-transition: all;
-  -moz-transition-duration: 0.3s;
+  padding-top: 1.5em;
+  margin: 1em auto;
+  border-radius: 1em;
   -webkit-transition: all;
   -webkit-transition-duration: 0.3s;
   -ms-transition: all;
@@ -240,6 +243,11 @@ div.error.hidden {
   padding: 0;
   overflow: hidden;
   border-width: 0;
+}
+div.error button, div.error a.button {
+  display: inline-block;
+  margin-top: 1.5em;
+  margin-button: 0.5em;
 }
 .designGrid {
   display: block;

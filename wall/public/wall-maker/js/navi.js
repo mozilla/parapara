@@ -19,13 +19,13 @@ var Navigation =
     // For the management screen we don't want to generate history entries every
     // time we change tab so if we're already looking at a management screen,
     // just update the history location
-    if (document.location.pathname.match(this.wallRe) &&
-        path.match(this.wallReOptionalHash)) {
+    if (document.location.pathname.match(Navigation.wallRe) &&
+        path.match(Navigation.wallReOptionalHash)) {
       history.replaceState({}, null, absPath);
     } else {
       history.pushState({}, null, absPath);
     }
-    this.goToCurrentScreen();
+    Navigation.goToCurrentScreen();
   },
 
   // Loads the screen at the current path and screen (if set).
@@ -35,10 +35,10 @@ var Navigation =
   goToCurrentScreen: function() {
     var path = document.location.pathname;
 
-    if (path.match(this.newRe)) {
+    if (path.match(Navigation.newRe)) {
       screenId = "screen-new";
       CreateWallController.show();
-    } else if (path.match(this.wallRe)) {
+    } else if (path.match(Navigation.wallRe)) {
       screenId = "screen-manage";
       var wallId = RegExp.$2;
       var tab = document.location.hash.substr(1);
@@ -47,7 +47,7 @@ var Navigation =
       screenId = "screen-home";
     }
 
-    this.showScreen(screenId);
+    Navigation.showScreen(screenId);
   },
 
   // Displays the selected screen
@@ -63,23 +63,47 @@ var Navigation =
     }
   },
 
-  showErrorPage: function(msg) {
-    var msgBlock = document.querySelector("#screen-error .error");
+  getCurrentScreen: function() {
+    return document.querySelector(".screen[aria-hidden=true]");
+  },
+
+  showErrorPage: function(msg, buttons) {
+    // Set error message
+    var msgBlock = document.querySelector("#screen-error .errorMessage");
     msgBlock.innerHTML = msg;
-    this.showScreen("screen-error");
+
+    // Show the return if 'buttons' is not provided or if it is explicitly set
+    // to true
+    var returnButton = document.querySelector("#screen-error .return");
+    returnButton.setAttribute('aria-hidden',
+      (!buttons || (buttons && buttons['return'])) ? 'false' : 'true');
+
+    // Show retry button if set and adjust its handler
+    var retryButton = document.querySelector("#screen-error .retry");
+    if (buttons && buttons['retry']) {
+      retryButton.setAttribute('aria-hidden', 'false');
+      retryButton.onclick = buttons['retry'];
+    } else {
+      retryButton.setAttribute('aria-hidden', 'true');
+    }
+
+    // Switch to the screen
+    Navigation.showScreen("screen-error");
   },
 
   init: function() {
     // Register link handlers
-    this.registerLinkHandler('new',
+    Navigation.registerLinkHandler('new',
       function() {
         CreateWallController.start();
-        this.goToScreen("new");
-      }.bind(this));
-    this.registerLinkHandler('login', function() { LoginController.login(); });
-    this.registerLinkHandler('logout',
-                             function() { LoginController.logout(); });
-    this.registerLinkHandler('', function() { Navigation.goToScreen(''); });
+        Navigation.goToScreen("new");
+      });
+    Navigation.registerLinkHandler('login',
+      function() { LoginController.login(); });
+    Navigation.registerLinkHandler('logout',
+      function() { LoginController.logout(); });
+    Navigation.registerLinkHandler('',
+      function() { Navigation.goToScreen(''); });
 
     // Handle history changes (e.g. using the back button)
     window.addEventListener('popstate',
@@ -112,4 +136,4 @@ var Navigation =
   }
 };
 
-window.addEventListener('load', Navigation.init.bind(Navigation), false);
+window.addEventListener('load', Navigation.init, false);

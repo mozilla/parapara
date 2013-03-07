@@ -10,52 +10,80 @@ var ParaPara = ParaPara || {};
 
 ParaPara.XHR_TIMEOUT = 8000;
 
-ParaPara.postRequest = function(url, payload, successCallback,
-                                failureCallback) {
-  // Create JSON payload
-  var json = JSON.stringify(payload);
+// XXX Remove this wrapper and just use XHRequest directly
+ParaPara.postRequest = function(url, payload,
+                                successCallback, failureCallback,
+                                maxTries = 1, timeout = ParaPara.XHR_TIMEOUT) {
+  var req = new ParaPara.XHRequest(url, payload,
+                                   successCallback, failureCallback,
+                                   maxTries, timeout);
+}
 
+ParaPara.XHRequest = function(url, payload,
+                              successCallback, failureCallback,
+                              maxTries, timeout) {
+  this.timeoutCount    = 0;
+  this.gotResponse     = false;
+  this.url             = url;
+  this.successCallback = successCallback;
+  this.failureCallback = failureCallback;
+  this.maxTries        = maxTries;
+  this.timeout         = timeout;
+
+  // Create JSON payload
+  this.jsonPayload = JSON.stringify(payload);
+
+  // Send
+  this.sendRequest();
+};
+
+ParaPara.XHRequest.prototype.sendRequest = function() {
   // Create request
   var req = new XMLHttpRequest();
-  req.open("POST", url, true);
+  req.open("POST", this.url, true);
 
   // Set headers
   req.setRequestHeader("Content-Type", "application/json");
 
   // Event listeners
   req.onreadystatechange = function() {
+    // Check we haven't already got a response to this request
+    if (this.gotResponse) {
+      req.abort(); // This is not really necessary but may save some resources
+                   // in some cases
+      return;
+    }
     if (req.readyState != 4)
       return;
-    // 200 is for HTTP request, 0 is for local files (this allows us to test
-    // without running a local webserver)
-    if (req.status == 200 || req.status == 0) {
+    this.gotResponse = true;
+    if (req.status == 200) {
       try {
         var response = JSON.parse(req.responseText);
         if (response.error_key) {
-          failureCallback(response.error_key, response.error_detail);
+          this.failureCallback(response.error_key, response.error_detail);
         } else {
-          successCallback(JSON.parse(req.responseText));
+          this.successCallback(JSON.parse(req.responseText));
         }
       } catch (e) {
         if (e instanceof SyntaxError) {
           console.debug("Error sending to server, could not parse response: "
             + req.responseText);
-          failureCallback('server-fail');
+          this.failureCallback('server-fail');
         } else {
           throw e;
         }
       }
     } else {
-      failureCallback('no-access')
+      this.failureCallback('no-access');
     }
-  };
+  }.bind(this);
 
   // Send away
   try {
-    req.send(json);
+    req.send(this.jsonPayload);
   } catch (e) {
     console.debug(e);
-    failureCallback('send-fail');
+    this.failureCallback('send-fail');
     return;
   }
 
@@ -63,10 +91,40 @@ ParaPara.postRequest = function(url, payload, successCallback,
   window.setTimeout(
     function() {
       if (req.readyState != 4) {
-        req.abort();
-        failureCallback('timeout');
+        this.timeoutCount++;
+        // Case 1: Timed out, but it doesn't matter since another request got
+        // through.
+        if (this.gotResponse) {
+          req.abort();
+
+        // Case 2: Timed out and we've reached out limit of retries
+        } else if (this.timeoutCount >= this.maxTries) {
+          // We're giving up so set the flag that says we've already got
+          // a response. That way, any requests hanging around will be ignored
+          // if they return.
+          //
+          // Also, calling abort will trigger a readystatechange event so we
+          // need to set the flag here so we ignore that event.
+          this.gotResponse = true;
+          req.abort();
+          this.failureCallback('timeout');
+
+        // Case 3: Timed out, but we can still retry
+        } else {
+          // We DON'T abort 'req' at this point because we often arrive at the
+          // following situation:
+          //
+          // a) set timeout to, say, 8s
+          // b) wifi network is slow and response time is roughly 10s
+          //
+          // If we cancel the first request at 8s, no matter how many times we
+          // retry we'll never get an answer. Instead we let the timed out
+          // requests continue and if they do return then we'll detect at that
+          // point if we've already received a response.
+          this.sendRequest();
+        }
       }
-    },
-    ParaPara.XHR_TIMEOUT
+    }.bind(this),
+    this.timeout
   );
-}
+};

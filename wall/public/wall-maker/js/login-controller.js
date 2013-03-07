@@ -49,8 +49,8 @@ var LoginController =
   loggedIn: function(email) {
     $('loginMail').textContent = email;
     $('loginStatus').setAttribute('aria-hidden', 'false');
-    Navigation.goToCurrentScreen();
-    UserData.update(); // Update walls, designs list, prefs etc.
+    // Update walls, designs list, prefs etc.
+    UserData.update(Navigation.goToCurrentScreen);
   },
 
   loggedOut: function() {

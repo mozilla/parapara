@@ -76,20 +76,18 @@
           class="button newWallLink center">新しい壁を作る</a>
       </nav>
       <hr/>
-      <div id="wallSummary" class="thumbnailGrid" aria-hidden="true">
-        壁ある
-      </div>
+      <div id="wallSummary" class="thumbnailGrid" aria-hidden="true"></div>
       <div id="wallSummaryLoading">
         <img src="<?php echo $wallMakerRoot ?>/img/spinner.gif" class="spinner">
       </div>
       <div id="wallSummaryError" aria-hidden="true">
-        壁エラー
+        <p>壁の読み込みが失敗しました。</p>
+        <button type="button" class="retry"
+          onclick="javascript:UserData.updateWalls()">再試行</button>
       </div>
     </div>
     <div id="firstTimeHome" class="callout" aria-hidden="true">
-      <p>
-        壁まだありませんので、作りましょう～
-      </p>
+      <p>壁まだありませんので、作りましょう～</p>
       <nav aria-role="navigation">
         <a href="<?php echo $wallMakerRoot ?>/new"
           class="button newWallLink center">新しい壁を作る</a>
@@ -125,7 +123,7 @@
         </div>
         <div class="center">
           <button type="submit" name="作成" class="submitButton">作成</button>
-          <button type="button" class="cancelButton"
+          <button type="button" class="cancel"
             onclick="javascript:CreateWallController.cancel()"
             >キャンセル</button>
         </div>
@@ -272,9 +270,12 @@
   </div>
   <div class="screen" id="screen-error" aria-hidden="true">
     <div class="error">
+      <div class="errorMessage"></div>
+      <a href="<?php echo $wallMakerRoot ?>/"
+        class="button arrow left center return">戻る</a>
+      <button type="button" class="retry"
+        onclick="javascript:UserData.updateWalls()">再試行</button>
     </div>
-    <a href="<?php echo $wallMakerRoot ?>/"
-      class="button arrow left center">戻る</a>
   </div>
 </div>
 </body>
