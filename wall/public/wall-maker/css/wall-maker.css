@@ -123,11 +123,11 @@ header .heading {
 }
 
 /*
- * Loading screen
+ * Loading spinner
  */
-#screen-loading {
-  text-align: center;
-  padding: 2em 0;
+img.spinner {
+  margin: 2em auto;
+  display: block;
 }
 
 /*
@@ -192,10 +192,6 @@ hr {
 #wallSummary .label {
   margin-top: 5px;
   text-align: center;
-}
-#wallSummaryLoading {
-  text-align: center;
-  padding: 2em 0;
 }
 
 /*

@@ -56,7 +56,7 @@
 
 <div id="page">
   <div class="screen" id="screen-loading">
-    <img src="<?php echo $wallMakerRoot?>/img/spinner.gif">
+    <img src="<?php echo $wallMakerRoot?>/img/spinner.gif" class="spinner">
   </div>
   <div class="screen" id="screen-loggedOut" aria-hidden="true">
     <div id="loginError" aria-hidden="true" class="callout">
@@ -80,8 +80,7 @@
         壁ある
       </div>
       <div id="wallSummaryLoading">
-        <img src="img/spinner.gif">
-        <img src="<?php echo $wallMakerRoot?>/img/spinner.gif">
+        <img src="<?php echo $wallMakerRoot ?>/img/spinner.gif" class="spinner">
       </div>
       <div id="wallSummaryError" aria-hidden="true">
         壁エラー
@@ -140,7 +139,7 @@
     </nav>
     <hr>
     <div id="wall-loading" aria-hidden="false">
-      Loading&hellip;
+      <img src="<?php echo $wallMakerRoot?>/img/spinner.gif" class="spinner">
     </div>
     <div id="wall-info" aria-hidden="true">
       <section id="wall-summary">
