@@ -19,6 +19,35 @@ div[aria-hidden=true], section[aria-hidden=true] {
 }
 
 /*
+ * Navigation
+ */
+.screen {
+  /* Prevent margin collapsing */
+  padding-top: 1px;
+  padding-bottom: 1px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.screen nav {
+  margin: 1em;
+}
+
+/*
+ * Common styles
+ */
+.callout {
+  width: 80%;
+  max-width: 800px;
+  margin: 0.3em;
+  padding: 0.8em;
+  border-radius: 10px;
+  vertical-align: middle;
+  line-height: 1.8em;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/*
  * Buttons
  */
 a.button, button {
@@ -94,31 +123,11 @@ header .heading {
 }
 
 /*
- * Navigation
+ * Loading screen
  */
-.screen {
-  display: none;
-  /* Prevent margin collapsing */
-  padding-top: 1px;
-  padding-bottom: 1px;
-}
-.screen nav {
-  margin: 1em;
-}
-
-/*
- * Common styles
- */
-.callout {
-  width: 80%;
-  max-width: 800px;
-  margin: 0.3em;
-  padding: 0.8em;
-  border-radius: 10px;
-  vertical-align: middle;
-  line-height: 1.8em;
-  margin-left: auto;
-  margin-right: auto;
+#screen-loading {
+  text-align: center;
+  padding: 2em 0;
 }
 
 /*

@@ -55,10 +55,10 @@
 </header>
 
 <div id="page">
-  <div class="screen" id="loading" style="display: block">
-    <p>Loading&hellip;</p>
+  <div class="screen" id="screen-loading">
+    <img src="<?php echo $wallMakerRoot?>/img/spinner.gif">
   </div>
-  <div class="screen" id="loggedOut">
+  <div class="screen" id="loggedOut" aria-hidden="true">
     <div id="loginError" aria-hidden="true" class="callout">
     </div>
     <div class="callout loginExplain">
@@ -69,7 +69,7 @@
       </div>
     </div>
   </div>
-  <div class="screen" id="screen-home">
+  <div class="screen" id="screen-home" aria-hidden="true">
     <div id="wallSummaryHome">
       <nav aria-role="navigation">
         <a href="<?php echo $wallMakerRoot ?>/new"
@@ -81,6 +81,7 @@
       </div>
       <div id="wallSummaryLoading">
         <img src="img/spinner.gif">
+        <img src="<?php echo $wallMakerRoot?>/img/spinner.gif">
       </div>
       <div id="wallSummaryError" aria-hidden="true">
         壁エラー
@@ -96,7 +97,7 @@
       </nav>
     </div>
   </div>
-  <div class="screen" id="screen-new">
+  <div class="screen" id="screen-new" aria-hidden="true">
     <div class="error" id="create-error">
       Error message goes here
     </div>
@@ -132,7 +133,7 @@
       </div>
     </form>
   </div>
-  <div class="screen" id="screen-manage">
+  <div class="screen" id="screen-manage" aria-hidden="true">
     <nav aria-role="navigation">
       <a href="<?php echo $wallMakerRoot ?>/"
         class="button left arrow">戻る</a><br>
@@ -270,7 +271,7 @@
       </div>
     </div>
   </div>
-  <div class="screen" id="screen-error">
+  <div class="screen" id="screen-error" aria-hidden="true">
     <div class="error">
     </div>
     <a href="<?php echo $wallMakerRoot ?>/"

@@ -56,9 +56,9 @@ var Navigation =
     for (var i = 0; i < screens.length; i++) {
       var screen = screens[i];
       if (screen.id == screenId) {
-        screen.style.display = "block";
+        screen.setAttribute("aria-hidden", "false");
       } else {
-        screen.style.display = "none";
+        screen.setAttribute("aria-hidden", "true");
       }
     }
   },
