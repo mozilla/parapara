@@ -37,7 +37,6 @@ var Navigation =
 
     if (path.match(Navigation.newRe)) {
       screenId = "screen-new";
-      CreateWallController.show();
     } else if (path.match(Navigation.wallRe)) {
       screenId = "screen-manage";
       var wallId = RegExp.$2;

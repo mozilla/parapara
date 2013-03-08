@@ -28,10 +28,6 @@ var CreateWallController =
     this.clearAll();
   },
 
-  show: function() {
-    this.showErrors();
-  },
-
   cancel: function() {
     Navigation.goToScreen("./");
     this.clearAll();
@@ -39,7 +35,8 @@ var CreateWallController =
 
   create: function() {
     this.clearError();
-    // XXX Show loading screen
+    // Show loading screen
+    Navigation.showScreen("screen-new");
     // Send request
     var payload = CreateWallForm.getFormValues();
     ParaPara.postRequest(WallMaker.rootUrl + '/api/createWall', payload,
@@ -48,11 +45,9 @@ var CreateWallController =
   },
 
   createSuccess: function(response) {
-    // XXX Error handling
     if (typeof response.wallId !== "number") {
-      this.setError("Made the wall but hey...");
+      console.debug("Got non-numerical wall id: " + response.wallId);
     }
-
     var id = response.wallId;
     this.clearAll();
     UserData.updateWalls();
@@ -61,8 +56,33 @@ var CreateWallController =
   },
 
   createError: function(key, detail) {
-    // XXX Translate error messages
-    this.setError("Something went wrong.");
+    // XXXl10n: hook this up to our localization
+    switch(key) {
+      case 'duplicate-title':
+        msg = "A wall with that title already exists.";
+        break;
+
+      case 'timeout':
+        msg = "接続できませんでした.";
+        break;
+
+      case 'empty-title':
+        // This can happen if for example the title is all whitespace.
+        // The browser will consider the form to be filled in but the server
+        // won't accept it.
+        msg = "Title is empty";
+        break;
+
+      case 'db-error':
+      case 'design-not-found':
+      case 'server-fail':
+      case 'no-access':
+      case 'send-fail':
+      default:
+        msg = "Something went wrong";
+        break;
+    }
+    this.showError(msg);
   },
 
   clearAll: function() {
@@ -70,25 +90,16 @@ var CreateWallController =
     CreateWallForm.clearAll();
   },
 
-  showErrors: function(msg) {
-    var error = sessionStorage.getItem('create-error');
-    var errorBlock = document.getElementById('create-error');
-    if (error) {
-      errorBlock.innerHTML = error;
-      errorBlock.classList.remove("hidden");
-    } else {
-      errorBlock.classList.add("hidden");
-    }
-  },
-
-  setError: function(msg) {
-    sessionStorage.setItem('create-error', msg);
-    this.showErrors();
+  showError: function(msg) {
+    var errorBlock = $('create-error');
+    errorBlock.innerHTML = msg;
+    errorBlock.setAttribute('aria-hidden', 'false');
   },
 
   clearError: function() {
-    sessionStorage.removeItem('create-error');
-    this.showErrors();
+    var errorBlock = $('create-error');
+    errorBlock.setAttribute('aria-hidden', 'true');
+    errorBlock.innerHTML = '';
   },
 };
 
@@ -96,18 +107,8 @@ var CreateWallForm =
 {
   _form: null,
 
-  init: function() {
-    this.designSelector =
-      new WallMaker.GraphicalRadioGroup(this.form, 'design');
-  },
-
   clearAll: function() {
     this.form.reset();
-  },
-
-  verify: function(page) {
-    // XXX
-    return true;
   },
 
   getFormValues: function() {
@@ -133,6 +134,3 @@ var CreateWallForm =
     return this._form;
   },
 };
-
-window.addEventListener('load',
-  CreateWallForm.init.bind(CreateWallForm), false);

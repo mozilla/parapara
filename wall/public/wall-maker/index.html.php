@@ -95,38 +95,20 @@
     </div>
   </div>
   <div class="screen" id="screen-new" aria-hidden="true">
-    <div class="error" id="create-error">
+    <h2>新しい壁を作る</h2>
+    <div class="error" id="create-error" aria-hidden="true">
       Error message goes here
     </div>
     <form name="createWall" action="javascript:CreateWallController.create()">
-      <h2>壁の作成</h2>
-      <div class="form-container">
-        <h3>タイトル</h3>
-        <input type="text" name="eventName" required autocomplete="off"
-          maxlength="255" class="eventName" id="create-eventName">
-        <h3>背景の選択</h3>
-        <div class="designSelection" id="designSelector">
-          <label class="graphical">
-            <input type="radio" name="design" value="1" required>
-            <div class="designThumb">
-              <iframe src="<?php
-                echo $wallMakerRoot ?>/img/design-1-preview.svg"></iframe>
-            </div>
-          </label>
-          <label class="graphical">
-            <input type="radio" name="design" value="2" required>
-            <div class="designThumb">
-              <iframe src="<?php
-                echo $wallMakerRoot ?>/img/design-2-preview.svg"></iframe>
-            </div>
-          </label>
-        </div>
-        <div class="center">
-          <button type="submit" name="作成" class="submitButton">作成</button>
-          <button type="button" class="cancel"
-            onclick="javascript:CreateWallController.cancel()"
-            >キャンセル</button>
-        </div>
+      <input type="text" name="eventName" required autocomplete="off"
+        maxlength="255" class="eventName" id="create-eventName"
+        placeholder="イベントタイトル">
+      <div class="designSelection"></div>
+      <div class="center">
+        <button type="submit" name="作成" class="submitButton">作成</button>
+        <button type="button" class="cancel"
+          onclick="javascript:CreateWallController.cancel()"
+          >キャンセル</button>
       </div>
     </form>
   </div>

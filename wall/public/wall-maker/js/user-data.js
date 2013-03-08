@@ -265,6 +265,22 @@ var DesignSelection = function(container, designs) {
       // Add design
       this.container.appendChild(label);
     }
+
+    // We don't always get change events when the form is reset so listen to the
+    // form's reset event
+    var form = this.container;
+    while (form && form.tagName !== "FORM")
+      form = form.parentNode;
+    if (form) {
+      form.addEventListener('reset',
+        function(evt) {
+          // Because the reset event runs before the form is actually reset we
+          // pass an extra flag so we ignore the actual state of the radio
+          // buttons.
+          this._radioChange(evt, true);
+        }.bind(this),
+        false);
+    }
   };
 
   this._addPreview = function(container, videos, thumbnail) {
@@ -298,17 +314,18 @@ var DesignSelection = function(container, designs) {
     }
   };
 
-  this._radioChange = function(evt) {
+  this._radioChange = function(evt, reset) {
     var radios =
       this.container.querySelectorAll("input[type=radio][name=design]");
     for (var i = 0; i < radios.length; i++) {
       var radio = radios[i];
+      var selected = radio.checked && !reset;
 
       // Set selected class on parent label
       var label = this._getLabelForRadio(radio);
       if (!label)
         continue;
-      if (radio.checked) {
+      if (selected) {
         label.classList.add("selected");
       } else {
         label.classList.remove("selected");
@@ -317,7 +334,7 @@ var DesignSelection = function(container, designs) {
       // Update play state of video
       var videos = label.getElementsByTagName("VIDEO");
       if (videos.length) {
-        if (radio.checked) {
+        if (selected) {
           videos[0].play();
         } else {
           videos[0].pause();
