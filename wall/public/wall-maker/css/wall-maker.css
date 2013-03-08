@@ -249,44 +249,42 @@ div.error button, div.error a.button {
   margin-top: 1.5em;
   margin-button: 0.5em;
 }
-.designGrid {
+
+/*
+ * Design selection graphical radio buttons
+ */
+.designSelection {
   display: block;
   text-align: center;
   margin: 1em;
 }
-.designGrid p {
-  margin: 0;
-}
-.designGrid label input[type=radio] {
-  display: none;
-}
-.designThumb {
+.designSelection label {
   display: inline-block;
-  margin: 1.5%;
-  padding: 3%;
+  margin: 0.2em;
+  padding: 1em;
+  border: 3px dashed rgba(0,0,0,0);
   border-radius: 0.8em;
-  border-width: 3px;
-  border-style: dashed;
-  border-color: rgba(0,0,0,0);
+  transition-property: all;
+  transition-duration: 0.2s;
 }
-.designThumb * {
-  /* Sadly, this doesn't seem to work for Opera... */
-  pointer-events: none;
+.designSelection label:hover {
+  background: rgba(200,200,255,0.3);
+  border-color: blue;
 }
-.designThumb.selected {
+.designSelection label.selected {
   background: #ffed8b;
   border-color: #f7931e;
 }
-.designThumb:hover {
-  border-color: blue;
+.designSelection label input[type=radio] {
+  /* Hide the radio but don't change its position as otherwise if the radio is
+   * a required field, when the browser goes to adds its UI to say, "Hey this
+   * field is required!" it won't know where to put it. */
+  position: absolute; /* Move out of flow */
+  z-index: -1; /* Stick it behind the background */
 }
-.designThumb iframe {
-  width:12em;
-  height:8em;
-  border-radius: 10px;
-  border-width: 1px;
-  border-color: black;
-  overflow: hidden;
+.designSelection .designPreview {
+  border: 1px solid black;
+  border-radius: 15px;
 }
 
 /*

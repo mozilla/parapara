@@ -105,7 +105,7 @@
         <input type="text" name="eventName" required autocomplete="off"
           maxlength="255" class="eventName" id="create-eventName">
         <h3>背景の選択</h3>
-        <div class="designGrid" id="designSelector">
+        <div class="designSelection" id="designSelector">
           <label class="graphical">
             <input type="radio" name="design" value="1" required>
             <div class="designThumb">
@@ -206,25 +206,24 @@
             </ul>
           </section>
           <section id="manage-design" aria-role="tabpanel" aria-hidden="true">
-            <div class="designGrid">
-              <p>壁のデザイン：</p>
-              <form id="manage-designId">
-              <label class="graphical">
-                <input type="radio" name="manage-designId" value="1">
-                <div class="designThumb">
-                  <iframe src="<?php
-                    echo $wallMakerRoot ?>/img/design-1-preview.svg"></iframe>
-                </div>
-              </label>
-              <label class="graphical">
-                <input type="radio" name="manage-designId" value="2">
-                <div class="designThumb">
-                  <iframe src="<?php
-                    echo $wallMakerRoot ?>/img/design-2-preview.svg"></iframe>
-                </div>
-              </label>
-              </form>
-            </div>
+            <form id="manage-designId">
+              <div class="designSelection">
+                <label class="graphical">
+                  <input type="radio" name="manage-designId" value="1">
+                  <div class="designThumb">
+                    <iframe src="<?php
+                      echo $wallMakerRoot ?>/img/design-1-preview.svg"></iframe>
+                  </div>
+                </label>
+                <label class="graphical">
+                  <input type="radio" name="manage-designId" value="2">
+                  <div class="designThumb">
+                    <iframe src="<?php
+                      echo $wallMakerRoot ?>/img/design-2-preview.svg"></iframe>
+                  </div>
+                </label>
+              </div>
+            </form>
           </section>
           <section id="manage-privacy" aria-role="tabpanel" aria-hidden="true">
             <dl>

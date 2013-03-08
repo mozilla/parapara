@@ -89,9 +89,18 @@ var UserData =
   },
 
   _updateDesigns: function (designs) {
-    // XXX
-    console.log("XXX _updateDesigns");
-    console.log(designs);
+    var containers = document.querySelectorAll(".designSelection");
+    for (var i = 0; i < containers.length; i++) {
+      var container = containers[i];
+
+      // Empty container
+      while (container.hasChildNodes()) {
+        container.removeChild(container.lastChild);
+      }
+
+      // Create content
+      var selector = new DesignSelection(container, designs);
+    }
   }
 };
 
@@ -208,4 +217,125 @@ var WallSummaryController =
     }
     WallSummaryController._togglePage('firstTimeHome');
   }
+};
+
+var DesignSelection = function(container, designs) {
+
+  this.container = null;
+
+  this.init = function(container, designs) {
+    this.container = container;
+    this._addDesigns(designs);
+  };
+
+  this._addDesigns = function(designs) {
+    for (var i = 0; i < designs.length; i++) {
+      var design = designs[i];
+
+      // We build up content according to the following template:
+      //
+      //  <label>
+      //    <input type="radio" name="design" value="1" required>
+      //    <img class="designPreview" src="thumbnail">
+      //    -or-
+      //    <video class="designPreview" loop src="video">
+      //    -or-
+      //    <video class="designPreview" loop>
+      //      <source src="video1">
+      //      <source src="video2">
+      //    </video>
+      //  </label>
+
+      var label = document.createElement('label');
+
+      // Radio button
+      var radio = document.createElement('input');
+      radio.setAttribute("type", "radio");
+      radio.setAttribute("name", "design");
+      radio.setAttribute("value", design['id']);
+      radio.setAttribute("required", "required");
+      label.appendChild(radio);
+
+      // Add handler
+      radio.addEventListener('change', this._radioChange.bind(this), false);
+
+      // Preview
+      this._addPreview(label, design['video'], design['thumbnail']);
+
+      // Add design
+      this.container.appendChild(label);
+    }
+  };
+
+  this._addPreview = function(container, videos, thumbnail) {
+
+    // If possible add video
+    if (videos && videos.length) {
+      var video = document.createElement('video');
+      video.setAttribute("class", "designPreview");
+      video.setAttribute("loop", "loop");
+
+      if (thumbnail) {
+        video.setAttribute("poster", thumbnail);
+      }
+      if (videos.length == 1) {
+        video.setAttribute("src", videos[0]);
+      } else {
+        for (var i = 0; i < videos.length; i++) {
+          var source = document.createElement('source');
+          source.setAttribute("src", videos[i]);
+          video.appendChild(source);
+        }
+      }
+      container.appendChild(video);
+
+    // Otherwise try a thumbnail
+    } else if (thumbnail) {
+      var thumb = document.createElement('img');
+      thumb.setAttribute("class", "designPreview");
+      thumb.setAttribute("src", thumbnail);
+      container.appendChild(thumb);
+    }
+  };
+
+  this._radioChange = function(evt) {
+    var radios =
+      this.container.querySelectorAll("input[type=radio][name=design]");
+    for (var i = 0; i < radios.length; i++) {
+      var radio = radios[i];
+
+      // Set selected class on parent label
+      var label = this._getLabelForRadio(radio);
+      if (!label)
+        continue;
+      if (radio.checked) {
+        label.classList.add("selected");
+      } else {
+        label.classList.remove("selected");
+      }
+
+      // Update play state of video
+      var videos = label.getElementsByTagName("VIDEO");
+      if (videos.length) {
+        if (radio.checked) {
+          videos[0].play();
+        } else {
+          videos[0].pause();
+          videos[0].currentTime = 0;
+        }
+      }
+    }
+  };
+
+  this._getLabelForRadio = function(radio) {
+    var node = radio;
+    while (node && node.tagName !== "LABEL")
+      node = node.parentNode;
+    return node;
+  };
+
+  this._getVideoForLabel = function(label) {
+  };
+
+  this.init(container, designs);
 };
