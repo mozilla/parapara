@@ -25,12 +25,7 @@ if ($walls === null) {
 $result['walls'] = $walls;
 
 // Get designs
-try {
-  $designs = getDesignSummary();
-} catch (KeyedException $e) {
-  bailWithError($e->getKey(), $e->getDetail());
-}
-$result['designs'] = $designs;
+$result['designs'] = getDesignSummary();
 
 // Return the result
 print json_encode($result);

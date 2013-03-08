@@ -48,11 +48,7 @@ if (!strlen($svg)) {
 }
 
 // Run the query
-try {
-  $charId = addCharacter($wallId, $svg, $metadata);
-} catch (KeyedException $e) {
-  bailWithError($e->getKey(), $e->getDetail());
-}
+$charId = addCharacter($wallId, $svg, $metadata);
 
 // Prepare result
 $result = array('id' => $charId);

@@ -28,11 +28,7 @@ $params['design'] = @$json['design'];
 $params['title'] = @$json['title'];
 
 // Run the query
-try {
-  $wallId = createWall($params);
-} catch (KeyedException $e) {
-  bailWithError($e->getKey(), $e->getDetail());
-}
+$wallId = createWall($params);
 
 // Prepare result
 $result = array('wallId' => $wallId);

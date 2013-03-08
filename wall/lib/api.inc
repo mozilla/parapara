@@ -15,4 +15,16 @@ function bailWithError($code, $detail = NULL) {
   exit();
 }
 
+function apiExceptionHandler($exception) {
+  if (get_class($exception) == "KeyedException") {
+    bailWithError($exception->getKey(), $exception->getDetail());
+  } else {
+    error_log("Uncaught exception: " , $exception->getMessage() . PHP_EOL
+              . $exception->getTraceAsString());
+    bailWithError("server-error");
+  }
+}
+
+set_exception_handler('apiExceptionHandler');
+
 ?>

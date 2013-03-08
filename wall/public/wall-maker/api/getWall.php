@@ -27,11 +27,7 @@ $wallId = @$json['wallId'];
 if (!isset($wallId)) {
   bailWithError('logged-out');
 } else {
-  try {
-    $wall = getWallDetails($wallId, $_SESSION['email']);
-  } catch (KeyedException $e) {
-    bailWithError($e->getKey(), $e->getDetail());
-  }
+  $wall = getWallDetails($wallId, $_SESSION['email']);
 }
 
 // Return the result

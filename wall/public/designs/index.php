@@ -9,12 +9,6 @@ require_once('designs.inc');
 
 header('Content-Type: text/plain; charset=UTF-8');
 
-try {
-  $designs = getDesignSummary();
-} catch (KeyedException $e) {
-  bailWithError($e->getKey(), $e->getDetail());
-}
-
-print json_encode($designs);
+print json_encode(getDesignSummary());
 
 ?>
