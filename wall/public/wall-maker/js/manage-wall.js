@@ -24,12 +24,9 @@ var ManageWallController =
       );
     }
 
-    // Create graphical radio buttons
-    new WallMaker.GraphicalRadioGroup(
-      document.forms["manage-designId"], "manage-designId");
-
     // Watch for changes to fields so we can update immediately
     // XXX Rewrite this
+    /*
     this.installObserver("manage-eventName");
     this.installObserver("manage-eventDescr");
     this.installObserver("manage-eventLocation");
@@ -37,11 +34,14 @@ var ManageWallController =
     this.installObserver("manage-passcode");
     this.installObserver("manage-galleryDisplay");
     this.installObserver("manage-designId");
+    */
 
+    /*
     this.installClickObserver("manage-startSession",
       this.clickOnStartSession.bind(this));
     this.installClickObserver("manage-closeSession",
       this.clickOnCloseSession.bind(this));
+      */
   },
 
   show: function(wallId, tabName) {
@@ -85,6 +85,17 @@ var ManageWallController =
       panel.setAttribute("aria-hidden",
                          panel.id === selectedTabPage ? "false" : "true");
     }
+  },
+
+  saveCurrentTab: function() {
+    // XXX This will get called if the user presses enter in a field
+  },
+
+  get form() {
+    if (!this._form) {
+      this._form = document.forms['manageWall'];
+    }
+    return this._form;
   },
 
   clickOnStartSession: function(e) {
@@ -142,19 +153,44 @@ var ManageWallController =
   },
 
   loadSuccess: function(response, tabName) {
+    // Basic data
     $("manage-eventName").value = response.eventName;
-    $("manage-eventDescr").value = response.eventDescr;
+    $("manage-urlPath").textContent = response.urlPath;
+    $("manage-shortUrl").textContent = response.shortUrl;
+    $("manage-editorShortUrl").textContent = response.editorShortUrl;
+
+    // Event data
     $("manage-eventLocation").value = response.eventLocation;
-    $("manage-duration").value = response.duration == null ? "" : response.duration/1000;
+    $("manage-eventDescr").value = response.eventDescr;
+
+    // Operation
+    $("manage-duration").value = response.duration == null
+                               ? ""
+                               : response.duration/1000;
+    $("manage-defaultDuration").textContent = response.defaultDuration/1000;
+
+    // Design
+    var designRadios =
+      this.form.querySelectorAll("input[type=radio][name=design]");
+    for (var i = 0; i < designRadios.length; i++) {
+      var radio = designRadios[i];
+      var origValue = radio.checked;
+      radio.checked = (radio.value == response.designId);
+      if (radio.checked != origValue) {
+        // Unfortunately, just changing checked does not trigger a change event
+        // in most browsers so we trigger an event specifically fire the event
+        var evt = document.createEvent('HTMLEvents');
+        evt.initEvent('change', true, true);
+        radio.dispatchEvent(evt);
+      }
+    }
+
+    // Privacy
     var dummypasscode = "";
     for (var i = 0; i < response.passcode; i++) {
       dummypasscode += "x";
     }
     $("manage-passcode").value = dummypasscode;
-    $("manage-urlPath").textContent = response.urlPath;
-    $("manage-shortUrl").textContent = response.shortUrl;
-    $("manage-editorShortUrl").textContent = response.editorShortUrl;
-    $("manage-defaultDuration").textContent = response.defaultDuration/1000;
     var radios = document.getElementsByName("manage-galleryDisplay");
     if (response.galleryDisplay == 0) {
       radios[0].checked = false;
@@ -163,6 +199,9 @@ var ManageWallController =
       radios[0].checked = true;
       radios[1].checked = false;
     }
+
+    // Collaboration
+    // Characters
 
     // Switch to appropriate tab
     if (tabName) {
