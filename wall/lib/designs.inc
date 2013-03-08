@@ -11,7 +11,6 @@ class Design {
   public $id       = null;
   public $name     = null;
   public $duration = null;
-  // virtual: svg
   // virtual: thumbnail
   // virtual: video
   // virtual: editorStylesheet
@@ -32,9 +31,6 @@ class Design {
 
     $result = null;
     switch ($name) {
-      case 'svg':
-        $result = $this->getSvg();
-        break;
       case 'thumbnail':
         $result = $this->getThumbnail();
         break;
@@ -51,12 +47,6 @@ class Design {
 
     $this->virtualFields[$name] = $result;
     return $result;
-  }
-
-  protected function getSvg() {
-    return file_exists($this->filePath . 'preview/' . $this->name .  '.svg')
-        ? '/designs/' . $this->name . '/preview/' . $this->name . '.svg'
-        : null;
   }
 
   protected function getThumbnail() {
@@ -96,7 +86,6 @@ class Design {
       'id'               => $this->id,
       'name'             => $this->name,
       'duration'         => $this->duration,
-      'svg'              => $this->svg,
       'thumbnail'        => $this->thumbnail,
       'video'            => $this->video,
       'editorStylesheet' => $this->editorStylesheet
@@ -208,7 +197,6 @@ class DesignGallery {
 // The fields are as follows:
 //
 //   name - design name (not needed?)
-//   (svg) - the SVG file, if any, used to represent this design
 //   (thumbnail) - the thumbnail graphic, if any, used to represent this design
 //   (video) - the video preview, if any, used to represent this design
 //   duration - the default duration for this design
@@ -221,8 +209,6 @@ function getDesignSummary() {
     $designArray = $design->asArray();
 
     // Filter out empty values
-    if ($designArray['svg'] === null)
-      unset($designArray['svg']);
     if ($designArray['thumbnail'] === null)
       unset($designArray['thumbnail']);
     if ($designArray['video'] === null || count($designArray['video']) === 0)

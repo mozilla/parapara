@@ -45,24 +45,6 @@ class GetDesignsTestCase extends WallTestCase {
       "Unexpected duration: " . $testDesign['duration']);
   }
 
-  function testSvg() {
-    $design = $this->getTestDesign();
-
-    // No svg entry should exist yet
-    $this->assertTrue(!array_key_exists('svg', $design),
-                      "Unexpected svg entry in design");
-
-    // Add an SVG file
-    $this->addPreviewFile('test.svg');
-
-    // Fetch again
-    $design = $this->getTestDesign();
-    $this->assertTrue(array_key_exists('svg', $design),
-                      "SVG entry should exist");
-    $this->assertTrue($design['svg'] == '/designs/test/preview/test.svg',
-                      "Unexpected SVG file: " . $design['svg']);
-  }
-
   function testThumbnail() {
     $design = $this->getTestDesign();
 

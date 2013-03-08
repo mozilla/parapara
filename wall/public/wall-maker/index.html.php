@@ -29,7 +29,6 @@
   <script src="<?php echo $wallMakerRoot ?>/js/create-wall.js"></script>
   <script src="<?php echo $wallMakerRoot ?>/js/manage-wall.js"></script>
   <script src="<?php echo $wallMakerRoot ?>/js/login-controller.js"></script>
-  <script src="<?php echo $wallMakerRoot ?>/js/ui.js"></script>
 </head>
 <body>
 
@@ -191,22 +190,7 @@
               </ul>
             </section>
             <section id="manage-design" aria-role="tabpanel" aria-hidden="true">
-              <div class="designSelection">
-                <label class="graphical">
-                  <input type="radio" name="manage-designId" value="1">
-                  <div class="designThumb">
-                    <iframe src="<?php
-                      echo $wallMakerRoot ?>/img/design-1-preview.svg"></iframe>
-                  </div>
-                </label>
-                <label class="graphical">
-                  <input type="radio" name="manage-designId" value="2">
-                  <div class="designThumb">
-                    <iframe src="<?php
-                      echo $wallMakerRoot ?>/img/design-2-preview.svg"></iframe>
-                  </div>
-                </label>
-              </div>
+              <div class="designSelection"></div>
             </section>
             <section id="manage-privacy" aria-role="tabpanel" 
               aria-hidden="true">
