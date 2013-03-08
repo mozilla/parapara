@@ -44,7 +44,7 @@ JSON API:
 /api/characters/<character-id>[DELETE] - remove character [wall auth reqd]
 /api/characters/<character-id>/email[POST] - emails to character to specified address
 
-/api/walls - get list of walls for currently-loggedin user [session reqd]
+/api/walls - get list of walls for currently logged-in user [session reqd]
 /api/walls[POST] - create new wall [session reqd]
 /api/walls/<wall-id> - gets details for wall [wall auth reqd]
 /api/walls/<wall-id>[PUT] - update wall details [wall auth reqd]

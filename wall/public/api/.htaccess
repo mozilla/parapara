@@ -3,3 +3,11 @@ Options -Indexes
   order allow,deny
   deny from all
 </Files>
+
+<ifModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteBase /api/
+  RewriteRule ^walls/([0-9]+)$ getWall.php?id=$1 [L]
+</ifModule>

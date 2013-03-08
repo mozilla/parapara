@@ -51,9 +51,8 @@ var ManageWallController =
     $("wall-info").setAttribute("aria-hidden", "true");
     $("wall-loading").setAttribute("aria-hidden", "false");
 
-    // ここで ajax アクセスして、基本情報をとる
-    var payload = { wallId: wallId };
-    ParaPara.postRequest(WallMaker.rootUrl + '/api/getWall', payload,
+    // Fetch wall information
+    ParaPara.postRequest('/api/walls/' + wallId, null,
                          function(response) {
                            this.loadSuccess(response, tabName);
                          }.bind(this),

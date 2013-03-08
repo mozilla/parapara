@@ -9,7 +9,7 @@ require_once("exceptions.inc");
 require_once("UriUtils.inc");
 require_once("designs.inc");
 
-// When updating this, be sure to update wall.js as well
+// When updating this, be sure to update login-controller.js as well
 define("WALLMAKER_SESSION_NAME", "WMSESSID");
 
 // Given a user id, returns an array of walls owned by that user with the 
