@@ -39,7 +39,7 @@ var UserData =
       UserData.onupdate = onupdate;
     }
 
-    ParaPara.postRequest(WallMaker.rootUrl + '/mysummary', null,
+    ParaPara.postRequest('/api/userSummary', null,
                          UserData._gotUserData,
                          UserData._gotUserDataFailed,
                          UserData.connectionMaxRetries,
@@ -75,8 +75,7 @@ var UserData =
   updateWalls: function () {
     WallSummaryController.showLoading();
     var wallsOnly = true;
-    ParaPara.postRequest(
-      WallMaker.rootUrl + '/mysummary', null,
+    ParaPara.postRequest('/api/userSummary', null,
       function (response) {
         UserData._gotUserData(response, wallsOnly);
       },

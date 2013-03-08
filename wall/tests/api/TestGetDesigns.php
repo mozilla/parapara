@@ -118,7 +118,7 @@ class GetDesignsTestCase extends WallTestCase {
   function getDesigns() {
     // Make request
     global $config;
-    $url = $config['test']['wall_server'] . 'designs';
+    $url = $config['test']['wall_server'] . 'api/designs';
     $response = $this->get($url);
 
     // Check response

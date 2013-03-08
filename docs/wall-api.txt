@@ -1,44 +1,60 @@
 Wall API
 ========
 
+Public-facing content:
+----------------------
+
 /wall/<wall-name> - show live wall
                     (always shows most up-to-date session even when a new
                     session is started)
-/wall/<wall-name>/sessions - JSON list of session IDs and times
-/wall/<wall-name>/sessions[POST] - create new session [wall auth reqd]
+/wall/<wall-name>/sessions - Gallery-like list of sessions for wall?
 /wall/<wall-name>/sessions/<session-id> - show wall corresponding to a given
                                           session
-/wall/<wall-name>/sessions/<session-id>[GET; text/json] - return times etc. for
-                                                          session
-/wall/<wall-name>/characters - return live list of characters for the given wall
-                               [_Server-sent events_]
-/wall/<wall-name>/characters[POST] - upload a character for a given wall at
-                                     a given position
-/wall/<wall-name>/sessions/<session-id>/characters - return (non-live) list of
-                                                     characters for given wall
-                                                     and session
+/wall/<wall-name>/sessions/<session-id>/gallery - show gallery view of wall
+/wall/<wall-name>/gallery - show all (non-hidden) characters from all sessions
+                            in order of submission in gallery format
+
+/gallery - list all walls that are publicly listed as galleries
 
 /characters/<character-id> - shows character with title (HTML embedding)
 /characters/raw/<character-id> - shows just SVG file
-/characters/<character-id>[PUT] - edit character (e.g. disable) [wall auth reqd]
-/characters/<character-id>[DELETE] - remove character [wall auth reqd]
 
-/wall-maker/mysummary - returns list of walls and designs
-/wall-maker/wall/<wall-id> - shows management screen for wall [wall auth reqd]
-/wall-maker/wall/<wall-id>[GET; text/json] - gets details for wall
-                                             [wall auth reqd]
-/wall-maker/wall/<wall-id>[PUT] - update wall details [wall auth reqd]
-/wall-maker/wall/<wall-id>[DELETE] - remove wall [wall auth reqd]
-/wall-maker/wall[POST] - create new wall [session reqd]
-
-/designs - returns list of designs IDs, names, durations, media
-
-Example media:
 /designs/<design-name>/editor-stylesheet.css
 /designs/<design-name>/thumbnail.{png|jpg|gif}
 /designs/<design-name>/preview.{mp4,webm}
 
-/wall/<wall-name>/session/<session-id>/gallery - show gallery view of wall
-/wall/<wall-name>/gallery - show all (non-hidden) characters from all sessions in order of submission
+Wall maker:
+-----------
 
-/gallery - list all walls that are publicly listed as galleries
+/wall-maker - home screen - wall summary [wall auth reqd]
+/wall-maker/wall/new - shows management screen for wall [wall auth reqd]
+/wall-maker/wall/<wall-id> - shows management screen for wall [wall auth reqd]
+/wall-maker/wall/<wall-id>/session/<session-id> - show characters for given
+                                                   session [wall auth reqd]
+
+JSON API:
+---------
+
+/api/login
+/api/whoami
+/api/userSummary - returns list of walls and designs [Probably will remove this]
+/api/characters[POST] - upload a character for a specified wall, position
+                        [passcode may be req'd]
+/api/characters/<character-id>[PUT] - edit character (e.g. disable) [wall auth reqd]
+/api/characters/<character-id>[DELETE] - remove character [wall auth reqd]
+/api/characters/<character-id>/email[POST] - emails to character to specified address
+
+/api/walls - get list of walls for currently-loggedin user [session reqd]
+/api/walls[POST] - create new wall [session reqd]
+/api/walls/<wall-id> - gets details for wall [wall auth reqd]
+/api/walls/<wall-id>[PUT] - update wall details [wall auth reqd]
+/api/walls/<wall-id>[DELETE] - remove wall [wall auth reqd]
+/api/walls/<wall-id>/characters - return live list of characters for the given
+                                   wall [_Server-sent events_]
+/api/walls/<wall-id>/sessions[POST] - create new session [wall auth reqd]
+/api/walls/<wall-id>/sessions/<session-id>/characters - return (non-live) list
+                                                       of characters for given
+                                                       wall and session
+
+/api/designs - returns list of designs IDs, names, durations, media [not really needed]
+

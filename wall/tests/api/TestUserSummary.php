@@ -114,7 +114,7 @@ class TestMySummary extends WallMakerTestCase {
 
     // Make request
     global $config;
-    $url = $config['test']['wall_server'] . 'wall-maker/mysummary';
+    $url = $config['test']['wall_server'] . 'api/userSummary';
     $response = $this->get($url);
 
     // Check response
