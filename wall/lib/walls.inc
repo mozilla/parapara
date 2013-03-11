@@ -315,13 +315,16 @@ function closeLastSession($wallId, $datetime) {
   $qdatetime = $conn->quote($datetime, 'timestamp');
   //makes temp table for (You can't specify target table 'sessions' for update in FROM clause)
   $query = 'UPDATE sessions SET endDate='.$qdatetime.' WHERE endDate IS NULL AND wallId='.$qwallid.' AND sessionId=(SELECT temp.sessionId FROM (SELECT MAX(sessionId) AS sessionID FROM sessions WHERE wallId='.$qwallid.') AS temp)';
-  $res =& $conn->query($query);
+  $res =& $conn->exec($query);
   if (PEAR::isError($res)) {
     error_log($res->getMessage() . ', ' . $res->getDebugInfo());
     throw new KeyedException('db-error');
   }
 
   $conn->disconnect();
+
+  // Return true if we made some change, false if the session was already closed
+  return $res > 0;
 }
 
 // Returns NULL if there is no active session for the wall

@@ -29,7 +29,8 @@ if (!isset($wallId)) {
 }
 
 $currentdatetime = gmdate("Y-m-d H:i:s");
-closeLastSession($wallId, $currentdatetime);
+if (!closeLastSession($wallId, $currentdatetime))
+  bailWithError('already-closed');
 
 // Return the result
 print json_encode(getLatestSession($wallId));

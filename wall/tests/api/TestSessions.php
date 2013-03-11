@@ -38,7 +38,7 @@ class SessionsTestCase extends WallMakerTestCase {
     $this->removeWall($wallId);
   }
 
-  function testEndSession() {
+  function testCloseSession() {
     // Login
     $this->login();
 
@@ -68,6 +68,33 @@ class SessionsTestCase extends WallMakerTestCase {
                       "Closed session whilst logged out.");
 
     // XXX Check we can't close the session of someone else's wall
+
+    // Tidy up by removing the wall
+    $this->removeWall($wallId);
+  }
+
+  function testCloseClosedSession() {
+    // Login
+    $this->login();
+
+    // Create wall
+    $wallId = $this->createWall('Test wall', $this->testDesignId);
+
+    // Close session
+    $response = $this->closeSession($wallId);
+    $this->assertTrue($this->isClosedSession($response),
+                      "Session does not appear to be closed.");
+
+    // Close again
+    $response = $this->closeSession($wallId);
+    $this->assertTrue(array_key_exists('error_key', $response) &&
+                      $response['error_key'] == 'already-closed');
+
+    // Re-fetch wall (to check we're in a consistent state)
+    $wall = $this->getWall($wallId);
+    $this->assertTrue($wall['status'] == 'finished');
+    $this->assertTrue($this->isClosedSession($wall['session']),
+                      "Refetched wall session does not appear to be closed.");
 
     // Tidy up by removing the wall
     $this->removeWall($wallId);

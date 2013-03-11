@@ -260,6 +260,8 @@ var ManageWallController =
         console.log("fail");
         // XXX Put an error up the top
         // XXX Restore previous session information
+        // XXX Probably should ignore this when key == already-closed since it's
+        //     probably just a timing issue
       }.bind(this)
     );
   },
