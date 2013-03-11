@@ -6,6 +6,7 @@
 require_once('../../lib/parapara.inc');
 require_once('MDB2.php');
 require_once('WallTestCase.php');
+require_once('walls.inc');
 
 // SimpleTest seems to count the abstract WebTestCase as a test case
 // See: http://sourceforge.net/tracker/?func=detail&aid=3473481&group_id=76550&atid=547455

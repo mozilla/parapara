@@ -153,10 +153,13 @@ var ManageWallController =
 
   loadSuccess: function(response, tabName) {
     // Basic data
-    $("manage-eventName").value = response.eventName;
-    $("manage-urlPath").textContent = response.urlPath;
-    $("manage-shortUrl").textContent = response.shortUrl;
-    $("manage-editorShortUrl").textContent = response.editorShortUrl;
+    $("manage-eventName").value = response.name;
+
+    // Make up links
+    this.updateShortenableLink($('manage-wallUrl'), response.wallUrl,
+                               response.wallUrlShort);
+    this.updateShortenableLink($('manage-editorUrl'), response.editorUrl,
+                               response.editorUrlShort);
 
     // Event data
     $("manage-eventLocation").value = response.eventLocation;
@@ -211,6 +214,30 @@ var ManageWallController =
     $("wall-loading").setAttribute("aria-hidden", "true");
     $("wall-info").setAttribute("aria-hidden", "false");
   },
+
+  updateShortenableLink: function(linkContainer, url, shortUrl) {
+    // Empty container
+    while (linkContainer.hasChildNodes()) {
+      linkContainer.removeChild(linkContainer.lastChild);
+    }
+
+    // Add main link
+    var mainLink = document.createElement("a");
+    mainLink.setAttribute("href", url);
+    mainLink.textContent = url;
+    linkContainer.appendChild(mainLink);
+
+    // Add short link (if available) in braces
+    if (shortUrl) {
+      var shortLink = document.createElement("a");
+      shortLink.setAttribute("href", shortUrl);
+      shortLink.textContent = shortUrl;
+      linkContainer.appendChild(document.createTextNode(" ("));
+      linkContainer.appendChild(shortLink);
+      linkContainer.appendChild(document.createTextNode(")"));
+    }
+  },
+
 
   loadError: function(key, detail) {
     // XXX Need to translate errors here

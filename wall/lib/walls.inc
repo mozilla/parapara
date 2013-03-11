@@ -191,6 +191,7 @@ function getOrCreateUserIdFromEmail($email) {
 }
 
 function getWallDetails($wallId, $email) {
+  global $config;
   $conn =& getDbConnection();
   $row =& $conn->queryRow(
       'SELECT walls.designId,'
@@ -224,13 +225,14 @@ function getWallDetails($wallId, $email) {
       "$email is not the owner of this wall");
   }
   $result["designId"] = $row['designid'];
-  $result["eventName"] = $row['eventname'];
+  $result["name"] = $row['eventname'];
   $result["eventDescr"] = $row['eventdescr'];
   $result["eventLocation"] = $row['eventlocation'];
   $result["eventType"] = $row['eventtype'];
   $result["eventFinish"] = $row['eventfinish'];
-  $result["urlPath"] = $row['urlpath'];
-  $result["shortUrl"] = $row['shorturl'];
+  $result["wallUrl"] = getCurrentServer() . '/wall/' . $row['urlpath'];
+  $result["wallUrlShort"] = $row['shorturl'];
+  $result["editorUrl"] = $config['editor']['url'] . $row['urlpath'];
   $result["editorShortUrl"] = $row['editorshorturl'];
   $result["galleryDisplay"] = $row['gallerydisplay'];
   $result["duration"] = $row['duration'];

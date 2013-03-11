@@ -127,13 +127,10 @@
           <h2>イベントの名前</h2>
           <input type="text" id="manage-eventName">
           <ul>
-            <li><label class="manage-title">URL</label><label
-              id="manage-urlPath" class="manage-value"></label></li>
-            <li><label class="manage-title">ショートURL</label><label
-              id="manage-shortUrl" class="manage-value"></label></li>
+            <li><label class="manage-title">壁URL</label><label
+              id="manage-wallUrl" class="manage-value"></label></li>
             <li><label class="manage-title">エディタURL</label><label
-              id="manage-editorShortUrl" class="manage-value"></label></li>
-            <li>チラシのリンク</li>
+              id="manage-editorUrl" class="manage-value"></label></li>
           </ul>
         </section>
         <hr>
