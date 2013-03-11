@@ -3,7 +3,7 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var API_DIR = "../api/";
-var CHARACTERS_DIR = "../characters/";
+var CHARACTERS_DIR = "/characters/";
 
 var Database = {
 
