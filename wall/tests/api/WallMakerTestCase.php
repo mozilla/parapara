@@ -130,6 +130,12 @@ abstract class WallMakerTestCase extends WallTestCase {
   // structure is in place
   function removeWall($wallId) {
     $conn =& $this->getConnection();
+    $query = 'DELETE FROM sessions WHERE wallId = ' . $wallId;
+    $res =& $conn->query($query);
+    if (PEAR::isError($res)) {
+      die($res->getMessage() . ', ' . $res->getDebugInfo());
+    }
+
     $query = 'DELETE FROM walls WHERE wallId = ' . $wallId;
     $res =& $conn->query($query);
     if (PEAR::isError($res)) {

@@ -32,5 +32,5 @@ $currentdatetime = gmdate("Y-m-d H:i:s");
 closeLastSession($wallId, $currentdatetime);
 
 // Return the result
-print json_encode("ok");
+print json_encode(getLatestSession($wallId));
 ?>

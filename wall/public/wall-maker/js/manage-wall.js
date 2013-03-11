@@ -24,6 +24,11 @@ var ManageWallController =
       );
     }
 
+    $('manage-startSession').addEventListener('click',
+      this.startSession.bind(this));
+    $('manage-closeSession').addEventListener('click',
+      this.closeSession.bind(this));
+
     // Watch for changes to fields so we can update immediately
     // XXX Rewrite this
     /*
@@ -97,18 +102,6 @@ var ManageWallController =
     return this._form;
   },
 
-  clickOnStartSession: function(e) {
-    this.sendCommand(WallMaker.rootUrl + '/api/startSession',
-      {wallId: this.wallId},
-      $("manage-startSession-message"));
-  },
-
-  clickOnCloseSession: function(e) {
-    this.sendCommand(WallMaker.rootUrl + '/api/closeSession',
-      {wallId: this.wallId},
-      $("manage-closeSession-message"));
-  },
-
   installClickObserver: function(name, callbackFunction) {
     var element = $(name);
     element.removeEventListener("click", callbackFunction, false);
@@ -170,6 +163,8 @@ var ManageWallController =
                                ? ""
                                : response.duration/1000;
     $("manage-defaultDuration").textContent = response.defaultDuration/1000;
+    $("manage-closeSession").disabled = response.status == "finished";
+    this.updateSessionInfo(response.session);
 
     // Design
     var designRadios =
@@ -238,7 +233,6 @@ var ManageWallController =
     }
   },
 
-
   loadError: function(key, detail) {
     // XXX Need to translate errors here
     var msg = "エラー";
@@ -251,7 +245,60 @@ var ManageWallController =
         break;
     }
     Navigation.showErrorPage(msg);
-  }
+  },
+
+  startSession: function() {
+    // XXX Clear latest session information
+    // XXX Factor out common code between this and start new session
+    ParaPara.postRequest(WallMaker.rootUrl + '/api/startSession',
+      {wallId: this.wallId},
+      function(response) {
+        this.updateSessionInfo(response);
+        $("manage-closeSession").disabled = false;
+      }.bind(this),
+      function (key, reason) {
+        console.log("fail");
+        // XXX Put an error up the top
+        // XXX Restore previous session information
+      }.bind(this)
+    );
+  },
+
+  closeSession: function() {
+    $("manage-closeSession").disabled = true;
+    // XXX Clear latest session information
+    ParaPara.postRequest(WallMaker.rootUrl + '/api/closeSession',
+      {wallId: this.wallId},
+      function(response) {
+        this.updateSessionInfo(response);
+      }.bind(this),
+      function (key, reason) {
+        console.log("fail");
+        // XXX Put an error up the top
+        // XXX Restore previous session information
+      }.bind(this)
+    );
+  },
+
+  updateSessionInfo: function(session) {
+    var span = $('manage-sessionInfo');
+    if (session.end) {
+      // Finished session
+      span.classList.remove('running');
+      span.textContent = session.start + 'UTC 終了';
+      span.classList.add('finished');
+    } else if (session.start) {
+      // Open session
+      span.classList.remove('finished');
+      span.textContent = session.start + 'UTC 開始';
+      span.classList.add('running');
+    } else {
+      // No session
+      span.classList.remove('finished');
+      span.classList.remove('running');
+      span.textContent = '--';
+    }
+  },
 };
 
 window.addEventListener('load',

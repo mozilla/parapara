@@ -79,6 +79,8 @@ class GetWallTestCase extends WallMakerTestCase {
     $this->removeWall($wallId);
   }
 
+  // XXX Check we can't get the information of someone else's wall
+
   function looksLikeAUrl($url) {
     $parts = parse_url($url);
     return @$parts['scheme'] == 'http' ||

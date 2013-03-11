@@ -13,7 +13,7 @@ function addCharacter($wallId, $svg, $metadata) {
   $conn =& getDbConnection();
 
   // Get active session
-  $sessionId = getActiveSession($wallId);
+  $sessionId = getActiveSessionId($wallId);
   if(!$sessionId) {
     throw new KeyedException('no-active-session');
   }

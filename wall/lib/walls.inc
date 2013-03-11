@@ -194,18 +194,23 @@ function getWallDetails($wallId, $email) {
   global $config;
   $conn =& getDbConnection();
   $row =& $conn->queryRow(
-      'SELECT walls.designId,'
-    . ' eventName, eventDescr, eventLocation, eventType, eventFinish,'
-    . ' urlPath, shortUrl, editorShortUrl,'
-    . ' walls.duration, galleryDisplay, passcode,'
-    . ' designs.duration AS defaultduration,'
-    . ' users.userId IS NOT NULL AS isOwner'
+      'SELECT walls.designId'
+    . ' ,eventName, eventDescr, eventLocation, eventType, eventFinish'
+    . ' ,urlPath, shortUrl, editorShortUrl'
+    . ' ,walls.duration, galleryDisplay, passcode'
+    . ' ,designs.duration AS defaultduration'
+    . ' ,users.userId IS NOT NULL AS isOwner'
+    . ' ,sessionId, beginDate as sessionStart, endDate as sessionEnd'
     . ' FROM walls'
     . ' INNER JOIN designs ON walls.designId = designs.designId'
     . ' LEFT JOIN users ON'
     . '   walls.owner = users.userId AND'
     . '   users.email = ' . $conn->quote($email, 'text')
-    . ' WHERE wallId = ' . $conn->quote($wallId, 'integer')
+    . ' LEFT JOIN sessions ON'
+    . '   sessions.sessionId = '
+    . '   (SELECT MAX(sessionId) FROM sessions'
+    . '    WHERE sessions.wallId = ' . $conn->quote($wallId, 'integer') . ')'
+    . ' WHERE walls.wallId = ' . $conn->quote($wallId, 'integer')
     . ' LIMIT 1',
     null,
     MDB2_FETCHMODE_ASSOC
@@ -219,22 +224,43 @@ function getWallDetails($wallId, $email) {
   if ($row === null) {
     throw new KeyedException('not-found');
   }
+
+  // Check auth
   if (!$row['isowner']) {
     error_log("Access denied to wall (#$wallId) by $email");
     throw new KeyedException('access-denied',
       "$email is not the owner of this wall");
   }
-  $result["designId"] = $row['designid'];
+
+  // Event information
   $result["name"] = $row['eventname'];
   $result["eventDescr"] = $row['eventdescr'];
   $result["eventLocation"] = $row['eventlocation'];
   $result["eventType"] = $row['eventtype'];
   $result["eventFinish"] = $row['eventfinish'];
+
+  // Design
+  $result["designId"] = $row['designid'];
+
+  // Prepare URLs
   $result["wallUrl"] = getCurrentServer() . '/wall/' . $row['urlpath'];
   $result["wallUrlShort"] = $row['shorturl'];
   $result["editorUrl"] = $config['editor']['url'] . $row['urlpath'];
   $result["editorUrlShort"] = $row['editorshorturl'];
   $result["galleryDisplay"] = $row['gallerydisplay'];
+
+  // Session information
+  if ($row['sessionid']) {
+    $session['id'] = $row['sessionid'];
+    $session['start'] = $row['sessionstart'];
+    $session['end'] = $row['sessionend'];
+    $result['session'] = $session;
+    $result['status'] = $row['sessionend'] ? 'finished' : 'running';
+  } else {
+    $result['session'] = null;
+    $result['status'] = 'finished';
+  }
+
   $result["duration"] = $row['duration'];
   $result["defaultDuration"] = $row['defaultduration'];
   $result["passcode"] = $row['passcode'] != NULL ? strlen($row['passcode']) : 0;
@@ -288,17 +314,18 @@ function closeLastSession($wallId, $datetime) {
   $qwallid = $conn->quote($wallId, 'integer');
   $qdatetime = $conn->quote($datetime, 'timestamp');
   //makes temp table for (You can't specify target table 'sessions' for update in FROM clause)
-  $query = 'UPDATE sessions SET endDate='.$qdatetime.' WHERE endDate IS NULL AND wallId='.$wallId.' AND sessionId=(SELECT temp.sessionId FROM (SELECT MAX(sessionId) AS sessionID FROM sessions WHERE wallId='.$wallId.') AS temp)';
+  $query = 'UPDATE sessions SET endDate='.$qdatetime.' WHERE endDate IS NULL AND wallId='.$qwallid.' AND sessionId=(SELECT temp.sessionId FROM (SELECT MAX(sessionId) AS sessionID FROM sessions WHERE wallId='.$qwallid.') AS temp)';
   $res =& $conn->query($query);
   if (PEAR::isError($res)) {
     error_log($res->getMessage() . ', ' . $res->getDebugInfo());
     throw new KeyedException('db-error');
   }
+
   $conn->disconnect();
 }
 
 // Returns NULL if there is no active session for the wall
-function getActiveSession($wallId) {
+function getActiveSessionId($wallId) {
   $conn =& getDbConnection();
   $date = gmdate('Y-m-d H:i:s');
   $qdate = $conn->quote($date, 'timestamp');
@@ -314,6 +341,28 @@ function getActiveSession($wallId) {
     throw new KeyedException('db-error');
   }
   return $res;
+}
+
+function getLatestSession($wallId) {
+  $conn =& getDbConnection();
+  $row =& $conn->queryRow(
+    'SELECT sessionId, beginDate, endDate'
+    .' FROM sessions'
+    .' WHERE wallId='.$conn->quote($wallId, 'integer')
+    .' ORDER BY sessionId DESC'
+    .' LIMIT 1',
+    null,
+    MDB2_FETCHMODE_ASSOC
+  );
+  if (PEAR::isError($row)) {
+    error_log($row->getMessage() . ', ' . $row->getDebugInfo());
+    throw new KeyedException('db-error');
+  }
+  return array(
+    'id' => $row['sessionid'],
+    'start' => $row['begindate'],
+    'end' => $row['enddate'],
+  );
 }
 
 function isTitleUnique($title) {

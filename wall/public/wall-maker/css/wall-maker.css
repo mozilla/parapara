@@ -77,6 +77,9 @@ button {
 a.button:hover, button:hover {
   background-color: black;
 }
+button[disabled], a.button.disabled {
+  background-color: lightgrey;
+}
 a.button.center, button.center {
   display: block;
   margin-left: auto;
@@ -382,4 +385,17 @@ section[aria-role=tabpanel] {
   border-radius: 0.6em;
   margin-left: 150px; /* Match width of vertical tabs */
   min-height: 16em; /* Match height of vertical tab stack */
+}
+
+#manage-running button {
+  margin: 0.5em 0.2em;
+}
+#manage-running span.running {
+  color: green;
+}
+#manage-running span.finished {
+  color: red;
+}
+#manage-sessionInfo {
+  font-weight: bold;
 }

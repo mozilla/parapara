@@ -168,15 +168,15 @@
               </dl>
             </section>
             <section id="manage-running" aria-role="tabpanel" aria-hidden="true">
+              <button
+                id="manage-startSession">新セッションをスタートする</button>
+              <button
+                 id="manage-closeSession">セッションを終了する</button>
+              <div>
+                  <label>最新のセッション</label>
+                  <span id="manage-sessionInfo"></span>
+              </div>
               <ul>
-                <li>
-                  <a class="clickable" id="manage-startSession">新セッションをスタートする</a>
-                  (今のキャラクターが全部見えなくなるよという説明）
-                </li>
-                <li>
-                  <a class="clickable" 
-                    id="manage-closeSession">セッションを終了する</a>
-                </li>
                 <li>
                   <label
                     class="manage-title">現在のアニメーションスピード</label>
