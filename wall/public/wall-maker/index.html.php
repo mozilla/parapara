@@ -139,7 +139,7 @@
             <a href="#event" aria-role="tab" aria-selected="true"
               aria-controls="manage-event">イベント</a><a
               href="#running" aria-role="tab" aria-selected="false"
-              aria-controls="manage-running">実行</a><a
+              aria-controls="manage-running">セッション</a><a
               href="#design" aria-role="tab" aria-selected="false"
               aria-controls="manage-design">デザイン</a><a
               href="#privacy" aria-role="tab" aria-selected="false"
