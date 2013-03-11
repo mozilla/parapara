@@ -233,7 +233,7 @@ function getWallDetails($wallId, $email) {
   $result["wallUrl"] = getCurrentServer() . '/wall/' . $row['urlpath'];
   $result["wallUrlShort"] = $row['shorturl'];
   $result["editorUrl"] = $config['editor']['url'] . $row['urlpath'];
-  $result["editorShortUrl"] = $row['editorshorturl'];
+  $result["editorUrlShort"] = $row['editorshorturl'];
   $result["galleryDisplay"] = $row['gallerydisplay'];
   $result["duration"] = $row['duration'];
   $result["defaultDuration"] = $row['defaultduration'];
