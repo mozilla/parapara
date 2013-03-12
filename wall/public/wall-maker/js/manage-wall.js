@@ -287,7 +287,7 @@ var ManageWallController =
     if (session.end) {
       // Finished session
       span.classList.remove('running');
-      span.textContent = ParaPara.toLocalDate(session.start) + ' 終了';
+      span.textContent = ParaPara.toLocalDate(session.end) + ' 終了';
       span.classList.add('finished');
     } else if (session.start) {
       // Open session
