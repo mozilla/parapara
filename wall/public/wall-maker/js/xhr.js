@@ -15,9 +15,12 @@ ParaPara.postRequest = function(url, payload,
                                 successCallback, failureCallback,
                                 maxTries, timeout) {
   if (typeof maxTries === "undefined")
+    // XXX Once we support different methods, we should probably make GET and
+    // PUT retry automatically (i.e. maxTries = 2 by default) since they should
+    // be indempotent
     maxTries = 1;
   if (typeof timeout === "undefined")
-    maxTries = ParaPara.XHR_TIMEOUT;
+    timeout = ParaPara.XHR_TIMEOUT;
 
   var req = new ParaPara.XHRequest(url, payload,
                                    successCallback, failureCallback,
