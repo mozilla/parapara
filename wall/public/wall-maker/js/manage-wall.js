@@ -287,12 +287,12 @@ var ManageWallController =
     if (session.end) {
       // Finished session
       span.classList.remove('running');
-      span.textContent = session.start + 'UTC 終了';
+      span.textContent = ParaPara.toLocalDate(session.start) + ' 終了';
       span.classList.add('finished');
     } else if (session.start) {
       // Open session
       span.classList.remove('finished');
-      span.textContent = session.start + 'UTC 開始';
+      span.textContent = ParaPara.toLocalDate(session.start) + ' 開始';
       span.classList.add('running');
     } else {
       // No session
