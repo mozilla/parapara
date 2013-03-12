@@ -167,15 +167,36 @@
                 </dd>
               </dl>
             </section>
-            <section id="manage-running" aria-role="tabpanel" aria-hidden="true">
-              <button
-                id="manage-startSession">新セッションをスタートする</button>
-              <button
-                 id="manage-closeSession">セッションを終了する</button>
-              <div>
+            <section id="manage-running" aria-role="tabpanel" 
+              aria-hidden="true">
+              <div class="wallStatus">
+                <span class="currentWallStatus"></span>
+                <div class="spinnerContainer">
+                  <img src="<?php echo $wallMakerRoot?>/img/spinner.gif" 
+                    class="spinner">
+                </div>
+                <div class="latestSession">
                   <label>最新のセッション</label>
-                  <span id="manage-sessionInfo"></span>
+                  <span class="latestSessionTime"></span>
+                </div>
               </div>
+              <div class="sessionButtons">
+                <button
+                  id="manage-startSession">新セッションをスタートする</button>
+                <button
+                   id="manage-closeSession">セッションを終了する</button>
+              </div>
+              <div class="callout">
+                <p>
+                  新しいセッションをスタートすると現在見えるキャラクター全てが見えなくなります。
+                </p>
+                <p>
+                  セッションを終了するとこの壁が新しいキャラクターを受け取りません。
+                </p>
+              </div>
+            </section>
+            <section id="manage-design" aria-role="tabpanel" aria-hidden="true">
+              <div class="designSelection"></div>
               <ul>
                 <li>
                   <label
@@ -185,9 +206,6 @@
                 </li>
                 <li><label class="manage-title">既存のアニメーションスピード</label><label id="manage-defaultDuration" class="manage-value"></label>秒</li>
               </ul>
-            </section>
-            <section id="manage-design" aria-role="tabpanel" aria-hidden="true">
-              <div class="designSelection"></div>
             </section>
             <section id="manage-privacy" aria-role="tabpanel" 
               aria-hidden="true">

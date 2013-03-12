@@ -348,6 +348,12 @@ label.manage-message.error {
 #wall-details, #wall-summary {
   margin: 0.3em 1.5em;
 }
+#wall-details .callout {
+  background: lemonchiffon;
+  border: 1px dashed orange;
+  box-shadow: 2px 2px 3px rgba(0,0,0,0.4);
+  width: 90%;
+}
 
 /*
  * Tab pages
@@ -390,12 +396,45 @@ section[aria-role=tabpanel] {
 #manage-running button {
   margin: 0.5em 0.2em;
 }
-#manage-running span.running {
+#manage-running .running .currentWallStatus,
+#manage-running .running .latestSessionTime {
   color: green;
 }
-#manage-running span.finished {
+#manage-running .finished .currentWallStatus,
+#manage-running .finished .latestSessionTime {
   color: red;
 }
-#manage-sessionInfo {
+#manage-running > div {
+  text-align: center;
+  margin: 1.2em auto;
+}
+#manage-running .currentWallStatus {
+  font-size: 2.2em;
+  margin-top: 0.8em;
+  margin-bottom: 0.2em;
+}
+#manage-running .latestSession {
+  font-size: 0.9em;
+  margin: 0.5em 0;
+}
+#manage-running .latestSessionTime {
   font-weight: bold;
+}
+#manage-running .spinner {
+  visibility: hidden;
+}
+#manage-running {
+  position: relative;
+}
+#manage-running .spinnerContainer {
+  position: absolute;
+  width: 100%;
+  left: 0;
+  top: 0;
+}
+#manage-running .updating * {
+  color: lightgrey !important;
+}
+#manage-running .updating .spinner {
+  visibility: visible;
 }

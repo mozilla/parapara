@@ -163,7 +163,6 @@ var ManageWallController =
                                ? ""
                                : response.duration/1000;
     $("manage-defaultDuration").textContent = response.defaultDuration/1000;
-    $("manage-closeSession").disabled = response.status == "finished";
     this.updateSessionInfo(response.session);
 
     // Design
@@ -248,58 +247,71 @@ var ManageWallController =
   },
 
   startSession: function() {
-    // XXX Clear latest session information
-    // XXX Factor out common code between this and start new session
+    // XXX Put error up the top
+    // XXX Handle situation when our change wasn't the latest
+    this.startUpdateSessionInfo();
     ParaPara.postRequest(WallMaker.rootUrl + '/api/startSession',
       {wallId: this.wallId},
-      function(response) {
-        this.updateSessionInfo(response);
-        $("manage-closeSession").disabled = false;
-      }.bind(this),
-      function (key, reason) {
-        console.log("fail");
-        // XXX Put an error up the top
-        // XXX Restore previous session information
-        // XXX Probably should ignore this when key == already-closed since it's
-        //     probably just a timing issue
-      }.bind(this)
+      this.updateSessionInfo.bind(this),
+      this.restoreSessionInfo.bind(this)
     );
   },
 
   closeSession: function() {
-    $("manage-closeSession").disabled = true;
-    // XXX Clear latest session information
+    this.startUpdateSessionInfo();
     ParaPara.postRequest(WallMaker.rootUrl + '/api/closeSession',
       {wallId: this.wallId},
-      function(response) {
-        this.updateSessionInfo(response);
-      }.bind(this),
-      function (key, reason) {
-        console.log("fail");
-        // XXX Put an error up the top
-        // XXX Restore previous session information
-      }.bind(this)
+      this.updateSessionInfo.bind(this),
+      this.restoreSessionInfo.bind(this)
     );
   },
 
+  startUpdateSessionInfo: function() {
+    document.querySelector(".wallStatus").classList.add("updating");
+    // Remember our state in case we need to restore it
+    this.sessionStatus = $("manage-closeSession").disabled
+                       ? 'finished'
+                       : 'running';
+    // Disable buttons to avoid double-click
+    $("manage-startSession").disabled = true;
+    $("manage-closeSession").disabled = true;
+  },
+
+  restoreSessionInfo: function() {
+    // Restore button state
+    $("manage-startSession").disabled = false;
+    $("manage-closeSession").disabled = this.sessionStatus == 'finished';
+    document.querySelector(".wallStatus").classList.remove("updating");
+  },
+
   updateSessionInfo: function(session) {
-    var span = $('manage-sessionInfo');
-    if (session.end) {
+    $("manage-startSession").disabled = false;
+    var statusBlock   = document.querySelector('.wallStatus');
+    var time          = document.querySelector('.latestSessionTime');
+    var currentStatus = document.querySelector('.currentWallStatus');
+    if (session && session.end) {
       // Finished session
-      span.classList.remove('running');
-      span.textContent = ParaPara.toLocalDate(session.end) + ' 終了';
-      span.classList.add('finished');
-    } else if (session.start) {
+      statusBlock.classList.remove('running');
+      time.textContent = ParaPara.toLocalDate(session.end) + ' 終了';
+      currentStatus.textContent = '終了';
+      statusBlock.classList.add('finished');
+      $("manage-closeSession").disabled = true;
+    } else if (session && session.start) {
       // Open session
-      span.classList.remove('finished');
-      span.textContent = ParaPara.toLocalDate(session.start) + ' 開始';
-      span.classList.add('running');
+      statusBlock.classList.remove('finished');
+      time.textContent = ParaPara.toLocalDate(session.start) + ' 開始';
+      currentStatus.textContent = '公開中';
+      statusBlock.classList.add('running');
+      $("manage-closeSession").disabled = false;
     } else {
       // No session
-      span.classList.remove('finished');
-      span.classList.remove('running');
-      span.textContent = '--';
+      statusBlock.classList.remove('finished');
+      statusBlock.classList.remove('running');
+      time.textContent = '--';
+      currentStatus.textContent = '未発';
+      $("manage-closeSession").disabled = true;
     }
+    document.querySelector(".wallStatus").classList.remove("updating");
   },
 };
 
