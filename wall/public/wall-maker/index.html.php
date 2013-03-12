@@ -134,6 +134,9 @@
           </ul>
         </section>
         <hr>
+        <div class="error" aria-hidden="true">
+          <div class="errorMessage"></div>
+        </div>
         <div id="wall-details">
           <menu type="toolbar" aria-role="tablist">
             <a href="#event" aria-role="tab" aria-selected="true"

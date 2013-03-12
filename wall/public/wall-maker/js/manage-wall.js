@@ -55,6 +55,7 @@ var ManageWallController =
     // Show loading screen
     $("wall-info").setAttribute("aria-hidden", "true");
     $("wall-loading").setAttribute("aria-hidden", "false");
+    this.clearError();
 
     // Fetch wall information
     ParaPara.postRequest('/api/walls/' + wallId, null,
@@ -246,14 +247,51 @@ var ManageWallController =
     Navigation.showErrorPage(msg);
   },
 
+  /*
+   * Error handling
+   */
+  showError: function(key, timeout) {
+    // XXXl10n Hook this up to our localization
+    switch(key) {
+      case 'timeout':
+        msg = "接続できませんでした.";
+        break;
+
+      case 'parallel-access-session':
+        msg = "Someone else has updated the session."
+            + " Please confirm the updated session status.";
+        break;
+
+      default:
+        msg = "Something went wrong";
+        break;
+    }
+
+    var messageBlock = this.errorBlock.querySelector('.errorMessage');
+    messageBlock.textContent = msg;
+
+    // XXX Set timeout if needed
+    this.errorBlock.setAttribute('aria-hidden', 'false');
+  },
+
+  clearError: function(key) {
+    this.errorBlock.setAttribute('aria-hidden', 'true');
+    this.errorBlock.querySelector('.errorMessage').textContent = '';
+  },
+
+  get errorBlock() {
+    return document.querySelector('#wall-info .error');
+  },
+
+  /*
+   * Session management
+   */
   startSession: function() {
-    // XXX Put error up the top
-    // XXX Handle situation when our change wasn't the latest
     this.startUpdateSessionInfo();
     ParaPara.postRequest(WallMaker.rootUrl + '/api/startSession',
       {wallId: this.wallId},
       this.updateSessionInfo.bind(this),
-      this.restoreSessionInfo.bind(this)
+      this.handleSessionError.bind(this)
     );
   },
 
@@ -262,11 +300,17 @@ var ManageWallController =
     ParaPara.postRequest(WallMaker.rootUrl + '/api/closeSession',
       {wallId: this.wallId},
       this.updateSessionInfo.bind(this),
-      this.restoreSessionInfo.bind(this)
+      this.handleSessionError.bind(this)
     );
   },
 
+  handleSessionError: function(key, detail) {
+    this.showError(key);
+    this.restoreSessionInfo();
+  },
+
   startUpdateSessionInfo: function() {
+    this.clearError();
     document.querySelector(".wallStatus").classList.add("updating");
     // Remember our state in case we need to restore it
     this.sessionStatus = $("manage-closeSession").disabled

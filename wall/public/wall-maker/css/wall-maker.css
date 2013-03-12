@@ -244,14 +244,15 @@ hr {
 /*
  * Make error divs transition in
  */
-#screen-new div.error {
-  transition-property: all;
+div.error {
+  transition-property: height, margin, padding;
   transition-duration: 0.3s;
 }
-#screen-new div.error[aria-hidden=true] {
+div.error[aria-hidden=true] {
   display: block !important;
   padding: 0;
   margin: 0;
+  font-size: 0;
   border-width: 0;
   background-color: rgba(255, 221, 221, 0);
   height: 0;
@@ -353,6 +354,9 @@ label.manage-message.error {
   border: 1px dashed orange;
   box-shadow: 2px 2px 3px rgba(0,0,0,0.4);
   width: 90%;
+}
+#wall-info .error {
+  width: 80%;
 }
 
 /*
