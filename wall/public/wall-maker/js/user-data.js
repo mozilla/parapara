@@ -337,7 +337,9 @@ var DesignSelection = function(container, designs) {
           videos[0].play();
         } else {
           videos[0].pause();
-          videos[0].currentTime = 0;
+          try {
+            videos[0].currentTime = 0;
+          } catch (e) { /* Ignore bogus exceptions from WebKit */ }
         }
       }
     }

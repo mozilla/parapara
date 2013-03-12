@@ -13,7 +13,12 @@ ParaPara.XHR_TIMEOUT = 8000;
 // XXX Remove this wrapper and just use XHRequest directly
 ParaPara.postRequest = function(url, payload,
                                 successCallback, failureCallback,
-                                maxTries = 1, timeout = ParaPara.XHR_TIMEOUT) {
+                                maxTries, timeout) {
+  if (typeof maxTries === "undefined")
+    maxTries = 1;
+  if (typeof timeout === "undefined")
+    maxTries = ParaPara.XHR_TIMEOUT;
+
   var req = new ParaPara.XHRequest(url, payload,
                                    successCallback, failureCallback,
                                    maxTries, timeout);
