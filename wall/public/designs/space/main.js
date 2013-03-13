@@ -14,7 +14,7 @@ var CHARACTER_DURATION = 20; // sec
 //   that have already been displayed in the past).
 var NUM_CHARACTERS_THRESHOLD = 35;
 
-// Number of times to show a character before shrinking/fading it
+// Number of times to show a character before shrinking it
 var NUM_ITERATIONS_AT_FULL_SIZE = 2;
 
 // Minimum number of times to show a character shrunk or faded before it can be
@@ -23,6 +23,9 @@ var MIN_NUM_ITERATIONS_AT_REDUCED_SIZE = 1;
 
 var Main = {
 
+  SVG_NS:   "http://www.w3.org/2000/svg",
+  XLINK_NS: "http://www.w3.org/1999/xlink",
+
   start: function() {
     Main.timebase = document.getElementById("time-base");
     Main.main_layer = document.getElementById("main-layer");
@@ -30,27 +33,29 @@ var Main = {
     Database.start(Main.timebase, Main.showCharacter);
   },
 
-  showCharacter: function(character, currentActiveTime, currentSimpleTime, currentRate, durationRate) {
+  showCharacter: function(character, currentActiveTime,
+                          currentSimpleTime, currentRate, durationRate) {
     var ANIMATE_RANGE = 0.5;
+
     // Start is the offset into the motion path at which to start animations for
     // the current time. We set it to -1 and then calculate it for the first
     // animation that is ready to be appended. After that, we just re-use the
     // same value.
     var start = -1;
+
     // Start diff is the amount of tweaking we have to do to get a start value
     // that's off the screen.
     var startdiff = 0;
 
     // Create a group to wrap the character and its animation
-    var g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    var g = document.createElementNS(Main.SVG_NS, "g");
     g.setAttribute("id", character.id);
 
     // Create the character image
-    var image =
-      document.createElementNS("http://www.w3.org/2000/svg", "image");
-    var imageid = character.id+"i";
+    var image = document.createElementNS(Main.SVG_NS, "image");
+    var imageid = character.id + "-image";
     image.setAttribute("id", imageid);
-    image.setAttributeNS("http://www.w3.org/1999/xlink", "href", character.uri);
+    image.setAttributeNS(Main.XLINK_NS, "href", character.uri);
     image.setAttribute("width", CHARACTER_WIDTH);
     image.setAttribute("height", CHARACTER_HEIGHT);
 
@@ -73,24 +78,22 @@ var Main = {
     g.appendChild(image);
 
     // Add a shadow to the character
-    var use = document.createElementNS("http://www.w3.org/2000/svg", "use");
+    var use = document.createElementNS(Main.SVG_NS, "use");
     use.setAttribute("transform", "matrix(1 0 0 -0.5 0 0)");
     use.setAttribute("filter", "url(#shadow)");
-    use.setAttributeNS("http://www.w3.org/1999/xlink", "href", "#"+imageid);
+    use.setAttributeNS(Main.XLINK_NS, "href", "#"+imageid);
     g.appendChild(use);
 
     // Create the animation
-    var animateMotion =
-      document.createElementNS("http://www.w3.org/2000/svg", "animateMotion");
-    animateMotion.setAttribute("dur", Math.round(CHARACTER_DURATION*durationRate)+"s");
+    var animateMotion = document.createElementNS(Main.SVG_NS, "animateMotion");
+    animateMotion.setAttribute("dur",
+                               Math.round(CHARACTER_DURATION*durationRate)+"s");
     animateMotion.setAttribute("rotate", "auto");
     animateMotion.setAttribute("begin", currentActiveTime+"s");
     animateMotion.setAttribute("repeatCount", "1");
     animateMotion.setAttribute("calcMode", "linear");
-    var mpath =
-      document.createElementNS("http://www.w3.org/2000/svg", "mpath");
-    mpath.setAttributeNS("http://www.w3.org/1999/xlink", "href",
-      "#main-layer-path");
+    var mpath = document.createElementNS(Main.SVG_NS, "mpath");
+    mpath.setAttributeNS(Main.XLINK_NS, "href", "#main-layer-path");
     animateMotion.appendChild(mpath);
 
     // When the animation finishes, remove the character
@@ -121,7 +124,7 @@ var Main = {
     }
     // Since we animate in the opposite direction to the path, we subtract the
     // range of the animation from the start value.
-    var end = start-ANIMATE_RANGE + startdiff;
+    var end = start - ANIMATE_RANGE + startdiff;
     if (end >= 0) {
 //      console.error(start+";"+end);
       animateMotion.setAttribute("keyPoints", start+";"+end);
@@ -138,10 +141,8 @@ var Main = {
     // Add the animation to the group, then add the group to the scene
     g.appendChild(animateMotion);
     Main.main_layer.appendChild(g);
+
     // Update the character's status so we don't add it again
     character.repeatCount++;
-    
-//    console.log(g);
   }
-
 }
