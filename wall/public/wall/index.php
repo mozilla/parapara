@@ -34,7 +34,6 @@ try {
            . " AND W.wallId=S.wallId"
          . " ORDER BY S.sessionId DESC LIMIT 1";
   $row =& $conn->queryRow($query, null, MDB2_FETCHMODE_ASSOC);
-  error_log(print_r($row, true));
   $conn->disconnect();
   $conn = null;
 
@@ -63,6 +62,15 @@ $database   = $endDate == NULL ? "database4live.js" : "database4gallery.js";
 $duration   = getWallDuration($wallId);
 $beginTime  = getCurrentWallTimeForDuration($duration);
 
+// We'd like to just the base path using xml:base before including the design 
+// file but doing so renders all same-document references within the included 
+// file useless (since they resolve relative to the xml:base).
+//
+// So for now we just set the designPath and pass it on to the included file.
+// In the future we might investigate pre-processing the design file and 
+// substituting relative paths.
+$designPath = "/designs/$design/"
+
 ?>
 <?xml version="1.0" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
@@ -81,7 +89,5 @@ $beginTime  = getCurrentWallTimeForDuration($duration);
   <script xlink:href="js/utility.js"></script>
   <script xlink:href="js/<?php echo $database; ?>"></script>
   <script xlink:href="/designs/<?php echo $design; ?>/main.js"></script>
-  <g xml:base="/designs/<?php echo $design; ?>/">
-    <?php require("../designs/$design/wall.svg.inc"); ?>
-  </g>
+  <?php require("../designs/$design/wall.svg.inc"); ?>
 </svg>

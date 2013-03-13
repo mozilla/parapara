@@ -18,27 +18,31 @@
     </filter>
   </defs>
 
-  <image xlink:href="images/back01.jpg" width="2560" height="1024">
+  <image xlink:href="<?php echo $designPath ?>images/back01.jpg"
+    width="2560" height="1024">
     <animateTransform attributeName="transform" type="translate"
       from="-2555 -200" to="2555 -200" begin="-60s" repeatCount="indefinite"
       dur="120s"/>
   </image>
-  <image xlink:href="images/back02.jpg" width="2560" height="1024">
+  <image xlink:href="<?php echo $designPath ?>images/back02.jpg"
+    width="2560" height="1024">
     <animateTransform attributeName="transform" type="translate"
       from="-2555 -200" to="2555 -200" repeatCount="indefinite" dur="120s"/>
   </image>
 
-  <image xlink:href="images/ground.png" transform="translate(0 564)"
-    width="1280" height="254"/>
+  <image xlink:href="<?php echo $designPath ?>images/ground.png"
+    transform="translate(0 564)" width="1280" height="254"/>
 
   <g transform="translate(-1050 20)" >
-    <image xlink:href="images/oku.png" width="3400" height="3400">
+    <image xlink:href="<?php echo $designPath ?>images/oku.png"
+      width="3400" height="3400">
       <animateTransform attributeName="transform" type="rotate"
         from="0 1700 1700" to="360 1700 1700"
         repeatCount="indefinite" additive="sum" dur="300s" />
     </image>
 
-    <image xlink:href="images/naka.png" width="3400" height="3400">
+    <image xlink:href="<?php echo $designPath ?>images/naka.png"
+      width="3400" height="3400">
       <animateTransform attributeName="transform" type="rotate"
         from="0 1700 1700" to="360 1700 1700"
         repeatCount="indefinite" additive="sum" dur="240s"/>
@@ -49,7 +53,7 @@
         from="0 1700 1700" to="360 1700 1700" repeatCount="indefinite"
         additive="sum" dur="240s"/>
       <path id="main-layer-path" pathLength="1"
-        style="fill:none;stroke:lime;opacity:0.01;stroke-width:2"
+        style="fill:none;stroke-width:2"
         d="M2560.75,993.206C2655.477,1008.112,2737,1061,2769,1109
         c156.546-24.52,148,4,100,116c116,156-55.213,271.946-55.213,271.946s7.713,148.378,7.713,211.054
         c0,80.212,7.804,92.91-8.359,168.295c74.843,53.446,90.96,61.39,90.96,94.499S2845,2045,2845,2045s28,60-8,104
@@ -59,14 +63,13 @@
         c-9.029-12.194-550.446,7.48-550.715-160.947c-0.182-114,349.077-141.521,407.087-165.469
         c-15.767-97.042-22.395-448.727,0.527-537.59C760.031,951.474,1194.486,598,1711.5,598
         C2052.247,598,2357.134,751.538,2560.75,993.206z"/>
-
     </g>
 
-    <image xlink:href="images/temae.png" width="3400" height="3400">
+    <image xlink:href="<?php echo $designPath ?>images/temae.png"
+      width="3400" height="3400">
       <animateTransform attributeName="transform" type="rotate"
         from="0 1700 1700" to="360 1700 1700" repeatCount="indefinite"
         additive="sum" dur="200s"/>
     </image>
-
   </g>
 </svg>
