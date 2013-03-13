@@ -310,7 +310,7 @@ function startNewSession($wallId, $sessionId, $datetime) {
   }
 
   // Close the latest session if it's open
-  if (@$latestSession['endDate'] !== null) {
+  if (@$latestSession['endDate'] === null) {
     closeLastSession($wallId, $sessionId, $datetime);
   }
 
@@ -370,10 +370,11 @@ function getActiveSessionId($wallId) {
   $qdate = $conn->quote($date, 'timestamp');
 
   $res =& $conn->queryOne(
-      'SELECT sessionId FROM sessions WHERE'
-      . ' wallId = ' . $conn->quote($wallId, 'integer')
-      . ' AND beginDate <= ' . $qdate
-      . ' AND (endDate IS NULL OR endDate > ' . $qdate . ')',
+      'SELECT sessionId FROM sessions'
+      . ' WHERE wallId = ' . $conn->quote($wallId, 'integer')
+      . ' AND endDate IS NULL'
+      . ' ORDER BY sessionId DESC'
+      . ' LIMIT 1',
       'integer');
   if (PEAR::isError($res)) {
     error_log($res->getMessage() . ', ' . $res->getDebugInfo());

@@ -159,11 +159,7 @@ var ManageWallController =
     $("manage-eventLocation").value = response.eventLocation;
     $("manage-eventDescr").value = response.eventDescr;
 
-    // Operation
-    $("manage-duration").value = response.duration == null
-                               ? ""
-                               : response.duration/1000;
-    $("manage-defaultDuration").textContent = response.defaultDuration/1000;
+    // Sessions
     this.updateSessionInfo(response.session);
 
     // Design
@@ -181,6 +177,10 @@ var ManageWallController =
         radio.dispatchEvent(evt);
       }
     }
+    $("manage-duration").value = response.duration == null
+                               ? ""
+                               : response.duration/1000;
+    $("manage-defaultDuration").textContent = response.defaultDuration/1000;
 
     // Privacy
     var dummypasscode = "";
@@ -250,14 +250,14 @@ var ManageWallController =
   /*
    * Error handling
    */
-  showError: function(key, timeout) {
+  showError: function(key) {
     // XXXl10n Hook this up to our localization
     switch(key) {
       case 'timeout':
         msg = "接続できませんでした.";
         break;
 
-      case 'parallel-access-session':
+      case 'parallel-change':
         msg = "Someone else has updated the session."
             + " Please confirm the updated session status.";
         break;
@@ -270,7 +270,6 @@ var ManageWallController =
     var messageBlock = this.errorBlock.querySelector('.errorMessage');
     messageBlock.textContent = msg;
 
-    // XXX Set timeout if needed
     this.errorBlock.setAttribute('aria-hidden', 'false');
   },
 
@@ -289,7 +288,7 @@ var ManageWallController =
   startSession: function() {
     this.startUpdateSessionInfo();
     ParaPara.postRequest(WallMaker.rootUrl + '/api/startSession',
-      {wallId: this.wallId},
+      {wallId: this.wallId, sessionId: this.sessionId},
       this.updateSessionInfo.bind(this),
       this.handleSessionError.bind(this)
     );
@@ -298,15 +297,24 @@ var ManageWallController =
   closeSession: function() {
     this.startUpdateSessionInfo();
     ParaPara.postRequest(WallMaker.rootUrl + '/api/closeSession',
-      {wallId: this.wallId},
+      {wallId: this.wallId, sessionId: this.sessionId},
       this.updateSessionInfo.bind(this),
       this.handleSessionError.bind(this)
     );
   },
 
   handleSessionError: function(key, detail) {
+    // In the case where we detect parallel changes, we use the updated
+    // information rather than restoring the old information
+    // (In this case we really should set a timeout on the error message but
+    // that seems like a bit too much work for something that won't happen
+    // often.)
+    if (key == 'parallel-change') {
+      this.updateSessionInfo(detail);
+    } else {
+      this.restoreSessionInfo();
+    }
     this.showError(key);
-    this.restoreSessionInfo();
   },
 
   startUpdateSessionInfo: function() {
@@ -340,6 +348,7 @@ var ManageWallController =
       currentStatus.textContent = '終了';
       statusBlock.classList.add('finished');
       $("manage-closeSession").disabled = true;
+      this.sessionId = session.id;
     } else if (session && session.start) {
       // Open session
       statusBlock.classList.remove('finished');
@@ -347,6 +356,7 @@ var ManageWallController =
       currentStatus.textContent = '公開中';
       statusBlock.classList.add('running');
       $("manage-closeSession").disabled = false;
+      this.sessionId = session.id;
     } else {
       // No session
       statusBlock.classList.remove('finished');
@@ -354,6 +364,7 @@ var ManageWallController =
       time.textContent = '--';
       currentStatus.textContent = '未発';
       $("manage-closeSession").disabled = true;
+      this.sessionId = null;
     }
     document.querySelector(".wallStatus").classList.remove("updating");
   },
