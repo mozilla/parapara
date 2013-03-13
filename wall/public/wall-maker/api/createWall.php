@@ -34,7 +34,7 @@ $wallId = createWall($params);
 $result = array('wallId' => $wallId);
 // start session
 $currentdatetime = gmdate("Y-m-d H:i:s");
-startNewSession($wallId, $currentdatetime);
+startNewSession($wallId, null, $currentdatetime);
 
 // Return the result
 print json_encode($result);

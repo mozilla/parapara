@@ -296,35 +296,71 @@ function getWallIdFromPath($path) {
   return $res;
 }
 
-function startNewSession($wallId, $datetime) {
-  $conn =& getDbConnection();
-  $qwallid = $conn->quote($wallId, 'integer');
-  $qdatetime = $conn->quote($datetime, 'timestamp');
-  $query = 'INSERT INTO sessions(wallId,beginDate) VALUES('.$wallId.','.$qdatetime.')';
-  $res =& $conn->query($query);
-  if (PEAR::isError($res)) {
-    error_log($res->getMessage() . ', ' . $res->getDebugInfo());
-    throw new KeyedException('db-error');
-  }
-  $conn->disconnect();
-}
+function startNewSession($wallId, $sessionId, $datetime) {
+  // Sanitize input
+  $wallId = toId($wallId);
+  $sessionId = toId($sessionId);
 
-function closeLastSession($wallId, $datetime) {
+  // Work out the latest session and if it needs closing
+  $latestSession = getLatestSession($wallId);
+
+  // Is the passed-in session ID correct?
+  if (@$latestSession['id'] !== $sessionId) {
+    return false;
+  }
+
+  // Close the latest session if it's open
+  if (@$latestSession['endDate'] !== null) {
+    closeLastSession($wallId, $sessionId, $datetime);
+  }
+
+  // Start a new session
   $conn =& getDbConnection();
   $qwallid = $conn->quote($wallId, 'integer');
   $qdatetime = $conn->quote($datetime, 'timestamp');
-  //makes temp table for (You can't specify target table 'sessions' for update in FROM clause)
-  $query = 'UPDATE sessions SET endDate='.$qdatetime.' WHERE endDate IS NULL AND wallId='.$qwallid.' AND sessionId=(SELECT temp.sessionId FROM (SELECT MAX(sessionId) AS sessionID FROM sessions WHERE wallId='.$qwallid.') AS temp)';
+  $query = 'INSERT INTO sessions(wallId, beginDate)'
+    . ' VALUES(' . $conn->quote($wallId, 'integer')
+    . ',' . $conn->quote($datetime, 'timestamp')
+    . ')';
   $res =& $conn->exec($query);
   if (PEAR::isError($res)) {
     error_log($res->getMessage() . ', ' . $res->getDebugInfo());
     throw new KeyedException('db-error');
   }
-
   $conn->disconnect();
 
-  // Return true if we made some change, false if the session was already closed
-  return $res > 0;
+  return true;
+}
+
+function closeLastSession($wallId, $sessionId, $datetime) {
+  // Sanitize input
+  $wallId = toId($wallId);
+  $sessionId = toId($sessionId);
+
+  // Check if the passed in sessionID actually matches the latest session (and 
+  // that session is not already closed)
+  if ($sessionId !== getActiveSessionId($wallId)) {
+    return false;
+  }
+
+  // Close session
+  $conn =& getDbConnection();
+  $query = 'UPDATE sessions'
+    . ' SET endDate=' . $conn->quote($datetime, 'timestamp')
+    . ' WHERE sessionId=' . $conn->quote($sessionId, 'integer');
+  $res =& $conn->exec($query);
+  if (PEAR::isError($res)) {
+    error_log($res->getMessage() . ', ' . $res->getDebugInfo());
+    throw new KeyedException('db-error');
+  }
+  $conn->disconnect();
+
+  // Return true since we made a change
+  return true;
+}
+
+function toId($idLike) {
+  return is_null($idLike) ? null : intval($idLike);
 }
 
 // Returns NULL if there is no active session for the wall
@@ -336,7 +372,7 @@ function getActiveSessionId($wallId) {
   $res =& $conn->queryOne(
       'SELECT sessionId FROM sessions WHERE'
       . ' wallId = ' . $conn->quote($wallId, 'integer')
-      . ' AND beginDate < ' . $qdate
+      . ' AND beginDate <= ' . $qdate
       . ' AND (endDate IS NULL OR endDate > ' . $qdate . ')',
       'integer');
   if (PEAR::isError($res)) {
@@ -361,8 +397,10 @@ function getLatestSession($wallId) {
     error_log($row->getMessage() . ', ' . $row->getDebugInfo());
     throw new KeyedException('db-error');
   }
+  if (!$row)
+    return null;
   return array(
-    'id' => $row['sessionid'],
+    'id' => intval($row['sessionid']),
     'start' => $row['begindate'],
     'end' => $row['enddate'],
   );

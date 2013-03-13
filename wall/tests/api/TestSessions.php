@@ -45,14 +45,22 @@ class SessionsTestCase extends WallMakerTestCase {
     // Create wall
     $wallId = $this->createWall('Test wall', $this->testDesignId);
 
+    // Get current session ID
+    $wall = $this->getWall($wallId);
+    $sessionId = $wall['session']['id'];
+
     // Close session
-    $response = $this->closeSession($wallId);
+    $response = $this->closeSession($wallId, $sessionId);
 
     // Check we got the times and status
     $this->assertTrue(!array_key_exists('error_key', $response),
-                      "Failed to close session:" . @$response['error_key']);
+                      "Failed to close session: " . @$response['error_key']);
     $this->assertTrue($this->isClosedSession($response),
                       "Session does not appear to be closed.");
+
+    // Check the ID is the same
+    $this->assertEqual(@$response['id'], $sessionId,
+                       "Got different session IDs: %s");
 
     // Re-fetch wall
     $wall = $this->getWall($wallId);
@@ -62,12 +70,14 @@ class SessionsTestCase extends WallMakerTestCase {
 
     // Logout and check it fails
     $this->logout();
-    $response = $this->closeSession($wallId);
+    $response = $this->closeSession($wallId, $sessionId);
     $this->assertTrue(array_key_exists('error_key', $response) &&
                       $response['error_key'] == 'logged-out',
                       "Closed session whilst logged out.");
 
     // XXX Check we can't close the session of someone else's wall
+    // XXX Test we get a bad-request error if either wallId or sessionId is 
+    // missing or bad
 
     // Tidy up by removing the wall
     $this->removeWall($wallId);
@@ -79,16 +89,26 @@ class SessionsTestCase extends WallMakerTestCase {
 
     // Create wall
     $wallId = $this->createWall('Test wall', $this->testDesignId);
+    $wall = $this->getWall($wallId); // In PHP < 5.4 we have to do this in two
+                                     // steps
+    $sessionId = $wall['session']['id'];
 
     // Close session
-    $response = $this->closeSession($wallId);
+    $response = $this->closeSession($wallId, $sessionId);
     $this->assertTrue($this->isClosedSession($response),
-                      "Session does not appear to be closed.");
+                      "Session does not appear to be closed");
 
     // Close again
-    $response = $this->closeSession($wallId);
+    $response = $this->closeSession($wallId, $sessionId);
     $this->assertTrue(array_key_exists('error_key', $response) &&
-                      $response['error_key'] == 'already-closed');
+                      $response['error_key'] == 'parallel-change',
+                      "No error about parallel change when closing twice");
+    $this->assertTrue($this->isClosedSession(@$response['error_detail']),
+                      "Doubly-closed session does not appear to be closed");
+
+    // Check ID hasn't changed
+    $this->assertEqual(@$response['error_detail']['id'], $sessionId,
+                       "Got different session IDs: %s");
 
     // Re-fetch wall (to check we're in a consistent state)
     $wall = $this->getWall($wallId);
@@ -106,15 +126,22 @@ class SessionsTestCase extends WallMakerTestCase {
 
     // Create wall
     $wallId = $this->createWall('Test wall', $this->testDesignId);
+    $wall = $this->getWall($wallId);
+    $sessionId = $wall['session']['id'];
 
-    // Close session
-    $response = $this->startNewSession($wallId);
+    // Start new session
+    $response = $this->startNewSession($wallId, $sessionId);
 
     // Check we got the times and status
     $this->assertTrue(!array_key_exists('error_key', $response),
-                      "Failed to start new session:" . @$response['error_key']);
+                      "Failed to start new session: " .
+                      @$response['error_key']);
     $this->assertTrue($this->isOpenSession($response),
                       "Session does not appear to be open");
+
+    // Check the IDs differ
+    $this->assertEqual(@$response['id'], $sessionId+1,
+                       "Got unexpected session ID: %s");
 
     // Re-fetch wall
     $wall = $this->getWall($wallId);
@@ -124,12 +151,43 @@ class SessionsTestCase extends WallMakerTestCase {
 
     // Logout and check it fails
     $this->logout();
-    $response = $this->startNewSession($wallId);
+    $response = $this->startNewSession($wallId, $sessionId);
     $this->assertTrue(array_key_exists('error_key', $response) &&
                       $response['error_key'] == 'logged-out',
                       "Started new session whilst logged out.");
 
     // XXX Check we can't start a new session on someone else's wall
+
+    // Tidy up by removing the wall
+    $this->removeWall($wallId);
+  }
+
+  function testParallelStartNew() {
+    // Login
+    $this->login();
+
+    // Create wall
+    $wallId = $this->createWall('Test wall', $this->testDesignId);
+    $wall = $this->getWall($wallId);
+    $sessionId = $wall['session']['id'];
+
+    // Start new session
+    $responseA = $this->startNewSession($wallId, $sessionId);
+
+    // And do it again but with the OLD sessionId
+    $responseB = $this->startNewSession($wallId, $sessionId);
+    $this->assertTrue(array_key_exists('error_key', $responseB) &&
+                      $responseB['error_key'] == 'parallel-change',
+                      "No error about parallel change when starting with old "
+                      . "session ID");
+    $this->assertTrue($this->isOpenSession(@$responseB['error_detail']),
+                      "Session returned after starting twice does not appear "
+                      . " to be open");
+
+    // Check the session returned by the parallel change matches that returned 
+    // when we first started a new session
+    $this->assertEqual(@$responseA['id'], @$responseB['error_detail']['id'],
+                       "Got unexpected session ID: %s");
 
     // Tidy up by removing the wall
     $this->removeWall($wallId);
@@ -161,9 +219,8 @@ class SessionsTestCase extends WallMakerTestCase {
                        preg_match($this->dateRegEx, @$session['end'])),
                       "Unexpected session end: " . @$session['end']);
 
-    return $shouldBeOpen xor $session['end'] !== null;
+    return $shouldBeOpen xor @$session['end'] !== null;
   }
-
 
   function getWall($wallId) {
     // Set cookie
@@ -225,7 +282,7 @@ class SessionsTestCase extends WallMakerTestCase {
     return $wall['wallId'];
   }
 
-  function closeSession($wallId) {
+  function closeSession($wallId, $sessionId) {
     // Set cookie
     if ($this->sessionId) {
       $this->setCookie(WALLMAKER_SESSION_NAME, session_id());
@@ -233,6 +290,7 @@ class SessionsTestCase extends WallMakerTestCase {
 
     // Prepare payload
     $payload['wallId'] = $wallId;
+    $payload['sessionId'] = $sessionId;
 
     // Make request
     global $config;
@@ -251,7 +309,7 @@ class SessionsTestCase extends WallMakerTestCase {
     return $parsedResponse;
   }
 
-  function startNewSession($wallId) {
+  function startNewSession($wallId, $sessionId) {
     // Set cookie
     if ($this->sessionId) {
       $this->setCookie(WALLMAKER_SESSION_NAME, session_id());
@@ -259,6 +317,7 @@ class SessionsTestCase extends WallMakerTestCase {
 
     // Prepare payload
     $payload['wallId'] = $wallId;
+    $payload['sessionId'] = $sessionId;
 
     // Make request
     global $config;

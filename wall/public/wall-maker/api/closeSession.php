@@ -23,15 +23,27 @@ $json = json_decode($jsonString,true);
 fclose($handle);
 
 // Prepare parameters
-$wallId = @$json['wallId'];
-if (!isset($wallId)) {
-  bailWithError('logged-out');
+$wallId    = @$json['wallId'];
+$sessionId = @$json['sessionId'];
+if (!isset($wallId) || !isset($sessionId)) {
+  bailWithError('bad-request');
 }
 
+// Close session
 $currentdatetime = gmdate("Y-m-d H:i:s");
-if (!closeLastSession($wallId, $currentdatetime))
-  bailWithError('already-closed');
+$madeChange = closeLastSession($wallId, $sessionId, $currentdatetime);
 
 // Return the result
-print json_encode(getLatestSession($wallId));
+// - If we made a change then return the latest session.
+// - Otherwise return a parallel-change notification with the latest session in 
+//   the detail.
+$latestSession = getLatestSession($wallId);
+if ($madeChange) {
+  print json_encode($latestSession);
+} else {
+  $result['error_key'] = 'parallel-change';
+  $result['error_detail'] = $latestSession;
+  print json_encode($result);
+}
+
 ?>

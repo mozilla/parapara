@@ -21,6 +21,10 @@ abstract class ParaparaTestCase extends WebTestCase {
   // Database connection singleton
   static private $conn = null;
 
+  // An instance of SimpleTestCase so we can re-use its methods
+  // (Why WebTestCase doesn't inherit from UnitTestCase is beyond me.)
+  static protected $unitTestCase = null;
+
   // Path to designs folder
   protected $designsPath;
 
@@ -28,6 +32,9 @@ abstract class ParaparaTestCase extends WebTestCase {
     parent::__construct($name);
     if (self::$conn === null) {
       self::initDb();
+    }
+    if (self::$unitTestCase === null) {
+      self::$unitTestCase = new UnitTestCase();
     }
     $this->designsPath = dirname(__FILE__) . '/../../public/designs/';
   }
@@ -97,6 +104,11 @@ abstract class ParaparaTestCase extends WebTestCase {
 
   public static function isNotEmpty($str) {
     return trim($str) != '';
+  }
+
+  public function assertEqual($first, $second, $message = '%s') {
+    self::$unitTestCase->reporter = $this->reporter;
+    return self::$unitTestCase->assertEqual($first, $second, $message);
   }
 
   public function getConnection() {
