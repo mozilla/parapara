@@ -9,7 +9,6 @@ require_once("../../lib/parapara.inc");
 require_once("db.inc");
 $connection = getConnection();
 
-
 $list = array();
 try {
   if (!isset($_GET["sessionId"])) {

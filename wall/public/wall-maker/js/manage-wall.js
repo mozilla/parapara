@@ -58,11 +58,11 @@ var ManageWallController =
     this.clearError();
 
     // Fetch wall information
-    ParaPara.postRequest('/api/walls/' + wallId, null,
-                         function(response) {
-                           this.loadSuccess(response, tabName);
-                         }.bind(this),
-                         this.loadError.bind(this));
+    ParaPara.getUrl('/api/walls/' + wallId,
+                    function(response) {
+                    this.loadSuccess(response, tabName);
+                    }.bind(this),
+                    this.loadError.bind(this));
   },
 
   selectTab: function(tabName) {
@@ -129,7 +129,7 @@ var ManageWallController =
 
   sendCommand: function(url, payload, messageElement) {
     // XXX Display the error somewhere now that I've removed the message labels
-    ParaPara.postRequest(url, payload,
+    ParaPara.postUrl(url, payload,
        function(response) {
           messageElement.classList.remove("error");
           messageElement.textContent = response;
@@ -287,7 +287,7 @@ var ManageWallController =
    */
   startSession: function() {
     this.startUpdateSessionInfo();
-    ParaPara.postRequest(WallMaker.rootUrl + '/api/startSession',
+    ParaPara.postUrl(WallMaker.rootUrl + '/api/startSession',
       {wallId: this.wallId, sessionId: this.sessionId},
       this.updateSessionInfo.bind(this),
       this.handleSessionError.bind(this)
@@ -296,7 +296,7 @@ var ManageWallController =
 
   closeSession: function() {
     this.startUpdateSessionInfo();
-    ParaPara.postRequest(WallMaker.rootUrl + '/api/closeSession',
+    ParaPara.postUrl(WallMaker.rootUrl + '/api/closeSession',
       {wallId: this.wallId, sessionId: this.sessionId},
       this.updateSessionInfo.bind(this),
       this.handleSessionError.bind(this)

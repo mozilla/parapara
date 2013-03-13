@@ -39,9 +39,9 @@ var CreateWallController =
     Navigation.showScreen("screen-new");
     // Send request
     var payload = CreateWallForm.getFormValues();
-    ParaPara.postRequest(WallMaker.rootUrl + '/api/createWall', payload,
-                         this.createSuccess.bind(this),
-                         this.createError.bind(this));
+    ParaPara.postUrl(WallMaker.rootUrl + '/api/createWall', payload,
+                     this.createSuccess.bind(this),
+                     this.createError.bind(this));
   },
 
   createSuccess: function(response) {

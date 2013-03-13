@@ -37,7 +37,7 @@ ParaPara.Login.prototype.relogin = function() {
 
   // See if we still have a valid session
   if (this.haveSessionCookie()) {
-    ParaPara.postRequest('/api/whoami', null,
+    ParaPara.getUrl('/api/whoami',
       // Got a cookie and the server recognises the session
       alreadyLoggedIn,
       // Server error, probably session has expired
@@ -99,14 +99,14 @@ ParaPara.Login.prototype.onlogout = function() {
 
 // Verify an assertion and if it's ok, finish logging in
 ParaPara.Login.prototype.gotAssertion = function(assertion) {
-  ParaPara.postRequest('/api/login',
-                       { assertion: assertion },
-                       // Success, finish logging in
-                       function(response) {
-                         this.loggedIn(response.email);
-                       }.bind(this),
-                       // Couldn't verify
-                       this.loginFail.bind(this));
+  ParaPara.postUrl('/api/login',
+                   { assertion: assertion },
+                   // Success, finish logging in
+                   function(response) {
+                     this.loggedIn(response.email);
+                   }.bind(this),
+                   // Couldn't verify
+                   this.loginFail.bind(this));
 }
 
 ParaPara.Login.prototype.loginFail = function(reason, detail) {

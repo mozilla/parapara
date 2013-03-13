@@ -36,10 +36,14 @@ var Database = {
   loadAllCharacters: function(callback) {
     var url = API_DIR+"get_all_characters.php?threshold="+
               NUM_CHARACTERS_THRESHOLD+"&"+(new Date()).getTime();
-    $.getJSON(url, function(json) {
-      Database.append(json);
-      Database.next(0);
-    });
+    ParaPara.getUrl(url,
+      function(response) {
+        Database.append(response);
+        Database.next(0);
+      },
+      function (key, detail) {
+        console.log("Couldn't get characters: " + key + ": " + detail);
+      });
   },
 
   append: function(json) {

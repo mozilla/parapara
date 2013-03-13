@@ -13,15 +13,10 @@ var Database = {
     Database.characters = [];
     Database.listener = characterListener;
     Database.timebase = timebase;
-	/*
-    Database.timebase.addEventListener("repeatEvent", function(e) {
-      for (var i = 0, n = Database.characters.length; i < n; i++) {
-        Database.characters[i].sent = false;
-      }
-    }, true);
-	*/
-    //changes animate duration. [dur]
-    Database.duration_rate = Utility.applyDuration(Database.timebase, BASE_TIME, BEGIN_TIME+(new Date()).getTime()-BEFORE_LOADED_TIME);
+    // Changes animate duration. [dur]
+    Database.duration_rate =
+      Utility.applyDuration(Database.timebase, BASE_TIME,
+        BEGIN_TIME+(new Date()).getTime()-BEFORE_LOADED_TIME);
     Database.begin_rate = BEGIN_TIME/BASE_TIME;
     Database.loadAllCharacters(function() {
     });
@@ -85,39 +80,52 @@ var Database = {
     }
     Database.timeout_id = setTimeout(Database.idle, 100);
   },
-  
+
   // Get the characters that have not yet been assigned an x value
   loadUncompletedCharacters: function() {
     // Send ratio in the duration.
     var parameter = Database.latest_character_id;
     var url = API_DIR+"get_uncompleted_characters.php?charId="+
               parameter+"&sessionId="+SESSION_ID+"&"+(new Date()).getTime();
-    $.getJSON(url, function(json) {
-      Database.append(json, true);
-      setTimeout(Database.loadUncompletedCharacters, 1000);
-    });
+    ParaPara.getUrl(url,
+      function(response) {
+        Database.append(response, true);
+        setTimeout(Database.loadUncompletedCharacters, 1000);
+      },
+      function(key, detail) {
+        // Got an error, but just keep going anyway
+        setTimeout(Database.loadUncompletedCharacters, 1000);
+      }
+    );
   },
 
   // Get all characters that have already been assigned an x value (i.e. have
   // already made their debut on the stage)
   loadAllCharacters: function(callback) {
-    var url = API_DIR+"get_all_characters.php?threshold="+
-              NUM_CHARACTERS_THRESHOLD+"&sessionId="+SESSION_ID+"&"+(new Date()).getTime();
-    $.getJSON(url, function(json) {
-      Database.append(json, false);
-      Database.preidle();
-      Database.loadUncompletedCharacters();
-      callback();
-    });
+    var url = API_DIR+"get_all_characters.php?threshold=" +
+              NUM_CHARACTERS_THRESHOLD+"&sessionId=" + SESSION_ID +
+              "&"+(new Date()).getTime();
+    ParaPara.getUrl(url,
+      function(response) {
+        Database.append(response, false);
+        Database.preidle();
+        Database.loadUncompletedCharacters();
+        callback();
+      },
+      function (key, detail) {
+        console.log("Couldn't get characters: " + key + ": " + detail);
+      }
+    );
   },
 
-  append: function(json, isNew) {
-    for (var i = 0, n = json.length; i < n; i++) {
-      var characterOfJson = json[i];
+  append: function(characters, isNew) {
+    for (var i = 0, n = characters.length; i < n; i++) {
+      var characterOfJson = characters[i];
       var character = new Character();
       character.setup(characterOfJson);
       character.isNew = isNew;
-      Database.latest_character_id = Math.max(Database.latest_character_id, character.id);
+      Database.latest_character_id =
+        Math.max(Database.latest_character_id, character.id);
       Database.characters.push(character);
     }
   }

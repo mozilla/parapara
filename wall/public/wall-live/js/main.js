@@ -198,10 +198,16 @@ var Main = {
   loadUncompletedCharacters: function() {
     var url = API_DIR+"get_uncompleted_characters.php?x="+
               Main.currentSimpleTime+"&"+(new Date()).getTime();
-    $.getJSON(url, function(json) {
-      Main.appendCharacters(json);
-      setTimeout(Main.loadUncompletedCharacters, 1000);
-    });
+    ParaPara.getUrl(url,
+      function(json) {
+        Main.appendCharacters(json);
+        setTimeout(Main.loadUncompletedCharacters, 1000);
+      },
+      function(key, detail) {
+        // Got an error, but just keep going anyway
+        setTimeout(Main.loadUncompletedCharacters, 1000);
+      }
+    );
   },
 
   // Get all characters that have already been assigned an x value (i.e. have
@@ -209,11 +215,15 @@ var Main = {
   loadAllCharacters: function(callback) {
     var url = API_DIR+"get_all_characters_before_restart.php?threshold="+
               NUM_CHARACTERS_THRESHOLD+"&"+(new Date()).getTime();
-    $.getJSON(url, function(json) {
-      Main.characters = [];
-      Main.appendCharacters(json);
-      callback();
-    });
+    ParaPara.getUrl(url,
+      function (response) {
+        Main.characters = [];
+        Main.appendCharacters(response);
+        callback();
+      },
+      function (key, detail) {
+        console.log("Couldn't get characters: " + key + ": " + detail);
+      });
   },
 
   appendCharacters: function(json) {

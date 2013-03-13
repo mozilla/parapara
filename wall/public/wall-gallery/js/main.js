@@ -120,11 +120,13 @@ var Main = {
 	
 	loadAllCharacters: function(callback) {
 		var url = API_DIR+"get_all_characters_before_restart.php?"+(new Date()).getTime();
-		$.getJSON(url, function(json) {
-			Main.characters = [];
-			Main.appendCharacters(json);
-			callback();
-		});
+    ParaPara.getUrl(url,
+      function(response) {
+        Main.characters = [];
+        Main.appendCharacters(response);
+        callback();
+      }
+    );
 	},
 	
 	appendCharacters: function(json) {

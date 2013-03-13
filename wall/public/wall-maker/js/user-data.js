@@ -22,8 +22,6 @@
  */
 var UserData =
 {
-  connectionMaxRetries: 2,
-  connectionTimeout: 6000,
   onupdate: null,
 
   update: function (onupdate) {
@@ -39,11 +37,9 @@ var UserData =
       UserData.onupdate = onupdate;
     }
 
-    ParaPara.postRequest('/api/userSummary', null,
-                         UserData._gotUserData,
-                         UserData._gotUserDataFailed,
-                         UserData.connectionMaxRetries,
-                         UserData.connectionTimeout);
+    ParaPara.getUrl('/api/userSummary',
+                    UserData._gotUserData,
+                    UserData._gotUserDataFailed);
   },
 
   _gotUserData: function (response, wallsOnly) {
@@ -75,15 +71,13 @@ var UserData =
   updateWalls: function () {
     WallSummaryController.showLoading();
     var wallsOnly = true;
-    ParaPara.postRequest('/api/userSummary', null,
+    ParaPara.getUrl('/api/userSummary',
       function (response) {
         UserData._gotUserData(response, wallsOnly);
       },
       function (reason, detail) {
         UserData._gotUserDataFailed(reason, detail, wallsOnly);
-      },
-      UserData.connectionMaxRetries,
-      UserData.connectionTimeout
+      }
     );
   },
 

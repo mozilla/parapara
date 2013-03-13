@@ -8,30 +8,40 @@
 
 var ParaPara = ParaPara || {};
 
-ParaPara.XHR_TIMEOUT = 8000;
+ParaPara.XHR_DEFAULT_TIMEOUT = 8000;
 
-// XXX Remove this wrapper and just use XHRequest directly
-ParaPara.postRequest = function(url, payload,
-                                successCallback, failureCallback,
-                                maxTries, timeout) {
+ParaPara.getUrl = function(url, successCallback, failureCallback,
+                           maxTries, timeout) {
   if (typeof maxTries === "undefined")
-    // XXX Once we support different methods, we should probably make GET and
-    // PUT retry automatically (i.e. maxTries = 2 by default) since they should
-    // be indempotent
-    maxTries = 1;
+    /* GET is indempotent so by default we retry twice */
+    maxTries = 2;
   if (typeof timeout === "undefined")
-    timeout = ParaPara.XHR_TIMEOUT;
+    timeout = ParaPara.XHR_DEFAULT_TIMEOUT;
 
-  var req = new ParaPara.XHRequest(url, payload,
-                                   successCallback, failureCallback,
-                                   maxTries, timeout);
+  new ParaPara.XHRequest("GET", url, null,
+                         successCallback, failureCallback,
+                         maxTries, timeout);
 }
 
-ParaPara.XHRequest = function(url, payload,
+ParaPara.postUrl = function(url, payload,
+                            successCallback, failureCallback,
+                            maxTries, timeout) {
+  if (typeof maxTries === "undefined")
+    maxTries = 1;
+  if (typeof timeout === "undefined")
+    timeout = ParaPara.XHR_DEFAULT_TIMEOUT;
+
+  new ParaPara.XHRequest("POST", url, payload,
+                         successCallback, failureCallback,
+                         maxTries, timeout);
+}
+
+ParaPara.XHRequest = function(method, url, payload,
                               successCallback, failureCallback,
                               maxTries, timeout) {
   this.timeoutCount    = 0;
   this.gotResponse     = false;
+  this.method          = method;
   this.url             = url;
   this.successCallback = successCallback;
   this.failureCallback = failureCallback;
@@ -48,10 +58,11 @@ ParaPara.XHRequest = function(url, payload,
 ParaPara.XHRequest.prototype.sendRequest = function() {
   // Create request
   var req = new XMLHttpRequest();
-  req.open("POST", this.url, true);
+  req.open(this.method, this.url, true);
 
   // Set headers
-  req.setRequestHeader("Content-Type", "application/json");
+  if (this.jsonPayload)
+    req.setRequestHeader("Content-Type", "application/json");
 
   // Event listeners
   req.onreadystatechange = function() {
@@ -88,7 +99,7 @@ ParaPara.XHRequest.prototype.sendRequest = function() {
 
   // Send away
   try {
-    req.send(this.jsonPayload);
+    req.send(this.jsonPayload ? this.jsonPayload : null);
   } catch (e) {
     console.debug(e);
     this.failureCallback('send-fail');

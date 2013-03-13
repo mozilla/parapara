@@ -96,13 +96,12 @@ var Main = {
     animateMotion.addEventListener("endEvent", function(e) {
       var gElement = e.originalTarget.parentNode;
       gElement.parentNode.removeChild(gElement);
-      //console.error("remove:"+character.id);
     }, true);
 
     // Add the animation to the group, then add the group to the scene
     g.appendChild(animateMotion);
     Main.main_layer.appendChild(g);
-    
+
     // Update the character's status so we don't add it again
     character.repeatCount++;
   }
