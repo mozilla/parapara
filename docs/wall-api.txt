@@ -10,7 +10,7 @@ Public-facing content:
 /wall/<wall-name>/sessions - Gallery-like list of sessions for wall?
 /wall/<wall-name>/sessions/<session-id> - show wall corresponding to a given
                                           session
-/wall/<wall-name>/sessions/<session-id>/gallery - show gallery view of wall
+/wall/<wall-name>/sessions/<session-id>/gallery - show gallery view of session
 /wall/<wall-name>/gallery - show all (non-hidden) characters from all sessions
                             in order of submission in gallery format
 

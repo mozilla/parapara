@@ -10,14 +10,7 @@ require_once("walls.inc");
 
 $conn = NULL;
 try {
-  // Parse wall name
-  $url = $_SERVER["REDIRECT_URL"];
-  $match = preg_match('/^\/wall\/([^\/]+)$/', $url, $matches);
-  if ($match != 1) {
-    throwException("No wall found");
-  }
-  $wallName = $matches[1];
-  $wallId = getWallIdFromPath($wallName);
+  $wallId = getWallIdFromPath($_REQUEST['wall']);
   if (!$wallId) {
     throwException("No wall found");
   }
@@ -58,7 +51,9 @@ try {
 
 header("Content-Type: image/svg+xml; charset=UTF-8");
 
-$database   = $endDate == NULL ? "database4live.js" : "database4gallery.js";
+$database   = @$_REQUEST['view'] == 'parade'
+            ? "database4parade.js"
+            : ($endDate == NULL ? "database4live.js" : "database4gallery.js");
 $duration   = getWallDuration($wallId);
 $beginTime  = getCurrentWallTimeForDuration($duration);
 
@@ -85,9 +80,9 @@ $designPath = "/designs/$design/"
       var BEGIN_TIME = <?php echo $beginTime ?>;
       var BEFORE_LOADED_TIME = (new Date()).getTime();
   </script>
-  <script xlink:href="js/utility.js"></script>
-  <script xlink:href="../wall-maker/js/xhr.js"></script>
-  <script xlink:href="js/<?php echo $database; ?>"></script>
+  <script xlink:href="/wall/js/utility.js"></script>
+  <script xlink:href="/wall-maker/js/xhr.js"></script>
+  <script xlink:href="/wall/js/<?php echo $database; ?>"></script>
   <script xlink:href="/designs/<?php echo $design; ?>/main.js"></script>
   <?php require("../designs/$design/wall.svg.inc"); ?>
 </svg>

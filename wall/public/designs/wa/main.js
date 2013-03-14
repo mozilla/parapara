@@ -25,9 +25,11 @@ var Main = {
 
   start: function() {
     Main.timebase = document.getElementById("time-base");
-    Main.main_layer = document.getElementById("main-layer"); Database.start(Main.timebase, Main.showCharacter); },
+    Main.main_layer = document.getElementById("main-layer");
+    Database.start(Main.timebase, Main.showCharacter); },
 
-  showCharacter: function(character, currentActiveTime, currentSimpleTime, currentRate, durationRate) {
+  showCharacter: function(character, currentActiveTime, currentSimpleTime,
+                          currentRate, durationRate) {
     // Create a group to wrap the character and its animation
     var g = document.createElementNS("http://www.w3.org/2000/svg", "g");
     g.setAttribute("id", character.id);
@@ -81,7 +83,8 @@ var Main = {
     // Create the animation
     var animateMotion =
       document.createElementNS("http://www.w3.org/2000/svg", "animateMotion");
-    animateMotion.setAttribute("dur", Math.round(CHARACTER_DURATION*durationRate)+"s");
+    animateMotion.setAttribute("dur",
+      Math.round(CHARACTER_DURATION * durationRate)+"s");
     animateMotion.setAttribute("begin", currentActiveTime+"s");
     animateMotion.setAttribute("calcMode", "linear");
     animateMotion.setAttribute("repeatCount", "1");

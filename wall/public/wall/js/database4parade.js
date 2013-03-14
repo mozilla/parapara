@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var API_DIR = "../api/";
+var API_DIR = "/api/";
 var CHARACTERS_DIR = "/characters/";
 
 var Database = {
@@ -11,6 +11,9 @@ var Database = {
     Database.characters = [];
     Database.listener = characterListener;
     Database.timebase = timebase;
+    Database.duration_rate =
+      Utility.applyDuration(Database.timebase, BASE_TIME,
+        BEGIN_TIME+(new Date()).getTime()-BEFORE_LOADED_TIME);
     Database.loadAllCharacters();
   },
 
@@ -27,7 +30,8 @@ var Database = {
     var currentRate = currentSimpleTime/simpleDuration;
     // Go through and add waiting characters
     var character = Database.characters[index];
-    Database.listener(character, currentActiveTime, currentSimpleTime, currentRate);
+    Database.listener(character, currentActiveTime, currentSimpleTime,
+                      currentRate, Database.duration_rate);
     Database.timeout_id = setTimeout(Database.next, Math.round(4000+Math.random()*3000), index+1);
   },
   

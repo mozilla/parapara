@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var API_DIR = "../api/";
+var API_DIR = "/api/";
 var CHARACTERS_DIR = "/characters/";
 
 var Database = {
@@ -74,7 +74,8 @@ var Database = {
 //      if (character.sent != true) { //for debug
 //      console.error("******"+rate+":"+currentRate+" "+previousRate);
 
-        Database.listener(character, currentActiveTime, currentSimpleTime, currentRate, Database.duration_rate);
+        Database.listener(character, currentActiveTime, currentSimpleTime,
+                          currentRate, Database.duration_rate);
         character.sent = true;
       }
     }

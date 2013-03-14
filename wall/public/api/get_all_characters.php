@@ -7,45 +7,63 @@ header("Content-Type: text/plain; charset=UTF-8");
 
 require_once("../../lib/parapara.inc");
 require_once("db.inc");
-$connection = getConnection();
+require_once("api.inc");
 
-$threshold = isset($_GET["threshold"]) ? intval($_GET["threshold"]) : -1;
+$threshold = isset($_GET["threshold"])
+           ? intval($_GET["threshold"])
+           : null;
 
-$list = array();
-try {
-  if (!isset($_GET["sessionId"])) {
-    throwException("no session id");
-  }
-  $sessionId = intval($_GET["sessionId"]);
+$conn =& getDbConnection();
 
-  if ($threshold >= 0) {
-    $query = "SELECT charId,x,width,height,groundOffset FROM " .
-      "(SELECT charId,x,width,height,groundOffset FROM characters WHERE x IS NOT NULL AND active = 1 AND sessionId=".$sessionId.
-      " ORDER BY createDate DESC LIMIT " . $threshold . ") " .
-      "AS latestShown ORDER BY x";
-  } else {
-    $query =
-      "SELECT charId,x,width,height,groundOffset FROM characters WHERE x IS NOT NULL AND active = 1 AND sessionId=".$sessionId.
-      " ORDER BY x";
-  }
-  $resultset = mysql_query($query, $connection) or
-               throwException(mysql_error());
-
-  while ($row = mysql_fetch_array($resultset)) {
-    $character = array();
-    $character["id"] = intval($row["charId"]);
-    $character["x"] = intval($row["x"]);
-    $character["width"] = intval($row["width"]);
-    $character["height"] = intval($row["height"]);
-    $character["groundOffset"] = floatval($row["groundOffset"]);
-    array_push($list, $character);
-  }
-  
-  mysql_free_result($resultset);
-} catch (Exception $e) {
-  $list["error"] = $e->getMessage();
+$sessionCond = '';
+if (isset($_GET['sessionId'])) {
+  $sessionCond = 'sessionId = '
+               . $conn->quote(intval($_GET['sessionId']), 'integer');
 }
-mysql_close($connection);
 
-echo json_encode($list);
+$result = array();
+
+if ($threshold !== null) {
+  $query =
+    "SELECT charId, x, width, height, groundOffset"
+    . " FROM"
+    . " (SELECT charId, x, width, height, groundOffset"
+    . "  FROM characters WHERE x IS NOT NULL"
+    . "  AND active = 1"
+    . ($sessionCond ? " AND $sessionCond" : "")
+    . "  ORDER BY createDate DESC LIMIT " . $conn->quote($threshold, 'integer')
+    . " )"
+    . " AS latestShown"
+    . " ORDER BY x";
+} else {
+  $query =
+    "SELECT charId, x, width, height, groundOffset"
+    . " FROM characters"
+    . " WHERE x IS NOT NULL"
+    . " AND active = 1"
+    . ($sessionCond ? " AND $sessionCond" : "")
+    . " ORDER BY x";
+}
+
+$res =& $conn->query($query);
+if (PEAR::isError($res)) {
+  error_log($res->getMessage() . ', ' . $res->getDebugInfo());
+  throw new KeyedException('db-error');
+}
+
+$conn->setFetchMode(MDB2_FETCHMODE_ASSOC);
+while ($row = $res->fetchRow()) {
+  $character = array();
+  $character["id"] = intval($row["charid"]);
+  $character["x"] = intval($row["x"]);
+  $character["width"] = intval($row["width"]);
+  $character["height"] = intval($row["height"]);
+  $character["groundOffset"] = floatval($row["groundoffset"]);
+  array_push($result, $character);
+}
+ 
+$res->free();
+$conn->disconnect();
+
+echo json_encode($result);
 ?>
