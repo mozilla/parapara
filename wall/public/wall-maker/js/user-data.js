@@ -121,9 +121,6 @@ var WallSummaryController =
     //   </ul>
 
     var list = document.createElement('ul');
-    // XXX Move this after the loop once we have the new link management stuff
-    // in place
-    $('wallSummary').appendChild(list);
 
     for (var i = 0; i < walls.length; ++i) {
       var wall = walls[i];
@@ -154,13 +151,8 @@ var WallSummaryController =
 
       // Add to list
       list.appendChild(li);
-
-      // Assign link handler
-      // XXX Remove
-      Navigation.registerLinkHandler('wall/' + wall['wallId'], function(e) {
-        Navigation.goToScreen(e.currentTarget.getAttribute('href'));
-      });
     }
+    $('wallSummary').appendChild(list);
     WallSummaryController._togglePage('wallSummary');
   },
 

@@ -5,25 +5,7 @@
 var ManageWallController =
 {
   init: function() {
-    // Manage tab changing
-    var tablinks = document.querySelectorAll("a[aria-role=tab]");
-    for (var i = 0; i < tablinks.length; i++) {
-      tablinks[i].addEventListener("click",
-        function(e) {
-          // Select the tab
-          var tabName = e.target.getAttribute("href").substr(1);
-          ManageWallController.selectTab(tabName);
-
-          // Update URL
-          history.replaceState({}, null, "#" + tabName);
-
-          // Don't follow the link
-          e.preventDefault();
-        },
-        false
-      );
-    }
-
+    // Session buttons
     $('manage-startSession').addEventListener('click',
       this.startSession.bind(this));
     $('manage-closeSession').addEventListener('click',

@@ -8,23 +8,56 @@
 
 var Navigation =
 {
-  newRe:              /(^|\/)new$/,
-  wallRe:             /(^|\/)wall\/(\d+)$/,
-  wallReOptionalHash: /(^|\/)wall\/(\d+)($|#)/,
+  init: function() {
+    // Handle history changes (e.g. using the back button)
+    window.addEventListener('popstate',
+      function(evt) {
+        if (LoginController.isLoggedIn()) {
+          Navigation.goToCurrentScreen();
+        } else {
+          LoginController.loggedOut();
+        }
+      },
+      false);
+
+    // Restore old session
+    LoginController.relogin();
+  },
 
   goToScreen: function (path) {
-    var absPath = path.indexOf(WallMaker.rootUrl) === 0
-                ? path
-                : WallMaker.rootUrl + '/' + path;
-    // For the management screen we don't want to generate history entries every
-    // time we change tab so if we're already looking at a management screen,
-    // just update the history location
-    if (document.location.pathname.match(Navigation.wallRe) &&
-        path.match(Navigation.wallReOptionalHash)) {
-      history.replaceState({}, null, absPath);
-    } else {
-      history.pushState({}, null, absPath);
+    // Normalize path
+    var path = Navigation._normalizePath(path);
+
+    // Handle pseudo-paths
+    // (These paths don't actual alter history, they just trigger an action)
+    if (path == 'login') {
+      LoginController.login();
+      return;
+    } else if (path == 'logout') {
+      LoginController.logout();
+      return;
     }
+
+    // Generate full path for updating history:
+    //
+    //   #abc -> <current-path>#abc
+    //   abc -> <root>abc
+    var fullPath = path.substr(0, 1) == '#'
+                 ? document.location.pathname + path
+                 : Navigation.rootUrl + path;
+
+    // Currently we have the policy that we don't generate new history entries
+    // for local hash changes.
+    // We may revisit this as we add different kinds of navigation but at least
+    // for the management screen we don't want to fill up the history every time
+    // you click a tab.
+    if (path.substr(0, 1) == "#") {
+      history.replaceState({}, null, fullPath);
+    } else {
+      history.pushState({}, null, fullPath);
+    }
+
+    // Now show the screen
     Navigation.goToCurrentScreen();
   },
 
@@ -33,20 +66,37 @@ var Navigation =
   // The path is read from document.location and hence this should be updated
   // before calling this function.
   goToCurrentScreen: function() {
-    var path = document.location.pathname;
+    // Get current path
+    var path = Navigation._normalizePath(document.location.pathname);
 
-    if (path.match(Navigation.newRe)) {
-      screenId = "screen-new";
-    } else if (path.match(Navigation.wallRe)) {
-      screenId = "screen-manage";
-      var wallId = RegExp.$2;
-      var tab = document.location.hash.substr(1);
-      ManageWallController.show(wallId, tab);
+    // The master routing table
+    // (pseudo-paths are dealt with in goToScreen)
+
+    // new
+    if (path == 'new') {
+      screenId = 'screen-new';
+      CreateWallController.start();
+    // wall/<id>#tab
+    } else if (path.match(/wall\/(\d+)$/)) {
+      var wallId = RegExp.$1;
+      var tab    = document.location.hash.substr(1);
+      // If we are already on the manage screen just update the tab
+      // XXX This is not right. The wallId may be different
+      if (Navigation._getCurrentlyShowingScreenId() == 'screen-manage') {
+        ManageWallController.selectTab(tab);
+        screenId = null;
+      } else {
+        ManageWallController.show(wallId, tab);
+        screenId = "screen-manage";
+      }
+    // other
     } else {
       screenId = "screen-home";
     }
 
-    Navigation.showScreen(screenId);
+    if (screenId) {
+      Navigation.showScreen(screenId);
+    }
   },
 
   // Displays the selected screen
@@ -60,10 +110,6 @@ var Navigation =
         screen.setAttribute("aria-hidden", "true");
       }
     }
-  },
-
-  getCurrentScreen: function() {
-    return document.querySelector(".screen[aria-hidden=true]");
   },
 
   showErrorPage: function(msg, buttons) {
@@ -90,49 +136,104 @@ var Navigation =
     Navigation.showScreen("screen-error");
   },
 
-  init: function() {
-    // Register link handlers
-    Navigation.registerLinkHandler('new',
-      function() {
-        CreateWallController.start();
-        Navigation.goToScreen("new");
-      });
-    Navigation.registerLinkHandler('login',
-      function() { LoginController.login(); });
-    Navigation.registerLinkHandler('logout',
-      function() { LoginController.logout(); });
-    Navigation.registerLinkHandler('',
-      function() { Navigation.goToScreen(''); });
-
-    // Handle history changes (e.g. using the back button)
-    window.addEventListener('popstate',
-      function(evt) {
-        if (LoginController.isLoggedIn()) {
-          Navigation.goToCurrentScreen();
-        } else {
-          LoginController.loggedOut();
-        }
-      },
-      false);
-
-    // Restore old session
-    LoginController.relogin();
+  // Normalize path to drop the root path.
+  //
+  // This makes us consistent since in markup we always use an absolute root
+  // (e.g. '/wall-maker/wall/5')--that way the link works even if we don't
+  // catch it.
+  //
+  // However, when calling internally we drop it for simplicity
+  // (e.g. goToScreen('wall/5') )
+  _normalizePath: function (path) {
+    return path.indexOf(Navigation.rootUrl) === 0
+           ? path.substring(Navigation.rootUrl.length)
+           : path;
   },
 
-  registerLinkHandler: function(href, handler) {
-    var links = document.querySelectorAll(
-      "a[href=\"" + WallMaker.rootUrl + '/' + href + "\"]");
-    for (var i = 0; i < links.length; i++) {
-      links[i].addEventListener(
-        'click',
-        function(evt) {
-          evt.preventDefault ? evt.preventDefault() : evt.returnvalue = false;
-          handler(evt);
-        },
-        false
-      );
-    }
+  get rootUrl() {
+    // Make sure the root URL DOES have a trailing slash
+    return WallMaker.rootUrl.substr(-1) != '/'
+           ? WallMaker.rootUrl + '/'
+           : WallMaker.rootUrl;
+  },
+
+  _getCurrentlyShowingScreenId: function () {
+    return document.querySelector('.screen[aria-hidden=false]').id;
   }
 };
 
+// Class to automatically handle clicks to all local links and redirect them to
+// the appropriate screen
+var LinkHandler =
+{
+  init: function(basePath) {
+    this.basePath = basePath.substr(-1) != '/'
+                  ? basePath + '/'
+                  : basePath;
+
+    // We store the handler.
+    // This way we can continue to call addEventListener and as long as we pass
+    // in this same object we will only register once per link.
+    this.handler = this.handleLink.bind(this);
+
+    // Register with all links currently in the document
+    var links = document.getElementsByTagName("a");
+    for (i = 0; i < links.length; i++) {
+      this.possiblyAddListener(links[i]);
+    }
+
+    // Watch for new links, or links whose href has changed
+    var observer = new MutationObserver(function(mutations) {
+      mutations.forEach(function(mutation) {
+        switch (mutation.type) {
+          case 'childList':
+            var links = [];
+            [].slice.call(mutation.addedNodes).forEach(
+              function (newNode) {
+                if (newNode.nodeType != Node.ELEMENT_NODE)
+                  return;
+                links =
+                  links.concat(
+                    [].slice.call(newNode.getElementsByTagName("a")));
+              }.bind(this)
+            );
+            links.forEach(this.possiblyAddListener.bind(this));
+            break;
+
+          case 'attributes':
+            this.possiblyAddListener(mutation.target);
+            break;
+        }
+      }.bind(this));
+    }.bind(this));
+    observer.observe(document,
+      { attributes: true,
+        attributeFilter: [ 'href' ],
+        childList: true,
+        subtree: true }
+    );
+  },
+
+  handleLink: function(evt) {
+    // Don't follow the link
+    // (Doing this first means we won't change page even if there is an
+    // unhandled exception in the code that follows)
+    evt.preventDefault ? evt.preventDefault() : evt.returnValue = false;
+
+    // Go to the appropriate screen
+    var href = evt.currentTarget.getAttribute('href');
+    Navigation.goToScreen(href);
+  },
+
+  possiblyAddListener: function(elem) {
+    if (elem.pathname.indexOf(this.basePath) == 0) {
+      elem.addEventListener('click', this.handler, true);
+    } else {
+      elem.removeEventListener('click', this.handler, true);
+    }
+  },
+};
+
+window.addEventListener('load',
+  function() { LinkHandler.init(WallMaker.rootUrl); }, false);
 window.addEventListener('load', Navigation.init, false);
