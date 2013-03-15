@@ -42,7 +42,7 @@ abstract class WallMakerTestCase extends WallTestCase {
   function setUp() {
     $this->sessionId = null;
 
-    $this->createTestUser();
+    $this->userEmail = "test@test.org";
     $this->createTestDesign(array('test.jpg'));
   }
 
@@ -51,38 +51,8 @@ abstract class WallMakerTestCase extends WallTestCase {
       $this->logout();
     }
 
-    $this->removeTestUser();
-    $this->removeTestDesign();
-  }
-
-  private function createTestUser() {
-    // Add a test user
-    $query =
-      'INSERT INTO users'
-      . ' (email)'
-      . ' VALUES ("test@test.org")';
-    $res =& $this->getConnection()->query($query);
-    if (PEAR::isError($res)) {
-      die($res->getMessage() . ', ' . $res->getDebugInfo());
-    }
-
-    // Store the user ID and email
-    $this->userId = $this->getConnection()->lastInsertID('users', 'userId');
-    if (PEAR::isError($this->userId)) {
-      die($res->getMessage() . ', ' . $res->getDebugInfo());
-    }
-    $this->userEmail = "test@test.org";
-  }
-
-  private function removeTestUser() {
-    $res =&
-      $this->getConnection()->query(
-        'DELETE FROM users WHERE email = "test@test.org"');
-    if (PEAR::isError($res)) {
-      die($res->getMessage() . ', ' . $res->getDebugInfo());
-    }
-    $this->userId = null;
     $this->userEmail = null;
+    $this->removeTestDesign();
   }
 
   function login() {
@@ -98,6 +68,9 @@ abstract class WallMakerTestCase extends WallTestCase {
     // session ID in a variable and then close it.
     $this->sessionId = session_id();
     session_write_close();
+
+    // Set the cookie
+    $this->setCookie(WALLMAKER_SESSION_NAME, $this->sessionId);
   }
 
   function logout() {
@@ -119,11 +92,31 @@ abstract class WallMakerTestCase extends WallTestCase {
         "Failed to clear cookie");
   }
 
-  // XXX Replace this with a call to the appropriate API URL once the 
-  // structure is in place
-  function createWall($params) {
-    // Returns the wall ID
-    return createWall($params);
+  function _createWall($name, $designId) {
+    // Prepare payload
+    $payload['title']  = $name;
+    $payload['design'] = $designId;
+
+    // Make request
+    global $config;
+    $url = $config['test']['wall_server'] . 'api/walls';
+    $response = $this->post($url, json_encode($payload));
+
+    // Check response
+    $this->assertResponse(200);
+    $this->assertMime('text/plain; charset=UTF-8');
+
+    // Parse response
+    $wall = json_decode($response,true);
+    $this->assertTrue($wall !== null,
+                      "Failed to decode response: $response");
+
+    return $wall;
+  }
+
+  function createWall($name, $designId) {
+    $result = $this->_createWall($name, $designId);
+    return $result['wallId'];
   }
 
   // XXX Replace this with a call to the appropriate API URL once the 

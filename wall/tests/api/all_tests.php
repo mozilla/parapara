@@ -10,6 +10,7 @@ class AllTests extends TestSuite {
   function AllTests() {
     parent::__construct();
     $this->addFile('TestGetDesigns.php');
+    $this->addFile('TestCreateWall.php');
     $this->addFile('TestGetWall.php');
     $this->addFile('TestSessions.php');
     $this->addFile('TestUserSummary.php');

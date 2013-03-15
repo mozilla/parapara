@@ -46,11 +46,7 @@ class TestMySummary extends WallMakerTestCase {
                       count($summary['walls']) === 0,
                       "Should have got an empty list of walls");
 
-    $wallId = $this->createWall(
-      array('ownerEmail' => $this->userEmail,
-            'design' => $this->testDesignId,
-            'title' => 'Test wall')
-    );
+    $wallId = $this->createWall('Test wall', $this->testDesignId);
     $summary = $this->getMySummary();
     $this->assertTrue(count($summary['walls']) === 1,
                       "Should have got one wall back");
@@ -107,11 +103,6 @@ class TestMySummary extends WallMakerTestCase {
   }
 
   function getMySummary() {
-    // Set cookie
-    if ($this->sessionId) {
-      $this->setCookie(WALLMAKER_SESSION_NAME, session_id());
-    }
-
     // Make request
     global $config;
     $url = $config['test']['wall_server'] . 'api/userSummary';

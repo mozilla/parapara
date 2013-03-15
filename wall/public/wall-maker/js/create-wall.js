@@ -39,7 +39,7 @@ var CreateWallController =
     Navigation.showScreen("screen-new");
     // Send request
     var payload = CreateWallForm.getFormValues();
-    ParaPara.postUrl(WallMaker.rootUrl + '/api/createWall', payload,
+    ParaPara.postUrl('/api/walls', payload,
                      this.createSuccess.bind(this),
                      this.createError.bind(this));
   },

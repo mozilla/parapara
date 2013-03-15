@@ -14,11 +14,10 @@ class GetWallTestCase extends WallMakerTestCase {
   }
 
   function testLoggedOut() {
-    $wallId = $this->createWall(
-      array('ownerEmail' => $this->userEmail,
-            'design' => $this->testDesignId,
-            'title' => 'Test wall')
-    );
+    // Create wall
+    $this->login();
+    $wallId = $this->createWall('Test wall', $this->testDesignId);
+    $this->logout();
 
     // Check it fails if we're logged out
     $wall = $this->getWall($wallId);
@@ -34,14 +33,8 @@ class GetWallTestCase extends WallMakerTestCase {
 
   function testGetWall() {
     // Create wall
-    $wallId = $this->createWall(
-      array('ownerEmail' => $this->userEmail,
-            'design' => $this->testDesignId,
-            'title' => 'Test wall')
-    );
-
-    // Login
     $this->login();
+    $wallId = $this->createWall('Test wall', $this->testDesignId);
 
     // Check it succeeds
     $wall = $this->getWall($wallId);
@@ -86,13 +79,8 @@ class GetWallTestCase extends WallMakerTestCase {
     return @$parts['scheme'] == 'http' ||
            @$parts['scheme'] == 'https';
   }
-  
-  function getWall($wallId) {
-    // Set cookie
-    if ($this->sessionId) {
-      $this->setCookie(WALLMAKER_SESSION_NAME, session_id());
-    }
 
+  function getWall($wallId) {
     // Make request
     global $config;
     $url = $config['test']['wall_server'] . 'api/walls/' . $wallId;

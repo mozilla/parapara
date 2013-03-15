@@ -223,11 +223,6 @@ class SessionsTestCase extends WallMakerTestCase {
   }
 
   function getWall($wallId) {
-    // Set cookie
-    if ($this->sessionId) {
-      $this->setCookie(WALLMAKER_SESSION_NAME, session_id());
-    }
-
     // Make request
     global $config;
     $url = $config['test']['wall_server'] . 'api/walls/' . $wallId;
@@ -249,45 +244,7 @@ class SessionsTestCase extends WallMakerTestCase {
     return $wall;
   }
 
-  function createWall($title, $designId) {
-    // XXX We will define this globally once this API is tidied up
-
-    // Set cookie
-    if ($this->sessionId) {
-      $this->setCookie(WALLMAKER_SESSION_NAME, session_id());
-    }
-
-    // Prepare payload
-    $payload['title'] = $title;
-    $payload['design'] = $designId;
-
-    // Make request
-    global $config;
-    $url = $config['test']['wall_server'] . 'wall-maker/api/createWall';
-    $response = $this->post($url, json_encode($payload));
-
-    // Check response
-    $this->assertResponse(200);
-    $this->assertMime('text/plain; charset=UTF-8');
-
-    // Parse response
-    $wall = json_decode($response,true);
-    $this->assertTrue($wall !== null,
-                      "Failed to decode response: $response");
-
-    // Check there's no error
-    $this->assertTrue(!array_key_exists('error_key', $wall),
-                      "Failed to get wall:" . @$wall['error_key']);
-
-    return $wall['wallId'];
-  }
-
   function closeSession($wallId, $sessionId) {
-    // Set cookie
-    if ($this->sessionId) {
-      $this->setCookie(WALLMAKER_SESSION_NAME, session_id());
-    }
-
     // Prepare payload
     $payload['wallId'] = $wallId;
     $payload['sessionId'] = $sessionId;
@@ -310,11 +267,6 @@ class SessionsTestCase extends WallMakerTestCase {
   }
 
   function startNewSession($wallId, $sessionId) {
-    // Set cookie
-    if ($this->sessionId) {
-      $this->setCookie(WALLMAKER_SESSION_NAME, session_id());
-    }
-
     // Prepare payload
     $payload['wallId'] = $wallId;
     $payload['sessionId'] = $sessionId;
