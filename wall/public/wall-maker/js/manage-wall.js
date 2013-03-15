@@ -32,6 +32,13 @@ var ManageWallController =
   },
 
   show: function(wallId, tabName) {
+    // If we're already showing the correct page, just switch tab
+    if (wallId == this.wallId) {
+      this.selectTab(tabName);
+      return;
+    }
+
+    // Load the wall
     this.wallId = wallId;
 
     // Show loading screen

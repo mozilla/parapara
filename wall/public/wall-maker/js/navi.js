@@ -80,23 +80,14 @@ var Navigation =
     } else if (path.match(/wall\/(\d+)$/)) {
       var wallId = RegExp.$1;
       var tab    = document.location.hash.substr(1);
-      // If we are already on the manage screen just update the tab
-      // XXX This is not right. The wallId may be different
-      if (Navigation._getCurrentlyShowingScreenId() == 'screen-manage') {
-        ManageWallController.selectTab(tab);
-        screenId = null;
-      } else {
-        ManageWallController.show(wallId, tab);
-        screenId = "screen-manage";
-      }
+      ManageWallController.show(wallId, tab);
+      screenId = "screen-manage";
     // other
     } else {
       screenId = "screen-home";
     }
 
-    if (screenId) {
-      Navigation.showScreen(screenId);
-    }
+    Navigation.showScreen(screenId);
   },
 
   // Displays the selected screen
