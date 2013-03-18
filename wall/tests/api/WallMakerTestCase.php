@@ -94,7 +94,7 @@ abstract class WallMakerTestCase extends WallTestCase {
 
   function _createWall($name, $designId) {
     // Prepare payload
-    $payload['title']  = $name;
+    $payload['name']   = $name;
     $payload['design'] = $designId;
 
     // Make request

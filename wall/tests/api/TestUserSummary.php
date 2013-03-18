@@ -92,8 +92,8 @@ class TestMySummary extends WallMakerTestCase {
     $this->assertTrue($testDesign !== null, "Test design not found.");
 
     // Check it has the expected information
-    $this->assertTrue(array_key_exists('id', $testDesign) &&
-                      is_int($testDesign['id']),
+    $this->assertTrue(array_key_exists('designId', $testDesign) &&
+                      is_int($testDesign['designId']),
                       "Design does not include designId or not numeric");
     $this->assertTrue(array_key_exists('duration', $testDesign) &&
                       is_int($testDesign['duration']),

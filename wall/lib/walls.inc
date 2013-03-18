@@ -1,4 +1,5 @@
 <?php
+/* vim: set syn=php: */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -8,6 +9,7 @@ require_once("db.inc");
 require_once("exceptions.inc");
 require_once("UriUtils.inc");
 require_once("designs.inc");
+require_once("users.inc");
 
 // When updating this, be sure to update login-controller.js as well
 define("WALLMAKER_SESSION_NAME", "WMSESSID");
@@ -499,4 +501,359 @@ function getCurrentWallTimeForDuration($duration) {
   $currentTimeMillis = bcmul(microtime(true), 1000);
   return bcmod($currentTimeMillis, $duration);
 }
+
+class Wall {
+  public  $id       = null;
+  private $metadata = null;
+  private $design   = null;
+  private $sessions = null;
+  private $email    = null;
+
+  public function __construct($id, $email, $metadata) {
+    $this->id       = intval($id);
+    $this->email    = trim($email);
+    $this->metadata = $metadata;
+  }
+
+  public function __get($name) {
+    if ($name == 'passcode') {
+      return null;
+    }
+
+    if (array_key_exists($name, $this->metadata)) {
+      return $this->metadata[$name];
+    }
+
+    // Virtual: sessions
+    //  -- gets list of sessions and returns them
+    // Virtual: design
+    //  -- does look up (using DesignGallery)
+    // Virtual:
+    //  wallUrl = getCurrentServer() . '/wall/' . $this->metadata['urlPath'];
+    //  wallUrlShort = $this->metadata['shortUrl'];
+    //  editorUrl = $config['editor']['url'] . $this->metadata['urlPath'];
+    //  editorUrlShort = $this->metadata['editorShortUrl'];
+    //
+    // XXX Don't return the passcode, only the length of it
+    //  passcodeLen = @$this->metadata['passcode']
+    //              ? strlen($this->metadata['passcode'] : null;
+  }
+
+  /*
+  public function __set($name) {
+    // Check canWrite before doing anything
+    // Marks fields as dirty that have changed
+  }
+   */
+
+  public function asArray() {
+    return array(
+      'wallId'        => $this->id,
+      'name'          => $this->name,
+      'duration'      => $this->duration,
+      'passcodeLen'   => $this->passcodeLen
+    );
+  }
+
+  public function startSession($sessionId, $datetime) {
+    // Sanitize input
+    $sessionId = toId($sessionId);
+
+    // Check authorisation
+    if (!$this->canWrite()) {
+      throw new KeyedException('no-auth');
+    }
+
+    // Work out the latest session and if it needs closing
+    $latestSession = $this->latestSession;
+
+    // Is the passed-in session ID correct?
+    if (@$latestSession['id'] !== $sessionId) {
+      return false;
+    }
+
+    // Close the latest session if it's open
+    if (@$latestSession['endDate'] === null) {
+      $this->endSession($sessionId, $datetime);
+    }
+
+    // Start a new session
+    $conn =& getDbConnection();
+    $query = 'INSERT INTO sessions(wallId, beginDate)'
+      . ' VALUES(' . $conn->quote($this->id, 'integer')
+      . ',' . $conn->quote($datetime, 'timestamp')
+      . ')';
+    $res =& $conn->exec($query);
+    if (PEAR::isError($res)) {
+      error_log($res->getMessage() . ', ' . $res->getDebugInfo());
+      throw new KeyedException('db-error');
+    }
+    $conn->disconnect();
+
+    return true;
+  }
+
+  public function endSession($sessionId, $datetime) {
+    // Sanitize input
+    $sessionId = toId($sessionId);
+
+    // Check authorisation
+    if (!$this->canWrite()) {
+      throw new KeyedException('no-auth');
+    }
+
+    // Check if the passed in sessionID actually matches the latest session (and
+    // that session is not already closed)
+    $latestSession = $this->latestSession;
+    if (!$latestSession || $latestSession['sessionId'] !== $sessionId) {
+      return false;
+    }
+
+    // Close session
+    $conn =& getDbConnection();
+    $query = 'UPDATE sessions'
+      . ' SET endDate=' . $conn->quote($datetime, 'timestamp')
+      . ' WHERE sessionId=' . $conn->quote($sessionId, 'integer');
+    $res =& $conn->exec($query);
+    if (PEAR::isError($res)) {
+      error_log($res->getMessage() . ', ' . $res->getDebugInfo());
+      throw new KeyedException('db-error');
+    }
+    $conn->disconnect();
+
+    // Return true since we made a change
+    return true;
+  }
+
+  public function save() {
+    // Check canWrite
+  }
+
+  public static function getPathForName($name) {
+    // Strip leading/trailing space, and
+    // convert fullwidth forms to halfwidth
+    $path = mb_convert_kana(trim($name), "as", "utf-8");
+
+    // Make lowercase, and
+    // convert whitespace to -
+    $path = strtr(strtolower($path), " \t", '--');
+
+    // URL encode
+    $path = rawurlencode($path);
+
+    // Check for duplicates
+    // If we have a clash, just generate a random ID and use that--the user can 
+    // make it something more sensible later if they wish
+    if (!Walls::isPathUnique($path))
+      $path = rawurlencode(uniqid());
+
+    return $path;
+  }
+
+  public static function getUrlForPath($path) {
+    return getCurrentServer() . '/wall/' . $path;
+  }
+
+  public static function getEditorUrlForPath($path) {
+    global $config;
+    return $config['editor']['url'] . $path;
+  }
+
+  protected function canWrite() {
+    // In the future we will check if the wall has been shared with the current 
+    // user or not
+    return $this->isOwner();
+  }
+
+  protected function isOwner() {
+    if (!isset($this->email) || $this->ownerEmail === null)
+      return false;
+    return $this->email == $this->ownerEmail;
+  }
+}
+
+class Walls {
+  public static function create($name, $designId, $email) {
+    // Get connection
+    $conn =& getDbConnection();
+
+    // Validate owner email
+    $email = trim($email);
+    if (!strlen($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+      error_log("Bad or missing email when creating wall");
+      throw new KeyedException('bad-email', 'Bad email for user');
+    }
+
+    // Fetch user ID for owner
+    $ownerId = Users::getOrCreateFromEmail($email);
+
+    // Validate wall name
+    $name = trim($name);
+    if (!strlen($name)) {
+      error_log("Empty name");
+      throw new KeyedException('empty-name');
+    }
+
+    // Check name is unique
+    if (!Walls::isNameUnique($name)) {
+      error_log("Wall with name '$name' already exists.");
+      throw new KeyedException('duplicate-name');
+    }
+
+    // Validate design ID
+    $design = DesignGallery::getById($designId);
+    if (!$design) {
+      error_log("Could't find design ID " . $designId);
+      throw new KeyedException('design-not-found', 'ID not found');
+    }
+
+    // Get URLs
+    $path      = Wall::getPathForName($name);
+    $wallUrl   = Wall::getUrlForPath($path);
+    $editorUrl = Wall::getEditorUrlForPath($path);
+
+    // Create shortened versions
+    $shortUrl = shortenUrl($wallUrl);
+    if ($shortUrl == $wallUrl)
+      $shortUrl = NULL;
+    $editorShortUrl = shortenUrl($editorUrl);
+    if ($editorShortUrl == $editorUrl)
+      $editorShortUrl = NULL;
+
+    // Store in database
+    $date = gmdate('Y-m-d H:i:s');
+    $query =
+      'INSERT INTO walls'
+      . ' (owner, designId, eventName, galleryDisplay, urlPath, shortUrl,'
+      . '  editorShortUrl, createDate, modifyDate)'
+      . ' VALUES '
+      . '(' . $conn->quote($ownerId, 'integer')
+      . ',' . $conn->quote($designId, 'integer')
+      . ',' . $conn->quote($name, 'text')
+      . ',TRUE' // galleryDisplay
+      . ',' . $conn->quote($path, 'text')
+      . ',' . (($shortUrl) ? $conn->quote($shortUrl, 'text') : 'NULL')
+      . ',' . (($editorShortUrl) ? $conn->quote($editorShortUrl, 'text')
+                                 : 'NULL')
+      . ',' . $conn->quote($date, 'timestamp')
+      . ',' . $conn->quote($date, 'timestamp')
+      . ')';
+    $res =& $conn->query($query);
+    if (PEAR::isError($res)) {
+      error_log($res->getMessage() . ', ' . $res->getDebugInfo());
+      throw new KeyedException('db-error');
+    }
+
+    // Get ID of newly created wall
+    $wallId = $conn->lastInsertID('walls', 'wallId');
+    if (PEAR::isError($wallId)) {
+      error_log($res->getMessage() . ', ' . $res->getDebugInfo());
+      throw new KeyedException('db-error');
+    }
+
+    // Return newly created wall object
+    // (We could just create the Wall object from the information we have on 
+    // hand but it's just simpler to re-use the getById look up code and saves 
+    // us from bugs where we set things in one place and not the other)
+    return self::getById($wallId, $email);
+  }
+
+  public static function getById($id, $email) {
+    $conn =& getDbConnection();
+    $row =& $conn->queryRow(
+        'SELECT walls.designId'
+      . ' ,eventName, eventDescr, eventLocation, eventType, eventFinish'
+      . ' ,urlPath, shortUrl, editorShortUrl'
+      . ' ,walls.duration, galleryDisplay, passcode'
+      . ' ,designs.duration AS defaultduration'
+      . ' ,users.email AS ownerEmail'
+      . ' ,sessionId, beginDate as sessionStart, endDate as sessionEnd'
+      . ' FROM walls'
+      . ' INNER JOIN designs ON walls.designId = designs.designId'
+      . ' LEFT JOIN users ON'
+      . '   walls.owner = users.userId'
+      . ' LEFT JOIN sessions ON'
+      . '   sessions.sessionId = '
+      . '   (SELECT MAX(sessionId) FROM sessions'
+      . '    WHERE sessions.wallId = ' . $conn->quote($id, 'integer') . ')'
+      . ' WHERE walls.wallId = ' . $conn->quote($id, 'integer')
+      . ' LIMIT 1',
+      null,
+      MDB2_FETCHMODE_ASSOC
+    );
+    $conn->disconnect();
+    if (PEAR::isError($row)) {
+      error_log($row->getMessage() . ', ' . $row->getDebugInfo());
+      throw new KeyedException('db-error');
+    }
+
+    // Check if wall was found
+    if ($row === null)
+      return null;
+
+    // Check auth
+    $hasAccess = $email == $row['owneremail'];
+
+    // Public information
+    $metadata["name"]          = $row['eventname'];
+    $metadata["eventDescr"]    = $row['eventdescr'];
+    $metadata["eventLocation"] = $row['eventlocation'];
+    $metadata["eventType"]     = $row['eventtype'];
+    $metadata["eventFinish"]   = $row['eventfinish'];
+    $metadata["designId"]      = $row['designid'];
+    $metadata["urlPath"]       = $row['urlpath'];
+
+    // Privileged information
+    if ($hasAccess) {
+      $metadata["passcode"]   = $row['passcode'];
+      $metadata["ownerEmail"] = $row['owneremail'];
+    }
+
+    // Session information
+    if ($row['sessionid']) {
+      if ($hasAccess) {
+        $session['id'] = $row['sessionid'];
+        $session['start'] = $row['sessionstart'];
+        $session['end'] = $row['sessionend'];
+        $metadata['latestSession'] = $session;
+      }
+      $metadata['status'] = $row['sessionend'] ? 'finished' : 'running';
+    } else {
+      if ($hasAccess) {
+        $metadata['latestSession'] = null;
+      }
+      $metadata['status'] = 'finished';
+    }
+
+    // Duration information
+    $metadata["duration"]        = $row['duration'];
+    $metadata["defaultDuration"] = $row['defaultduration'];
+
+    return new Wall($id, $email, $metadata);
+  }
+
+  public static function isNameUnique($name) {
+    return !recordExists('walls', 'eventName', $name, 'text');
+  }
+
+  public static function isPathUnique($path) {
+    return !recordExists('walls', 'urlPath', $path, 'text');
+  }
+
+  private static function recordExists($table, $field, $value, $type) {
+    $conn =& getDbConnection();
+    $res =& $conn->query(
+        "SELECT * FROM $table WHERE $field = "
+        . $conn->quote($value, $type)
+        . " LIMIT 1");
+    if (PEAR::isError($res)) {
+      error_log($res->getMessage() . ', ' . $res->getDebugInfo());
+      throw new KeyedException('db-error');
+    }
+    $exists = $res->numRows() > 0;
+    $res->free();
+    return $exists;
+  }
+}
+
 ?>

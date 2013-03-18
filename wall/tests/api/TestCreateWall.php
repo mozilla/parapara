@@ -40,15 +40,38 @@ class CreateWallTestCase extends WallMakerTestCase {
     $this->removeWall($wall['wallId']);
   }
 
-  // Test creating works (get ID)
-  // Test PUT method doesn't work?
-  // Test name
-  //   -- no name is error
-  //   -- whitespace
-  // Test designId
-  // Test session exists
-  // Test wall name is set
-  // (I think it should basically return the same as fetching the wall??)
+  function testName() {
+    $this->login();
+
+    // Create wall
+    $wall = $this->_createWall(
+      'Test wall',
+      $this->testDesignId
+    );
+
+    // Test same name is returned
+    $this->assertEqual(@$wall['name'], 'Test wall');
+
+    // Tidy up
+    $this->removeWall($wall['wallId']);
+
+    // Test non-ASCII name
+    // Test name is trimmed
+    // Test empty name is rejected
+    // Test whitespace-only name is rejected
+    // Test duplicate name is rejected
+  }
+
+  function testUrl() {
+    // Test simplification
+    // Test when simplification produces duplicates
+    // Test editor URL
+    // Test short URLs
+  }
+
+  function testDesignId() {
+    // Test it matches what we put in
+  }
 }
 
 ?>

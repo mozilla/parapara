@@ -83,7 +83,7 @@ class Design {
   // Return a form suitable for serializing over JSON
   public function asArray() {
     return array(
-      'id'               => $this->id,
+      'designId'         => $this->id,
       'name'             => $this->name,
       'duration'         => $this->duration,
       'thumbnail'        => $this->thumbnail,

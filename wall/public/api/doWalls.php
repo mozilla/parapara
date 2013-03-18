@@ -27,19 +27,18 @@ fclose($handle);
 
 switch ($_SERVER['REQUEST_METHOD']) {
   case 'POST':
-    $params = array('ownerEmail' => $_SESSION['email']);
-    $params['design'] = @$json['design'];
-    $params['title']  = @$json['title'];
-
-    // XXX Move the following to Walls::create
-    // Run the query
-    $wallId = createWall($params);
+    // Create wall
+    $name     = @$json['name'];
+    $designId = @$json['design'];
+    $email    = @$_SESSION['email'];
+    $wall     = Walls::create($name, $designId, $email);
 
     // Prepare result
-    $result = array('wallId' => $wallId);
-    // start session
+    $result = $wall->asArray();
+
+    // Start session
     $currentdatetime = gmdate("Y-m-d H:i:s");
-    startNewSession($wallId, null, $currentdatetime);
+    $wall->startSession(null, $currentdatetime);
     break;
 
   case 'GET':
