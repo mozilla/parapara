@@ -6,6 +6,7 @@
 require_once('../../../lib/parapara.inc');
 require_once('api.inc');
 require_once('walls.inc');
+require_once('utils.inc');
 
 header('Content-Type: text/plain; charset=UTF-8');
 
@@ -23,21 +24,26 @@ $json = json_decode($jsonString,true);
 fclose($handle);
 
 // Prepare parameters
-$wallId    = @$json['wallId'];
-$sessionId = @$json['sessionId'];
+$wallId    = toIntOrNull($json['wallId']);
+$sessionId = toIntOrNull($json['sessionId']);
 if (!isset($wallId) || !isset($sessionId)) {
   bailWithError('bad-request');
 }
 
-// Start new session
+// Get wall
+$wall = Walls::getById($wallId, $_SESSION['email']);
+if ($wall === null)
+  bailWithError('not-found');
+
+// Start session
 $currentdatetime = gmdate("Y-m-d H:i:s");
-$madeChange = startNewSession($wallId, $sessionId, $currentdatetime);
+$madeChange = $wall->startSession($sessionId, $currentdatetime);
 
 // Return the result
 // - If we made a change then return the latest session.
 // - Otherwise return a parallel-change notification with the latest session in 
 //   the detail.
-$latestSession = getLatestSession($wallId);
+$latestSession = $wall->latestSession;
 if ($madeChange) {
   print json_encode($latestSession);
 } else {

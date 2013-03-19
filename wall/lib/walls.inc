@@ -104,69 +104,6 @@ function getWallIdFromPath($path) {
   return $res;
 }
 
-function startNewSession($wallId, $sessionId, $datetime) {
-  // Sanitize input
-  $wallId = toIntOrNull($wallId);
-  $sessionId = toIntOrNull($sessionId);
-
-  // Work out the latest session and if it needs closing
-  $latestSession = getLatestSession($wallId);
-
-  // Is the passed-in session ID correct?
-  if (@$latestSession['id'] !== $sessionId) {
-    return false;
-  }
-
-  // Close the latest session if it's open
-  if (@$latestSession['endDate'] === null) {
-    closeLastSession($wallId, $sessionId, $datetime);
-  }
-
-  // Start a new session
-  $conn =& getDbConnection();
-  $qwallid = $conn->quote($wallId, 'integer');
-  $qdatetime = $conn->quote($datetime, 'timestamp');
-  $query = 'INSERT INTO sessions(wallId, beginDate)'
-    . ' VALUES(' . $conn->quote($wallId, 'integer')
-    . ',' . $conn->quote($datetime, 'timestamp')
-    . ')';
-  $res =& $conn->exec($query);
-  if (PEAR::isError($res)) {
-    error_log($res->getMessage() . ', ' . $res->getDebugInfo());
-    throw new KeyedException('db-error');
-  }
-  $conn->disconnect();
-
-  return true;
-}
-
-function closeLastSession($wallId, $sessionId, $datetime) {
-  // Sanitize input
-  $wallId = toIntOrNull($wallId);
-  $sessionId = toIntOrNull($sessionId);
-
-  // Check if the passed in sessionID actually matches the latest session (and 
-  // that session is not already closed)
-  if ($sessionId !== getActiveSessionId($wallId)) {
-    return false;
-  }
-
-  // Close session
-  $conn =& getDbConnection();
-  $query = 'UPDATE sessions'
-    . ' SET endDate=' . $conn->quote($datetime, 'timestamp')
-    . ' WHERE sessionId=' . $conn->quote($sessionId, 'integer');
-  $res =& $conn->exec($query);
-  if (PEAR::isError($res)) {
-    error_log($res->getMessage() . ', ' . $res->getDebugInfo());
-    throw new KeyedException('db-error');
-  }
-  $conn->disconnect();
-
-  // Return true since we made a change
-  return true;
-}
-
 // Returns NULL if there is no active session for the wall
 function getActiveSessionId($wallId) {
   $conn =& getDbConnection();
@@ -353,7 +290,7 @@ class Wall {
     $latestSession = $this->latestSession;
 
     // Is the passed-in session ID correct?
-    if (@$latestSession['id'] !== $sessionId) {
+    if (toIntOrNull($latestSession['id']) !== $sessionId) {
       return false;
     }
 
@@ -376,7 +313,7 @@ class Wall {
 
     // Update latest session
     $this->metadata['latestSession']['id']
-      = $conn->lastInsertId('sessions', 'sessionId');
+      = intval($conn->lastInsertId('sessions', 'sessionId'));
     $this->metadata['latestSession']['start'] = $datetime;
     $this->metadata['latestSession']['end']   = null;
     $this->metadata['status'] = 'running';
@@ -395,12 +332,15 @@ class Wall {
       throw new KeyedException('no-auth');
     }
 
-    // Check if the passed in sessionID actually matches the latest session (and
-    // that session is not already closed)
+    // Check that:
+    // (a) there is actually a session to close
+    // (b) the session is not already closed
+    // (c) the passed-in session ID matches the latest session
     $latestSession = $this->latestSession;
-    if (!$latestSession || $latestSession['sessionId'] !== $sessionId) {
+    if ($latestSession === null ||
+        $latestSession['end'] !== null ||
+        $latestSession['id'] !== $sessionId)
       return false;
-    }
 
     // End session
     $conn =& getDbConnection();
@@ -609,7 +549,7 @@ class Walls {
     // Session information
     if ($row['sessionid']) {
       if ($hasAccess) {
-        $session['id'] = $row['sessionid'];
+        $session['id'] = intval($row['sessionid']);
         $session['start'] = $row['sessionstart'];
         $session['end'] = $row['sessionend'];
         $metadata['latestSession'] = $session;

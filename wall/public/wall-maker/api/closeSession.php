@@ -23,21 +23,26 @@ $json = json_decode($jsonString,true);
 fclose($handle);
 
 // Prepare parameters
-$wallId    = @$json['wallId'];
-$sessionId = @$json['sessionId'];
+$wallId    = toIntOrNull($json['wallId']);
+$sessionId = toIntOrNull($json['sessionId']);
 if (!isset($wallId) || !isset($sessionId)) {
   bailWithError('bad-request');
 }
 
-// Close session
+// Get wall
+$wall = Walls::getById($wallId, $_SESSION['email']);
+if ($wall === null)
+  bailWithError('not-found');
+
+// End session
 $currentdatetime = gmdate("Y-m-d H:i:s");
-$madeChange = closeLastSession($wallId, $sessionId, $currentdatetime);
+$madeChange = $wall->endSession($sessionId, $currentdatetime);
 
 // Return the result
 // - If we made a change then return the latest session.
 // - Otherwise return a parallel-change notification with the latest session in 
 //   the detail.
-$latestSession = getLatestSession($wallId);
+$latestSession = $wall->latestSession;
 if ($madeChange) {
   print json_encode($latestSession);
 } else {
