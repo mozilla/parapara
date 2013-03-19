@@ -113,7 +113,7 @@ var CreateWallForm =
 
   getFormValues: function() {
     var result = {};
-    result.title = this.form.eventName.value;
+    result.name = this.form.eventName.value;
     result.design = this.getRadioValue('design');
     return result;
   },

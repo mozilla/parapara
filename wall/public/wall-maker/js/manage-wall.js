@@ -149,7 +149,7 @@ var ManageWallController =
     $("manage-eventDescr").value = response.eventDescr;
 
     // Sessions
-    this.updateSessionInfo(response.session);
+    this.updateSessionInfo(response.latestSession);
 
     // Design
     var designRadios =

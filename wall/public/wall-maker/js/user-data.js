@@ -237,7 +237,7 @@ var DesignSelection = function(container, designs) {
       var radio = document.createElement('input');
       radio.setAttribute("type", "radio");
       radio.setAttribute("name", "design");
-      radio.setAttribute("value", design['id']);
+      radio.setAttribute("value", design['designId']);
       radio.setAttribute("required", "required");
       label.appendChild(radio);
 

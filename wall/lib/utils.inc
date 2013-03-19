@@ -12,7 +12,7 @@ function wtrim($str) {
 
 // Convert something that should be numerical to an integer whilst preserving
 // null values
-function toId($idLike) {
+function toIntOrNull($idLike) {
   return is_null($idLike) ? null : intval($idLike);
 }
 

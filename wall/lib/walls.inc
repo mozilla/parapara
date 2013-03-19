@@ -106,8 +106,8 @@ function getWallIdFromPath($path) {
 
 function startNewSession($wallId, $sessionId, $datetime) {
   // Sanitize input
-  $wallId = toId($wallId);
-  $sessionId = toId($sessionId);
+  $wallId = toIntOrNull($wallId);
+  $sessionId = toIntOrNull($sessionId);
 
   // Work out the latest session and if it needs closing
   $latestSession = getLatestSession($wallId);
@@ -142,8 +142,8 @@ function startNewSession($wallId, $sessionId, $datetime) {
 
 function closeLastSession($wallId, $sessionId, $datetime) {
   // Sanitize input
-  $wallId = toId($wallId);
-  $sessionId = toId($sessionId);
+  $wallId = toIntOrNull($wallId);
+  $sessionId = toIntOrNull($sessionId);
 
   // Check if the passed in sessionID actually matches the latest session (and 
   // that session is not already closed)
@@ -321,6 +321,8 @@ class Wall {
     // Associative keys map the regular value name used by users of this class 
     // to another more export-friendly value.
     $keys = array('id' => 'wallId', 'name',
+                  'eventLocation',
+                  'eventDescr',
                   'wallUrl', 'wallShortUrl',
                   'editorUrl', 'editorShortUrl',
                   'duration', 'defaultDuration',
@@ -340,7 +342,7 @@ class Wall {
 
   public function startSession($sessionId, $datetime) {
     // Sanitize input
-    $sessionId = toId($sessionId);
+    $sessionId = toIntOrNull($sessionId);
 
     // Check authorisation
     if (!$this->canAdminister()) {
@@ -386,7 +388,7 @@ class Wall {
 
   public function endSession($sessionId, $datetime) {
     // Sanitize input
-    $sessionId = toId($sessionId);
+    $sessionId = toIntOrNull($sessionId);
 
     // Check authorisation
     if (!$this->canAdminister()) {
@@ -595,7 +597,7 @@ class Walls {
     $metadata["eventLocation"] = $row['eventlocation'];
     $metadata["eventType"]     = $row['eventtype'];
     $metadata["eventFinish"]   = $row['eventfinish'];
-    $metadata["designId"]      = $row['designid'];
+    $metadata["designId"]      = toIntOrNull($row['designid']);
     $metadata["urlPath"]       = $row['urlpath'];
 
     // Privileged information
@@ -621,8 +623,8 @@ class Walls {
     }
 
     // Duration information
-    $metadata["duration"]        = $row['duration'];
-    $metadata["defaultDuration"] = $row['defaultduration'];
+    $metadata["duration"] = toIntOrNull($row['duration']);
+    $metadata["defaultDuration"] = toIntOrNull($row['defaultduration']);
 
     return new Wall($id, $email, $metadata);
   }
