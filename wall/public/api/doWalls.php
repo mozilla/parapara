@@ -33,12 +33,12 @@ switch ($_SERVER['REQUEST_METHOD']) {
     $email    = @$_SESSION['email'];
     $wall     = Walls::create($name, $designId, $email);
 
-    // Prepare result
-    $result = $wall->asArray();
-
     // Start session
     $currentdatetime = gmdate("Y-m-d H:i:s");
     $wall->startSession(null, $currentdatetime);
+
+    // Prepare result
+    $result = $wall->asArray();
     break;
 
   case 'GET':

@@ -235,6 +235,9 @@ function getWallDetails($wallId, $email) {
       "$email is not the owner of this wall");
   }
 
+  // Wall ID
+  $result["wallId"] = $wallId;
+
   // Event information
   $result["name"] = $row['eventname'];
   $result["eventDescr"] = $row['eventdescr'];
@@ -584,7 +587,8 @@ class Wall {
                   'editorUrl', 'editorShortUrl',
                   'duration', 'defaultDuration',
                   'ownerEmail', 'passcodeLen',
-                  'designId', 'latestSession');
+                  'designId',
+                  'status', 'latestSession');
 
     $result = array();
     foreach ($keys as $localKey => $keyToExport) {
@@ -629,9 +633,15 @@ class Wall {
       error_log($res->getMessage() . ', ' . $res->getDebugInfo());
       throw new KeyedException('db-error');
     }
-    $conn->disconnect();
 
-    // XXX Update latest session
+    // Update latest session
+    $this->metadata['latestSession']['id']
+      = $conn->lastInsertId('sessions', 'sessionId');
+    $this->metadata['latestSession']['start'] = $datetime;
+    $this->metadata['latestSession']['end']   = null;
+    $this->metadata['status'] = 'running';
+
+    $conn->disconnect();
 
     return true;
   }
@@ -664,7 +674,9 @@ class Wall {
     }
     $conn->disconnect();
 
-    // XXX Update latest session
+    // Update latest session
+    $this->metadata['latestSession']['end'] = $datetime;
+    $this->metadata['status'] = 'finished';
 
     // Return true since we made a change
     return true;
