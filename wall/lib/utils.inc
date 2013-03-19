@@ -10,4 +10,10 @@ function wtrim($str) {
   return preg_replace('/^[\pZ\pC]+|[\pZ\pC]+$/u', '', $str);
 }
 
+// Convert something that should be numerical to an integer whilst preserving
+// null values
+function toId($idLike) {
+  return is_null($idLike) ? null : intval($idLike);
+}
+
 ?>

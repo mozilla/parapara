@@ -46,7 +46,8 @@ switch ($_SERVER['REQUEST_METHOD']) {
       // XXX Return the list of walls here
       bailWithError('bad-request');
     }
-    $wall = Walls::getById($wallId, $email);
+    $email = @$_SESSION['email'];
+    $wall  = Walls::getById($wallId, $email);
     if ($wall === null)
       bailWithError('not-found');
 

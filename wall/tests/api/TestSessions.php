@@ -61,7 +61,7 @@ class SessionsTestCase extends WallMakerTestCase {
     // Re-fetch wall
     $wall = $this->getWall($wall['wallId']);
     $this->assertTrue($wall['status'] == 'finished');
-    $this->assertTrue($this->isClosedSession($wall['session']),
+    $this->assertTrue($this->isClosedSession($wall['latestSession']),
                       "Refetched wall session does not appear to be ended.");
 
     // Logout and check it fails
@@ -107,7 +107,7 @@ class SessionsTestCase extends WallMakerTestCase {
     // Re-fetch wall (to check we're in a consistent state)
     $wall = $this->getWall($wall['wallId']);
     $this->assertTrue($wall['status'] == 'finished');
-    $this->assertTrue($this->isClosedSession($wall['session']),
+    $this->assertTrue($this->isClosedSession($wall['latestSession']),
                       "Refetched wall session does not appear to be ended.");
 
     // Tidy up by removing the wall
@@ -139,7 +139,7 @@ class SessionsTestCase extends WallMakerTestCase {
     // Re-fetch wall
     $wall = $this->getWall($wall['wallId']);
     $this->assertTrue($wall['status'] == 'running');
-    $this->assertTrue($this->isOpenSession($wall['session']),
+    $this->assertTrue($this->isOpenSession($wall['latestSession']),
                       "Refetched wall session does not appear to be open");
 
     // Logout and check it fails
