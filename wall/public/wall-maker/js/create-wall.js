@@ -65,7 +65,7 @@ var CreateWallController =
   createError: function(key, detail) {
     // XXXl10n: hook this up to our localization
     switch(key) {
-      case 'duplicate-title':
+      case 'duplicate-name':
         msg = "A wall with that title already exists.";
         break;
 
@@ -73,11 +73,11 @@ var CreateWallController =
         msg = "接続できませんでした.";
         break;
 
-      case 'empty-title':
+      case 'empty-name':
         // This can happen if for example the title is all whitespace.
         // The browser will consider the form to be filled in but the server
         // won't accept it.
-        msg = "Title is empty";
+        msg = "Name is empty";
         break;
 
       case 'db-error':
