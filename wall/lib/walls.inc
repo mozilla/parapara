@@ -583,7 +583,8 @@ class Wall {
                   'wallUrl', 'wallShortUrl',
                   'editorUrl', 'editorShortUrl',
                   'duration', 'defaultDuration',
-                  'passcodeLen', 'latestSession');
+                  'ownerEmail', 'passcodeLen',
+                  'latestSession');
 
     $result = array();
     foreach ($keys as $localKey => $keyToExport) {
@@ -809,7 +810,7 @@ class Walls {
       . ' ,eventName, eventDescr, eventLocation, eventType, eventFinish'
       . ' ,urlPath, shortUrl, editorShortUrl'
       . ' ,walls.duration, galleryDisplay, passcode'
-      . ' ,designs.duration AS defaultduration'
+      . ' ,designs.duration AS defaultDuration'
       . ' ,users.email AS ownerEmail'
       . ' ,sessionId, beginDate as sessionStart, endDate as sessionEnd'
       . ' FROM walls'

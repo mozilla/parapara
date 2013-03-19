@@ -118,9 +118,19 @@ class CreateWallTestCase extends WallMakerTestCase {
   }
 
   function testEmail() {
-    // Test a bad email is rejected
-    // Test the ownerEmail returned is set to the email we passed in (after 
-    // trimming)
+    $this->login();
+
+    // Test the ownerEmail returned is set to the email we passed in
+    $wall = $this->_createWall('Test wall', $this->testDesignId);
+    $this->assertEqual(@$wall['ownerEmail'], $this->userEmail);
+    $this->removeWall($wall['wallId']);
+
+    // Try a bad email
+    $this->logout();
+    $this->userEmail = 'abc';
+    $this->login();
+    $wall = $this->_createWall('Test wall', $this->testDesignId);
+    $this->assertEqual(@$wall['error_key'], 'bad-email');
   }
 
   function testDesignId() {

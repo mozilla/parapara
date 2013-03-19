@@ -61,7 +61,7 @@ abstract class WallMakerTestCase extends WallTestCase {
                                // cache limiting headers
     session_start();
 
-    $_SESSION['email'] = 'test@test.org';
+    $_SESSION['email'] = $this->userEmail;
 
     // We're about to call into the wall server which will want to access the 
     // same session but session files are opened exclusively so we store the 
