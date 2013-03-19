@@ -34,9 +34,12 @@ var CreateWallController =
   },
 
   create: function() {
+    // Clear error messages
     this.clearError();
+
     // Show loading screen
-    Navigation.showScreen("screen-new");
+    Navigation.showScreen("screen-loading");
+
     // Send request
     var payload = CreateWallForm.getFormValues();
     ParaPara.postUrl('/api/walls', payload,
@@ -63,6 +66,8 @@ var CreateWallController =
   },
 
   createError: function(key, detail) {
+    Navigation.showScreen("screen-new");
+
     // XXXl10n: hook this up to our localization
     switch(key) {
       case 'duplicate-name':
