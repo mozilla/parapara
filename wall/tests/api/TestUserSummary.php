@@ -46,7 +46,8 @@ class TestMySummary extends WallMakerTestCase {
                       count($summary['walls']) === 0,
                       "Should have got an empty list of walls");
 
-    $wallId = $this->createWall('Test wall', $this->testDesignId);
+    $wall = $this->_createWall('Test wall', $this->testDesignId);
+    $wallId = $wall['wallId'];
     $summary = $this->getMySummary();
     $this->assertTrue(count($summary['walls']) === 1,
                       "Should have got one wall back");
