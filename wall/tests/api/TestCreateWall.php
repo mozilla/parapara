@@ -134,8 +134,16 @@ class CreateWallTestCase extends WallMakerTestCase {
   }
 
   function testDesignId() {
-    // Test it matches what we put in
+    $this->login();
+
+    // Test design ID matches what we put in
+    $wall = $this->_createWall('Test wall', $this->testDesignId);
+    $this->assertEqual(@$wall['designId'], $this->testDesignId);
+    $this->removeWall($wall['wallId']);
+
     // Test a bad ID fails
+    $wall = $this->_createWall('Test wall', 5000);
+    $this->assertEqual(@$wall['error_key'], 'design-not-found');
   }
 
   function getWallPath($wallUrl) {

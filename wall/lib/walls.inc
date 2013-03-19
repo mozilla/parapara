@@ -584,7 +584,7 @@ class Wall {
                   'editorUrl', 'editorShortUrl',
                   'duration', 'defaultDuration',
                   'ownerEmail', 'passcodeLen',
-                  'latestSession');
+                  'designId', 'latestSession');
 
     $result = array();
     foreach ($keys as $localKey => $keyToExport) {
