@@ -20,7 +20,7 @@ class SessionsTestCase extends WallMakerTestCase {
     $this->login();
 
     // Create wall
-    $wall = $this->_createWall('Test wall', $this->testDesignId);
+    $wall = $this->createWall('Test wall', $this->testDesignId);
     $this->assertEqual(@$wall['status'], 'running');
 
     // Check there is a session ID, start time and null end time
@@ -40,7 +40,7 @@ class SessionsTestCase extends WallMakerTestCase {
     $this->login();
 
     // Create wall
-    $wall = $this->_createWall('Test wall', $this->testDesignId);
+    $wall = $this->createWall('Test wall', $this->testDesignId);
 
     // Get current session ID
     $sessionId = $wall['latestSession']['id'];
@@ -84,7 +84,7 @@ class SessionsTestCase extends WallMakerTestCase {
     $this->login();
 
     // Create wall
-    $wall = $this->_createWall('Test wall', $this->testDesignId);
+    $wall = $this->createWall('Test wall', $this->testDesignId);
     $sessionId = $wall['latestSession']['id'];
 
     // Close session
@@ -119,7 +119,7 @@ class SessionsTestCase extends WallMakerTestCase {
     $this->login();
 
     // Create wall
-    $wall = $this->_createWall('Test wall', $this->testDesignId);
+    $wall = $this->createWall('Test wall', $this->testDesignId);
     $sessionId = $wall['latestSession']['id'];
 
     // Start new session
@@ -160,7 +160,7 @@ class SessionsTestCase extends WallMakerTestCase {
     $this->login();
 
     // Create wall
-    $wall = $this->_createWall('Test wall', $this->testDesignId);
+    $wall = $this->createWall('Test wall', $this->testDesignId);
     $sessionId = $wall['latestSession']['id'];
 
     // Start new session

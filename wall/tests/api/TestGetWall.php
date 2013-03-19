@@ -16,7 +16,7 @@ class GetWallTestCase extends WallMakerTestCase {
   function testLoggedOut() {
     // Create wall
     $this->login();
-    $wall = $this->_createWall('Test wall', $this->testDesignId);
+    $wall = $this->createWall('Test wall', $this->testDesignId);
     $wallId = $wall['wallId'];
     $this->logout();
 
@@ -35,7 +35,7 @@ class GetWallTestCase extends WallMakerTestCase {
   function testGetWall() {
     // Create wall
     $this->login();
-    $wall = $this->_createWall('Test wall', $this->testDesignId);
+    $wall = $this->createWall('Test wall', $this->testDesignId);
     $wallId = $wall['wallId'];
 
     // Check it succeeds

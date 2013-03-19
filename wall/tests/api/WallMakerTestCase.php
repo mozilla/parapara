@@ -92,7 +92,7 @@ abstract class WallMakerTestCase extends WallTestCase {
         "Failed to clear cookie");
   }
 
-  function _createWall($name, $designId) {
+  function createWall($name, $designId) {
     // Prepare payload
     $payload['name']   = $name;
     $payload['design'] = $designId;
@@ -112,11 +112,6 @@ abstract class WallMakerTestCase extends WallTestCase {
       "Failed to decode response: " . str_replace('%', '%%', $response));
 
     return $wall;
-  }
-
-  function createWall($name, $designId) {
-    $result = $this->_createWall($name, $designId);
-    return $result['wallId'];
   }
 
   // XXX Replace this with a call to the appropriate API URL once the 

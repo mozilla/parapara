@@ -15,10 +15,7 @@ class CreateWallTestCase extends WallMakerTestCase {
 
   function testLoggedOut() {
     // Check it fails if we're logged out
-    $wall = $this->_createWall(
-      'Test wall',
-      $this->testDesignId
-    );
+    $wall = $this->createWall('Test wall', $this->testDesignId);
     $this->assertTrue(@$wall['error_key'] == 'logged-out',
                       "Got wall whilst logged out");
   }
@@ -27,10 +24,7 @@ class CreateWallTestCase extends WallMakerTestCase {
     $this->login();
 
     // Create wall
-    $wall = $this->_createWall(
-      'Test wall',
-      $this->testDesignId
-    );
+    $wall = $this->createWall('Test wall', $this->testDesignId);
     $this->assertTrue(!array_key_exists('error_key', $wall),
                       "Got error creating wall");
     $this->assertTrue(is_int(@$wall['wallId']) && $wall['wallId'] > 0,
@@ -44,42 +38,33 @@ class CreateWallTestCase extends WallMakerTestCase {
     $this->login();
 
     // Test same name is returned
-    $wall = $this->_createWall(
-      'Test wall',
-      $this->testDesignId
-    );
+    $wall = $this->createWall('Test wall', $this->testDesignId);
     $this->assertEqual(@$wall['name'], 'Test wall');
     $this->removeWall($wall['wallId']);
 
     // Test non-ASCII name
-    $wall = $this->_createWall(
-      '素晴らしい壁',
-      $this->testDesignId
-    );
+    $wall = $this->createWall('素晴らしい壁', $this->testDesignId);
     $this->assertEqual(@$wall['name'], '素晴らしい壁');
     $this->removeWall($wall['wallId']);
 
     // Test name is trimmed
-    $wall = $this->_createWall(
-      " \t　space\r\n ",
-      $this->testDesignId
-    );
+    $wall = $this->createWall(" \t　space\r\n ", $this->testDesignId);
     $this->assertEqual(@$wall['name'], 'space');
     $this->removeWall($wall['wallId']);
 
     // Test empty name is rejected
-    $wall = $this->_createWall("", $this->testDesignId);
+    $wall = $this->createWall("", $this->testDesignId);
     $this->assertTrue(@$wall['error_key'] == 'empty-name',
                       "Made wall with no name");
 
     // Test whitespace-only name is rejected
-    $wall = $this->_createWall(" \t\r\n　", $this->testDesignId);
+    $wall = $this->createWall(" \t\r\n　", $this->testDesignId);
     $this->assertTrue(@$wall['error_key'] == 'empty-name',
                       "Made wall with whitespace name");
 
     // Test duplicate name is rejected
-    $wallA = $this->_createWall('Test wall', $this->testDesignId);
-    $wallB = $this->_createWall('  Test wall ', $this->testDesignId);
+    $wallA = $this->createWall('Test wall', $this->testDesignId);
+    $wallB = $this->createWall('  Test wall ', $this->testDesignId);
     $this->assertTrue(@$wallB['error_key'] == 'duplicate-name',
                       "Made two walls with the same name");
     $this->removeWall($wallA['wallId']);
@@ -89,30 +74,30 @@ class CreateWallTestCase extends WallMakerTestCase {
     $this->login();
 
     // Test simplification
-    $wall = $this->_createWall(' Test wall ', $this->testDesignId);
+    $wall = $this->createWall(' Test wall ', $this->testDesignId);
     $this->assertEqual($this->getWallPath(@$wall['wallUrl']), 'test-wall');
     $this->removeWall($wall['wallId']);
 
     // Test non-ASCII
-    $wall = $this->_createWall('Café', $this->testDesignId);
+    $wall = $this->createWall('Café', $this->testDesignId);
     $this->assertEqual($this->getWallPath(@$wall['wallUrl']), 'caf%C3%A9');
     $this->removeWall($wall['wallId']);
 
     // Test converting full-with numbers to half-width
-    $wall = $this->_createWall('１２３ＡＢＣ　', $this->testDesignId);
+    $wall = $this->createWall('１２３ＡＢＣ　', $this->testDesignId);
     $this->assertEqual($this->getWallPath(@$wall['wallUrl']), '123abc');
     $this->removeWall($wall['wallId']);
 
     // Test when simplification produces duplicates
     // -- we should generate a random wall path instead
-    $wallA = $this->_createWall('ＡＢＣ', $this->testDesignId);
-    $wallB = $this->_createWall('abc', $this->testDesignId);
+    $wallA = $this->createWall('ＡＢＣ', $this->testDesignId);
+    $wallB = $this->createWall('abc', $this->testDesignId);
     $this->assertNotEqual($this->getWallPath(@$wallB['wallUrl']), 'abc');
     $this->removeWall($wallA['wallId']);
     $this->removeWall($wallB['wallId']);
 
     // Test editor URL
-    $wall = $this->_createWall('Test wall', $this->testDesignId);
+    $wall = $this->createWall('Test wall', $this->testDesignId);
     $this->assertTrue(!empty($wall['editorUrl']), 'No editor URL found');
     $this->removeWall($wall['wallId']);
   }
@@ -121,7 +106,7 @@ class CreateWallTestCase extends WallMakerTestCase {
     $this->login();
 
     // Test the ownerEmail returned is set to the email we passed in
-    $wall = $this->_createWall('Test wall', $this->testDesignId);
+    $wall = $this->createWall('Test wall', $this->testDesignId);
     $this->assertEqual(@$wall['ownerEmail'], $this->userEmail);
     $this->removeWall($wall['wallId']);
 
@@ -129,7 +114,7 @@ class CreateWallTestCase extends WallMakerTestCase {
     $this->logout();
     $this->userEmail = 'abc';
     $this->login();
-    $wall = $this->_createWall('Test wall', $this->testDesignId);
+    $wall = $this->createWall('Test wall', $this->testDesignId);
     $this->assertEqual(@$wall['error_key'], 'bad-email');
   }
 
@@ -137,12 +122,12 @@ class CreateWallTestCase extends WallMakerTestCase {
     $this->login();
 
     // Test design ID matches what we put in
-    $wall = $this->_createWall('Test wall', $this->testDesignId);
+    $wall = $this->createWall('Test wall', $this->testDesignId);
     $this->assertEqual(@$wall['designId'], $this->testDesignId);
     $this->removeWall($wall['wallId']);
 
     // Test a bad ID fails
-    $wall = $this->_createWall('Test wall', 5000);
+    $wall = $this->createWall('Test wall', 5000);
     $this->assertEqual(@$wall['error_key'], 'design-not-found');
   }
 
