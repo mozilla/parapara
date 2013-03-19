@@ -36,6 +36,7 @@ CREATE TABLE `walls` (
   `createDate` datetime NOT NULL COMMENT 'Creation datetime in UTC',
   `modifyDate` datetime NOT NULL COMMENT 'Modification datetime in UTC',
   PRIMARY KEY (`wallId`),
+  UNIQUE KEY (`urlPath`),
   FOREIGN KEY (`designId`) REFERENCES `designs` (`designId`),
   FOREIGN KEY (`owner`) REFERENCES `users` (`userId`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='Walls are shared drawing spaces';

@@ -109,7 +109,7 @@ abstract class WallMakerTestCase extends WallTestCase {
     // Parse response
     $wall = json_decode($response,true);
     $this->assertTrue($wall !== null,
-                      "Failed to decode response: $response");
+      "Failed to decode response: " . str_replace('%', '%%', $response));
 
     return $wall;
   }

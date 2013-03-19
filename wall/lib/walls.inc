@@ -10,6 +10,7 @@ require_once("exceptions.inc");
 require_once("UriUtils.inc");
 require_once("designs.inc");
 require_once("users.inc");
+require_once("utils.inc");
 
 // When updating this, be sure to update login-controller.js as well
 define("WALLMAKER_SESSION_NAME", "WMSESSID");
@@ -509,6 +510,8 @@ class Wall {
   private $sessions = null;
   private $email    = null;
 
+  static private $hiddenFields = array('passcode');
+
   public function __construct($id, $email, $metadata) {
     $this->id       = intval($id);
     $this->email    = trim($email);
@@ -516,43 +519,80 @@ class Wall {
   }
 
   public function __get($name) {
-    if ($name == 'passcode') {
+    // Check if the field is set (i.e. not hidden, not missing needed parameters
+    // etc.)
+    if (!isset($this->$name)) {
       return null;
     }
 
+    // Regular metadata
     if (array_key_exists($name, $this->metadata)) {
       return $this->metadata[$name];
     }
 
-    // Virtual: sessions
-    //  -- gets list of sessions and returns them
-    // Virtual: design
-    //  -- does look up (using DesignGallery)
-    // Virtual:
-    //  wallUrl = getCurrentServer() . '/wall/' . $this->metadata['urlPath'];
-    //  wallUrlShort = $this->metadata['shortUrl'];
-    //  editorUrl = $config['editor']['url'] . $this->metadata['urlPath'];
-    //  editorUrlShort = $this->metadata['editorShortUrl'];
-    //
-    // XXX Don't return the passcode, only the length of it
-    //  passcodeLen = @$this->metadata['passcode']
-    //              ? strlen($this->metadata['passcode'] : null;
+    // Virtual fields
+    switch ($name) {
+      case 'wallUrl':
+        return Wall::getUrlForPath($this->metadata['urlPath']);
+
+      case 'editorUrl':
+        return Wall::getEditorUrlForPath($this->metadata['urlPath']);
+
+      case 'passcodeLen':
+        return strlen($this->metadata['passcode']);
+    }
+
+    return null;
+  }
+
+  public function __isset($name) {
+    // Hidden fields
+    if (in_array($name, self::$hiddenFields))
+      return false;
+
+    // Regular metadata
+    if (array_key_exists($name, $this->metadata))
+      return true;
+
+    // Virtual fields
+    switch ($name) {
+      case 'wallUrl':
+      case 'editorUrl':
+        return isset($this->metadata['urlPath']);
+
+      case 'passcodeLen':
+        return isset($this->metadata['passcode']);
+    }
+
+    return false;
   }
 
   /*
   public function __set($name) {
-    // Check canWrite before doing anything
+    // Check canAdminister before doing anything
     // Marks fields as dirty that have changed
   }
    */
 
   public function asArray() {
-    return array(
-      'wallId'        => $this->id,
-      'name'          => $this->name,
-      'duration'      => $this->duration,
-      'passcodeLen'   => $this->passcodeLen
-    );
+    // Fields to export if available
+    //
+    // Associative keys map the regular value name used by users of this class 
+    // to another more export-friendly value.
+    $keys = array('id' => 'wallId', 'name',
+                  'wallUrl', 'wallShortUrl',
+                  'editorUrl', 'editorShortUrl',
+                  'duration', 'defaultDuration',
+                  'passcodeLen', 'latestSession');
+
+    $result = array();
+    foreach ($keys as $localKey => $keyToExport) {
+      $localKey = is_int($localKey) ? $keyToExport : $localKey;
+      if (isset($this->$localKey)) {
+        $result[$keyToExport] = $this->$localKey;
+      }
+    }
+    return $result;
   }
 
   public function startSession($sessionId, $datetime) {
@@ -560,7 +600,7 @@ class Wall {
     $sessionId = toId($sessionId);
 
     // Check authorisation
-    if (!$this->canWrite()) {
+    if (!$this->canAdminister()) {
       throw new KeyedException('no-auth');
     }
 
@@ -590,6 +630,8 @@ class Wall {
     }
     $conn->disconnect();
 
+    // XXX Update latest session
+
     return true;
   }
 
@@ -598,7 +640,7 @@ class Wall {
     $sessionId = toId($sessionId);
 
     // Check authorisation
-    if (!$this->canWrite()) {
+    if (!$this->canAdminister()) {
       throw new KeyedException('no-auth');
     }
 
@@ -609,7 +651,7 @@ class Wall {
       return false;
     }
 
-    // Close session
+    // End session
     $conn =& getDbConnection();
     $query = 'UPDATE sessions'
       . ' SET endDate=' . $conn->quote($datetime, 'timestamp')
@@ -621,18 +663,20 @@ class Wall {
     }
     $conn->disconnect();
 
+    // XXX Update latest session
+
     // Return true since we made a change
     return true;
   }
 
   public function save() {
-    // Check canWrite
+    // Check canAdminister
   }
 
   public static function getPathForName($name) {
     // Strip leading/trailing space, and
     // convert fullwidth forms to halfwidth
-    $path = mb_convert_kana(trim($name), "as", "utf-8");
+    $path = mb_convert_kana(wtrim($name), "as", "utf-8");
 
     // Make lowercase, and
     // convert whitespace to -
@@ -659,7 +703,7 @@ class Wall {
     return $config['editor']['url'] . $path;
   }
 
-  protected function canWrite() {
+  protected function canAdminister() {
     // In the future we will check if the wall has been shared with the current 
     // user or not
     return $this->isOwner();
@@ -688,7 +732,7 @@ class Walls {
     $ownerId = Users::getOrCreateFromEmail($email);
 
     // Validate wall name
-    $name = trim($name);
+    $name = wtrim($name);
     if (!strlen($name)) {
       error_log("Empty name");
       throw new KeyedException('empty-name');
