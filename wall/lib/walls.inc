@@ -124,30 +124,6 @@ function getActiveSessionId($wallId) {
   return $res;
 }
 
-function getLatestSession($wallId) {
-  $conn =& getDbConnection();
-  $row =& $conn->queryRow(
-    'SELECT sessionId, beginDate, endDate'
-    .' FROM sessions'
-    .' WHERE wallId='.$conn->quote($wallId, 'integer')
-    .' ORDER BY sessionId DESC'
-    .' LIMIT 1',
-    null,
-    MDB2_FETCHMODE_ASSOC
-  );
-  if (PEAR::isError($row)) {
-    error_log($row->getMessage() . ', ' . $row->getDebugInfo());
-    throw new KeyedException('db-error');
-  }
-  if (!$row)
-    return null;
-  return array(
-    'id' => intval($row['sessionid']),
-    'start' => $row['begindate'],
-    'end' => $row['enddate'],
-  );
-}
-
 function getWallDuration($wallId) {
   $conn =& getDbConnection();
   $res =& $conn->query(
