@@ -38,9 +38,6 @@ var ManageWallController =
       return;
     }
 
-    // Load the wall
-    this.wallId = wallId;
-
     // Show loading screen
     $("wall-info").setAttribute("aria-hidden", "true");
     $("wall-loading").setAttribute("aria-hidden", "false");
@@ -135,59 +132,8 @@ var ManageWallController =
   },
 
   loadSuccess: function(response, tabName) {
-    // Basic data
-    $("manage-eventName").value = response.name;
-
-    // Make up links
-    this.updateShortenableLink($('manage-wallUrl'), response.wallUrl,
-                               response.wallUrlShort);
-    this.updateShortenableLink($('manage-editorUrl'), response.editorUrl,
-                               response.editorUrlShort);
-
-    // Event data
-    $("manage-eventLocation").value = response.eventLocation;
-    $("manage-eventDescr").value = response.eventDescr;
-
-    // Sessions
-    this.updateSessionInfo(response.latestSession);
-
-    // Design
-    var designRadios =
-      this.form.querySelectorAll("input[type=radio][name=design]");
-    for (var i = 0; i < designRadios.length; i++) {
-      var radio = designRadios[i];
-      var origValue = radio.checked;
-      radio.checked = (radio.value == response.designId);
-      if (radio.checked != origValue) {
-        // Unfortunately, just changing checked does not trigger a change event
-        // in most browsers so we trigger an event specifically fire the event
-        var evt = document.createEvent('HTMLEvents');
-        evt.initEvent('change', true, true);
-        radio.dispatchEvent(evt);
-      }
-    }
-    $("manage-duration").value = response.duration == null
-                               ? ""
-                               : response.duration/1000;
-    $("manage-defaultDuration").textContent = response.defaultDuration/1000;
-
-    // Privacy
-    var dummypasscode = "";
-    for (var i = 0; i < response.passcode; i++) {
-      dummypasscode += "x";
-    }
-    $("manage-passcode").value = dummypasscode;
-    var radios = document.getElementsByName("manage-galleryDisplay");
-    if (response.galleryDisplay == 0) {
-      radios[0].checked = false;
-      radios[1].checked = true;
-    } else {
-      radios[0].checked = true;
-      radios[1].checked = false;
-    }
-
-    // Collaboration
-    // Characters
+    // Update form fields
+    this.updateWallInfo(response);
 
     // Switch to appropriate tab
     if (tabName) {
@@ -197,6 +143,68 @@ var ManageWallController =
     // Hide loading and show page
     $("wall-loading").setAttribute("aria-hidden", "true");
     $("wall-info").setAttribute("aria-hidden", "false");
+  },
+
+  updateWallInfo: function(wall) {
+    // It doesn't make sense to show errors when we change wall
+    this.clearError();
+
+    // Set the ID
+    this.wallId = wall.wallId;
+
+    // Basic data
+    $("manage-eventName").value = wall.name;
+
+    // Make up links
+    this.updateShortenableLink($('manage-wallUrl'), wall.wallUrl,
+                               wall.wallUrlShort);
+    this.updateShortenableLink($('manage-editorUrl'), wall.editorUrl,
+                               wall.editorUrlShort);
+
+    // Event data
+    $("manage-eventLocation").value = wall.eventLocation;
+    $("manage-eventDescr").value = wall.eventDescr;
+
+    // Sessions
+    this.updateSessionInfo(wall.latestSession);
+
+    // Design
+    var designRadios =
+      this.form.querySelectorAll("input[type=radio][name=design]");
+    for (var i = 0; i < designRadios.length; i++) {
+      var radio = designRadios[i];
+      var origValue = radio.checked;
+      radio.checked = (radio.value == wall.designId);
+      if (radio.checked != origValue) {
+        // Unfortunately, just changing checked does not trigger a change event
+        // in most browsers so we trigger an event specifically fire the event
+        var evt = document.createEvent('HTMLEvents');
+        evt.initEvent('change', true, true);
+        radio.dispatchEvent(evt);
+      }
+    }
+    $("manage-duration").value = wall.duration == null
+                               ? ""
+                               : wall.duration/1000;
+    $("manage-defaultDuration").textContent = wall.defaultDuration/1000;
+
+    // Privacy
+    var dummypasscode = "";
+    for (var i = 0; i < wall.passcodeLen; i++) {
+      dummypasscode += "x";
+    }
+    $("manage-passcode").value = dummypasscode;
+    var radios = document.getElementsByName("manage-galleryDisplay");
+    if (wall.galleryDisplay == 0) {
+      radios[0].checked = false;
+      radios[1].checked = true;
+    } else {
+      radios[0].checked = true;
+      radios[1].checked = false;
+    }
+
+    // Collaboration
+    // Characters
   },
 
   updateShortenableLink: function(linkContainer, url, shortUrl) {

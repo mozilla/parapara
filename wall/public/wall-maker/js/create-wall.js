@@ -48,11 +48,18 @@ var CreateWallController =
     if (typeof response.wallId !== "number") {
       console.debug("Got non-numerical wall id: " + response.wallId);
     }
-    var id = response.wallId;
+
+    // Clear create wall form
     this.clearAll();
+
+    // Trigger update to wall summary screen
     UserData.updateWalls();
-    sessionStorage.setItem("messageKey", "create-wall-success");
-    Navigation.goToScreen("wall/" + id + "#event");
+
+    // Fill in fields of manage wall form using response
+    ManageWallController.updateWallInfo(response);
+
+    // Update the screen
+    Navigation.goToScreen("wall/" + response.wallId + "#event");
   },
 
   createError: function(key, detail) {
