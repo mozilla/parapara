@@ -253,7 +253,7 @@
     </div>
   </div>
   <div class="screen" id="screen-error" aria-hidden="true">
-    <div class="message">
+    <div class="message error">
       <div class="messageText"></div>
       <a href="<?php echo $wallMakerRoot ?>/"
         class="button arrow left center return">戻る</a>

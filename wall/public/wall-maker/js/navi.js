@@ -105,7 +105,7 @@ var Navigation =
 
   showErrorPage: function(msg, buttons) {
     // Set error message
-    var msgBlock = document.querySelector("#screen-error .errorMessage");
+    var msgBlock = document.querySelector("#screen-error .messageText");
     msgBlock.innerHTML = msg;
 
     // Show the return if 'buttons' is not provided or if it is explicitly set
