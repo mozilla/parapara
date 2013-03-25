@@ -117,10 +117,10 @@
         class="button left arrow">戻る</a><br>
     </nav>
     <hr>
-    <div id="wall-loading" aria-hidden="true">
+    <div id="wall-loading" aria-hidden="false">
       <img src="<?php echo $wallMakerRoot?>/img/spinner.gif" class="spinner">
     </div>
-    <div id="wall-info" aria-hidden="false">
+    <div id="wall-info" aria-hidden="true">
       <form name="manageWall"
         action="javascript:ManageWallController.saveCurrentTab()">
         <section id="wall-summary">

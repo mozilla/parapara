@@ -36,7 +36,7 @@ function MessageBox(screen)
 
   this._show = function(key, args, className, timeout) {
     // Set message
-    this.textBlock.textContent = this._translateKey(key);
+    this.textBlock.textContent = this._translateKey(key, args);
 
     // Update classes
     this.messageBlock.classList.remove("error");
@@ -54,7 +54,7 @@ function MessageBox(screen)
     }
   };
 
-  this._translateKey = function(key) {
+  this._translateKey = function(key, args) {
     // XXXl10n
     switch(key) {
       case 'timeout':
@@ -72,6 +72,9 @@ function MessageBox(screen)
       case 'parallel-change':
         return "Someone else has updated the session."
                + " Please confirm the updated session status.";
+
+      case 'created-wall':
+        return "Created wall '" + args + "'";
 
       case 'db-error':
       case 'design-not-found':

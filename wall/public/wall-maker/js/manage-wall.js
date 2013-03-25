@@ -134,6 +134,9 @@ var ManageWallController =
   },
 
   loadSuccess: function(response, tabName) {
+    // It doesn't make sense to show errors when we change wall
+    this.messageBox.clear();
+
     // Update form fields
     this.updateWallInfo(response);
 
@@ -147,10 +150,16 @@ var ManageWallController =
     $("wall-info").setAttribute("aria-hidden", "false");
   },
 
-  updateWallInfo: function(wall) {
-    // It doesn't make sense to show errors when we change wall
-    this.messageBox.clear();
+  showNewWall: function(wall) {
+    this.updateWallInfo(wall);
 
+    $("wall-loading").setAttribute("aria-hidden", "true");
+    $("wall-info").setAttribute("aria-hidden", "false");
+
+    this.messageBox.showInfo('created-wall', wall.name, 5000);
+  },
+
+  updateWallInfo: function(wall) {
     // Set the ID
     this.wallId = wall.wallId;
 

@@ -59,7 +59,7 @@ var CreateWallController =
     UserData.updateWalls();
 
     // Fill in fields of manage wall form using response
-    ManageWallController.updateWallInfo(response);
+    ManageWallController.showNewWall(response);
 
     // Update the screen
     Navigation.goToScreen("wall/" + response.wallId + "#event");
