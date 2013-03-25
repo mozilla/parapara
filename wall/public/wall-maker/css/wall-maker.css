@@ -133,17 +133,40 @@ img.spinner {
 }
 
 /*
- * Error sections
+ * Message sections
  */
-div.error {
-  background-color: rgba(255, 221, 221, 0.6);
+div.message {
   width: 60%;
   text-align: center;
   padding: 1em;
   margin: 1em auto;
   border-radius: 1em;
+  /* Make message divs expand in-place */
+  transition-property: height, margin, padding;
+  transition-duration: 0.3s;
 }
-div.error button, div.error a.button {
+/* Make hidden message divs simply have no size (and not be display: none)
+ * so they can transition in */
+div.message[aria-hidden=true] {
+  display: block !important;
+  padding: 0;
+  margin: 0;
+  font-size: 0;
+  border-width: 0;
+  background-color: rgba(255, 221, 221, 0);
+  height: 0;
+  line-height: 0;
+  overflow: hidden;
+}
+div.message.error {
+  background-color: rgba(255, 221, 221, 0.6);
+  border: 1px solid rgba(120, 0, 0, 0.1);
+}
+div.message.info {
+  background-color: rgba(221, 255, 221, 0.6);
+  border: 1px solid rgba(0, 160, 0, 0.25);
+}
+div.message button, div.message a.button {
   display: inline-block;
   margin-top: 1.5em;
   margin-button: 0.5em;
@@ -242,25 +265,6 @@ hr {
 }
 
 /*
- * Make error divs transition in
- */
-div.error {
-  transition-property: height, margin, padding;
-  transition-duration: 0.3s;
-}
-div.error[aria-hidden=true] {
-  display: block !important;
-  padding: 0;
-  margin: 0;
-  font-size: 0;
-  border-width: 0;
-  background-color: rgba(255, 221, 221, 0);
-  height: 0;
-  line-height: 0;
-  overflow: hidden;
-}
-
-/*
  * Design selection graphical radio buttons
  */
 .designSelection {
@@ -332,12 +336,6 @@ label.manage-title:after {
   font-weight: bold;
   content: "：";
 }
-label.manage-message {
-  color: black;
-}
-label.manage-message.error {
-  color: red;
-}
 .clickable {
   color: orange;
   cursor: pointer;
@@ -355,7 +353,7 @@ label.manage-message.error {
   box-shadow: 2px 2px 3px rgba(0,0,0,0.4);
   width: 90%;
 }
-#wall-info .error {
+#wall-info .message {
   width: 80%;
 }
 

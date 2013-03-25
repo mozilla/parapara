@@ -148,7 +148,7 @@ var Navigation =
            : WallMaker.rootUrl;
   },
 
-  _getCurrentlyShowingScreenId: function () {
+  getCurrentlyShowingScreenId: function () {
     return document.querySelector('.screen[aria-hidden=false]').id;
   }
 };

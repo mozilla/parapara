@@ -33,7 +33,7 @@ var LoginController =
     // to a timeout and not a deliberate request to clear everything.
     //
     $('loginMail').textContent = '';
-    CreateWallController.clearAll();
+    CreateWallController.clear();
     WallSummaryController.clear();
     // XXX Clear manage screen details
     sessionStorage.clear();

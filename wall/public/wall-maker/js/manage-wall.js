@@ -22,13 +22,12 @@ var ManageWallController =
     this.installObserver("manage-galleryDisplay");
     this.installObserver("manage-designId");
     */
+  },
 
-    /*
-    this.installClickObserver("manage-startSession",
-      this.clickOnStartSession.bind(this));
-    this.installClickObserver("manage-closeSession",
-      this.clickOnCloseSession.bind(this));
-      */
+  clear: function() {
+    this.form.reset();
+    this.messageBox.clear();
+    this.wallId = null;
   },
 
   show: function(wallId, tabName) {
@@ -41,7 +40,9 @@ var ManageWallController =
     // Show loading screen
     $("wall-info").setAttribute("aria-hidden", "true");
     $("wall-loading").setAttribute("aria-hidden", "false");
-    this.clearError();
+
+    // Clear current state
+    this.clear();
 
     // Fetch wall information
     ParaPara.getUrl('/api/walls/' + wallId,
@@ -89,10 +90,11 @@ var ManageWallController =
     return this._form;
   },
 
-  installClickObserver: function(name, callbackFunction) {
-    var element = $(name);
-    element.removeEventListener("click", callbackFunction, false);
-    element.addEventListener("click", callbackFunction, false);
+  get messageBox() {
+    if (!this._messageBox) {
+      this._messageBox = new MessageBox('manage');
+    }
+    return this._messageBox;
   },
 
   installObserver: function(name) {
@@ -147,7 +149,7 @@ var ManageWallController =
 
   updateWallInfo: function(wall) {
     // It doesn't make sense to show errors when we change wall
-    this.clearError();
+    this.messageBox.clear();
 
     // Set the ID
     this.wallId = wall.wallId;
@@ -245,41 +247,6 @@ var ManageWallController =
   },
 
   /*
-   * Error handling
-   */
-  showError: function(key) {
-    // XXXl10n Hook this up to our localization
-    switch(key) {
-      case 'timeout':
-        msg = "接続できませんでした.";
-        break;
-
-      case 'parallel-change':
-        msg = "Someone else has updated the session."
-            + " Please confirm the updated session status.";
-        break;
-
-      default:
-        msg = "Something went wrong";
-        break;
-    }
-
-    var messageBlock = this.errorBlock.querySelector('.errorMessage');
-    messageBlock.textContent = msg;
-
-    this.errorBlock.setAttribute('aria-hidden', 'false');
-  },
-
-  clearError: function(key) {
-    this.errorBlock.setAttribute('aria-hidden', 'true');
-    this.errorBlock.querySelector('.errorMessage').textContent = '';
-  },
-
-  get errorBlock() {
-    return document.querySelector('#wall-info .error');
-  },
-
-  /*
    * Session management
    */
   startSession: function() {
@@ -303,19 +270,19 @@ var ManageWallController =
   handleSessionError: function(key, detail) {
     // In the case where we detect parallel changes, we use the updated
     // information rather than restoring the old information
-    // (In this case we really should set a timeout on the error message but
-    // that seems like a bit too much work for something that won't happen
-    // often.)
+    // We also set a timeout on the message.
+    var timeout = null;
     if (key == 'parallel-change') {
       this.updateSessionInfo(detail);
+      timeout = 8000;
     } else {
       this.restoreSessionInfo();
     }
-    this.showError(key);
+    this.messageBox.showError(key, detail, timeout);
   },
 
   startUpdateSessionInfo: function() {
-    this.clearError();
+    this.messageBox.clear();
     document.querySelector(".wallStatus").classList.add("updating");
     // Remember our state in case we need to restore it
     this.sessionStatus = $("manage-closeSession").disabled

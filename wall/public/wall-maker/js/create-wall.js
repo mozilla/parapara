@@ -25,17 +25,17 @@
 var CreateWallController =
 {
   start: function() {
-    this.clearAll();
+    this.clear();
   },
 
   cancel: function() {
     Navigation.goToScreen("./");
-    this.clearAll();
+    this.clear();
   },
 
   create: function() {
-    // Clear error messages
-    this.clearError();
+    // Clear message
+    this.messageBox.clear();
 
     // Show loading screen
     Navigation.showScreen("screen-loading");
@@ -53,7 +53,7 @@ var CreateWallController =
     }
 
     // Clear create wall form
-    this.clearAll();
+    this.clear();
 
     // Trigger update to wall summary screen
     UserData.updateWalls();
@@ -67,51 +67,19 @@ var CreateWallController =
 
   createError: function(key, detail) {
     Navigation.showScreen("screen-new");
+    this.messageBox.showError(key, detail);
+  },
 
-    // XXXl10n: hook this up to our localization
-    switch(key) {
-      case 'duplicate-name':
-        msg = "A wall with that title already exists.";
-        break;
+  clear: function() {
+    this.messageBox.clear();
+    CreateWallForm.clear();
+  },
 
-      case 'timeout':
-        msg = "接続できませんでした.";
-        break;
-
-      case 'empty-name':
-        // This can happen if for example the title is all whitespace.
-        // The browser will consider the form to be filled in but the server
-        // won't accept it.
-        msg = "Name is empty";
-        break;
-
-      case 'db-error':
-      case 'design-not-found':
-      case 'server-fail':
-      case 'no-access':
-      case 'send-fail':
-      default:
-        msg = "Something went wrong";
-        break;
+  get messageBox() {
+    if (!this._messageBox) {
+      this._messageBox = new MessageBox('new');
     }
-    this.showError(msg);
-  },
-
-  clearAll: function() {
-    this.clearError();
-    CreateWallForm.clearAll();
-  },
-
-  showError: function(msg) {
-    var errorBlock = $('create-error');
-    errorBlock.innerHTML = msg;
-    errorBlock.setAttribute('aria-hidden', 'false');
-  },
-
-  clearError: function() {
-    var errorBlock = $('create-error');
-    errorBlock.setAttribute('aria-hidden', 'true');
-    errorBlock.innerHTML = '';
+    return this._messageBox;
   },
 };
 
@@ -119,7 +87,7 @@ var CreateWallForm =
 {
   _form: null,
 
-  clearAll: function() {
+  clear: function() {
     this.form.reset();
   },
 

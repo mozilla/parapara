@@ -23,6 +23,7 @@
   </script>
   <script src="<?php echo $wallMakerRoot ?>/js/utils.js"></script>
   <script src="<?php echo $wallMakerRoot ?>/js/xhr.js"></script>
+  <script src="<?php echo $wallMakerRoot ?>/js/messages.js"></script>
   <script src="<?php echo $wallMakerRoot ?>/js/login.js"></script>
   <script src="<?php echo $wallMakerRoot ?>/js/user-data.js"></script>
   <script src="<?php echo $wallMakerRoot ?>/js/navi.js"></script>
@@ -95,8 +96,7 @@
   </div>
   <div class="screen" id="screen-new" aria-hidden="true">
     <h2>新しい壁を作る</h2>
-    <div class="error" id="create-error" aria-hidden="true">
-      Error message goes here
+    <div class="message" id="create-message" aria-hidden="true">
     </div>
     <form name="createWall" action="javascript:CreateWallController.create()">
       <input type="text" name="eventName" required autocomplete="off"
@@ -134,8 +134,8 @@
           </ul>
         </section>
         <hr>
-        <div class="error" aria-hidden="true">
-          <div class="errorMessage"></div>
+        <div class="message" aria-hidden="true">
+          <div class="messageText"></div>
         </div>
         <div id="wall-details">
           <menu type="toolbar" aria-role="tablist">
@@ -253,8 +253,8 @@
     </div>
   </div>
   <div class="screen" id="screen-error" aria-hidden="true">
-    <div class="error">
-      <div class="errorMessage"></div>
+    <div class="message">
+      <div class="messageText"></div>
       <a href="<?php echo $wallMakerRoot ?>/"
         class="button arrow left center return">戻る</a>
       <button type="button" class="retry"
