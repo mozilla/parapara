@@ -29,10 +29,24 @@ class SetWallTestCase extends WallMakerTestCase {
     $wall = $this->getWall($wallId);
     $this->assertEqual(@$wall['name'], 'ABCD');
 
-    // Same title
+    // Try setting the same title--nothing should be returned since nothing 
+    // changed
+    $result = $this->updateWall($wallId, array('name' => 'ABCD'));
+    $this->assertEqual(count($result), 0);
+
     // Trimming
-    // non-ASCII
+    $result = $this->updateWall($wallId, array('name' => " \twall name\n　"));
+    $this->assertEqual(@$result['name'], 'wall name');
+
+    // Non-ASCII
+    $result = $this->updateWall($wallId, array('name' => 'テスト'));
+    $this->assertEqual(@$result['name'], 'テスト');
+
     // Empty title
+    $result = $this->updateWall($wallId, array('name' => ""));
+    $this->assertTrue(@$result['error_key'] == 'empty-name',
+                      "Made wall name empty");
+
     // Whitespace only
     // Duplicate title
 
@@ -50,5 +64,8 @@ class SetWallTestCase extends WallMakerTestCase {
   }
 
   function testNoChange() {
+  }
+
+  function testSetMultiple() {
   }
 }

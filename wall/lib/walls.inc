@@ -242,7 +242,13 @@ class Wall {
     // Sanitize values
     switch($name) {
       case 'name':
-        // XXX
+        $value = wtrim($value);
+        // Don't validate the name if it is identical to the current wall name 
+        // (which *ought* to be valid) since otherwise we'll get errors about 
+        // the name being a duplicate.
+        if ($value !== $this->name) {
+          Wall::validateWallName($value);
+        }
         break;
     }
 
@@ -464,6 +470,22 @@ class Wall {
     return $config['editor']['url'] . $path;
   }
 
+  public static function validateWallName($name) {
+    // Check name has been trimmed
+    if ($name !== wtrim($name))
+      throw new KeyedException('bad-name');
+
+    // Check name is not empty
+    if (!strlen($name))
+      throw new KeyedException('empty-name');
+
+    // Check name is unique
+    if (!Walls::isNameUnique($name)) {
+      error_log("Wall with name '$name' already exists.");
+      throw new KeyedException('duplicate-name');
+    }
+  }
+
   public function canAdminister() {
     // In the future we will check if the wall has been shared with the current 
     // user or not
@@ -494,16 +516,7 @@ class Walls {
 
     // Validate wall name
     $name = wtrim($name);
-    if (!strlen($name)) {
-      error_log("Empty name");
-      throw new KeyedException('empty-name');
-    }
-
-    // Check name is unique
-    if (!Walls::isNameUnique($name)) {
-      error_log("Wall with name '$name' already exists.");
-      throw new KeyedException('duplicate-name');
-    }
+    Wall::validateWallName($name);
 
     // Validate design ID
     $design = DesignGallery::getById($designId);
