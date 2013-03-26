@@ -48,7 +48,17 @@ class SetWallTestCase extends WallMakerTestCase {
                       "Made wall name empty");
 
     // Whitespace only
+    $result = $this->updateWall($wallId, array('name' => " \t\n　"));
+    $this->assertTrue(@$result['error_key'] == 'empty-name',
+                      "Made wall name whitespace only");
+
     // Duplicate title
+    $wall2 = $this->createWall('Wall #2', $this->testDesignId);
+    $wall2Id = $wall2['wallId'];
+    $result = $this->updateWall($wallId, array('name' => "Wall #2"));
+    $this->assertTrue(@$result['error_key'] == 'duplicate-name',
+                      "Made duplicate wall name");
+    $this->removeWall($wall2Id);
 
     // Tidy up
     $this->removeWall($wallId);
