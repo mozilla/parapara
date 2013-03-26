@@ -80,7 +80,22 @@ class GetWallTestCase extends WallMakerTestCase {
     $this->assertEqual(@$wall['error_key'], 'not-found');
   }
 
-  // XXX Check we can't get the information of someone else's wall
+  function testSomeoneElsesWall() {
+    // Create wall
+    $this->login();
+    $wall = $this->createWall('Test wall', $this->testDesignId);
+    $wallId = $wall['wallId'];
+    $this->logout();
+
+    // Login as someone else
+    $this->login('abc@abc.org');
+    $wall = $this->getWall($wallId);
+    $this->assertEqual(@$wall['error_key'], 'no-auth');
+    $this->logout();
+
+    // Tidy up
+    $this->removeWall($wallId);
+  }
 
   function looksLikeAUrl($url) {
     $parts = parse_url($url);

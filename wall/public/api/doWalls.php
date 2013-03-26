@@ -51,6 +51,20 @@ switch ($_SERVER['REQUEST_METHOD']) {
     if ($wall === null)
       bailWithError('not-found');
 
+    // Walls::getById will filter out sensitive information if the supplied 
+    // email address does not have access to administer the wall.
+    //
+    // However, for now we disallow all access if the user doesn't have 
+    // administration rights since a user may want to keep their event private 
+    // from others for various reasons.
+    //
+    // In the future we will probably fine tune this so that walls which are 
+    // marked for display in the public gallery can be reached from this API 
+    // since we won't be exposing any information via this API that isn't 
+    // available by browsing the gallery.
+    if (!$wall->canAdminister())
+      bailWithError('no-auth');
+
     $result = $wall->asArray();
     break;
 

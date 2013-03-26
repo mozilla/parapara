@@ -112,8 +112,7 @@ class CreateWallTestCase extends WallMakerTestCase {
 
     // Try a bad email
     $this->logout();
-    $this->userEmail = 'abc';
-    $this->login();
+    $this->login('abc');
     $wall = $this->createWall('Test wall', $this->testDesignId);
     $this->assertEqual(@$wall['error_key'], 'bad-email');
   }

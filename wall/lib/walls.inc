@@ -372,13 +372,13 @@ class Wall {
     return $config['editor']['url'] . $path;
   }
 
-  protected function canAdminister() {
+  public function canAdminister() {
     // In the future we will check if the wall has been shared with the current 
     // user or not
     return $this->isOwner();
   }
 
-  protected function isOwner() {
+  public function isOwner() {
     if (!isset($this->email) || $this->ownerEmail === null)
       return false;
     return $this->email == $this->ownerEmail;

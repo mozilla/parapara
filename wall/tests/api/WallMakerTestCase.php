@@ -24,6 +24,8 @@ SimpleTest::ignore('WebTestCase');
  */
 abstract class WallMakerTestCase extends WallTestCase {
 
+  const DEFAULT_USER_EMAIL = 'test@test.org';
+
   static private $updatedSessionSettings = false;
 
   protected $sessionId        = null;
@@ -41,8 +43,7 @@ abstract class WallMakerTestCase extends WallTestCase {
 
   function setUp() {
     $this->sessionId = null;
-
-    $this->userEmail = "test@test.org";
+    $this->userEmail = null;
     $this->createTestDesign(array('test.jpg'));
   }
 
@@ -50,18 +51,19 @@ abstract class WallMakerTestCase extends WallTestCase {
     if ($this->sessionId) {
       $this->logout();
     }
-
-    $this->userEmail = null;
     $this->removeTestDesign();
   }
 
-  function login() {
+  function login($email = null) {
     session_name(WALLMAKER_SESSION_NAME);
     session_cache_limiter(''); // Prevent warnings about not being able to send 
                                // cache limiting headers
     session_start();
 
-    $_SESSION['email'] = $this->userEmail;
+    $email = $email ? $email : self::DEFAULT_USER_EMAIL;
+
+    $_SESSION['email'] = $email;
+    $this->userEmail   = $email;
 
     // We're about to call into the wall server which will want to access the 
     // same session but session files are opened exclusively so we store the 
@@ -83,6 +85,7 @@ abstract class WallMakerTestCase extends WallTestCase {
 
     // Clear local state
     $this->sessionId = null;
+    $this->userEmail = null;
 
     // When you create cookies without an expiry date they are treated as 
     // temporary cookies.
