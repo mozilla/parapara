@@ -12,6 +12,7 @@ class AllTests extends TestSuite {
     $this->addFile('TestGetDesigns.php');
     $this->addFile('TestCreateWall.php');
     $this->addFile('TestGetWall.php');
+    $this->addFile('TestSetWall.php');
     $this->addFile('TestSessions.php');
     $this->addFile('TestUserSummary.php');
   }

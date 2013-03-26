@@ -68,6 +68,26 @@ switch ($_SERVER['REQUEST_METHOD']) {
     $result = $wall->asArray();
     break;
 
+  case 'PUT':
+    if ($wallId === null)
+      bailWithError('bad-request');
+
+    // Get wall
+    $email = @$_SESSION['email'];
+    $wall  = Walls::getById($wallId, $email);
+    if ($wall === null)
+      bailWithError('not-found');
+
+    // Update fields
+    // XXX Catch bad-key exceptions here
+    foreach ($json as $key => $value) {
+      $wall->$key = $value;
+    }
+
+    // Store result
+    $result = $wall->save();
+    break;
+
   default:
     bailWithError('bad-request');
 }

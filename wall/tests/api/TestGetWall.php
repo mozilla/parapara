@@ -102,24 +102,6 @@ class GetWallTestCase extends WallMakerTestCase {
     return @$parts['scheme'] == 'http' ||
            @$parts['scheme'] == 'https';
   }
-
-  function getWall($wallId) {
-    // Make request
-    global $config;
-    $url = $config['test']['wall_server'] . 'api/walls/' . $wallId;
-    $response = $this->get($url);
-
-    // Check response
-    $this->assertResponse(200);
-    $this->assertMime('text/plain; charset=UTF-8');
-
-    // Parse response
-    $wall = json_decode($response,true);
-    $this->assertTrue($wall !== null,
-                      "Failed to decode response: $response");
-
-    return $wall;
-  }
 }
 
 ?>

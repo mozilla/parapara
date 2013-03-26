@@ -163,6 +163,7 @@ class Wall {
   private $design   = null;
   private $sessions = null;
   private $email    = null;
+  private $dirtyFields = array();
 
   static private $hiddenFields = array('passcode');
 
@@ -221,12 +222,107 @@ class Wall {
     return false;
   }
 
-  /*
-  public function __set($name) {
-    // Check canAdminister before doing anything
-    // Marks fields as dirty that have changed
+  public function __set($name, $value) {
+    // Check authorisation
+    if (!$this->canAdminister())
+      throw new KeyedException('no-auth');
+
+    // Check if we recognize the field
+    // (XXX We'll have to change this in future to allow setting hidden fields 
+    //  even if you can't *get* them)
+    if (!isset($this->$name))
+      throw new KeyedException('bad-key');
+
+    // Reject read-only/virtual fields
+    // (XXX Might be better to handle each acceptable field below when we 
+    //  sanitize and if it's not recognized, throw there)
+    if (in_array($name, array('id', 'passcodeLen', 'wallUrl', 'editorUrl')))
+      throw new KeyedException('bad-key');
+
+    // Sanitize values
+    switch($name) {
+      case 'name':
+        // XXX
+        break;
+    }
+
+    // Check if the value is actually different
+    // (XXX Likewise we'll need special handling for hidden fields here)
+    if ($this->$name === $value)
+      return;
+
+    // Regular metadata
+    if (array_key_exists($name, $this->metadata)) {
+      $this->metadata[$name] = $value;
+      // Mark field as dirty
+      if (!in_array($name, $this->dirtyFields))
+        array_push($this->dirtyFields, $name);
+    }
   }
-   */
+
+  public function save() {
+    // Check authorisation
+    if (!$this->canAdminister()) {
+      throw new KeyedException('no-auth');
+    }
+
+    // Check there is something to save
+    if (count($this->dirtyFields) === 0)
+      return array();
+
+    // Start connection
+    $conn =& getDbConnection();
+
+    // Build up pieces of query and result array
+    $changedFields = array();
+    $assignments = array();
+    foreach ($this->dirtyFields as $name) {
+      // Determine the field name
+      $mappedFields = array('name' => 'eventName');
+      $fieldName = array_key_exists($name, $mappedFields)
+                 ? $mappedFields[$name]
+                 : $name;
+
+      // Determine the type of the field
+      switch ($fieldName) {
+        case 'designId':
+          $type = 'integer';
+          break;
+
+        case 'galleryDisplay':
+          $type = 'boolean';
+          break;
+
+        case 'createDate':
+        case 'modifyDate':
+          $type = 'timestamp';
+          break;
+
+        default:
+          $type = 'text';
+          break;
+      }
+      array_push($assignments,
+        $conn->quoteIdentifier($fieldName) . ' = '
+        . $conn->quote($this->$name, $type));
+
+      // (XXX Make sure we don't return hidden fields)
+      $changedFields[$name] = $this->$name;
+    }
+
+    // Run query
+    $query = 'UPDATE walls SET '
+      . implode(', ', $assignments)
+      . ' WHERE wallId = ' . $conn->quote($this->id, 'integer');
+    $res =& $conn->exec($query);
+    if (PEAR::isError($res)) {
+      error_log($res->getMessage() . ', ' . $res->getDebugInfo());
+      throw new KeyedException('db-error');
+    }
+    $conn->disconnect();
+
+    return $changedFields;
+  }
 
   public function asArray() {
     // Fields to export if available
@@ -336,10 +432,6 @@ class Wall {
 
     // Return true since we made a change
     return true;
-  }
-
-  public function save() {
-    // Check canAdminister
   }
 
   public static function getPathForName($name) {

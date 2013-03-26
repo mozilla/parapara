@@ -117,6 +117,42 @@ abstract class WallMakerTestCase extends WallTestCase {
     return $wall;
   }
 
+  function getWall($wallId) {
+    // Make request
+    global $config;
+    $url = $config['test']['wall_server'] . 'api/walls/' . $wallId;
+    $response = $this->get($url);
+
+    // Check response
+    $this->assertResponse(200);
+    $this->assertMime('text/plain; charset=UTF-8');
+
+    // Parse response
+    $wall = json_decode($response,true);
+    $this->assertTrue($wall !== null,
+                      "Failed to decode response: $response");
+
+    return $wall;
+  }
+
+  function updateWall($wallId, $payload) {
+    // Make request
+    global $config;
+    $url = $config['test']['wall_server'] . 'api/walls/' . $wallId;
+    $rawResponse = $this->put($url, json_encode($payload));
+
+    // Check response
+    $this->assertResponse(200);
+    $this->assertMime('text/plain; charset=UTF-8');
+
+    // Parse response
+    $response = json_decode($rawResponse,true);
+    $this->assertTrue($response !== null,
+      "Failed to decode response: " . str_replace('%', '%%', $rawResponse));
+
+    return $response;
+  }
+
   // XXX Replace this with a call to the appropriate API URL once the 
   // structure is in place
   function removeWall($wallId) {
