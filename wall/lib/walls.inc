@@ -76,19 +76,6 @@ function getWallSummaryForUser($email) {
   return $result;
 }
 
-function updateWall($wallId, $name, $value, $type) {
-  $conn =& getDbConnection();
-  $qvalue = $conn->quote($value, $type);
-  $qwallid = $conn->quote($wallId, 'integer');
-  $query = 'UPDATE walls SET '.$name.'='.$qvalue.' WHERE wallId = '.$qwallid;
-  $res =& $conn->query($query);
-  if (PEAR::isError($res)) {
-    error_log($res->getMessage() . ', ' . $res->getDebugInfo());
-    throw new KeyedException('db-error');
-  }
-  $conn->disconnect();
-}
-
 // Returns NULL if the wall is not found
 function getWallIdFromPath($path) {
   $conn =& getDbConnection();
