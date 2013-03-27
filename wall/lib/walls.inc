@@ -231,13 +231,13 @@ class Wall {
     // (XXX We'll have to change this in future to allow setting hidden fields 
     //  even if you can't *get* them)
     if (!isset($this->$name))
-      throw new KeyedException('bad-key');
+      throw new KeyedException('unknown-field');
 
     // Reject read-only/virtual fields
     // (XXX Might be better to handle each acceptable field below when we 
     //  sanitize and if it's not recognized, throw there)
     if (in_array($name, array('id', 'passcodeLen', 'wallUrl', 'editorUrl')))
-      throw new KeyedException('bad-key');
+      throw new KeyedException('unknown-field');
 
     // Sanitize values
     switch($name) {
@@ -326,6 +326,9 @@ class Wall {
       throw new KeyedException('db-error');
     }
     $conn->disconnect();
+
+    // Reset dirty fields
+    $this->dirtyFields = array();
 
     return $changedFields;
   }

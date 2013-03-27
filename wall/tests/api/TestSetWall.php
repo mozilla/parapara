@@ -65,17 +65,81 @@ class SetWallTestCase extends WallMakerTestCase {
   }
 
   function testNotFound() {
+    $this->login();
+    $result = $this->updateWall(500, array('name' => 'ABCD'));
+    $this->assertTrue(@$result['error_key'] == 'not-found',
+                      "Found non-existent wall");
   }
 
   function testSetSomeoneElsesWall() {
+    // Create wall
+    $this->login();
+    $wall = $this->createWall('Test wall', $this->testDesignId);
+    $wallId = $wall['wallId'];
+    $this->logout();
+
+    // Login as someone else
+    $this->login('abc@abc.org');
+    $result = $this->updateWall($wallId, array('name' => 'ABCD'));
+    $this->assertEqual(@$result['error_key'], 'no-auth');
+    $this->logout();
+
+    // Tidy up
+    $this->removeWall($wallId);
   }
 
-  function testUnrecognizedParams() {
+  function testUnrecognizedParam() {
+    // Create wall
+    $this->login();
+    $wall = $this->createWall('ABC', $this->testDesignId);
+    $wallId = $wall['wallId'];
+
+    // Update mispelled param
+    $result = $this->updateWall($wallId, array('nam' => 'ABCD'));
+    $this->assertEqual(@$result['error_key'], 'unknown-field');
+
+    // Tidy up
+    $this->removeWall($wallId);
   }
 
   function testNoChange() {
+    // Create wall
+    $this->login();
+    $wall = $this->createWall('ABC', $this->testDesignId);
+    $wallId = $wall['wallId'];
+
+    // Change nothing
+    $result = $this->updateWall($wallId, array());
+    $this->assertTrue(!array_key_exists('error_key', $result),
+                      "Failed to do nothing " . @$result['error_key']);
+    $this->assertEqual(count(@$result), 0);
+
+    // Tidy up
+    $this->removeWall($wallId);
   }
 
   function testSetMultiple() {
+    // Create wall
+    $this->login();
+    $wall = $this->createWall('ABC', $this->testDesignId);
+    $wallId = $wall['wallId'];
+
+    // Update title and event description
+    $result = $this->updateWall($wallId, array('name' => 'ABCD',
+                                               'eventDescr' => 'A good event'));
+    $this->assertTrue(!array_key_exists('error_key', $result),
+                      "Failed to set wall name and description"
+                      . @$result['error_key']);
+    $this->assertEqual(@count($result), 2);
+    $this->assertEqual(@$result['name'], 'ABCD');
+    $this->assertEqual(@$result['eventDescr'], 'A good event');
+
+    // Check it actually updated the wall
+    $wall = $this->getWall($wallId);
+    $this->assertEqual(@$wall['name'], 'ABCD');
+    $this->assertEqual(@$wall['eventDescr'], 'A good event');
+
+    // Tidy up
+    $this->removeWall($wallId);
   }
 }
