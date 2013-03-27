@@ -98,6 +98,16 @@ class SetWallTestCase extends WallMakerTestCase {
     $this->assertEqual(@$result['error_key'], 'unknown-field');
   }
 
+  function testId() {
+    // It shouldn't be possible to change the wall ID 
+    $result = $this->updateWall($this->testWallId, array('wallId' => 5));
+    $this->assertEqual(@$result['error_key'], 'unknown-field');
+
+    // Variation on the theme
+    $result = $this->updateWall($this->testWallId, array('id' => 5));
+    $this->assertEqual(@$result['error_key'], 'unknown-field');
+  }
+
   function testNoChange() {
     // Change nothing
     $result = $this->updateWall($this->testWallId, array());

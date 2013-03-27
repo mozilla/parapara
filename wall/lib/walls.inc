@@ -158,7 +158,7 @@ function getCurrentWallTimeForDuration($duration) {
 }
 
 class Wall {
-  public  $id       = null;
+  private $_id       = null;
   private $metadata = null;
   private $design   = null;
   private $sessions = null;
@@ -168,7 +168,7 @@ class Wall {
   static private $hiddenFields = array('passcode');
 
   public function __construct($id, $email, $metadata) {
-    $this->id       = intval($id);
+    $this->_id      = intval($id);
     $this->email    = trim($email);
     $this->metadata = $metadata;
   }
@@ -187,6 +187,9 @@ class Wall {
 
     // Virtual fields
     switch ($name) {
+      case 'id':
+        return $this->_id;
+
       case 'wallUrl':
         return Wall::getUrlForPath($this->metadata['urlPath']);
 
@@ -211,6 +214,9 @@ class Wall {
 
     // Virtual fields
     switch ($name) {
+      case 'id':
+        return true;
+
       case 'wallUrl':
       case 'editorUrl':
         return isset($this->metadata['urlPath']);
