@@ -9,124 +9,108 @@ require_once('WallMakerTestCase.php');
 
 class SetWallTestCase extends WallMakerTestCase {
 
+  private $testWallId = null;
+
   function __construct($name = false) {
     parent::__construct($name);
   }
 
-  function testSetName() {
-    // Create wall
+  function setUp() {
+    parent::setUp();
+
+    // Create test wall
     $this->login();
     $wall = $this->createWall('ABC', $this->testDesignId);
-    $wallId = $wall['wallId'];
+    $this->testWallId = $wall['wallId'];
+  }
 
+  function tearDown() {
+    // Remove test wall
+    if ($this->testWallId) {
+      $this->removeWall($this->testWallId);
+      $this->testWallId = null;
+    }
+
+    parent::tearDown();
+  }
+
+  function testSetName() {
     // Update title
-    $result = $this->updateWall($wallId, array('name' => 'ABCD'));
+    $result = $this->updateWall($this->testWallId, array('name' => 'ABCD'));
     $this->assertTrue(!array_key_exists('error_key', $result),
                       "Failed to set wall name " . @$result['error_key']);
     $this->assertEqual(@$result['name'], 'ABCD');
 
     // Check it actually updated the wall
-    $wall = $this->getWall($wallId);
+    $wall = $this->getWall($this->testWallId);
     $this->assertEqual(@$wall['name'], 'ABCD');
 
     // Try setting the same title--nothing should be returned since nothing 
     // changed
-    $result = $this->updateWall($wallId, array('name' => 'ABCD'));
+    $result = $this->updateWall($this->testWallId, array('name' => 'ABCD'));
     $this->assertEqual(count($result), 0);
 
     // Trimming
-    $result = $this->updateWall($wallId, array('name' => " \twall name\n　"));
+    $result = $this->updateWall($this->testWallId,
+      array('name' => " \twall name\n　"));
     $this->assertEqual(@$result['name'], 'wall name');
 
     // Non-ASCII
-    $result = $this->updateWall($wallId, array('name' => 'テスト'));
+    $result = $this->updateWall($this->testWallId, array('name' => 'テスト'));
     $this->assertEqual(@$result['name'], 'テスト');
 
     // Empty title
-    $result = $this->updateWall($wallId, array('name' => ""));
+    $result = $this->updateWall($this->testWallId, array('name' => ""));
     $this->assertTrue(@$result['error_key'] == 'empty-name',
                       "Made wall name empty");
 
     // Whitespace only
-    $result = $this->updateWall($wallId, array('name' => " \t\n　"));
+    $result = $this->updateWall($this->testWallId, array('name' => " \t\n　"));
     $this->assertTrue(@$result['error_key'] == 'empty-name',
                       "Made wall name whitespace only");
 
     // Duplicate title
-    $wall2 = $this->createWall('Wall #2', $this->testDesignId);
-    $wall2Id = $wall2['wallId'];
-    $result = $this->updateWall($wallId, array('name' => "Wall #2"));
+    $duplicateWall = $this->createWall('Wall #2', $this->testDesignId);
+    $duplicateWallId = $duplicateWall['wallId'];
+    $result = $this->updateWall($this->testWallId, array('name' => "Wall #2"));
     $this->assertTrue(@$result['error_key'] == 'duplicate-name',
                       "Made duplicate wall name");
-    $this->removeWall($wall2Id);
-
-    // Tidy up
-    $this->removeWall($wallId);
+    $this->removeWall($duplicateWallId);
   }
 
   function testNotFound() {
-    $this->login();
     $result = $this->updateWall(500, array('name' => 'ABCD'));
     $this->assertTrue(@$result['error_key'] == 'not-found',
                       "Found non-existent wall");
   }
 
   function testSetSomeoneElsesWall() {
-    // Create wall
-    $this->login();
-    $wall = $this->createWall('Test wall', $this->testDesignId);
-    $wallId = $wall['wallId'];
-    $this->logout();
-
     // Login as someone else
     $this->login('abc@abc.org');
-    $result = $this->updateWall($wallId, array('name' => 'ABCD'));
+    $result = $this->updateWall($this->testWallId, array('name' => 'ABCD'));
     $this->assertEqual(@$result['error_key'], 'no-auth');
     $this->logout();
-
-    // Tidy up
-    $this->removeWall($wallId);
   }
 
   function testUnrecognizedParam() {
-    // Create wall
-    $this->login();
-    $wall = $this->createWall('ABC', $this->testDesignId);
-    $wallId = $wall['wallId'];
-
     // Update mispelled param
-    $result = $this->updateWall($wallId, array('nam' => 'ABCD'));
+    $result = $this->updateWall($this->testWallId, array('nam' => 'ABCD'));
     $this->assertEqual(@$result['error_key'], 'unknown-field');
-
-    // Tidy up
-    $this->removeWall($wallId);
   }
 
   function testNoChange() {
-    // Create wall
-    $this->login();
-    $wall = $this->createWall('ABC', $this->testDesignId);
-    $wallId = $wall['wallId'];
-
     // Change nothing
-    $result = $this->updateWall($wallId, array());
+    $result = $this->updateWall($this->testWallId, array());
     $this->assertTrue(!array_key_exists('error_key', $result),
                       "Failed to do nothing " . @$result['error_key']);
     $this->assertEqual(count(@$result), 0);
-
-    // Tidy up
-    $this->removeWall($wallId);
   }
 
   function testSetMultiple() {
-    // Create wall
-    $this->login();
-    $wall = $this->createWall('ABC', $this->testDesignId);
-    $wallId = $wall['wallId'];
-
     // Update title and event description
-    $result = $this->updateWall($wallId, array('name' => 'ABCD',
-                                               'eventDescr' => 'A good event'));
+    $result = $this->updateWall($this->testWallId,
+      array('name' => 'ABCD',
+            'eventDescr' => 'A good event'));
     $this->assertTrue(!array_key_exists('error_key', $result),
                       "Failed to set wall name and description"
                       . @$result['error_key']);
@@ -135,11 +119,8 @@ class SetWallTestCase extends WallMakerTestCase {
     $this->assertEqual(@$result['eventDescr'], 'A good event');
 
     // Check it actually updated the wall
-    $wall = $this->getWall($wallId);
+    $wall = $this->getWall($this->testWallId);
     $this->assertEqual(@$wall['name'], 'ABCD');
     $this->assertEqual(@$wall['eventDescr'], 'A good event');
-
-    // Tidy up
-    $this->removeWall($wallId);
   }
 }
