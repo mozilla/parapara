@@ -14,7 +14,7 @@ var ManageWallController =
     // Watch for changes to fields so we can update immediately
     // XXX Rewrite this
     /*
-    this.installObserver("manage-eventName");
+    this.installObserver("manage-name");
     this.installObserver("manage-eventDescr");
     this.installObserver("manage-eventLocation");
     this.installObserver("manage-duration");
@@ -164,7 +164,7 @@ var ManageWallController =
     this.wallId = wall.wallId;
 
     // Basic data
-    $("manage-eventName").value = wall.name;
+    $("manage-name").value = wall.name;
 
     // Make up links
     this.updateShortenableLink($('manage-wallUrl'), wall.wallUrl,

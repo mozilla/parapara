@@ -257,7 +257,8 @@ hr {
   margin-left: 0.3em;
   margin-right: 0.3em;
 }
-#create-eventName {
+#create-name {
+  width: 90%;
   max-width: 20em;
 }
 #screen-new .designSelection {
@@ -304,7 +305,7 @@ hr {
 /*
  * Common form formatting
  */
-.eventName, .eventLocation {
+.eventLocation {
   width: 90%;
   max-width: 20em;
 }
@@ -336,10 +337,6 @@ label.manage-title:after {
   font-weight: bold;
   content: "：";
 }
-.clickable {
-  color: orange;
-  cursor: pointer;
-}
 
 /*
  * Management screen layout
@@ -355,6 +352,19 @@ label.manage-title:after {
 }
 #wall-info .message {
   width: 80%;
+}
+
+/*
+ * Management screen wall summmary
+ */
+#manage-name {
+  font-size: 1.7em;
+  background: none;
+  border: 1px inset transparent;
+}
+#manage-name:hover, #manage-name:focus {
+  background: white;
+  border-color: lightgrey;
 }
 
 /*

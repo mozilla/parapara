@@ -99,8 +99,8 @@
     <div class="message" id="create-message" aria-hidden="true">
     </div>
     <form name="createWall" action="javascript:CreateWallController.create()">
-      <input type="text" name="eventName" required autocomplete="off"
-        maxlength="255" class="eventName" id="create-eventName"
+      <input type="text" name="name" required autocomplete="off"
+        maxlength="255" id="create-name"
         placeholder="イベントタイトル">
       <div class="designSelection"></div>
       <div class="center">
@@ -124,8 +124,7 @@
       <form name="manageWall"
         action="javascript:ManageWallController.saveCurrentTab()">
         <section id="wall-summary">
-          <h2>イベントの名前</h2>
-          <input type="text" id="manage-eventName">
+          <input type="text" id="manage-name">
           <ul>
             <li><label class="manage-title">壁URL</label><label
               id="manage-wallUrl" class="manage-value"></label></li>
