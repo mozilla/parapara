@@ -20,6 +20,11 @@ var ManageWallController =
         function (changedFields) {
           saver.showSaveSuccess(changedFields[elem.name]);
           this.messageBox.showInfo('updated-field', elem.name, 1800);
+
+          // Update the wall summary view if necessary
+          if (elem.name == 'name' || elem.name == 'designId') {
+            UserData.updateWalls();
+          }
         }.bind(this),
         function (key, detail) {
           saver.showSaveError();
