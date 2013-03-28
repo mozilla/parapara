@@ -121,8 +121,7 @@
       <img src="<?php echo $wallMakerRoot?>/img/spinner.gif" class="spinner">
     </div>
     <div id="wall-info" aria-hidden="true">
-      <form name="manageWall"
-        action="javascript:ManageWallController.saveCurrentTab()">
+      <form name="manageWall">
         <section id="wall-summary">
           <div class="autosave"><input type="text" id="manage-name"
             name="name"></div>

@@ -100,10 +100,6 @@ var ManageWallController =
     }
   },
 
-  saveCurrentTab: function() {
-    // XXX This will get called if the user presses enter in a field
-  },
-
   get form() {
     if (!this._form) {
       this._form = document.forms['manageWall'];
@@ -328,6 +324,20 @@ var ManageWallController =
   },
 };
 
+// A wrapper for a text input that tells you when the contents have changed for
+// things like auto-saving.
+//
+// Features:
+//  - It batches notifications so it won't notify on every keystroke but only
+//    after the user has stopped typing for a while
+//  - It doesn't notify about changes when the user is doing an IME composition
+//    since that's really temporary state, not something you want to save.
+//  - If the field loses focus it sends the change immediately
+//  - It tells you when editing starts (so you update the display to tell the
+//    user, "I'm waiting for you to stop typing so I can save")
+//  - It catches Enter presses and triggers a change (rather than submitting the
+//    form) which is normally what you want for the sort of application where
+//    you're saving automatically.
 function TextBoxObserver(element, onchange, onstartediting)
 {
   this.timeoutId      = null;
@@ -377,6 +387,15 @@ function TextBoxObserver(element, onchange, onstartediting)
     }
   };
 
+  this.onKeyDown = function(evt) {
+    if (evt.which == 10 || evt.which == 13) {
+      evt.preventDefault();
+      // Basically, behave the same as blur here, i.e. send the change
+      // notification immediately
+      this.onBlur(evt);
+    }
+  }
+
   // Register for events
   this.element.addEventListener('input', this.onInput.bind(this));
   this.element.addEventListener('compositionstart',
@@ -384,6 +403,7 @@ function TextBoxObserver(element, onchange, onstartediting)
   this.element.addEventListener('compositionend',
     this.onCompositionEnd.bind(this));
   this.element.addEventListener('blur', this.onBlur.bind(this));
+  this.element.addEventListener('keydown', this.onKeyDown.bind(this));
 
   this.onTimeout = function(evt) {
     this.timeoutId = null;
