@@ -92,42 +92,6 @@ var ManageWallController =
     return this._messageBox;
   },
 
-  installObserver: function(name) {
-    var element = $(name);
-    element.removeEventListener("change", this.valueChanged.bind(this), false);
-    element.addEventListener("change", this.valueChanged.bind(this), false);
-  },
-
-  valueChanged: function(e) {
-    var target = e.target;
-    var id = target.getAttribute("id");
-    id = id != null ? id : target.getAttribute("name"); //when name is used, it is from radio.
-    var name = id.substring(7);//removes "manage-"
-    var value = target.value;
-    var payload = {wallId: this.wallId, name: name, value: value};
-    var messageElement = $(id+"-message");
-    this.sendCommand(WallMaker.rootUrl + '/api/updateWall', payload,
-                     messageElement);
-  },
-
-  sendCommand: function(url, payload, messageElement) {
-    // XXX Display the error somewhere now that I've removed the message labels
-    ParaPara.postUrl(url, payload,
-       function(response) {
-          messageElement.classList.remove("error");
-          messageElement.textContent = response;
-       },
-       function(key, detail) {
-          messageElement.classList.add("error");
-          if (key) {
-            messageElement.textContent = key;
-          } else {
-            messageElement.textContent = "something error";
-          }
-       }
-     );
-  },
-
   loadSuccess: function(response, tabName) {
     // It doesn't make sense to show errors when we change wall
     this.messageBox.clear();
