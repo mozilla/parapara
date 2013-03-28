@@ -415,6 +415,7 @@ section[aria-role=tabpanel] {
   height: 16px;
   margin: 5px;
   vertical-align: bottom;
+  background-repeat: no-repeat;
 }
 #wall-info .autosave.editing:after {
   background-image: url('../img/pencil.png');
@@ -428,6 +429,11 @@ section[aria-role=tabpanel] {
 }
 #wall-info .autosave.saved:after {
   background-image: url('../img/tick.png');
+  /* Hide tick */
+  animation-duration: 0.5s;
+  animation-delay: 1.8s;
+  animation-fill-mode: forwards;
+  animation-name: hideBackground;
 }
 #wall-info .autosave.error input {
   background: rgb(255,200,200);
@@ -435,6 +441,11 @@ section[aria-role=tabpanel] {
 }
 #wall-info .autosave.error:after {
   background-image: url('../img/cross.png');
+}
+@keyframes hideBackground {
+  100% {
+    background-position: 0 16px;
+  }
 }
 
 /*
