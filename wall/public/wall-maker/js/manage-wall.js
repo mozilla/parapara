@@ -43,6 +43,10 @@ var ManageWallController =
         new TextBoxSaver(textBox, container, saveTextField);
       }
     );
+
+    // Catch submission attempts
+    this.form.addEventListener("submit",
+      function(evt) { evt.preventDefault(); });
   },
 
   clear: function() {

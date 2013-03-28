@@ -183,9 +183,9 @@
                 </div>
               </div>
               <div class="sessionButtons">
-                <button
+                <button type="button"
                   id="manage-startSession">新セッションをスタートする</button>
-                <button
+                <button type="button"
                    id="manage-closeSession">セッションを終了する</button>
               </div>
               <div class="callout">
