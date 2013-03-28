@@ -14,7 +14,10 @@ var ManageWallController =
     // Observe changes to text fields
     [ "manage-name" ].forEach(
       function(id) {
-        new ObservedTextBox($(id), function() { console.log("> changed <"); } );
+        new TextBoxObserver($(id),
+          function(elem) { console.log("changed: " + elem.value); },
+          function(elem) { console.log("start editing: " + elem.value); }
+        );
       }
     );
   },
@@ -302,20 +305,22 @@ var ManageWallController =
   },
 };
 
-function ObservedTextBox(element, onchange)
+function TextBoxObserver(element, onchange, onstartediting)
 {
-  this.timeoutId = null;
-  this.composing = false;
-  this.element   = element;
-  this.onchange  = onchange;
+  this.timeoutId      = null;
+  this.composing      = false;
+  this.firstEdit      = true;
+  this.element        = element;
+  this.onchange       = onchange;
+  this.onstartediting = onstartediting;
 
   // Store current value so we can tell when the field actually changed
   // (Especially when using an IME, the input event alone does not actually
   //  indicate a change to the field's value)
-  this.value     = element.value;
+  this.value = element.value;
 
-  // Wait 1.5s
-  this.TIMEOUT   = 1200;
+  // Wait 1.2s
+  this.TIMEOUT = 1200;
 
   // Event handlers
 
@@ -324,6 +329,7 @@ function ObservedTextBox(element, onchange)
       return;
     if (this._hasChanged()) {
       this._resetTimeout();
+      this._maybeDispatchStartEditing();
     }
   };
 
@@ -331,6 +337,7 @@ function ObservedTextBox(element, onchange)
     // Wait until the composition ends before indicating a change
     this._clearTimeout();
     this.composing = true;
+    this._maybeDispatchStartEditing();
   };
 
   this.onCompositionEnd = function(evt) {
@@ -380,9 +387,17 @@ function ObservedTextBox(element, onchange)
   this._dispatchChange = function() {
     console.assert(this.timeoutId === null,
       "Dispatching a change while there are still timeouts waiting");
-    this.onchange();
+    this.onchange(this.element);
     // Update stored value
-    this.value = element.value;
+    this.value = this.element.value;
+    this.firstEdit = true;
+  };
+
+  this._maybeDispatchStartEditing = function() {
+    if (this.firstEdit) {
+      this.onstartediting(this.element);
+    }
+    this.firstEdit = false;
   };
 }
 
