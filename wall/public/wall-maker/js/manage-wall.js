@@ -157,6 +157,9 @@ var ManageWallController =
     // Basic data
     $("manage-name").value = wall.name;
 
+    // Set thumbnail
+    this.updateThumbnail(wall.thumbnail);
+
     // Make up links
     this.updateShortenableLink($('manage-wallUrl'), wall.wallUrl,
                                wall.wallUrlShort);
@@ -207,6 +210,22 @@ var ManageWallController =
 
     // Collaboration
     // Characters
+  },
+
+  updateThumbnail: function(url) {
+    var container = $('wall-thumbnail');
+
+    // Empty container
+    while (container.hasChildNodes())
+      container.removeChild(container.lastChild);
+
+    if (!url)
+      return;
+
+    // Create image
+    var img = document.createElement('img');
+    img.setAttribute("src", url);
+    container.appendChild(img);
   },
 
   updateShortenableLink: function(linkContainer, url, shortUrl) {

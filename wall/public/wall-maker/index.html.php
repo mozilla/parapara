@@ -123,14 +123,17 @@
     <div id="wall-info" aria-hidden="true">
       <form name="manageWall">
         <section id="wall-summary">
-          <div class="autosave"><input type="text" id="manage-name"
-            name="name"></div>
-          <ul>
-            <li><label class="manage-title">壁URL</label><label
-              id="manage-wallUrl" class="manage-value"></label></li>
-            <li><label class="manage-title">エディタURL</label><label
-              id="manage-editorUrl" class="manage-value"></label></li>
-          </ul>
+          <div id="wall-thumbnail"></div>
+          <div>
+            <div class="autosave"><input type="text" id="manage-name"
+              name="name"></div>
+            <ul>
+              <li><label class="manage-title">壁URL</label><label
+                id="manage-wallUrl" class="manage-value"></label></li>
+              <li><label class="manage-title">エディタURL</label><label
+                id="manage-editorUrl" class="manage-value"></label></li>
+            </ul>
+          </div>
         </section>
         <hr>
         <div class="message" aria-hidden="true">

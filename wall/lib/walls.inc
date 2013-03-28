@@ -145,14 +145,17 @@ function getCurrentWallTimeForDuration($duration) {
 }
 
 class Wall {
-  private $_id       = null;
+  private $_id      = null;
+  private $_design  = null;
   private $metadata = null;
-  private $design   = null;
   private $sessions = null;
   private $email    = null;
   private $dirtyFields = array();
 
-  static private $hiddenFields = array('passcode');
+  static private $hiddenFields  = array('passcode');
+  static private $virtualFields = array('id', 'passcodeLen',
+                                        'wallUrl', 'editorUrl',
+                                        'design', 'thumbnail');
 
   public function __construct($id, $email, $metadata) {
     $this->_id      = intval($id);
@@ -185,6 +188,13 @@ class Wall {
 
       case 'passcodeLen':
         return strlen($this->metadata['passcode']);
+
+      case 'design':
+        return $this->getDesign();
+
+      case 'thumbnail':
+        $design = $this->getDesign();
+        return $design ? $design->thumbnail : null;
     }
 
     return null;
@@ -210,6 +220,13 @@ class Wall {
 
       case 'passcodeLen':
         return isset($this->metadata['passcode']);
+
+      case 'design':
+        return $this->getDesign() !== null;
+
+      case 'thumbnail':
+        $design = $this->getDesign();
+        return $design ? $design->thumbnail !== null : false;
     }
 
     return false;
@@ -229,7 +246,7 @@ class Wall {
     // Reject read-only/virtual fields
     // (XXX Might be better to handle each acceptable field below when we 
     //  sanitize and if it's not recognized, throw there)
-    if (in_array($name, array('id', 'passcodeLen', 'wallUrl', 'editorUrl')))
+    if (in_array($name, self::$virtualFields))
       throw new KeyedException('unknown-field');
 
     // Sanitize values
@@ -339,6 +356,7 @@ class Wall {
                   'duration', 'defaultDuration',
                   'ownerEmail', 'passcodeLen',
                   'designId',
+                  'thumbnail',
                   'status', 'latestSession');
 
     $result = array();
@@ -492,6 +510,13 @@ class Wall {
     if (!isset($this->email) || $this->ownerEmail === null)
       return false;
     return $this->email == $this->ownerEmail;
+  }
+
+  private function getDesign() {
+    if ($this->_design === null && $this->designId) {
+      $this->_design = DesignGallery::getById($this->designId);
+    }
+    return $this->_design;
   }
 }
 

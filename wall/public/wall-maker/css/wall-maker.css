@@ -353,6 +353,10 @@ label.manage-title:after {
 #wall-info .message {
   width: 80%;
 }
+#wall-summary > div {
+  display: inline-block;
+  vertical-align: top;
+}
 
 /*
  * Management screen wall summmary

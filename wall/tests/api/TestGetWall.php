@@ -70,6 +70,10 @@ class GetWallTestCase extends WallMakerTestCase {
                       "Unexpected shortened editor URL format: "
                       . $editorUrlShort);
 
+    // Check thumbnail
+    $this->assertEqual(@substr($wall['thumbnail'], -strlen("test.jpg")),
+                       "test.jpg");
+
     // Tidy up by removing the wall
     $this->removeWall($wallId);
   }
