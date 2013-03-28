@@ -11,17 +11,12 @@ var ManageWallController =
     $('manage-closeSession').addEventListener('click',
       this.closeSession.bind(this));
 
-    // Watch for changes to fields so we can update immediately
-    // XXX Rewrite this
-    /*
-    this.installObserver("manage-name");
-    this.installObserver("manage-eventDescr");
-    this.installObserver("manage-eventLocation");
-    this.installObserver("manage-duration");
-    this.installObserver("manage-passcode");
-    this.installObserver("manage-galleryDisplay");
-    this.installObserver("manage-designId");
-    */
+    // Observe changes to text fields
+    [ "manage-name" ].forEach(
+      function(id) {
+        new ObservedTextBox($(id), function() { console.log("> changed <"); } );
+      }
+    );
   },
 
   clear: function() {
@@ -342,6 +337,96 @@ var ManageWallController =
     document.querySelector(".wallStatus").classList.remove("updating");
   },
 };
+
+function ObservedTextBox(element, onchange)
+{
+  this.timeoutId = null;
+  this.composing = false;
+  this.element   = element;
+  this.onchange  = onchange;
+
+  // Store current value so we can tell when the field actually changed
+  // (Especially when using an IME, the input event alone does not actually
+  //  indicate a change to the field's value)
+  this.value     = element.value;
+
+  // Wait 1.5s
+  this.TIMEOUT   = 1200;
+
+  // Event handlers
+
+  this.onInput = function(evt) {
+    if (this.composing)
+      return;
+    if (this._hasChanged()) {
+      this._resetTimeout();
+    }
+  };
+
+  this.onCompositionStart = function(evt) {
+    // Wait until the composition ends before indicating a change
+    this._clearTimeout();
+    this.composing = true;
+  };
+
+  this.onCompositionEnd = function(evt) {
+    this.composing = false;
+    if (this._hasChanged()) {
+      this._resetTimeout();
+    }
+  };
+
+  this.onBlur = function(evt) {
+    this._clearTimeout();
+    if (this._hasChanged()) {
+      this._dispatchChange();
+    }
+  };
+
+  // Register for events
+  this.element.addEventListener('input', this.onInput.bind(this));
+  this.element.addEventListener('compositionstart',
+    this.onCompositionStart.bind(this));
+  this.element.addEventListener('compositionend',
+    this.onCompositionEnd.bind(this));
+  this.element.addEventListener('blur', this.onBlur.bind(this));
+
+  this.onTimeout = function(evt) {
+    this.timeoutId = null;
+    this._dispatchChange();
+  };
+
+  this._hasChanged = function() {
+    return this.value !== element.value;
+  };
+
+  this._resetTimeout = function() {
+    this._clearTimeout();
+    this.timeoutId =
+      window.setTimeout(this.onTimeout.bind(this), this.TIMEOUT);
+  };
+
+  this._clearTimeout = function() {
+    if (this.timeoutId) {
+      window.clearTimeout(this.timeoutId);
+    }
+    this.timeoutId = null;
+  };
+
+  this._dispatchChange = function() {
+    console.assert(this.timeoutId === null,
+      "Dispatching a change while there are still timeouts waiting");
+    this.onchange();
+    // Update stored value
+    this.value = element.value;
+  };
+}
+
+// Changed handler
+//   Send request
+// On success
+//   Store value passed and compare value passed with current value
+//     If they are different AND return value and current value differ, set it
 
 window.addEventListener('load',
   ManageWallController.init.bind(ManageWallController), false);
