@@ -14,10 +14,13 @@ var ManageWallController =
     // Observe changes to text fields
     [ "manage-name" ].forEach(
       function(id) {
-        new TextBoxObserver($(id),
-          function(elem) { console.log("changed: " + elem.value); },
-          function(elem) { console.log("start editing: " + elem.value); }
-        );
+        new TextBoxSaver($(id), $(id),
+          function(elem, saver) {
+            console.log("should save now");
+            console.log(elem);
+            console.log(saver);
+          }
+        )
       }
     );
   },
@@ -401,11 +404,76 @@ function TextBoxObserver(element, onchange, onstartediting)
   };
 }
 
-// Changed handler
-//   Send request
-// On success
-//   Store value passed and compare value passed with current value
-//     If they are different AND return value and current value differ, set it
+function TextBoxSaver(element, container, saveCallback) {
+  this.element      = element;
+  this.container    = container;
+  this.saveCallback = saveCallback;
+  this.savedValue   = null;
+
+  this.onchange = function(elem) {
+    // Update container styles
+    this.container.classList.remove("error");
+    this.container.classList.remove("saved");
+    this.container.classList.remove("editing");
+    this.container.classList.add("sending");
+
+    // Store saved value so we know if we can safely update it later
+    this.savedValue = this.element.value;
+
+    // Call
+    this.saveCallback(this.element, this);
+  };
+
+  this.onstartediting = function(elem) {
+    // Update container styles
+    this.container.classList.remove("error");
+    this.container.classList.remove("saved");
+    this.container.classList.remove("sending");
+    this.container.classList.add("editing");
+
+    // Clear the saved value
+    // (This will prevent us from overwriting the value, if, for example we're
+    // in the middle of an IME composition)
+    this.savedValue = null;
+  };
+
+  this.showSaveSuccess = function(setValue) {
+    // Sometimes the setValue will be different to the value we passed to
+    // saveCallback. This can happen, for example, if the server trimmed the
+    // string and passed back the trimmed result.
+    //
+    // Here we overwrite the field value if the set values differs from the one
+    // we saved but only if it hasn't changed in the meantime.
+    if (setValue !== this.savedValue &&
+        this.savedValue === this.element.value) {
+      this.element.value = setValue;
+    }
+    this.savedValue = null;
+
+    // Update container styles (but only if we haven't already started editing
+    // again)
+    if (!this.container.classList.contains("editing")) {
+      this.container.classList.remove("error");
+      this.container.classList.remove("sending");
+      this.container.classList.add("saved");
+    }
+  };
+
+  this.showSaveError = function() {
+    // Update container style (but only if we haven't already started editing
+    // again)
+    if (!this.container.classList.contains("editing")) {
+      this.container.classList.remove("saved");
+      this.container.classList.remove("sending");
+      this.container.classList.add("error");
+    }
+  };
+
+  // Observe the text field
+  new TextBoxObserver(this.element,
+                      this.onchange.bind(this),
+                      this.onstartediting.bind(this));
+}
 
 window.addEventListener('load',
   ManageWallController.init.bind(ManageWallController), false);
