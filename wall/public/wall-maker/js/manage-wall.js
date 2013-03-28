@@ -19,7 +19,7 @@ var ManageWallController =
         payload,
         function (changedFields) {
           saver.showSaveSuccess(changedFields[elem.name]);
-          this.messageBox.showInfo('updated-field', elem.name, 1500);
+          this.messageBox.showInfo('updated-field', elem.name, 1800);
         }.bind(this),
         function (key, detail) {
           saver.showSaveError();

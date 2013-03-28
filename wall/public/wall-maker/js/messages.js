@@ -76,6 +76,9 @@ function MessageBox(screen)
       case 'created-wall':
         return "Created wall '" + args + "'";
 
+      case 'updated-field':
+        return "Updated " + this._translateField(args);
+
       case 'db-error':
       case 'design-not-found':
       case 'server-fail':
@@ -83,6 +86,16 @@ function MessageBox(screen)
       case 'send-fail':
       default:
         return "Something went wrong";
+    }
+  };
+
+  this._translateField = function(fieldName) {
+    switch(fieldName) {
+      case 'name':
+        return "wall name";
+
+      default:
+        return "wall";
     }
   };
 
