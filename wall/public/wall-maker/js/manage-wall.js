@@ -76,6 +76,9 @@ var ManageWallController =
   selectTab: function(tabName) {
     var selectedTabPage = null;
 
+    // Set default tab is none is provided
+    tabName = tabName || "event";
+
     // Update tabs
     var tabs = document.querySelectorAll("a[aria-role=tab]");
     for (var j = 0; j < tabs.length; j++) {
@@ -122,9 +125,7 @@ var ManageWallController =
     this.updateWallInfo(response);
 
     // Switch to appropriate tab
-    if (tabName) {
-      this.selectTab(tabName);
-    }
+    this.selectTab(tabName);
 
     // Hide loading and show page
     $("wall-loading").setAttribute("aria-hidden", "true");
