@@ -11,7 +11,22 @@ var ManageWallController =
     $('manage-closeSession').addEventListener('click',
       this.closeSession.bind(this));
 
-    // Observe changes to text fields
+    // Automatically save changes to text fields
+    var saveTextField = function(elem, saver) {
+      var payload = {};
+      payload[elem.name] = elem.value;
+      ParaPara.putUrl('/api/walls/' + this.wallId,
+        payload,
+        function (changedFields) {
+          saver.showSaveSuccess(changedFields[elem.name]);
+          this.messageBox.showInfo('updated-field', elem.name, 1500);
+        }.bind(this),
+        function (key, detail) {
+          saver.showSaveError();
+          this.messageBox.showError(key, detail);
+        }.bind(this)
+      );
+    }.bind(this);
     [ "manage-name" ].forEach(
       function(id) {
         var textBox = $(id);
@@ -24,13 +39,8 @@ var ManageWallController =
         if (!container)
           container = textBox;
 
-        new TextBoxSaver(textBox, container,
-          function(elem, saver) {
-            console.log("should save now");
-            console.log(elem);
-            console.log(saver);
-          }
-        )
+        // Create the saver wrapper
+        new TextBoxSaver(textBox, container, saveTextField);
       }
     );
   },
@@ -454,7 +464,8 @@ function TextBoxSaver(element, container, saveCallback) {
     //
     // Here we overwrite the field value if the set values differs from the one
     // we saved but only if it hasn't changed in the meantime.
-    if (setValue !== this.savedValue &&
+    if (typeof setValue !== "undefined" &&
+        setValue !== this.savedValue &&
         this.savedValue === this.element.value) {
       this.element.value = setValue;
     }

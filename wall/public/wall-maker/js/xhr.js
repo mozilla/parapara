@@ -36,6 +36,18 @@ ParaPara.postUrl = function(url, payload,
                          maxTries, timeout);
 }
 
+ParaPara.putUrl = function(url, payload, successCallback, failureCallback,
+                           maxTries, timeout) {
+  if (typeof maxTries === "undefined")
+    maxTries = 1;
+  if (typeof timeout === "undefined")
+    timeout = ParaPara.XHR_DEFAULT_TIMEOUT;
+
+  new ParaPara.XHRequest("PUT", url, payload,
+                         successCallback, failureCallback,
+                         maxTries, timeout);
+}
+
 ParaPara.XHRequest = function(method, url, payload,
                               successCallback, failureCallback,
                               maxTries, timeout) {

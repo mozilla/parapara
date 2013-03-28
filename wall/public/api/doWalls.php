@@ -79,6 +79,8 @@ switch ($_SERVER['REQUEST_METHOD']) {
       bailWithError('not-found');
 
     // Update fields
+    if (!is_array($json))
+      bailWithError('bad-request');
     foreach ($json as $key => $value) {
       $wall->$key = $value;
     }
