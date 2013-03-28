@@ -14,7 +14,17 @@ var ManageWallController =
     // Observe changes to text fields
     [ "manage-name" ].forEach(
       function(id) {
-        new TextBoxSaver($(id), $(id),
+        var textBox = $(id);
+
+        // Find container node
+        var container = textBox;
+        while (container && container.classList &&
+               !container.classList.contains("autosave"))
+          container = container.parentNode;
+        if (!container)
+          container = textBox;
+
+        new TextBoxSaver(textBox, container,
           function(elem, saver) {
             console.log("should save now");
             console.log(elem);

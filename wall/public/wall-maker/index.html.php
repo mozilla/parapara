@@ -124,7 +124,7 @@
       <form name="manageWall"
         action="javascript:ManageWallController.saveCurrentTab()">
         <section id="wall-summary">
-          <input type="text" id="manage-name">
+          <div class="autosave"><input type="text" id="manage-name"></div>
           <ul>
             <li><label class="manage-title">壁URL</label><label
               id="manage-wallUrl" class="manage-value"></label></li>

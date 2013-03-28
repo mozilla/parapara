@@ -405,6 +405,41 @@ section[aria-role=tabpanel] {
   min-height: 16em; /* Match height of vertical tab stack */
 }
 
+/*
+ * Auto save style
+ */
+#wall-info .autosave:after {
+  content: " ";
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin: 5px;
+  vertical-align: bottom;
+}
+#wall-info .autosave.editing:after {
+  background-image: url('../img/pencil.png');
+}
+#wall-info .autosave.sending input {
+  background: white;
+  border-color: lightgrey;
+}
+#wall-info .autosave.sending:after {
+  background-image: url('../img/sync.gif');
+}
+#wall-info .autosave.saved:after {
+  background-image: url('../img/tick.png');
+}
+#wall-info .autosave.error input {
+  background: rgb(255,200,200);
+  border-color: lightgrey;
+}
+#wall-info .autosave.error:after {
+  background-image: url('../img/cross.png');
+}
+
+/*
+ * Session management screen
+ */
 #manage-running button {
   margin: 0.5em 0.2em;
 }
