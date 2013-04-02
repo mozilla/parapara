@@ -372,14 +372,23 @@ hr {
   border: 1px solid #dd6;
   margin-bottom: 4px;
 }
+.urlList .highlighted-url input {
+  font-size: 1em;
+  padding: 3px 5px;
+}
 .urlList button {
-  margin: 0 0.3em;
-  padding: 0;
+  padding: 4px 0.4em;
+  margin: 0 0.1em;
+  width: auto;
+  min-width: 3em;
+  font-size: smaller;
 }
 .urlList .icon {
-  background: none;
-  background-repeat: no-repeat;
+  margin: 0 0.3em;
+  padding: 0;
+  background: none no-repeat;
   width: 24px;
+  min-width: initial;
   height: 24px;
   text-indent: -9999em;
   cursor: pointer;

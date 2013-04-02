@@ -5,12 +5,6 @@
 var ManageWallController =
 {
   init: function() {
-    // Session buttons
-    $('manage-startSession').addEventListener('click',
-      this.startSession.bind(this));
-    $('manage-closeSession').addEventListener('click',
-      this.closeSession.bind(this));
-
     // Automatically save changes to text fields
     var saveTextField = function(elem, saver) {
       var payload = {};
@@ -48,6 +42,18 @@ var ManageWallController =
         new TextBoxSaver(textBox, container, saveTextField);
       }
     );
+
+    // URL editing
+    $('editWallUrl').addEventListener('click',
+      this.showEditUrlForm.bind(this));
+    $('cancelSaveWallUrl').addEventListener('click',
+      this.hideEditUrlForm.bind(this));
+
+    // Session buttons
+    $('manage-startSession').addEventListener('click',
+      this.startSession.bind(this));
+    $('manage-closeSession').addEventListener('click',
+      this.closeSession.bind(this));
 
     // Catch submission attempts
     this.form.addEventListener("submit",
@@ -273,6 +279,35 @@ var ManageWallController =
         break;
     }
     Navigation.showErrorPage(msg);
+  },
+
+  /*
+   * URL editing
+   */
+  showEditUrlForm: function() {
+    // Show form
+    var wallUrl = $('wallUrl');
+    wallUrl.setAttribute('aria-hidden', 'true');
+    wallUrl.nextElementSibling.removeAttribute('aria-hidden');
+
+    // Show controls
+    $('wallUrlViewControls').setAttribute('aria-hidden', 'true');
+    $('wallUrlSaveControls').removeAttribute('aria-hidden');
+
+    // Focus control
+    $('wallPath').focus();
+    $('wallPath').select();
+  },
+
+  hideEditUrlForm: function() {
+    // Show form
+    var wallUrl = $('wallUrl');
+    wallUrl.removeAttribute('aria-hidden');
+    wallUrl.nextElementSibling.setAttribute('aria-hidden', 'true');
+
+    // Show controls
+    $('wallUrlViewControls').removeAttribute('aria-hidden');
+    $('wallUrlSaveControls').setAttribute('aria-hidden', 'true');
   },
 
   /*
