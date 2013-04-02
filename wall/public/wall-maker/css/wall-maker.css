@@ -400,6 +400,43 @@ hr {
 #shortEditorUrlBlock {
   display: inline-block;
 }
+@supports (display: flex) {
+  #wall-summary {
+    display: flex;
+    align-items: flex-start;
+  }
+  #wall-summary > * {
+    flex: auto;
+  }
+  #wall-thumbnail {
+    flex: none;
+  }
+  .urlList li {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .urlList li label {
+    padding-top: 8px;
+    min-width: auto;
+    flex: 0 0 4.5em;
+  }
+  .urlList li .urlDetails {
+    flex: auto;
+  }
+  @media (max-width: 550px) {
+    #wall-summary {
+      flex-direction: column;
+    }
+    .urlList li {
+      flex-direction: column;
+    }
+    .urlList li label {
+      text-align: left;
+      flex-basis: 1.5em;
+      margin-top: 0.5em;
+    }
+  }
+}
 
 /*
  * Tab pages
