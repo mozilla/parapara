@@ -116,6 +116,11 @@ abstract class ParaparaTestCase extends WebTestCase {
     return self::$unitTestCase->assertNotEqual($first, $second, $message);
   }
 
+  public function assertPattern($pattern, $subject, $message = '%s') {
+    self::$unitTestCase->reporter = $this->reporter;
+    return self::$unitTestCase->assertPattern($pattern, $subject, $message);
+  }
+
   public function getConnection() {
     return self::$conn;
   }

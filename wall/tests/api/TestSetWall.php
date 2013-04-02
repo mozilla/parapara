@@ -83,6 +83,81 @@ class SetWallTestCase extends WallMakerTestCase {
     $this->removeWall($duplicateWallId);
   }
 
+  function testSetUrlPath() {
+    // Update url path
+    $result = $this->updateWall($this->testWallId, array('urlPath' => 'abc-d'));
+    $this->assertTrue(!array_key_exists('error_key', $result),
+                      "Failed to set wall url " . @$result['error_key']);
+    $this->assertPattern("/\/abc-d$/", @$result['wallUrl']);
+    $this->assertPattern("/\/abc-d$/", @$result['editorUrl']);
+
+    // Not really sure how best to test the short URLs short of making a mock 
+    // shortener service
+
+    // Check it was actually set
+    $wall = $this->getWall($this->testWallId);
+    $this->assertPattern("/\/abc-d$/", @$wall['wallUrl']);
+    $this->assertPattern("/\/abc-d$/", @$wall['editorUrl']);
+
+    // Attempt to set wallUrl directly
+    $result = $this->updateWall($this->testWallId, array('wallUrl' => 'abc-d'));
+    $this->assertEqual(@$result['error_key'], 'readonly-field');
+
+    // Set editorUrl
+    $result = $this->updateWall($this->testWallId,
+      array('editorUrl' => 'abc-d'));
+    $this->assertEqual(@$result['error_key'], 'readonly-field');
+
+    // Set wallUrlShort
+    $result = $this->updateWall($this->testWallId,
+      array('wallUrlShort' => 'abc-d'));
+    $this->assertEqual(@$result['error_key'], 'readonly-field');
+
+    // Set editorUrlShort
+    $result = $this->updateWall($this->testWallId,
+      array('editorUrlShort' => 'abc-d'));
+    $this->assertEqual(@$result['error_key'], 'readonly-field');
+
+    // Set same
+    $result = $this->updateWall($this->testWallId, array('urlPath' => 'abc-d'));
+    $this->assertEqual(count($result), 0);
+
+    // Non-ASCII
+    $result = $this->updateWall($this->testWallId,
+      array('urlPath' => 'テスト'));
+    $this->assertPattern("/\/" . rawurlencode("テスト") . "$/",
+      @$result['wallUrl']);
+
+    // Bad URL -- slashes
+    $result = $this->updateWall($this->testWallId, array('urlPath' => 'ab/cd'));
+    $this->assertPattern("/\/ab-cd$/", @$result['wallUrl']);
+
+    // Bad URL -- dots
+    $result = $this->updateWall($this->testWallId,
+       array('urlPath' => '../abcd'));
+    $this->assertPattern("/\/---abcd$/", @$result['wallUrl']);
+
+    // Empty URL
+    $result = $this->updateWall($this->testWallId, array('urlPath' => ''));
+    $this->assertEqual(@$result['error_key'], 'bad-path');
+
+    // Whitespace only
+    $result = $this->updateWall($this->testWallId, array('urlPath' => " \t"));
+    $this->assertEqual(@$result['error_key'], 'bad-path');
+
+    // Wide whitespace too
+    $result = $this->updateWall($this->testWallId, array('urlPath' => '　'));
+    $this->assertEqual(@$result['error_key'], 'bad-path');
+
+    // Duplicate URL
+    $duplicateWall = $this->createWall('Wall 2', $this->testDesignId);
+    $duplicateWallId = $duplicateWall['wallId'];
+    $result = $this->updateWall($this->testWallId,
+      array('urlPath' => "wall-2"));
+    $this->assertEqual(@$result['error_key'], 'duplicate-path');
+    $this->removeWall($duplicateWallId);
+  }
+
   function testNotFound() {
     $result = $this->updateWall(500, array('name' => 'ABCD'));
     $this->assertTrue(@$result['error_key'] == 'not-found',
@@ -110,7 +185,7 @@ class SetWallTestCase extends WallMakerTestCase {
 
     // Variation on the theme
     $result = $this->updateWall($this->testWallId, array('id' => 5));
-    $this->assertEqual(@$result['error_key'], 'unknown-field');
+    $this->assertEqual(@$result['error_key'], 'readonly-field');
   }
 
   function testNoChange() {

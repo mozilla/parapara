@@ -152,10 +152,11 @@ class Wall {
   private $email    = null;
   private $dirtyFields = array();
 
-  static private $hiddenFields  = array('passcode');
-  static private $virtualFields = array('id', 'passcodeLen',
-                                        'wallUrl', 'editorUrl',
-                                        'design', 'thumbnail');
+  static private $hiddenFields   = array('passcode');
+  static private $virtualFields  = array('id', 'passcodeLen',
+                                         'wallUrl', 'editorUrl',
+                                         'design', 'thumbnail');
+  static private $readOnlyFields = array('wallUrlShort', 'editorUrlShort');
 
   public function __construct($id, $email, $metadata) {
     $this->_id      = intval($id);
@@ -247,7 +248,10 @@ class Wall {
     // (XXX Might be better to handle each acceptable field below when we 
     //  sanitize and if it's not recognized, throw there)
     if (in_array($name, self::$virtualFields))
-      throw new KeyedException('unknown-field');
+      throw new KeyedException('readonly-field');
+
+    if (in_array($name, self::$readOnlyFields))
+      throw new KeyedException('readonly-field');
 
     // Sanitize values
     switch($name) {
@@ -258,6 +262,15 @@ class Wall {
         // the name being a duplicate.
         if ($value !== $this->name) {
           Wall::validateWallName($value);
+        }
+        break;
+
+      case 'urlPath':
+        $value = Wall::sanitizePath($value);
+        // As with the name, skip the check if the value is identical to the 
+        // current
+        if ($value !== $this->urlPath) {
+          Wall::validatePath($value);
         }
         break;
     }
@@ -273,6 +286,19 @@ class Wall {
       // Mark field as dirty
       if (!in_array($name, $this->dirtyFields))
         array_push($this->dirtyFields, $name);
+    }
+
+    // Special handling for shortened URLs
+    if ($name === 'urlPath') {
+      list($wallUrlShort, $editorUrlShort) =
+        Wall::getShortenedUrlsForPath($value);
+      foreach(array('wallUrlShort', 'editorUrlShort') as $name) {
+        if ($$name !== $this->metadata[$name]) {
+          $this->metadata[$name] = $$name;
+          if (!in_array($name, $this->dirtyFields))
+            array_push($this->dirtyFields, $name);
+        }
+      }
     }
   }
 
@@ -294,7 +320,9 @@ class Wall {
     $assignments = array();
     foreach ($this->dirtyFields as $name) {
       // Determine the field name
-      $mappedFields = array('name' => 'eventName');
+      $mappedFields = array('name' => 'eventName',
+                            'wallUrlShort' => 'shortUrl',
+                            'editorUrlShort' => 'editorShortUrl');
       $fieldName = array_key_exists($name, $mappedFields)
                  ? $mappedFields[$name]
                  : $name;
@@ -322,8 +350,19 @@ class Wall {
         $conn->quoteIdentifier($fieldName) . ' = '
         . $conn->quote($this->$name, $type));
 
+      // Assign changed fields (including virtual fields where the dependent 
+      // field has changed)
       // (XXX Make sure we don't return hidden fields)
-      $changedFields[$name] = $this->$name;
+      switch ($name) {
+        case 'urlPath':
+          $changedFields['wallUrl'] = $this->wallUrl;
+          $changedFields['editorUrl'] = $this->editorUrl;
+          break;
+
+        default:
+          $changedFields[$name] = $this->$name;
+          break;
+      }
     }
 
     // Run query
@@ -455,16 +494,8 @@ class Wall {
   }
 
   public static function getPathForName($name) {
-    // Strip leading/trailing space, and
-    // convert fullwidth forms to halfwidth
-    $path = mb_convert_kana(wtrim($name), "as", "utf-8");
-
-    // Make lowercase, and
-    // convert whitespace to -
-    $path = strtr(strtolower($path), " \t", '--');
-
-    // URL encode
-    $path = rawurlencode($path);
+    // Sanitize
+    $path = Wall::sanitizePath($name);
 
     // Check for duplicates
     // If we have a clash, just generate a random ID and use that--the user can 
@@ -476,12 +507,27 @@ class Wall {
   }
 
   public static function getUrlForPath($path) {
-    return getCurrentServer() . '/wall/' . $path;
+    return getCurrentServer() . '/wall/' . rawurlencode($path);
   }
 
   public static function getEditorUrlForPath($path) {
     global $config;
-    return $config['editor']['url'] . $path;
+    return $config['editor']['url'] . rawurlencode($path);
+  }
+
+  // Returns the shortened URLs for a given path or NULL if no shortening 
+  // service is available
+  public static function getShortenedUrlsForPath($path) {
+    $wallUrl   = Wall::getUrlForPath($path);
+    $editorUrl = Wall::getEditorUrlForPath($path);
+
+    $wallUrlShort = shortenUrl($wallUrl);
+    $wallUrlShort = $wallUrlShort == $wallUrl ? NULL : $wallUrlShort;
+
+    $editorUrlShort = shortenUrl($editorUrl);
+    $editorUrlShort = $editorUrlShort == $editorUrl ? NULL : $editorUrlShort;
+
+    return array($wallUrlShort, $editorUrlShort);
   }
 
   public static function validateWallName($name) {
@@ -497,6 +543,32 @@ class Wall {
     if (!Walls::isNameUnique($name)) {
       error_log("Wall with name '$name' already exists.");
       throw new KeyedException('duplicate-name');
+    }
+  }
+
+  public static function sanitizePath($path) {
+    $path = mb_convert_kana(wtrim($path), "as", "utf-8");
+
+    // Make lowercase, and
+    // convert whitespace and URL-like characters to -
+    $path = strtr(strtolower($path), " \t/:.", '-----');
+
+    return $path;
+  }
+
+  public static function validatePath($path) {
+    // Check the path has been sanitized
+    if ($path !== self::sanitizePath($path))
+      throw new KeyedException('bad-path');
+
+    // Check the path exists
+    if (!strlen($path))
+      throw new KeyedException('bad-path');
+
+    // Check it is unique
+    if (!Walls::isPathUnique($path)) {
+      error_log("Wall with path '$path' already exists.");
+      throw new KeyedException('duplicate-path');
     }
   }
 
@@ -552,12 +624,8 @@ class Walls {
     $editorUrl = Wall::getEditorUrlForPath($path);
 
     // Create shortened versions
-    $shortUrl = shortenUrl($wallUrl);
-    if ($shortUrl == $wallUrl)
-      $shortUrl = NULL;
-    $editorShortUrl = shortenUrl($editorUrl);
-    if ($editorShortUrl == $editorUrl)
-      $editorShortUrl = NULL;
+    list($shortUrl, $editorShortUrl) =
+      Wall::getShortenedUrlsForPath($path);
 
     // Store in database
     $date = gmdate('Y-m-d H:i:s');
@@ -634,13 +702,15 @@ class Walls {
     $hasAccess = $email == $row['owneremail'];
 
     // Public information
-    $metadata["name"]          = $row['eventname'];
-    $metadata["eventDescr"]    = $row['eventdescr'];
-    $metadata["eventLocation"] = $row['eventlocation'];
-    $metadata["eventType"]     = $row['eventtype'];
-    $metadata["eventFinish"]   = $row['eventfinish'];
-    $metadata["designId"]      = toIntOrNull($row['designid']);
-    $metadata["urlPath"]       = $row['urlpath'];
+    $metadata["name"]           = $row['eventname'];
+    $metadata["eventDescr"]     = $row['eventdescr'];
+    $metadata["eventLocation"]  = $row['eventlocation'];
+    $metadata["eventType"]      = $row['eventtype'];
+    $metadata["eventFinish"]    = $row['eventfinish'];
+    $metadata["designId"]       = toIntOrNull($row['designid']);
+    $metadata["urlPath"]        = $row['urlpath'];
+    $metadata["wallUrlShort"]   = $row['shorturl'];
+    $metadata["editorUrlShort"] = $row['editorshorturl'];
 
     // Privileged information
     if ($hasAccess) {
