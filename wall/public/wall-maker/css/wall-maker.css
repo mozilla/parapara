@@ -47,6 +47,15 @@ h2 {
 }
 
 /*
+ * Text boxes
+ */
+input[type=text], input[type=password], textarea {
+  font-size: 1.5em;
+  font-family: sans-serif;
+  padding: 6px;
+}
+
+/*
  * Buttons
  */
 a.button, button {
@@ -303,42 +312,6 @@ hr {
 }
 
 /*
- * Common form formatting
- */
-.eventLocation {
-  width: 90%;
-  max-width: 20em;
-}
-.eventDescr {
-  width: 90%;
-  height: 4.5em;
-}
-form dt {
-  font-weight: bold;
-  margin: 20px 2px 8px;
-}
-form dd {
-  margin-left: 0;
-}
-input[type=text], input[type=password], textarea {
-  font-size: 1.5em;
-  font-family: sans-serif;
-  padding: 6px;
-}
-label.optional:after {
-  content: " (任意)";
-  color: grey;
-  font-size: smaller;
-}
-label.manage-title {
-  font-weight: bold;
-}
-label.manage-title:after {
-  font-weight: bold;
-  content: "：";
-}
-
-/*
  * Management screen layout
  */
 #wall-details, #wall-summary {
@@ -356,6 +329,11 @@ label.manage-title:after {
 #wall-summary > div {
   display: inline-block;
   vertical-align: top;
+  padding: 0 0.2em;
+}
+#wall-thumbnail > img {
+  border-radius: 15px;
+  border: 1px solid black;
 }
 
 /*
@@ -363,12 +341,64 @@ label.manage-title:after {
  */
 #manage-name {
   font-size: 1.7em;
+  font-weight: bold;
+  color: #362D10;
   background: none;
   border: 1px inset transparent;
 }
 #manage-name:hover, #manage-name:focus {
   background: white;
   border-color: lightgrey;
+}
+.urlList {
+  margin: 0.25em 0;
+  padding: 0 0.5em;
+}
+.urlList li {
+  list-style-type: none;
+  min-height: 1.2em;
+}
+.urlList label {
+  min-width: 4.5em;
+  display: inline-block;
+  text-align: right;
+  margin-right: 0.5em;
+}
+.urlList .highlighted-url {
+  display: inline-block;
+  background: lemonchiffon;
+  padding: 8px 11px;
+  border-radius: 5px;
+  border: 1px solid #dd6;
+  margin-bottom: 4px;
+}
+.urlList button {
+  margin: 0 0.3em;
+  padding: 0;
+}
+.urlList .icon {
+  background: none;
+  background-repeat: no-repeat;
+  width: 24px;
+  height: 24px;
+  text-indent: -9999em;
+  cursor: pointer;
+  border-radius: 0;
+}
+.urlList .icon:hover {
+  background-position: 0 -24px;
+}
+.urlList .icon.copyUrl {
+  background-image: url('../img/copy-24.png');
+}
+.urlList .icon.editUrl {
+  background-image: url('../img/edit-24.png');
+}
+.urlList .icon.qrCode {
+  background-image: url('../img/qrcode-24.png');
+}
+#shortEditorUrlBlock {
+  display: inline-block;
 }
 
 /*
@@ -450,6 +480,33 @@ section[aria-role=tabpanel] {
   100% {
     background-position: 0 16px;
   }
+}
+
+/*
+ * Common form formatting
+ */
+#screen-manage label.inline {
+  margin-right: 0.5em;
+  font-weight: bold;
+}
+#screen-manage form dt {
+  font-weight: bold;
+  margin: 20px 2px 8px;
+}
+#screen-manage form dd {
+  margin-left: 0;
+}
+
+/*
+ * Event info management screen
+ */
+.eventLocation {
+  width: 90%;
+  max-width: 20em;
+}
+.eventDescr {
+  width: 90%;
+  height: 4.5em;
 }
 
 /*

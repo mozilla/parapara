@@ -127,11 +127,54 @@
           <div>
             <div class="autosave"><input type="text" id="manage-name"
               name="name"></div>
-            <ul>
-              <li><label class="manage-title">壁URL</label><label
-                id="manage-wallUrl" class="manage-value"></label></li>
-              <li><label class="manage-title">エディタURL</label><label
-                id="manage-editorUrl" class="manage-value"></label></li>
+            <ul class="urlList">
+              <li>
+                <label>壁</label>
+                <span class="urlDetails">
+                  <span class="highlighted-url">
+                    <a id="wallUrl"></a>
+                    <span aria-hidden="true">
+                      <span id="wallUrlBase"></span>
+                      <input type="text" id="wallPath">
+                    </span>
+                  </span>
+                  <span id="wallUrlViewControls" class="controls">
+                    <button type="button" class="icon copyUrl"
+                      id="copyWallUrl"
+                      title="Copy wall URL to clipboard">Copy</button><button
+                      type="button" class="icon editUrl" id="editWallUrl" 
+                      title="Edit wall URL">Edit</button>
+                  </span>
+                  <span id="wallUrlSaveControls" class="controls" 
+                    aria-hidden="true">
+                    <button type="button" id="saveWallUrl">
+                      保存
+                    </button>
+                    <button type="button" id="cancelSaveWallUrl">
+                      キャンセル
+                    </button>
+                  </span>
+                </span>
+              </li>
+              <li>
+                <label>エディター</label>
+                <span class="urlDetails">
+                  <span class="highlighted-url">
+                    <a id="editorUrl"></a>
+                  </span>
+                  <button type="button" class="icon copyUrl" id="copyEditorUrl"
+                    title="Copy editor URL to clipboard">Copy</button>
+                  <span id="shortEditorUrlBlock">
+                    or&nbsp;
+                    <span class="highlighted-url">
+                      <a id="shortEditorUrl"></a>
+                    </span>
+                    <button type="button" class="icon qrCode"
+                      id="showEditorUrlQrCode"
+                      title="Show QR code for this URL">QR</button>
+                  </span>
+                </span>
+              </li>
             </ul>
           </div>
         </section>
@@ -204,12 +247,14 @@
               <div class="designSelection"></div>
               <ul>
                 <li>
-                  <label
-                    class="manage-title">現在のアニメーションスピード</label>
+                  <label class="inline">現在のアニメーションスピード</label>
                   <input type="number" name="duration" autocomplete="off"
                    maxlength="10" class="duration" id="manage-duration">秒
                 </li>
-                <li><label class="manage-title">既存のアニメーションスピード</label><label id="manage-defaultDuration" class="manage-value"></label>秒</li>
+                <li><label
+                  class="inline">既存のアニメーションスピード</label><label 
+                  id="manage-defaultDuration" 
+                  class="manage-value"></label>秒</li>
               </ul>
             </section>
             <section id="manage-privacy" aria-role="tabpanel" 

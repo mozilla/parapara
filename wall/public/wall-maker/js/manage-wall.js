@@ -161,10 +161,9 @@ var ManageWallController =
     this.updateThumbnail(wall.thumbnail);
 
     // Make up links
-    this.updateShortenableLink($('manage-wallUrl'), wall.wallUrl,
-                               wall.wallUrlShort);
-    this.updateShortenableLink($('manage-editorUrl'), wall.editorUrl,
-                               wall.editorUrlShort);
+    this.updateWallLinks(document.querySelector("#wall-summary .urlList"),
+                         wall.wallUrl, wall.wallUrlShort,
+                         wall.editorUrl, wall.editorUrlShort);
 
     // Event data
     $("manage-eventLocation").value = wall.eventLocation;
@@ -228,26 +227,37 @@ var ManageWallController =
     container.appendChild(img);
   },
 
-  updateShortenableLink: function(linkContainer, url, shortUrl) {
-    // Empty container
-    while (linkContainer.hasChildNodes()) {
-      linkContainer.removeChild(linkContainer.lastChild);
-    }
+  updateWallLinks: function(container, wallUrl, wallShortUrl,
+                            editorUrl, editorShortUrl) {
+    // Update wall link
+    $('wallUrl').setAttribute('href', wallUrl);
+    $('wallUrl').textContent = wallUrl;
 
-    // Add main link
-    var mainLink = document.createElement("a");
-    mainLink.setAttribute("href", url);
-    mainLink.textContent = url;
-    linkContainer.appendChild(mainLink);
+    // Update wall path fields
+    var splitPoint = wallUrl.lastIndexOf('/') + 1;
+    var basePath = wallUrl.slice(0, splitPoint);
+    var wallPath = wallUrl.slice(splitPoint);
+    $('wallUrlBase').textContent = basePath;
+    $('wallPath').value = wallPath;
 
-    // Add short link (if available) in braces
-    if (shortUrl) {
-      var shortLink = document.createElement("a");
-      shortLink.setAttribute("href", shortUrl);
-      shortLink.textContent = shortUrl;
-      linkContainer.appendChild(document.createTextNode(" ("));
-      linkContainer.appendChild(shortLink);
-      linkContainer.appendChild(document.createTextNode(")"));
+    // Show appropriate controls for wall URL
+    $('wallUrlViewControls').removeAttribute('aria-hidden');
+    $('wallUrlSaveControls').setAttribute('aria-hidden', 'true');
+
+    // Update main editor link
+    $('editorUrl').setAttribute('href', editorUrl);
+    $('editorUrl').textContent = editorUrl;
+
+    // Show short link if available
+    var shortEditorLink = $('shortEditorUrl');
+    if (editorShortUrl) {
+      shortEditorLink.setAttribute('href', editorShortUrl);
+      shortEditorLink.textContent = editorShortUrl;
+      $('shortEditorUrlBlock').removeAttribute('aria-hidden');
+    } else {''
+      $('shortEditorUrlBlock').setAttribute('aria-hidden', 'true');
+      shortEditorLink.removeAttribute('href');
+      shortEditorLink.textContent = '';
     }
   },
 
