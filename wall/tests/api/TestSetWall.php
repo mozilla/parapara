@@ -50,6 +50,11 @@ class SetWallTestCase extends WallMakerTestCase {
     $result = $this->updateWall($this->testWallId, array('name' => 'ABCD'));
     $this->assertEqual(count($result), 0);
 
+    // Test changes to capitalization are accepted
+    $result = $this->updateWall($this->testWallId,
+      array('name' => "abcd"));
+    $this->assertEqual(@$result['name'], 'abcd');
+
     // Trimming
     $result = $this->updateWall($this->testWallId,
       array('name' => " \twall name\n　"));

@@ -672,17 +672,17 @@ class Walls {
   }
 
   public static function isNameUnique($name) {
-    return !recordExists('walls', 'eventName', $name, 'text');
+    return !self::recordExists('walls', 'eventName', $name, 'text');
   }
 
   public static function isPathUnique($path) {
-    return !recordExists('walls', 'urlPath', $path, 'text');
+    return !self::recordExists('walls', 'urlPath', $path, 'text');
   }
 
   private static function recordExists($table, $field, $value, $type) {
     $conn =& getDbConnection();
     $res =& $conn->query(
-        "SELECT * FROM $table WHERE $field = "
+        "SELECT * FROM $table WHERE BINARY $field = "
         . $conn->quote($value, $type)
         . " LIMIT 1");
     if (PEAR::isError($res)) {

@@ -34,19 +34,4 @@ function getDbConnection() {
   return $conn;
 }
 
-function recordExists($table, $field, $value, $type) {
-  $conn =& getDbConnection();
-  $res =& $conn->query(
-      "SELECT * FROM $table WHERE $field = "
-      . $conn->quote($value, $type)
-      . " LIMIT 1");
-  if (PEAR::isError($res)) {
-    error_log($res->getMessage() . ', ' . $res->getDebugInfo());
-    throw new KeyedException('db-error');
-  }
-  $exists = $res->numRows() > 0;
-  $res->free();
-  return $exists;
-}
-
 ?>
