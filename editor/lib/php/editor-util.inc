@@ -8,7 +8,7 @@ function getWall() {
   $uri = $_SERVER['REQUEST_URI'];
   if (strlen($uri) < 2)
     return null;
-  return substr($uri, 1); // Skip initial /
+  return rawurldecode(substr($uri, 1)); // Skip initial /
 }
 
 function getStylesheet() {

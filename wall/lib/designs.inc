@@ -139,7 +139,7 @@ class DesignGallery {
     $row =& $conn->queryRow(
         'SELECT designs.designId, designs.name, designs.duration FROM designs'
       . ' INNER JOIN walls ON designs.designId = walls.designId'
-      . ' WHERE walls.urlPath = ' . $conn->quote(rawurlencode($path), 'text')
+      . ' WHERE walls.urlPath = ' . $conn->quote($path, 'text')
       . ' LIMIT 1',
       null,
       MDB2_FETCHMODE_ASSOC);
