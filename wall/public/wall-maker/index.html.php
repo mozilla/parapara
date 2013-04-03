@@ -139,9 +139,7 @@
                     </span>
                   </span>
                   <span id="wallUrlViewControls" class="controls">
-                    <button type="button" class="icon copyUrl"
-                      id="copyWallUrl"
-                      title="Copy wall URL to clipboard">Copy</button><button
+                    <button
                       type="button" class="icon editUrl" id="editWallUrl" 
                       title="Edit wall URL">Edit</button>
                   </span>
@@ -162,8 +160,6 @@
                   <span class="highlighted-url">
                     <a id="editorUrl"></a>
                   </span>
-                  <button type="button" class="icon copyUrl" id="copyEditorUrl"
-                    title="Copy editor URL to clipboard">Copy</button>
                   <span id="shortEditorUrlBlock">
                     or&nbsp;
                     <span class="highlighted-url">
