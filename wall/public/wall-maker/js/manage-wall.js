@@ -33,7 +33,7 @@ var ManageWallController =
         // Find container node
         var container = textBox;
         while (container && container.classList &&
-               !container.classList.contains("autosave"))
+               !container.classList.contains("withIcon"))
           container = container.parentNode;
         if (!container)
           container = textBox;
@@ -48,6 +48,15 @@ var ManageWallController =
       this.showEditUrlForm.bind(this));
     $('cancelSaveWallUrl').addEventListener('click',
       this.hideEditUrlForm.bind(this));
+    $('saveWallUrl').addEventListener('click',
+      this.saveWallUrl.bind(this));
+    $('wallPath').addEventListener('keydown',
+      function(evt) {
+        if (evt.which == 10 || evt.which == 13) {
+          evt.preventDefault();
+          this.saveWallUrl();
+        }
+      }.bind(this));
 
     // Session buttons
     $('manage-startSession').addEventListener('click',
@@ -167,8 +176,7 @@ var ManageWallController =
     this.updateThumbnail(wall.thumbnail);
 
     // Make up links
-    this.updateWallLinks(document.querySelector("#wall-summary .urlList"),
-                         wall.wallUrl, wall.wallUrlShort,
+    this.updateWallLinks(wall.wallUrl, wall.wallUrlShort,
                          wall.editorUrl, wall.editorUrlShort);
 
     // Event data
@@ -233,7 +241,7 @@ var ManageWallController =
     container.appendChild(img);
   },
 
-  updateWallLinks: function(container, wallUrl, wallShortUrl,
+  updateWallLinks: function(wallUrl, wallShortUrl,
                             editorUrl, editorShortUrl) {
     // Update wall link
     $('wallUrl').setAttribute('href', wallUrl);
@@ -285,29 +293,82 @@ var ManageWallController =
    * URL editing
    */
   showEditUrlForm: function() {
-    // Show form
-    var wallUrl = $('wallUrl');
-    wallUrl.setAttribute('aria-hidden', 'true');
-    wallUrl.nextElementSibling.removeAttribute('aria-hidden');
-
-    // Show controls
-    $('wallUrlViewControls').setAttribute('aria-hidden', 'true');
-    $('wallUrlSaveControls').removeAttribute('aria-hidden');
-
-    // Focus control
-    $('wallPath').focus();
-    $('wallPath').select();
+    this.setEditUrlFormState('edit');
   },
 
   hideEditUrlForm: function() {
-    // Show form
-    var wallUrl = $('wallUrl');
-    wallUrl.removeAttribute('aria-hidden');
-    wallUrl.nextElementSibling.setAttribute('aria-hidden', 'true');
+    this.setEditUrlFormState('view');
+  },
 
-    // Show controls
-    $('wallUrlViewControls').removeAttribute('aria-hidden');
+  // States: view, edit, send, error
+  setEditUrlFormState: function(state) {
+    // Look up the pieces
+    var link    = $('wallUrl');
+    var form    = $('wallUrlEdit');
+    var textbox = $('wallPath');
+
+    // Show form vs link
+    if (state === 'view') {
+      form.setAttribute('aria-hidden', 'true');
+      link.removeAttribute('aria-hidden');
+    } else {
+      link.setAttribute('aria-hidden', 'true');
+      form.removeAttribute('aria-hidden');
+    }
+
+    // Update state of text box
+    form.classList.remove('withIcon');
+    form.classList.remove('sending');
+    form.classList.remove('error');
+    textbox.removeAttribute('disabled');
+    if (state === 'send') {
+      form.classList.add('withIcon');
+      form.classList.add('sending');
+      textbox.setAttribute('disabled', 'disabled');
+    } else if (state === 'error') {
+      form.classList.add('error');
+    }
+
+    // Update controls
+    $('wallUrlViewControls').setAttribute('aria-hidden', 'true');
     $('wallUrlSaveControls').setAttribute('aria-hidden', 'true');
+    if (state === 'view') {
+      $('wallUrlViewControls').removeAttribute('aria-hidden');
+    } else if (state === 'edit' || state === 'error') {
+      $('wallUrlSaveControls').removeAttribute('aria-hidden');
+    }
+
+    // Focus
+    if (state === 'edit' || state === 'error') {
+      textbox.focus();
+      textbox.select();
+    }
+  },
+
+  saveWallUrl: function() {
+    // Update form
+    this.setEditUrlFormState('send');
+
+    var payload = {};
+    payload['urlPath'] = $('wallPath').value;
+    ParaPara.putUrl('/api/walls/' + this.wallId,
+      payload,
+      function (changedFields) {
+        if (changedFields && changedFields.length !== 0) {
+          this.messageBox.showInfo('updated-field', 'urlPath', 1800);
+          this.updateWallLinks(changedFields['wallUrl'],
+                               changedFields['wallUrlShort'],
+                               changedFields['editorUrl'],
+                               changedFields['editorUrlShort']);
+
+        }
+        this.setEditUrlFormState('view');
+      }.bind(this),
+      function (key, detail) {
+        this.setEditUrlFormState('error');
+        this.messageBox.showError(key, detail);
+      }.bind(this)
+    );
   },
 
   /*

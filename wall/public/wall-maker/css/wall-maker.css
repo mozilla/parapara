@@ -346,10 +346,15 @@ hr {
   background: none;
   border: 1px inset transparent;
 }
-#manage-name:hover, #manage-name:focus {
+#manage-name:hover, #manage-name:focus, .sending #manage-name {
   background: white;
   border-color: lightgrey;
 }
+.error #manage-name {
+  background: rgb(255,200,200);
+  border-color: lightgrey;
+}
+
 .urlList {
   margin: 0.25em 0;
   padding: 0 0.5em;
@@ -375,6 +380,11 @@ hr {
 .urlList .highlighted-url input {
   font-size: 1em;
   padding: 3px 5px;
+  border-width: 1px;
+}
+.urlList .controls {
+  display: inline-block;
+  margin-bottom: 4px;
 }
 .urlList button {
   padding: 4px 0.4em;
@@ -486,9 +496,9 @@ section[aria-role=tabpanel] {
 }
 
 /*
- * Auto save style
+ * Annotated input
  */
-#wall-info .autosave:after {
+#screen-manage .withIcon:after {
   content: " ";
   display: inline-block;
   width: 16px;
@@ -497,17 +507,13 @@ section[aria-role=tabpanel] {
   vertical-align: bottom;
   background-repeat: no-repeat;
 }
-#wall-info .autosave.editing:after {
+#screen-manage .withIcon.editing:after {
   background-image: url('../img/pencil.png');
 }
-#wall-info .autosave.sending input {
-  background: white;
-  border-color: lightgrey;
-}
-#wall-info .autosave.sending:after {
+#screen-manage .withIcon.sending:after {
   background-image: url('../img/sync.gif');
 }
-#wall-info .autosave.saved:after {
+#screen-manage .withIcon.saved:after {
   background-image: url('../img/tick.png');
   /* Hide tick */
   animation-duration: 0.5s;
@@ -515,11 +521,7 @@ section[aria-role=tabpanel] {
   animation-fill-mode: forwards;
   animation-name: hideBackground;
 }
-#wall-info .autosave.error input {
-  background: rgb(255,200,200);
-  border-color: lightgrey;
-}
-#wall-info .autosave.error:after {
+#screen-manage .withIcon.error:after {
   background-image: url('../img/cross.png');
 }
 @keyframes hideBackground {
@@ -541,6 +543,9 @@ section[aria-role=tabpanel] {
 }
 #screen-manage form dd {
   margin-left: 0;
+}
+#screen-manage .error input {
+  background: rgb(255,200,200);
 }
 
 /*

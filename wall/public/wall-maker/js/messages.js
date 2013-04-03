@@ -63,6 +63,9 @@ function MessageBox(screen)
       case 'duplicate-name':
         return "A wall with that title already exists.";
 
+      case 'duplicate-path':
+        return "That path is already in use.";
+
       case 'empty-name':
         // This can happen if for example the title is all whitespace.
         // The browser will consider the form to be filled in but the server
@@ -84,6 +87,7 @@ function MessageBox(screen)
       case 'server-fail':
       case 'no-access':
       case 'send-fail':
+      case 'logged-out':
       default:
         return "Something went wrong";
     }

@@ -125,7 +125,7 @@
         <section id="wall-summary">
           <div id="wall-thumbnail"></div>
           <div>
-            <div class="autosave"><input type="text" id="manage-name"
+            <div class="withIcon"><input type="text" id="manage-name"
               name="name"></div>
             <ul class="urlList">
               <li>
@@ -133,7 +133,7 @@
                 <span class="urlDetails">
                   <span class="highlighted-url">
                     <a id="wallUrl"></a>
-                    <span aria-hidden="true">
+                    <span id="wallUrlEdit" aria-hidden="true">
                       <span id="wallUrlBase"></span>
                       <input type="text" id="wallPath">
                     </span>
