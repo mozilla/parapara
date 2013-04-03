@@ -245,12 +245,12 @@ var ManageWallController =
                             editorUrl, editorShortUrl) {
     // Update wall link
     $('wallUrl').setAttribute('href', wallUrl);
-    $('wallUrl').textContent = wallUrl;
+    $('wallUrl').textContent = decodeURIComponent(wallUrl);
 
     // Update wall path fields
     var splitPoint = wallUrl.lastIndexOf('/') + 1;
     var basePath = wallUrl.slice(0, splitPoint);
-    var wallPath = wallUrl.slice(splitPoint);
+    var wallPath = decodeURIComponent(wallUrl.slice(splitPoint));
     $('wallUrlBase').textContent = basePath;
     $('wallPath').value = wallPath;
 
@@ -260,7 +260,7 @@ var ManageWallController =
 
     // Update main editor link
     $('editorUrl').setAttribute('href', editorUrl);
-    $('editorUrl').textContent = editorUrl;
+    $('editorUrl').textContent = decodeURIComponent(editorUrl);
 
     // Show short link if available
     var shortEditorLink = $('shortEditorUrl');
