@@ -21,6 +21,8 @@ ParaPara.init = function(contentGroup) {
   ParaPara.frames        = new ParaPara.FrameList();
   ParaPara.currentStyle  = new ParaPara.Style();
   ParaPara.currentTool   = null;
+  
+  ParaPara.feedbackControls = new ParaPara.FeedbackControls("../sounds/220_Hz_sine_wave.ogg");
 }
 
 ParaPara.reset = function() {
@@ -211,6 +213,10 @@ ParaPara.DrawControls.prototype.mouseDown = function(evt) {
   evt.preventDefault();
   if (evt.button || this.linesInProgress.mouseLine)
     return;
+
+  //feedback
+  ParaPara.feedbackControls.start(evt.clientX, evt.clientY);
+
   var pt = this.getLocalCoords(evt.clientX, evt.clientY, this.frame);
   this.linesInProgress.mouseLine =
     new ParaPara.FreehandLine(pt.x, pt.y, this.frame);
@@ -220,6 +226,10 @@ ParaPara.DrawControls.prototype.mouseMove = function(evt) {
   evt.preventDefault();
   if (!this.linesInProgress.mouseLine)
     return;
+
+  //feedback
+  ParaPara.feedbackControls.update(evt.clientX, evt.clientY);
+
   var pt = this.getLocalCoords(evt.clientX, evt.clientY, this.frame);
   this.linesInProgress.mouseLine.addPoint(pt.x, pt.y);
 }
@@ -228,6 +238,10 @@ ParaPara.DrawControls.prototype.mouseUp = function(evt) {
   evt.preventDefault();
   if (!this.linesInProgress.mouseLine)
     return;
+
+  //feedback
+  ParaPara.feedbackControls.stop();
+
   this.linesInProgress.mouseLine.finishLine();
   delete this.linesInProgress.mouseLine;
   ParaPara.notifyGraphicChanged();
@@ -2218,3 +2232,64 @@ UUID._ha = function(num, length) {  // _hexAligner
 };
 
 // vim: et ts=2 sw=2
+
+
+// --------------------- Feedback Controls ------------------------
+ParaPara.FeedbackControls = function(soundfilename) {
+  var self = this;
+  var xhr = new XMLHttpRequest();
+  xhr.open("GET", soundfilename, true);
+  xhr.responseType = "arraybuffer";
+  xhr.onload = function() {
+    self.context = window.AudioContext ? new window.AudioContext() : new window.webkitAudioContext();
+    self.context.decodeAudioData(xhr.response, function onSuccess(result) {
+      self.audioBuffer = result;
+      self.gainControl = self.context.createGain();
+    });
+  };
+  xhr.send();
+}
+
+ParaPara.FeedbackControls.prototype.start = function(x, y) {
+  var source = this.context.createBufferSource();
+  source.connect(this.gainControl);
+  this.gainControl.gain.value = 1;
+  this.gainControl.connect(this.context.destination);
+  source.buffer = this.audioBuffer;
+  source.loop = true;
+  source.start(0);
+  this.source = source;
+  
+  this.previous_x = x;
+  this.previous_y = y;
+  this.previous_time = this.context.currentTime;
+//  source.playbackRate.value = 1;
+}
+
+ParaPara.FeedbackControls.prototype.update = function(x, y) {
+  //changes playbackRate
+  var scalar = Math.sqrt(Math.pow(x - this.previous_x, 2) + Math.pow(y - this.previous_y, 2));
+  var accelaration = scalar / (this.context.currentTime - this.previous_time);
+  this.previous_x = x;
+  this.previous_y = y;
+  this.previous_time = this.context.currentTime;
+  var playbackRate = Math.log(accelaration);
+  this.source.playbackRate.value = playbackRate;
+  //console.log(accelaration+":"+playbackRate);
+
+  clearTimeout(this.timer);
+  var self = this;
+  this.timer = setTimeout(function() {
+    self.gainControl.gain.value = 0;
+  }, 50);
+  self.gainControl.gain.value = 1;
+}
+
+ParaPara.FeedbackControls.prototype.stop = function() {
+  //一旦ボリュームを0にしてからストップするとプツプツ音がなくなる。
+  this.gainControl.gain.value = 0;
+  var self = this;
+  setTimeout(function() {
+    self.source.stop(0);
+  }, 5);
+}
