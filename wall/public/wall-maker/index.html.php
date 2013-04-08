@@ -167,7 +167,7 @@
                     </span>
                     <button type="button" class="icon qrCode"
                       id="showEditorUrlQrCode"
-                      title="Show QR code for this URL">QR</button>
+                      title="Show 2D barcode for this URL">QR</button>
                   </span>
                 </span>
               </li>
