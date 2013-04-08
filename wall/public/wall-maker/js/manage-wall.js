@@ -417,6 +417,8 @@ var ManageWallController =
     if (key == 'parallel-change') {
       this.updateSessionInfo(detail);
       timeout = 8000;
+    } else if (key == 'logged-out') {
+      LoginController.logout();
     } else {
       this.restoreSessionInfo();
     }
