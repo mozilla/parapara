@@ -30,6 +30,7 @@
   <script src="<?php echo $wallMakerRoot ?>/js/create-wall.js"></script>
   <script src="<?php echo $wallMakerRoot ?>/js/manage-wall.js"></script>
   <script src="<?php echo $wallMakerRoot ?>/js/login-controller.js"></script>
+  <script src="<?php echo $wallMakerRoot ?>/js/qrcode.js" async></script>
 </head>
 <body>
 
@@ -304,5 +305,14 @@
         onclick="javascript:UserData.updateWalls()">再試行</button>
     </div>
   </div>
+</div>
+<div class="overlay" aria-hidden="true">
+  <div class="container">
+    <div class="content" id="qrCode">
+      <img>
+      <div class="link"></div>
+      <button type="button">OK</button>
+    </div>
+  <div>
 </div>
 </body>

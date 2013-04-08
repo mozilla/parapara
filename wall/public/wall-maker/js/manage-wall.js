@@ -63,6 +63,14 @@ var ManageWallController =
           this.saveWallUrl();
         }
       }.bind(this));
+    $('showEditorUrlQrCode').addEventListener('click',
+      this.showQrCode.bind(this));
+    $('qrCode').querySelector('button').addEventListener('click',
+        function() {
+          document.querySelector('div.overlay').
+            setAttribute('aria-hidden', 'true');
+        }
+      );
 
     // Session buttons
     $('manage-startSession').addEventListener('click',
@@ -386,6 +394,28 @@ var ManageWallController =
         }
       }.bind(this)
     );
+  },
+
+  showQrCode: function(url) {
+    var url = $('shortEditorUrl').href;
+
+    // Prepare QR code
+    var qr = new QRCode(0, QRCode.QRErrorCorrectLevel.M);
+    qr.addData(url);
+    qr.make();
+    var imageData = qr.getImage(8 /*cell size*/);
+
+    // Update overlay
+    var block = $('qrCode');
+    var image = block.querySelector('img');
+    image.src    = imageData.data;
+    image.width  = imageData.width;
+    image.height = imageData.height;
+    image.alt    = url;
+    block.querySelector('.link').textContent = url;
+
+    // And show
+    document.querySelector('div.overlay').removeAttribute('aria-hidden');
   },
 
   /*
