@@ -184,6 +184,7 @@ var ManageWallController =
 
     // Make up links
     this.updateWallLinks(wall.wallUrl, wall.editorUrl, wall.editorUrlShort);
+    this.hideEditUrlForm();
 
     // Event data
     $("manage-eventLocation").value = wall.eventLocation;
@@ -377,8 +378,12 @@ var ManageWallController =
         this.setEditUrlFormState('view');
       }.bind(this),
       function (key, detail) {
-        this.setEditUrlFormState('error');
-        this.messageBox.showError(key, detail);
+        if (key === 'logged-out') {
+          LoginController.logout();
+        } else {
+          this.setEditUrlFormState('error');
+          this.messageBox.showError(key, detail);
+        }
       }.bind(this)
     );
   },
