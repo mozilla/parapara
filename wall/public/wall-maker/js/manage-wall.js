@@ -7,6 +7,8 @@ var ManageWallController =
   init: function() {
     // Automatically save changes to text fields
     var saveTextField = function(elem, saver) {
+      if (this.wallId === null)
+        return;
       var payload = {};
       payload[elem.name] = elem.value;
       ParaPara.putUrl('/api/walls/' + this.wallId,
@@ -21,8 +23,12 @@ var ManageWallController =
           }
         }.bind(this),
         function (key, detail) {
-          saver.showSaveError();
-          this.messageBox.showError(key, detail);
+          if (key === 'logged-out') {
+            LoginController.logout();
+          } else {
+            saver.showSaveError();
+            this.messageBox.showError(key, detail);
+          }
         }.bind(this)
       );
     }.bind(this);
@@ -39,7 +45,7 @@ var ManageWallController =
           container = textBox;
 
         // Create the saver wrapper
-        new TextBoxSaver(textBox, container, saveTextField);
+        textBox.saver = new TextBoxSaver(textBox, container, saveTextField);
       }
     );
 
@@ -71,8 +77,8 @@ var ManageWallController =
 
   clear: function() {
     this.form.reset();
+    this.clearWallInfo();
     this.messageBox.clear();
-    this.wallId = null;
   },
 
   show: function(wallId, tabName) {
@@ -171,6 +177,7 @@ var ManageWallController =
 
     // Basic data
     $("manage-name").value = wall.name;
+    $("manage-name").saver.clearStatus();
 
     // Set thumbnail
     this.updateThumbnail(wall.thumbnail);
@@ -272,6 +279,13 @@ var ManageWallController =
       shortEditorLink.removeAttribute('href');
       shortEditorLink.textContent = '';
     }
+  },
+
+  clearWallInfo: function() {
+    this.wallId = null;
+    this.updateThumbnail();
+    this.updateWallLinks('', '', null);
+    this.updateSessionInfo();
   },
 
   loadError: function(key, detail) {
@@ -585,9 +599,7 @@ function TextBoxSaver(element, container, saveCallback) {
 
   this.onchange = function(elem) {
     // Update container styles
-    this.container.classList.remove("error");
-    this.container.classList.remove("saved");
-    this.container.classList.remove("editing");
+    this.clearStatus();
     this.container.classList.add("sending");
 
     // Store saved value so we know if we can safely update it later
@@ -599,9 +611,7 @@ function TextBoxSaver(element, container, saveCallback) {
 
   this.onstartediting = function(elem) {
     // Update container styles
-    this.container.classList.remove("error");
-    this.container.classList.remove("saved");
-    this.container.classList.remove("sending");
+    this.clearStatus();
     this.container.classList.add("editing");
 
     // Clear the saved value
@@ -627,8 +637,7 @@ function TextBoxSaver(element, container, saveCallback) {
     // Update container styles (but only if we haven't already started editing
     // again)
     if (!this.container.classList.contains("editing")) {
-      this.container.classList.remove("error");
-      this.container.classList.remove("sending");
+      this.clearStatus();
       this.container.classList.add("saved");
     }
   };
@@ -637,10 +646,16 @@ function TextBoxSaver(element, container, saveCallback) {
     // Update container style (but only if we haven't already started editing
     // again)
     if (!this.container.classList.contains("editing")) {
-      this.container.classList.remove("saved");
-      this.container.classList.remove("sending");
+      this.clearStatus();
       this.container.classList.add("error");
     }
+  };
+
+  this.clearStatus = function() {
+    this.container.classList.remove("saved");
+    this.container.classList.remove("sending");
+    this.container.classList.remove("editing");
+    this.container.classList.remove("error");
   };
 
   // Observe the text field

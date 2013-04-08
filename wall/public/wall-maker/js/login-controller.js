@@ -34,8 +34,8 @@ var LoginController =
     //
     $('loginMail').textContent = '';
     CreateWallController.clear();
+    ManageWallController.clear();
     WallSummaryController.clear();
-    // XXX Clear manage screen details
     sessionStorage.clear();
   },
 
