@@ -91,7 +91,7 @@ class SetWallTestCase extends WallMakerTestCase {
     $this->assertPattern("/\/abc-d$/", @$result['wallUrl']);
     $this->assertPattern("/\/abc-d$/", @$result['editorUrl']);
 
-    // Not really sure how best to test the short URLs short of making a mock 
+    // Not really sure how best to test the short URL short of making a mock 
     // shortener service
 
     // Check it was actually set
@@ -106,11 +106,6 @@ class SetWallTestCase extends WallMakerTestCase {
     // Set editorUrl
     $result = $this->updateWall($this->testWallId,
       array('editorUrl' => 'abc-d'));
-    $this->assertEqual(@$result['error_key'], 'readonly-field');
-
-    // Set wallUrlShort
-    $result = $this->updateWall($this->testWallId,
-      array('wallUrlShort' => 'abc-d'));
     $this->assertEqual(@$result['error_key'], 'readonly-field');
 
     // Set editorUrlShort

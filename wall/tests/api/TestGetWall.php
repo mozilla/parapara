@@ -53,11 +53,6 @@ class GetWallTestCase extends WallMakerTestCase {
     $this->assertTrue(!$wallUrl || $this->looksLikeAUrl($wallUrl),
                       "Unexpected wall URL format: " . $wallUrl);
 
-    // Check short URL
-    $wallUrlShort = @$wall['wallUrlShort'];
-    $this->assertTrue(!$wallUrlShort || $this->looksLikeAUrl($wallUrlShort),
-                      "Unexpected shortened wall URL format: " . $wallUrlShort);
-
     // Check editor URL
     $editorUrl = @$wall['editorUrl'];
     $this->assertTrue($editorUrl, "No editor URL");

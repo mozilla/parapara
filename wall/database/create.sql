@@ -30,7 +30,6 @@ CREATE TABLE `walls` (
   `galleryDisplay` tinyint(1) NOT NULL COMMENT 'Should this wall be shown in the public gallery when the event finishes?',
   `passcode` varchar(40) DEFAULT NULL COMMENT 'Optional passcode to restrict posting to the wall. Encrypted with SHA1 since this is not used for anything particularly sensitive.',
   `urlPath` varchar(255) NOT NULL COMMENT 'The path component of the URL, e.g. ''fukushima-100''',
-  `shortUrl` varchar(40) DEFAULT NULL COMMENT 'Shortened URL for the wall',
   `editorShortUrl` varchar(40) DEFAULT NULL COMMENT 'Shortened URL for the editor associated with this wall',
   `duration` int(8) DEFAULT NULL COMMENT 'The number of milliseconds for a single iteration',
   `createDate` datetime NOT NULL COMMENT 'Creation datetime in UTC',

@@ -176,8 +176,7 @@ var ManageWallController =
     this.updateThumbnail(wall.thumbnail);
 
     // Make up links
-    this.updateWallLinks(wall.wallUrl, wall.wallUrlShort,
-                         wall.editorUrl, wall.editorUrlShort);
+    this.updateWallLinks(wall.wallUrl, wall.editorUrl, wall.editorUrlShort);
 
     // Event data
     $("manage-eventLocation").value = wall.eventLocation;
@@ -241,8 +240,7 @@ var ManageWallController =
     container.appendChild(img);
   },
 
-  updateWallLinks: function(wallUrl, wallShortUrl,
-                            editorUrl, editorShortUrl) {
+  updateWallLinks: function(wallUrl, editorUrl, editorShortUrl) {
     // Update wall link
     $('wallUrl').setAttribute('href', wallUrl);
     $('wallUrl').textContent = decodeURIComponent(wallUrl);
@@ -357,7 +355,6 @@ var ManageWallController =
         if (changedFields && changedFields.length !== 0) {
           this.messageBox.showInfo('updated-field', 'urlPath', 1800);
           this.updateWallLinks(changedFields['wallUrl'],
-                               changedFields['wallUrlShort'],
                                changedFields['editorUrl'],
                                changedFields['editorUrlShort']);
 

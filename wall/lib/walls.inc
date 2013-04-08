@@ -156,7 +156,7 @@ class Wall {
   static private $virtualFields  = array('id', 'passcodeLen',
                                          'wallUrl', 'editorUrl',
                                          'design', 'thumbnail');
-  static private $readOnlyFields = array('wallUrlShort', 'editorUrlShort');
+  static private $readOnlyFields = array('editorUrlShort');
 
   public function __construct($id, $email, $metadata) {
     $this->_id      = intval($id);
@@ -288,16 +288,13 @@ class Wall {
         array_push($this->dirtyFields, $name);
     }
 
-    // Special handling for shortened URLs
+    // Special handling for shortened editor URL
     if ($name === 'urlPath') {
-      list($wallUrlShort, $editorUrlShort) =
-        Wall::getShortenedUrlsForPath($value);
-      foreach(array('wallUrlShort', 'editorUrlShort') as $name) {
-        if ($$name !== $this->metadata[$name]) {
-          $this->metadata[$name] = $$name;
-          if (!in_array($name, $this->dirtyFields))
-            array_push($this->dirtyFields, $name);
-        }
+      $editorUrlShort = Wall::getShortenedEditorUrlForPath($value);
+      if ($editorUrlShort !== $this->metadata['editorShortUrl']) {
+        $this->metadata['editorUrlShort'] = $editorUrlShort;
+        if (!in_array('editorUrlShort', $this->dirtyFields))
+          array_push($this->dirtyFields, 'editorUrlShort');
       }
     }
   }
@@ -321,7 +318,6 @@ class Wall {
     foreach ($this->dirtyFields as $name) {
       // Determine the field name
       $mappedFields = array('name' => 'eventName',
-                            'wallUrlShort' => 'shortUrl',
                             'editorUrlShort' => 'editorShortUrl');
       $fieldName = array_key_exists($name, $mappedFields)
                  ? $mappedFields[$name]
@@ -390,8 +386,7 @@ class Wall {
     $keys = array('id' => 'wallId', 'name',
                   'eventLocation',
                   'eventDescr',
-                  'wallUrl', 'wallUrlShort',
-                  'editorUrl', 'editorUrlShort',
+                  'wallUrl', 'editorUrl', 'editorUrlShort',
                   'duration', 'defaultDuration',
                   'ownerEmail', 'passcodeLen',
                   'designId',
@@ -515,19 +510,13 @@ class Wall {
     return $config['editor']['url'] . rawurlencode($path);
   }
 
-  // Returns the shortened URLs for a given path or NULL if no shortening 
+  // Returns the shortened editor URL for a given path or NULL if no shortening 
   // service is available
-  public static function getShortenedUrlsForPath($path) {
-    $wallUrl   = Wall::getUrlForPath($path);
+  public static function getShortenedEditorUrlForPath($path) {
     $editorUrl = Wall::getEditorUrlForPath($path);
 
-    $wallUrlShort = shortenUrl($wallUrl);
-    $wallUrlShort = $wallUrlShort == $wallUrl ? NULL : $wallUrlShort;
-
     $editorUrlShort = shortenUrl($editorUrl);
-    $editorUrlShort = $editorUrlShort == $editorUrl ? NULL : $editorUrlShort;
-
-    return array($wallUrlShort, $editorUrlShort);
+    return $editorUrlShort == $editorUrl ? NULL : $editorUrlShort;
   }
 
   public static function validateWallName($name) {
@@ -624,14 +613,13 @@ class Walls {
     $editorUrl = Wall::getEditorUrlForPath($path);
 
     // Create shortened versions
-    list($shortUrl, $editorShortUrl) =
-      Wall::getShortenedUrlsForPath($path);
+    $editorShortUrl = Wall::getShortenedEditorUrlForPath($path);
 
     // Store in database
     $date = gmdate('Y-m-d H:i:s');
     $query =
       'INSERT INTO walls'
-      . ' (owner, designId, eventName, galleryDisplay, urlPath, shortUrl,'
+      . ' (owner, designId, eventName, galleryDisplay, urlPath,'
       . '  editorShortUrl, createDate, modifyDate)'
       . ' VALUES '
       . '(' . $conn->quote($ownerId, 'integer')
@@ -639,7 +627,6 @@ class Walls {
       . ',' . $conn->quote($name, 'text')
       . ',TRUE' // galleryDisplay
       . ',' . $conn->quote($path, 'text')
-      . ',' . (($shortUrl) ? $conn->quote($shortUrl, 'text') : 'NULL')
       . ',' . (($editorShortUrl) ? $conn->quote($editorShortUrl, 'text')
                                  : 'NULL')
       . ',' . $conn->quote($date, 'timestamp')
@@ -670,7 +657,7 @@ class Walls {
     $row =& $conn->queryRow(
         'SELECT walls.designId'
       . ' ,eventName, eventDescr, eventLocation, eventType, eventFinish'
-      . ' ,urlPath, shortUrl, editorShortUrl'
+      . ' ,urlPath, editorShortUrl'
       . ' ,walls.duration, galleryDisplay, passcode'
       . ' ,designs.duration AS defaultDuration'
       . ' ,users.email AS ownerEmail'
@@ -709,7 +696,6 @@ class Walls {
     $metadata["eventFinish"]    = $row['eventfinish'];
     $metadata["designId"]       = toIntOrNull($row['designid']);
     $metadata["urlPath"]        = $row['urlpath'];
-    $metadata["wallUrlShort"]   = $row['shorturl'];
     $metadata["editorUrlShort"] = $row['editorshorturl'];
 
     // Privileged information
