@@ -184,8 +184,10 @@ var ManageWallController =
     this.wallId = wall.wallId;
 
     // Basic data
-    $("manage-name").value = wall.name;
-    $("manage-name").saver.clearStatus();
+    var nameField = $("manage-name");
+    nameField.value = wall.name;
+    nameField.saver.clearStatus();
+    nameField.size = Math.max(20, wall.name.length);
 
     // Set thumbnail
     this.updateThumbnail(wall.thumbnail);
