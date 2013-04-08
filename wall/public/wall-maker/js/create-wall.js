@@ -62,7 +62,7 @@ var CreateWallController =
     ManageWallController.showNewWall(response);
 
     // Update the screen
-    Navigation.goToScreen("wall/" + response.wallId + "#event");
+    Navigation.goToScreen("wall/" + response.wallId + "#session");
   },
 
   createError: function(key, detail) {

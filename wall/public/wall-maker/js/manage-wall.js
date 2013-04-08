@@ -115,7 +115,7 @@ var ManageWallController =
     var selectedTabPage = null;
 
     // Set default tab is none is provided
-    tabName = tabName || "event";
+    tabName = tabName || "session";
 
     // Update tabs
     var tabs = document.querySelectorAll("a[aria-role=tab]");

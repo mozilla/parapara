@@ -604,48 +604,48 @@ section[aria-role=tabpanel] {
 /*
  * Session management screen
  */
-#manage-running button {
+#manage-session button {
   margin: 0.5em 0.2em;
 }
-#manage-running .running .currentWallStatus,
-#manage-running .running .latestSessionTime {
+#manage-session .running .currentWallStatus,
+#manage-session .running .latestSessionTime {
   color: green;
 }
-#manage-running .finished .currentWallStatus,
-#manage-running .finished .latestSessionTime {
+#manage-session .finished .currentWallStatus,
+#manage-session .finished .latestSessionTime {
   color: red;
 }
-#manage-running > div {
+#manage-session > div {
   text-align: center;
   margin: 1.2em auto;
 }
-#manage-running .currentWallStatus {
+#manage-session .currentWallStatus {
   font-size: 2.2em;
   margin-top: 0.8em;
   margin-bottom: 0.2em;
 }
-#manage-running .latestSession {
+#manage-session .latestSession {
   font-size: 0.9em;
   margin: 0.5em 0;
 }
-#manage-running .latestSessionTime {
+#manage-session .latestSessionTime {
   font-weight: bold;
 }
-#manage-running .spinner {
+#manage-session .spinner {
   visibility: hidden;
 }
-#manage-running {
+#manage-session {
   position: relative;
 }
-#manage-running .spinnerContainer {
+#manage-session .spinnerContainer {
   position: absolute;
   width: 100%;
   left: 0;
   top: 0;
 }
-#manage-running .updating * {
+#manage-session .updating * {
   color: lightgrey !important;
 }
-#manage-running .updating .spinner {
+#manage-session .updating .spinner {
   visibility: visible;
 }

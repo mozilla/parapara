@@ -181,39 +181,22 @@
         </div>
         <div id="wall-details">
           <menu type="toolbar" aria-role="tablist">
-            <a href="#event" aria-role="tab" aria-selected="true"
-              aria-controls="manage-event">イベント</a><a
-              href="#running" aria-role="tab" aria-selected="false"
-              aria-controls="manage-running">セッション</a><a
-              href="#design" aria-role="tab" aria-selected="false"
+            <a href="#session" aria-role="tab"
+              aria-controls="manage-session"
+              aria-selected="true">セッション</a><a
+              href="#design" aria-role="tab"
               aria-controls="manage-design">デザイン</a><a
-              href="#privacy" aria-role="tab" aria-selected="false"
-              aria-controls="manage-privacy">プライバシー</a><a
-              href="#collaboration" aria-role="tab" aria-selected="false"
-              aria-controls="manage-collaboration">共同制作</a><a
-              href="#characters" aria-role="tab" aria-selected="false"
+              href="#gallery" aria-role="tab"
+              aria-controls="manage-gallery">ギャラリー</a><a
+              href="#location" aria-role="tab"
+              aria-controls="manage-location">場所</a><a
+              href="#access" aria-role="tab"
+              aria-controls="manage-access">アクセス</a><a
+              href="#characters" aria-role="tab"
               aria-controls="manage-characters">キャラクター</a>
           </menu>
           <div class="tab-pages">
-            <section id="manage-event" aria-role="tabpanel" aria-hidden="false">
-              <dl>
-                <dt><label class="optional"
-                  for="create-eventLocation">場所</label></dt>
-                <dd>
-                  <input type="text" name="eventLocation" autocomplete="off"
-                   maxlength="255" class="eventLocation" id="manage-eventLocation">
-                  <div class="fieldExplain">場所の例</div>
-                </dd>
-                <dt><label class="optional"
-                  for="create-eventDescr">イベントの説明</label></dt>
-                <dd>
-                  <textarea name="eventDescr" class="eventDescr"
-                    id="manage-eventDescr"></textarea>
-                </dd>
-              </dl>
-            </section>
-            <section id="manage-running" aria-role="tabpanel" 
-              aria-hidden="true">
+            <section id="manage-session" aria-role="tabpanel">
               <div class="wallStatus">
                 <span class="currentWallStatus"></span>
                 <div class="spinnerContainer">
@@ -254,7 +237,7 @@
                   class="manage-value"></label>秒</li>
               </ul>
             </section>
-            <section id="manage-privacy" aria-role="tabpanel" 
+            <section id="manage-gallery" aria-role="tabpanel"
               aria-hidden="true">
               <dl>
                 <dt>ギャラリーに表示</dt>
@@ -269,17 +252,34 @@
                   </label>
                   <div class="fieldExplain">ギャラリーの説明</div>
                 </dd>
+                <dt><label class="optional"
+                  for="create-eventDescr">イベントの説明</label></dt>
+                <dd>
+                  <textarea name="eventDescr" class="eventDescr"
+                    id="manage-eventDescr"></textarea>
+                </dd>
+              </dl>
+            </section>
+            <section id="manage-location" aria-role="tabpanel"
+              aria-hidden="true">
+              <dl>
+                <dt><label class="optional"
+                  for="create-eventLocation">場所</label></dt>
+                <dd>
+                  <input type="text" name="eventLocation" autocomplete="off"
+                   maxlength="255" class="eventLocation"
+                   id="manage-eventLocation">
+              </dl>
+            </section>
+            <section id="manage-access" aria-role="tabpanel" 
+              aria-hidden="true">
+              <dl>
                 <dt><label class="optional">エディターのパスコード</label></dt>
                 <dd>
                   <input type="password" name="passcode" autocomplete="off"
                    maxlength="50" class="passcode" id="manage-passcode">
                   <div class="fieldExplain">パスコードの説明</div>
                 </dd>
-              </dl>
-            </section>
-            <section id="manage-collaboration" aria-role="tabpanel" 
-              aria-hidden="true">
-              <dl>
                 <dt><label class="optional">共同制作者</label></dt>
                 <dd>
                   <div class="fieldExplain">共同制作者の説明</div>
