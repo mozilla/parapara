@@ -251,6 +251,7 @@ var ManageWallController =
     var wallPath = decodeURIComponent(wallUrl.slice(splitPoint));
     $('wallUrlBase').textContent = basePath;
     $('wallPath').value = wallPath;
+    $('wallPath').size = Math.max(wallPath.length, 10);
 
     // Show appropriate controls for wall URL
     $('wallUrlViewControls').removeAttribute('aria-hidden');
