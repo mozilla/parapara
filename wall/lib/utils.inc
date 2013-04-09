@@ -12,8 +12,8 @@ function wtrim($str) {
 
 // Convert something that should be numerical to an integer whilst preserving
 // null values
-function toIntOrNull($idLike) {
-  return is_null($idLike) ? null : intval($idLike);
+function toIntOrNull($intLike) {
+  return !isset($intLike) || is_null($intLike) ? null : intval($intLike);
 }
 
 ?>

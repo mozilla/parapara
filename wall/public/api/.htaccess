@@ -9,6 +9,8 @@ Options -Indexes
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteBase /api/
-  RewriteRule ^walls$ doWalls.php [L]
-  RewriteRule ^walls/([0-9]+)$ doWalls.php?id=$1 [L]
+  RewriteRule ^walls$ _walls.php [L]
+  RewriteRule ^walls/([0-9]+)$ _walls.php?id=$1 [L]
+  RewriteRule ^walls/([0-9]+)/sessions$ _sessions.php?wallId=$1 [L]
+  RewriteRule ^walls/([0-9]+)/sessions/([0-9]+)$ _sessions.php?wallId=$1&sessionId=$2 [L]
 </ifModule>

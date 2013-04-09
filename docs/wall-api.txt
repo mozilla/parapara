@@ -52,6 +52,8 @@ JSON API:
 /api/walls/<wall-id>/characters - return live list of characters for the given
                                    wall [_Server-sent events_]
 /api/walls/<wall-id>/sessions[POST] - create new session [wall auth reqd]
+                                    - must post most recent session ID
+/api/walls/<wall-id>/sessions/<session-id>[PUT] - close session [wall auth reqd]
 /api/walls/<wall-id>/sessions/<session-id>/characters - return (non-live) list
                                                        of characters for given
                                                        wall and session

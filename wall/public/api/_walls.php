@@ -6,6 +6,7 @@
 require_once('../../lib/parapara.inc');
 require_once('api.inc');
 require_once('walls.inc');
+require_once('utils.inc');
 
 header('Content-Type: text/plain; charset=UTF-8');
 
@@ -17,7 +18,7 @@ if (!isset($_SESSION['email'])) {
 }
 
 // Prepare common parameters
-$wallId = isset($_REQUEST['id']) ? intval($_REQUEST['id']) : null;
+$wallId = toIntOrNull(@$_REQUEST['id']);
 
 // Parse input
 $handle = fopen('php://input','r');

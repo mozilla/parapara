@@ -46,7 +46,7 @@ class SessionsTestCase extends WallMakerTestCase {
     $sessionId = $wall['latestSession']['id'];
 
     // Close session
-    $response = $this->endSession($wall['wallId'], $sessionId);
+    $response = $this->closeSession($wall['wallId'], $sessionId);
 
     // Check we got the times and status
     $this->assertTrue(!array_key_exists('error_key', $response),
@@ -66,7 +66,7 @@ class SessionsTestCase extends WallMakerTestCase {
 
     // Logout and check it fails
     $this->logout();
-    $response = $this->endSession($wall['wallId'], $sessionId);
+    $response = $this->closeSession($wall['wallId'], $sessionId);
     $this->assertTrue(array_key_exists('error_key', $response) &&
                       $response['error_key'] == 'logged-out',
                       "Closed session whilst logged out.");
@@ -88,12 +88,12 @@ class SessionsTestCase extends WallMakerTestCase {
     $sessionId = $wall['latestSession']['id'];
 
     // Close session
-    $response = $this->endSession($wall['wallId'], $sessionId);
+    $response = $this->closeSession($wall['wallId'], $sessionId);
     $this->assertTrue($this->isClosedSession($response),
                       "Session does not appear to be ended");
 
     // Close again
-    $response = $this->endSession($wall['wallId'], $sessionId);
+    $response = $this->closeSession($wall['wallId'], $sessionId);
     $this->assertTrue(array_key_exists('error_key', $response) &&
                       $response['error_key'] == 'parallel-change',
                       "No error about parallel change when closing twice");
@@ -123,7 +123,7 @@ class SessionsTestCase extends WallMakerTestCase {
     $sessionId = $wall['latestSession']['id'];
 
     // Start new session
-    $response = $this->startNewSession($wall['wallId'], $sessionId);
+    $response = $this->startSession($wall['wallId'], $sessionId);
 
     // Check we got the times and status
     $this->assertTrue(!array_key_exists('error_key', $response),
@@ -144,7 +144,7 @@ class SessionsTestCase extends WallMakerTestCase {
 
     // Logout and check it fails
     $this->logout();
-    $response = $this->startNewSession($wall['wallId'], $sessionId);
+    $response = $this->startSession($wall['wallId'], $sessionId);
     $this->assertTrue(array_key_exists('error_key', $response) &&
                       $response['error_key'] == 'logged-out',
                       "Started new session whilst logged out.");
@@ -164,10 +164,10 @@ class SessionsTestCase extends WallMakerTestCase {
     $sessionId = $wall['latestSession']['id'];
 
     // Start new session
-    $responseA = $this->startNewSession($wall['wallId'], $sessionId);
+    $responseA = $this->startSession($wall['wallId'], $sessionId);
 
     // And do it again but with the OLD sessionId
-    $responseB = $this->startNewSession($wall['wallId'], $sessionId);
+    $responseB = $this->startSession($wall['wallId'], $sessionId);
     $this->assertTrue(array_key_exists('error_key', $responseB) &&
                       $responseB['error_key'] == 'parallel-change',
                       "No error about parallel change when starting with old "
@@ -236,15 +236,12 @@ class SessionsTestCase extends WallMakerTestCase {
     return $wall;
   }
 
-  function endSession($wallId, $sessionId) {
-    // Prepare payload
-    $payload['wallId'] = $wallId;
-    $payload['sessionId'] = $sessionId;
-
+  function closeSession($wallId, $sessionId) {
     // Make request
     global $config;
-    $url = $config['test']['wall_server'] . 'wall-maker/api/closeSession';
-    $response = $this->post($url, json_encode($payload));
+    $url = $config['test']['wall_server'] .
+      "api/walls/$wallId/sessions/$sessionId";
+    $response = $this->put($url, null);
 
     // Check response
     $this->assertResponse(200);
@@ -258,14 +255,13 @@ class SessionsTestCase extends WallMakerTestCase {
     return $parsedResponse;
   }
 
-  function startNewSession($wallId, $sessionId) {
+  function startSession($wallId, $sessionId) {
     // Prepare payload
-    $payload['wallId'] = $wallId;
     $payload['sessionId'] = $sessionId;
 
     // Make request
     global $config;
-    $url = $config['test']['wall_server'] . 'wall-maker/api/startSession';
+    $url = $config['test']['wall_server'] . "api/walls/$wallId/sessions";
     $response = $this->post($url, json_encode($payload));
 
     // Check response
