@@ -67,13 +67,8 @@ class SessionsTestCase extends WallMakerTestCase {
     // Logout and check it fails
     $this->logout();
     $response = $this->closeSession($wall['wallId'], $sessionId);
-    $this->assertTrue(array_key_exists('error_key', $response) &&
-                      $response['error_key'] == 'logged-out',
+    $this->assertTrue(@$response['error_key'] == 'logged-out',
                       "Closed session whilst logged out.");
-
-    // XXX Check we can't end the session of someone else's wall
-    // XXX Test we get a bad-request error if either wallId or sessionId is 
-    // missing or bad
 
     // Tidy up by removing the wall
     $this->removeWall($wall['wallId']);
@@ -114,6 +109,21 @@ class SessionsTestCase extends WallMakerTestCase {
     $this->removeWall($wall['wallId']);
   }
 
+  function testCloseSomeoneElsesWall() {
+    // Login as test user
+    $this->login();
+    $wall = $this->createWall('Test wall', $this->testDesignId);
+    $sessionId = $wall['latestSession']['id'];
+
+    // Switch user
+    $this->login('abc@abc.org');
+    $response = $this->closeSession($wall['wallId'], $sessionId);
+    $this->assertEqual(@$response['error_key'], 'no-auth');
+
+    // Tidy up by removing the wall
+    $this->removeWall($wall['wallId']);
+  }
+
   function testStartNew() {
     // Login
     $this->login();
@@ -149,7 +159,17 @@ class SessionsTestCase extends WallMakerTestCase {
                       $response['error_key'] == 'logged-out',
                       "Started new session whilst logged out.");
 
-    // XXX Check we can't start a new session on someone else's wall
+    // Tidy up by removing the wall
+    $this->removeWall($wall['wallId']);
+  }
+
+  function testBadRequest() {
+    // Login
+    $this->login();
+    $wall = $this->createWall('Test wall', $this->testDesignId);
+    $sessionId = $wall['latestSession']['id'];
+    $response = $this->startSession($wall['wallId'], null);
+    $this->assertEqual(@$response['error_key'], 'bad-request');
 
     // Tidy up by removing the wall
     $this->removeWall($wall['wallId']);
@@ -180,6 +200,21 @@ class SessionsTestCase extends WallMakerTestCase {
     // when we first started a new session
     $this->assertEqual(@$responseA['id'], @$responseB['error_detail']['id'],
                        "Got unexpected session ID: %s");
+
+    // Tidy up by removing the wall
+    $this->removeWall($wall['wallId']);
+  }
+
+  function testStartSomeoneElsesWall() {
+    // Login as test user
+    $this->login();
+    $wall = $this->createWall('Test wall', $this->testDesignId);
+    $sessionId = $wall['latestSession']['id'];
+
+    // Switch user
+    $this->login('abc@abc.org');
+    $response = $this->startSession($wall['wallId'], $sessionId);
+    $this->assertEqual(@$response['error_key'], 'no-auth');
 
     // Tidy up by removing the wall
     $this->removeWall($wall['wallId']);
