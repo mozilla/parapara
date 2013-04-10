@@ -208,4 +208,33 @@ class SetWallTestCase extends WallMakerTestCase {
     $this->assertEqual(@$wall['name'], 'ABCD');
     $this->assertEqual(@$wall['eventDescr'], 'A good event');
   }
+
+  function testSetDesign() {
+    // Update design
+    // (We are just going to guess here that there is a design with ID 1 and 
+    // it's not the test design)
+    $result = $this->updateWall($this->testWallId, array('designId' => 1));
+    $this->assertTrue(!array_key_exists('error_key', $result),
+                      "Failed to update design" . @$result['error_key']);
+    $this->assertEqual(@$result['designId'], 1);
+    $this->assertTrue(strlen(@$result['thumbnail']) > 0,
+                      "Thumbnail not returned when updating design");
+    $this->assertTrue(intval(@$result['defaultDuration']) > 0,
+                      "Default duration not returned when updating design");
+
+    // Unrecognized design
+    $result = $this->updateWall($this->testWallId, array('designId' => 999));
+    $this->assertEqual(@$result['error_key'], 'bad-design');
+
+    // Test non-number
+    $result = $this->updateWall($this->testWallId, array('designId' => 'abc'));
+    $this->assertEqual(@$result['error_key'], 'bad-request');
+
+    // Test setting defaultDuration or thumbnail fails
+    $result = $this->updateWall($this->testWallId, array('thumbnail' => 'abc'));
+    $this->assertEqual(@$result['error_key'], 'readonly-field');
+    $result = $this->updateWall($this->testWallId,
+                                array('defaultDuration' => 5));
+    $this->assertEqual(@$result['error_key'], 'readonly-field');
+  }
 }

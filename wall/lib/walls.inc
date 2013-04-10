@@ -155,7 +155,8 @@ class Wall {
   static private $hiddenFields   = array('passcode');
   static private $virtualFields  = array('id', 'passcodeLen',
                                          'wallUrl', 'editorUrl',
-                                         'design', 'thumbnail');
+                                         'design', 'thumbnail',
+                                         'defaultDuration');
   static private $readOnlyFields = array('editorUrlShort');
 
   public function __construct($id, $email, $metadata) {
@@ -247,10 +248,8 @@ class Wall {
     // Reject read-only/virtual fields
     // (XXX Might be better to handle each acceptable field below when we 
     //  sanitize and if it's not recognized, throw there)
-    if (in_array($name, self::$virtualFields))
-      throw new KeyedException('readonly-field');
-
-    if (in_array($name, self::$readOnlyFields))
+    if (in_array($name, self::$virtualFields) ||
+        in_array($name, self::$readOnlyFields))
       throw new KeyedException('readonly-field');
 
     // Sanitize values
@@ -273,6 +272,13 @@ class Wall {
           Wall::validatePath($value);
         }
         break;
+
+      case 'designId':
+        $value = intval($value);
+        if ($value < 1)
+          throw new KeyedException('bad-request');
+        DesignGallery::validateDesignId($value);
+        break;
     }
 
     // Check if the value is actually different
@@ -288,14 +294,21 @@ class Wall {
         array_push($this->dirtyFields, $name);
     }
 
-    // Special handling for shortened editor URL
-    if ($name === 'urlPath') {
-      $editorUrlShort = Wall::getShortenedEditorUrlForPath($value);
-      if ($editorUrlShort !== $this->metadata['editorShortUrl']) {
-        $this->metadata['editorUrlShort'] = $editorUrlShort;
-        if (!in_array('editorUrlShort', $this->dirtyFields))
-          array_push($this->dirtyFields, 'editorUrlShort');
-      }
+    // Special handling for fields that have calculated values
+    switch ($name) {
+      case 'urlPath':
+        $editorUrlShort = Wall::getShortenedEditorUrlForPath($value);
+        if ($editorUrlShort !== $this->metadata['editorShortUrl']) {
+          $this->metadata['editorUrlShort'] = $editorUrlShort;
+          if (!in_array('editorUrlShort', $this->dirtyFields))
+            array_push($this->dirtyFields, 'editorUrlShort');
+        }
+        break;
+
+      case 'designId':
+        // Reset cached design
+        $this->_design = null;
+        break;
     }
   }
 
@@ -353,6 +366,12 @@ class Wall {
         case 'urlPath':
           $changedFields['wallUrl'] = $this->wallUrl;
           $changedFields['editorUrl'] = $this->editorUrl;
+          break;
+
+        case 'designId':
+          $changedFields['designId'] = $this->designId;
+          $changedFields['thumbnail'] = $this->design->thumbnail;
+          $changedFields['defaultDuration'] = $this->design->duration;
           break;
 
         default:

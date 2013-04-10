@@ -190,6 +190,12 @@ class DesignGallery {
 
     return array_values(self::$designs);
   }
+
+  public static function validateDesignId($id) {
+    $design = self::getById($id);
+    if ($design === null)
+      throw new KeyedException('bad-design');
+  }
 }
 
 // Get the summary of all designs as an array suitable for JSON encoding
