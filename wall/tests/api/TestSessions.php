@@ -271,12 +271,14 @@ class SessionsTestCase extends WallMakerTestCase {
     return $wall;
   }
 
-  function endSession($wallId, $sessionId) {
+  function startSession($wallId, $sessionId) {
+    // Prepare payload
+    $payload['sessionId'] = $sessionId;
+
     // Make request
     global $config;
-    $url = $config['test']['wall_server'] .
-      "api/walls/$wallId/sessions/$sessionId";
-    $response = $this->put($url, null);
+    $url = $config['test']['wall_server'] . "api/walls/$wallId/sessions";
+    $response = $this->post($url, json_encode($payload));
 
     // Check response
     $this->assertResponse(200);
@@ -290,14 +292,12 @@ class SessionsTestCase extends WallMakerTestCase {
     return $parsedResponse;
   }
 
-  function startSession($wallId, $sessionId) {
-    // Prepare payload
-    $payload['sessionId'] = $sessionId;
-
+  function endSession($wallId, $sessionId) {
     // Make request
     global $config;
-    $url = $config['test']['wall_server'] . "api/walls/$wallId/sessions";
-    $response = $this->post($url, json_encode($payload));
+    $url = $config['test']['wall_server'] .
+      "api/walls/$wallId/sessions/$sessionId";
+    $response = $this->put($url, null);
 
     // Check response
     $this->assertResponse(200);
