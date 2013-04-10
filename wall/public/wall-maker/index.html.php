@@ -212,7 +212,7 @@
                 <button type="button"
                   id="manage-startSession">新セッションをスタートする</button>
                 <button type="button"
-                   id="manage-closeSession">セッションを終了する</button>
+                   id="manage-endSession">セッションを終了する</button>
               </div>
               <div class="callout">
                 <p>

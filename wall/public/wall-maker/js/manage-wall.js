@@ -75,8 +75,8 @@ var ManageWallController =
     // Session buttons
     $('manage-startSession').addEventListener('click',
       this.startSession.bind(this));
-    $('manage-closeSession').addEventListener('click',
-      this.closeSession.bind(this));
+    $('manage-endSession').addEventListener('click',
+      this.endSession.bind(this));
 
     // Catch submission attempts
     this.form.addEventListener("submit",
@@ -425,17 +425,17 @@ var ManageWallController =
    */
   startSession: function() {
     this.startUpdateSessionInfo();
-    ParaPara.postUrl(WallMaker.rootUrl + '/api/startSession',
-      {wallId: this.wallId, sessionId: this.sessionId},
+    ParaPara.postUrl('/api/walls/' + this.wallId + '/sessions',
+      {sessionId: this.sessionId},
       this.updateSessionInfo.bind(this),
       this.handleSessionError.bind(this)
     );
   },
 
-  closeSession: function() {
+  endSession: function() {
     this.startUpdateSessionInfo();
-    ParaPara.postUrl(WallMaker.rootUrl + '/api/closeSession',
-      {wallId: this.wallId, sessionId: this.sessionId},
+    ParaPara.putUrl('/api/walls/' + this.wallId + '/sessions/' + this.sessionId,
+      null,
       this.updateSessionInfo.bind(this),
       this.handleSessionError.bind(this)
     );
@@ -461,18 +461,18 @@ var ManageWallController =
     this.messageBox.clear();
     document.querySelector(".wallStatus").classList.add("updating");
     // Remember our state in case we need to restore it
-    this.sessionStatus = $("manage-closeSession").disabled
+    this.sessionStatus = $("manage-endSession").disabled
                        ? 'finished'
                        : 'running';
     // Disable buttons to avoid double-click
     $("manage-startSession").disabled = true;
-    $("manage-closeSession").disabled = true;
+    $("manage-endSession").disabled = true;
   },
 
   restoreSessionInfo: function() {
     // Restore button state
     $("manage-startSession").disabled = false;
-    $("manage-closeSession").disabled = this.sessionStatus == 'finished';
+    $("manage-endSession").disabled = this.sessionStatus == 'finished';
     document.querySelector(".wallStatus").classList.remove("updating");
   },
 
@@ -487,7 +487,7 @@ var ManageWallController =
       time.textContent = ParaPara.toLocalDate(session.end) + ' 終了';
       currentStatus.textContent = '終了';
       statusBlock.classList.add('finished');
-      $("manage-closeSession").disabled = true;
+      $("manage-endSession").disabled = true;
       this.sessionId = session.id;
     } else if (session && session.start) {
       // Open session
@@ -495,7 +495,7 @@ var ManageWallController =
       time.textContent = ParaPara.toLocalDate(session.start) + ' 開始';
       currentStatus.textContent = '公開中';
       statusBlock.classList.add('running');
-      $("manage-closeSession").disabled = false;
+      $("manage-endSession").disabled = false;
       this.sessionId = session.id;
     } else {
       // No session
@@ -503,7 +503,7 @@ var ManageWallController =
       statusBlock.classList.remove('running');
       time.textContent = '--';
       currentStatus.textContent = '未発';
-      $("manage-closeSession").disabled = true;
+      $("manage-endSession").disabled = true;
       this.sessionId = null;
     }
     document.querySelector(".wallStatus").classList.remove("updating");
