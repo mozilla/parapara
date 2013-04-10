@@ -9,7 +9,7 @@ require_once("api.inc");
 require_once("login.inc");
 require_once("walls.inc");
 
-header("Content-Type: text/plain; charset=UTF-8");
+header('Content-Type: application/json; charset=UTF-8');
 
 // Verify request
 $data = getRequestData();

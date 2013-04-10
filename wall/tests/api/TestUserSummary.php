@@ -111,7 +111,7 @@ class TestMySummary extends WallMakerTestCase {
 
     // Check response
     $this->assertResponse(200);
-    $this->assertMime('text/plain; charset=UTF-8');
+    $this->assertMime('application/json; charset=UTF-8');
 
     // Parse response
     $summary = json_decode($response,true);

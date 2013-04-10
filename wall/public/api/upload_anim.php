@@ -18,7 +18,7 @@ header('Access-Control-Max-Age: 86400');
 if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS')
   exit;
 
-header("Content-Type: text/plain; charset=UTF-8");
+header('Content-Type: application/json; charset=UTF-8');
 
 // Parse wall name
 $url = $_SERVER["REDIRECT_URL"];

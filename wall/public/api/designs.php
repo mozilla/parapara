@@ -7,7 +7,7 @@ require_once('../../lib/parapara.inc');
 require_once('api.inc');
 require_once('designs.inc');
 
-header('Content-Type: text/plain; charset=UTF-8');
+header('Content-Type: application/json; charset=UTF-8');
 
 print json_encode(getDesignSummary());
 
