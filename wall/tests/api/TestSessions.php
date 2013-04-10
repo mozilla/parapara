@@ -35,7 +35,7 @@ class SessionsTestCase extends WallMakerTestCase {
     $this->removeWall($wall['wallId']);
   }
 
-  function testCloseSession() {
+  function testEndSession() {
     // Login
     $this->login();
 
@@ -45,8 +45,8 @@ class SessionsTestCase extends WallMakerTestCase {
     // Get current session ID
     $sessionId = $wall['latestSession']['id'];
 
-    // Close session
-    $response = $this->closeSession($wall['wallId'], $sessionId);
+    // End session
+    $response = $this->endSession($wall['wallId'], $sessionId);
 
     // Check we got the times and status
     $this->assertTrue(!array_key_exists('error_key', $response),
@@ -66,7 +66,7 @@ class SessionsTestCase extends WallMakerTestCase {
 
     // Logout and check it fails
     $this->logout();
-    $response = $this->closeSession($wall['wallId'], $sessionId);
+    $response = $this->endSession($wall['wallId'], $sessionId);
     $this->assertTrue(@$response['error_key'] == 'logged-out',
                       "Closed session whilst logged out.");
 
@@ -74,7 +74,7 @@ class SessionsTestCase extends WallMakerTestCase {
     $this->removeWall($wall['wallId']);
   }
 
-  function testCloseClosedSession() {
+  function testEndClosedSession() {
     // Login
     $this->login();
 
@@ -82,13 +82,13 @@ class SessionsTestCase extends WallMakerTestCase {
     $wall = $this->createWall('Test wall', $this->testDesignId);
     $sessionId = $wall['latestSession']['id'];
 
-    // Close session
-    $response = $this->closeSession($wall['wallId'], $sessionId);
+    // End session
+    $response = $this->endSession($wall['wallId'], $sessionId);
     $this->assertTrue($this->isClosedSession($response),
                       "Session does not appear to be ended");
 
-    // Close again
-    $response = $this->closeSession($wall['wallId'], $sessionId);
+    // End again
+    $response = $this->endSession($wall['wallId'], $sessionId);
     $this->assertTrue(array_key_exists('error_key', $response) &&
                       $response['error_key'] == 'parallel-change',
                       "No error about parallel change when closing twice");
@@ -109,7 +109,7 @@ class SessionsTestCase extends WallMakerTestCase {
     $this->removeWall($wall['wallId']);
   }
 
-  function testCloseSomeoneElsesWall() {
+  function testEndSomeoneElsesWall() {
     // Login as test user
     $this->login();
     $wall = $this->createWall('Test wall', $this->testDesignId);
@@ -117,7 +117,7 @@ class SessionsTestCase extends WallMakerTestCase {
 
     // Switch user
     $this->login('abc@abc.org');
-    $response = $this->closeSession($wall['wallId'], $sessionId);
+    $response = $this->endSession($wall['wallId'], $sessionId);
     $this->assertEqual(@$response['error_key'], 'no-auth');
 
     // Tidy up by removing the wall
@@ -271,7 +271,7 @@ class SessionsTestCase extends WallMakerTestCase {
     return $wall;
   }
 
-  function closeSession($wallId, $sessionId) {
+  function endSession($wallId, $sessionId) {
     // Make request
     global $config;
     $url = $config['test']['wall_server'] .
