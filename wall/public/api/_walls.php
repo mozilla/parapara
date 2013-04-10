@@ -5,33 +5,26 @@
 
 require_once('../../lib/parapara.inc');
 require_once('api.inc');
+require_once('login.inc');
 require_once('walls.inc');
 require_once('utils.inc');
 
 header('Content-Type: text/plain; charset=UTF-8');
 
 // Check we are logged in
-session_name(WALLMAKER_SESSION_NAME);
-session_start();
-if (!isset($_SESSION['email'])) {
-  bailWithError('logged-out');
-}
+$email = getUserEmail();
 
 // Prepare common parameters
 $wallId = toIntOrNull(@$_REQUEST['id']);
 
 // Parse input
-$handle = fopen('php://input','r');
-$jsonString = fgets($handle);
-$json = json_decode($jsonString,true);
-fclose($handle);
+$data = getRequestData();
 
 switch ($_SERVER['REQUEST_METHOD']) {
   case 'POST':
     // Create wall
-    $name     = @$json['name'];
-    $designId = @$json['design'];
-    $email    = @$_SESSION['email'];
+    $name     = @$data['name'];
+    $designId = @$data['design'];
     $wall     = Walls::create($name, $designId, $email);
 
     // Start session
@@ -47,8 +40,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
       // XXX Return the list of walls here
       bailWithError('bad-request');
     }
-    $email = @$_SESSION['email'];
-    $wall  = Walls::getById($wallId, $email);
+    $wall = Walls::getById($wallId, $email);
     if ($wall === null)
       bailWithError('not-found');
 
@@ -74,15 +66,14 @@ switch ($_SERVER['REQUEST_METHOD']) {
       bailWithError('bad-request');
 
     // Get wall
-    $email = @$_SESSION['email'];
-    $wall  = Walls::getById($wallId, $email);
+    $wall = Walls::getById($wallId, $email);
     if ($wall === null)
       bailWithError('not-found');
 
     // Update fields
-    if (!is_array($json))
+    if (!is_array($data))
       bailWithError('bad-request');
-    foreach ($json as $key => $value) {
+    foreach ($data as $key => $value) {
       $wall->$key = $value;
     }
 

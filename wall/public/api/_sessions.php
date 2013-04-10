@@ -6,17 +6,13 @@
 require_once('../../lib/parapara.inc');
 require_once('api.inc');
 require_once('walls.inc');
+require_once('login.inc');
 require_once('utils.inc');
 
 header('Content-Type: text/plain; charset=UTF-8');
 
 // Check we are logged in
-// XXX Factor this out to api.inc somewhere
-session_name(WALLMAKER_SESSION_NAME);
-session_start();
-if (!isset($_SESSION['email'])) {
-  bailWithError('logged-out');
-}
+$email = getUserEmail();
 
 // Prepare common parameters
 $wallId    = toIntOrNull(@$_REQUEST['wallId']);
@@ -26,18 +22,14 @@ if (!$wallId)
 
 // If there is no sessionId, look for it in the request data
 if (!$sessionId) {
-  // XXX Factor this out to api.inc somewhere
-  $handle = fopen('php://input','r');
-  $jsonString = fgets($handle);
-  $json = json_decode($jsonString,true);
-  fclose($handle);
-  $sessionId = toIntOrNull(@$json['sessionId']);
+  $data = getRequestData();
+  $sessionId = toIntOrNull(@$data['sessionId']);
 }
 if (!$sessionId)
   bailWithError('bad-request');
 
 // Get wall
-$wall = Walls::getById($wallId, $_SESSION['email']);
+$wall = Walls::getById($wallId, $email);
 if ($wall === null)
   bailWithError('not-found');
 
