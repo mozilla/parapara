@@ -78,6 +78,17 @@ var ManageWallController =
     $('manage-endSession').addEventListener('click',
       this.endSession.bind(this));
 
+    // Design changes
+    this.designSelection.addEventListener('create',
+      function(evt) {
+        var radios = evt.target.selector.radios;
+        for (var i = 0; i < radios.length; i++) {
+          radios[i].addEventListener('change',
+            this.saveDesign.bind(this), false);
+        }
+      }.bind(this)
+    );
+
     // Catch submission attempts
     this.form.addEventListener("submit",
       function(evt) { evt.preventDefault(); });
@@ -155,6 +166,10 @@ var ManageWallController =
     return this._messageBox;
   },
 
+  get designSelection() {
+    return this.form.querySelector('.designSelection');
+  },
+
   loadSuccess: function(response, tabName) {
     // It doesn't make sense to show errors when we change wall
     this.messageBox.clear();
@@ -200,21 +215,10 @@ var ManageWallController =
     this.updateSessionInfo(wall.latestSession);
 
     // Design
-    var designRadio =
-      this.form.querySelector("input[type=radio][name=design]");
-    var origValue = designRadio.checked;
-    designRadio.checked = (designRadio.value == wall.designId);
-    if (designRadio.checked != origValue) {
-      // Unfortunately, just changing checked does not trigger a change event
-      // in most browsers so we trigger an event specifically fire the event
-      var evt = document.createEvent('HTMLEvents');
-      evt.initEvent('change', true, true);
-      designRadio.dispatchEvent(evt);
-    }
+    this.updateDesign(wall.designId, wall.defaultDuration);
     $("manage-duration").value = wall.duration == null
                                ? ""
                                : wall.duration/1000;
-    $("manage-defaultDuration").textContent = wall.defaultDuration/1000;
 
     // Gallery
     var radios = document.getElementsByName("manage-galleryDisplay");
@@ -506,6 +510,20 @@ var ManageWallController =
     }
     document.querySelector(".wallStatus").classList.remove("updating");
   },
+
+  /*
+   * Design management
+   */
+  updateDesign: function(designId, designDuration) {
+    // Update radio button
+    this.designSelection.selector.select(designId);
+
+    // Update default duration
+    $("manage-defaultDuration").textContent = designDuration / 1000;
+  },
+
+  saveDesign: function() {
+  }
 };
 
 // A wrapper for a text input that tells you when the contents have changed for
