@@ -516,13 +516,41 @@ var ManageWallController =
    */
   updateDesign: function(designId, designDuration) {
     // Update radio button
-    this.designSelection.selector.select(designId);
+    this.designSelection.selector.value = designId;
+    this.designSelection.oldValue = designId;
 
     // Update default duration
     $("manage-defaultDuration").textContent = designDuration / 1000;
   },
 
   saveDesign: function() {
+    // Update UI
+    this.messageBox.clear();
+    var selection = this.designSelection;
+    selection.classList.add('sending');
+
+    // Send change
+    var payload = { designId: selection.selector.value };
+    ParaPara.putUrl('/api/walls/' + this.wallId,
+      payload,
+      function (changedFields) {
+        this.messageBox.showInfo('updated-field', 'designId', 1800);
+        this.updateDesign(changedFields.designId,
+                          changedFields.defaultDuration);
+        this.updateThumbnail(changedFields.thumbnail);
+        selection.classList.remove('sending');
+      }.bind(this),
+      function (key, detail) {
+        if (key === 'logged-out') {
+          // XXX Factor this out somewhere
+          LoginController.logout();
+        } else {
+          this.messageBox.showError(key, detail);
+        }
+        selection.selector.value = selection.oldValue;
+        selection.classList.remove('sending');
+      }.bind(this)
+    );
   }
 };
 

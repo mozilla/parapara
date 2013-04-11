@@ -224,7 +224,7 @@
               </div>
             </section>
             <section id="manage-design" aria-role="tabpanel" aria-hidden="true">
-              <div class="designSelection"></div>
+              <div class="designSelection withIcon"></div>
               <ul>
                 <li>
                   <label class="inline">現在のアニメーションスピード</label>

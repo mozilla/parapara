@@ -222,8 +222,16 @@ var DesignSelection = function(container, designs) {
     container.dispatchEvent(evt);
   };
 
-  // Update the selection manually
-  this.select = function(value) {
+  this.__defineGetter__("value", function() {
+    var radios = this.radios;
+    for (var i = 0; i < radios.length; i++) {
+      if (radios[i].checked)
+        return radios[i].value;
+    }
+    return null;
+  });
+
+  this.__defineSetter__("value", function(value) {
     var radios = this.radios;
     for (var i = 0; i < radios.length; i++) {
       var radio     = radios[i];
@@ -233,7 +241,7 @@ var DesignSelection = function(container, designs) {
         this._radioChange();
       }
     }
-  };
+  });
 
   this.__defineGetter__("radios", function() {
     return this.container.querySelectorAll("input[type=radio][name=design]");
