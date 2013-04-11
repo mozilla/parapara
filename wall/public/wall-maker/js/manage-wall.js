@@ -196,10 +196,6 @@ var ManageWallController =
     this.updateWallLinks(wall.wallUrl, wall.editorUrl, wall.editorUrlShort);
     this.hideEditUrlForm();
 
-    // Event data
-    $("manage-eventLocation").value = wall.eventLocation;
-    $("manage-eventDescr").value = wall.eventDescr;
-
     // Sessions
     this.updateSessionInfo(wall.latestSession);
 
@@ -223,12 +219,7 @@ var ManageWallController =
                                : wall.duration/1000;
     $("manage-defaultDuration").textContent = wall.defaultDuration/1000;
 
-    // Privacy
-    var dummypasscode = "";
-    for (var i = 0; i < wall.passcodeLen; i++) {
-      dummypasscode += "x";
-    }
-    $("manage-passcode").value = dummypasscode;
+    // Gallery
     var radios = document.getElementsByName("manage-galleryDisplay");
     if (wall.galleryDisplay == 0) {
       radios[0].checked = false;
@@ -237,8 +228,18 @@ var ManageWallController =
       radios[0].checked = true;
       radios[1].checked = false;
     }
+    $("manage-eventDescr").value = wall.eventDescr;
 
-    // Collaboration
+    // Location
+    $("manage-eventLocation").value = wall.eventLocation;
+
+    // Access
+    var dummypasscode = "";
+    for (var i = 0; i < wall.passcodeLen; i++) {
+      dummypasscode += "x";
+    }
+    $("manage-passcode").value = dummypasscode;
+
     // Characters
   },
 
