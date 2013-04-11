@@ -78,16 +78,7 @@ var ManageWallController =
     $('manage-endSession').addEventListener('click',
       this.endSession.bind(this));
 
-    // Design changes
-    this.designSelection.addEventListener('create',
-      function(evt) {
-        var radios = evt.target.selector.radios;
-        for (var i = 0; i < radios.length; i++) {
-          radios[i].addEventListener('change',
-            this.saveDesign.bind(this), false);
-        }
-      }.bind(this)
-    );
+    this.initDesigns();
 
     // Catch submission attempts
     this.form.addEventListener("submit",
@@ -514,6 +505,27 @@ var ManageWallController =
   /*
    * Design management
    */
+  initDesigns: function() {
+    // Listen for changes--need to re-register every time the design selection
+    // gets re-generated
+    this.designSelection.addEventListener('create',
+      function(evt) {
+        var radios = evt.target.selector.radios;
+        for (var i = 0; i < radios.length; i++) {
+          radios[i].addEventListener('change',
+            this.saveDesign.bind(this), false);
+        }
+      }.bind(this)
+    );
+
+    // Clear default duration on form reset
+    this.form.addEventListener('reset',
+      function() {
+        $("manage-defaultDuration").textContent = "";
+      }
+    );
+  },
+
   updateDesign: function(designId, designDuration) {
     // Update radio button
     this.designSelection.selector.value = designId;
