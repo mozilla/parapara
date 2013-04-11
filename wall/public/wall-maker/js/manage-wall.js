@@ -200,19 +200,16 @@ var ManageWallController =
     this.updateSessionInfo(wall.latestSession);
 
     // Design
-    var designRadios =
-      this.form.querySelectorAll("input[type=radio][name=design]");
-    for (var i = 0; i < designRadios.length; i++) {
-      var radio = designRadios[i];
-      var origValue = radio.checked;
-      radio.checked = (radio.value == wall.designId);
-      if (radio.checked != origValue) {
-        // Unfortunately, just changing checked does not trigger a change event
-        // in most browsers so we trigger an event specifically fire the event
-        var evt = document.createEvent('HTMLEvents');
-        evt.initEvent('change', true, true);
-        radio.dispatchEvent(evt);
-      }
+    var designRadio =
+      this.form.querySelector("input[type=radio][name=design]");
+    var origValue = designRadio.checked;
+    designRadio.checked = (designRadio.value == wall.designId);
+    if (designRadio.checked != origValue) {
+      // Unfortunately, just changing checked does not trigger a change event
+      // in most browsers so we trigger an event specifically fire the event
+      var evt = document.createEvent('HTMLEvents');
+      evt.initEvent('change', true, true);
+      designRadio.dispatchEvent(evt);
     }
     $("manage-duration").value = wall.duration == null
                                ? ""
