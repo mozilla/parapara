@@ -30,7 +30,7 @@ function login($assertion) {
   );
 
   // Send request
-  $response = postUrl("https://browserid.org/verify", $payload);
+  $response = postUrl("https://verifier.login.persona.org/verify", $payload);
 
   // Check response is valid
   if (!$response) {
