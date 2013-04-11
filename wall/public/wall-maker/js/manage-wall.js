@@ -72,12 +72,7 @@ var ManageWallController =
         }
       );
 
-    // Session buttons
-    $('manage-startSession').addEventListener('click',
-      this.startSession.bind(this));
-    $('manage-endSession').addEventListener('click',
-      this.endSession.bind(this));
-
+    this.initSessions();
     this.initDesigns();
 
     // Catch submission attempts
@@ -289,7 +284,6 @@ var ManageWallController =
     this.wallId = null;
     this.updateThumbnail();
     this.updateWallLinks('', '', null);
-    this.updateSessionInfo();
   },
 
   loadError: function(key, detail) {
@@ -416,6 +410,19 @@ var ManageWallController =
   /*
    * Session management
    */
+  initSessions: function() {
+    // Watch session buttons
+    $('manage-startSession').addEventListener('click',
+      this.startSession.bind(this));
+    $('manage-endSession').addEventListener('click',
+      this.endSession.bind(this));
+
+    // Restore on reset
+    this.form.addEventListener('reset',
+      function() { this.updateSessionInfo(); }.bind(this)
+    );
+  },
+
   startSession: function() {
     this.startUpdateSessionInfo();
     ParaPara.postUrl('/api/walls/' + this.wallId + '/sessions',
