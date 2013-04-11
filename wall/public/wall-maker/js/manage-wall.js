@@ -49,29 +49,7 @@ var ManageWallController =
       }
     );
 
-    // URL editing
-    $('editWallUrl').addEventListener('click',
-      this.showEditUrlForm.bind(this));
-    $('cancelSaveWallUrl').addEventListener('click',
-      this.hideEditUrlForm.bind(this));
-    $('saveWallUrl').addEventListener('click',
-      this.saveWallUrl.bind(this));
-    $('wallPath').addEventListener('keydown',
-      function(evt) {
-        if (evt.which == 10 || evt.which == 13) {
-          evt.preventDefault();
-          this.saveWallUrl();
-        }
-      }.bind(this));
-    $('showEditorUrlQrCode').addEventListener('click',
-      this.showQrCode.bind(this));
-    $('qrCode').querySelector('button').addEventListener('click',
-        function() {
-          document.querySelector('div.overlay').
-            setAttribute('aria-hidden', 'true');
-        }
-      );
-
+    this.initWallLinks();
     this.initSessions();
     this.initDesigns();
 
@@ -195,7 +173,7 @@ var ManageWallController =
 
     // Make up links
     this.updateWallLinks(wall.wallUrl, wall.editorUrl, wall.editorUrlShort);
-    this.hideEditUrlForm();
+    this.setEditUrlFormState('view');
 
     // Sessions
     this.updateSessionInfo(wall.latestSession);
@@ -246,6 +224,58 @@ var ManageWallController =
     container.appendChild(img);
   },
 
+  clearWallInfo: function() {
+    this.wallId = null;
+    this.updateThumbnail();
+  },
+
+  loadError: function(key, detail) {
+    // XXX Need to translate errors here
+    var msg = "エラー";
+    switch (key) {
+      case 'access-denied':
+        msg = "アクセスできません。";
+        break;
+      case 'not-found':
+        msg = "壁が見つかりませんでした。";
+        break;
+    }
+    Navigation.showErrorPage(msg);
+  },
+
+  /*
+   * Wall urls
+   */
+  initWallLinks: function() {
+    // Set up form
+    $('editWallUrl').addEventListener('click',
+      function() { this.setEditUrlFormState('edit'); }.bind(this));
+    $('cancelSaveWallUrl').addEventListener('click',
+      function() { this.setEditUrlFormState('view'); }.bind(this));
+    $('saveWallUrl').addEventListener('click',
+      this.saveWallUrl.bind(this));
+    $('wallPath').addEventListener('keydown',
+      function(evt) {
+        if (evt.which == 10 || evt.which == 13) {
+          evt.preventDefault();
+          this.saveWallUrl();
+        }
+      }.bind(this));
+    $('showEditorUrlQrCode').addEventListener('click',
+      this.showQrCode.bind(this));
+    $('qrCode').querySelector('button').addEventListener('click',
+        function() {
+          document.querySelector('div.overlay').
+            setAttribute('aria-hidden', 'true');
+        }
+      );
+
+    // Clear on reset
+    this.form.addEventListener('reset', function() {
+      this.updateWallLinks('', '', null);
+    }.bind(this));
+  },
+
   updateWallLinks: function(wallUrl, editorUrl, editorShortUrl) {
     // Update wall link
     $('wallUrl').setAttribute('href', wallUrl);
@@ -278,37 +308,6 @@ var ManageWallController =
       shortEditorLink.removeAttribute('href');
       shortEditorLink.textContent = '';
     }
-  },
-
-  clearWallInfo: function() {
-    this.wallId = null;
-    this.updateThumbnail();
-    this.updateWallLinks('', '', null);
-  },
-
-  loadError: function(key, detail) {
-    // XXX Need to translate errors here
-    var msg = "エラー";
-    switch (key) {
-      case 'access-denied':
-        msg = "アクセスできません。";
-        break;
-      case 'not-found':
-        msg = "壁が見つかりませんでした。";
-        break;
-    }
-    Navigation.showErrorPage(msg);
-  },
-
-  /*
-   * URL editing
-   */
-  showEditUrlForm: function() {
-    this.setEditUrlFormState('edit');
-  },
-
-  hideEditUrlForm: function() {
-    this.setEditUrlFormState('view');
   },
 
   // States: view, edit, send, error
