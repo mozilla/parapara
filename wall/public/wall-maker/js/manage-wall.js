@@ -49,9 +49,17 @@ var ManageWallController =
       }
     );
 
+    // Register handlers for different sections
     this.initWallLinks();
     this.initSessions();
     this.initDesigns();
+
+    // Register additional clean-up handlers
+    this.form.addEventListener('reset', function() {
+      this.wallId = null;
+      this.updateThumbnail();
+      this.messageBox.clear();
+    }.bind(this));
 
     // Catch submission attempts
     this.form.addEventListener("submit",
@@ -60,8 +68,6 @@ var ManageWallController =
 
   clear: function() {
     this.form.reset();
-    this.clearWallInfo();
-    this.messageBox.clear();
   },
 
   show: function(wallId, tabName) {
@@ -222,11 +228,6 @@ var ManageWallController =
     var img = document.createElement('img');
     img.setAttribute("src", url);
     container.appendChild(img);
-  },
-
-  clearWallInfo: function() {
-    this.wallId = null;
-    this.updateThumbnail();
   },
 
   loadError: function(key, detail) {
