@@ -18,7 +18,7 @@ var ManageWallController =
           this.messageBox.showInfo('updated-field', elem.name, 1800);
 
           // Update the wall summary view if necessary
-          if (elem.name == 'name' || elem.name == 'designId') {
+          if (elem.name == 'name') {
             UserData.updateWalls();
           }
         }.bind(this),
@@ -558,6 +558,7 @@ var ManageWallController =
                           changedFields.defaultDuration);
         this.updateThumbnail(changedFields.thumbnail);
         selection.classList.remove('sending');
+        UserData.updateWalls();
       }.bind(this),
       function (key, detail) {
         if (key === 'logged-out') {
