@@ -306,6 +306,7 @@ var DesignSelection = function(container, designs) {
       var video = document.createElement('video');
       video.setAttribute("class", "designPreview");
       video.setAttribute("loop", "loop");
+      video.setAttribute("tabindex", "-1"); // Make video not focusable
 
       if (thumbnail) {
         video.setAttribute("poster", thumbnail);
