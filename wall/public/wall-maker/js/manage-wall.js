@@ -517,7 +517,7 @@ var ManageWallController =
     // gets re-generated
     this.designSelection.addEventListener('create',
       function(evt) {
-        var radios = evt.target.selector.radios;
+        var radios = evt.target.radios;
         for (var i = 0; i < radios.length; i++) {
           radios[i].addEventListener('change',
             this.saveDesign.bind(this), false);
@@ -535,7 +535,7 @@ var ManageWallController =
 
   updateDesign: function(designId, designDuration) {
     // Update radio button
-    this.designSelection.selector.value = designId;
+    this.designSelection.value = designId;
     this.designSelection.oldValue = designId;
 
     // Update default duration
@@ -549,7 +549,7 @@ var ManageWallController =
     selection.classList.add('sending');
 
     // Send change
-    var payload = { designId: selection.selector.value };
+    var payload = { designId: selection.value };
     ParaPara.putUrl('/api/walls/' + this.wallId,
       payload,
       function (changedFields) {
@@ -566,7 +566,7 @@ var ManageWallController =
         } else {
           this.messageBox.showError(key, detail);
         }
-        selection.selector.value = selection.oldValue;
+        selection.value = selection.oldValue;
         selection.classList.remove('sending');
       }.bind(this)
     );

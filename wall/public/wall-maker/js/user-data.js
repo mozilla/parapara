@@ -212,8 +212,30 @@ var DesignSelection = function(container, designs) {
     this.container = container;
     this._addDesigns(designs);
 
-    // Associate this object with the container
-    this.container.selector = this;
+    // Annotate container with extra properties
+    container.selector = this;
+    container.__defineGetter__("radios", function() {
+      return this.querySelectorAll("input[type=radio][name=design]");
+    });
+    container.__defineGetter__("value", function() {
+      var radios = this.radios;
+      for (var i = 0; i < radios.length; i++) {
+        if (radios[i].checked)
+          return radios[i].value;
+      }
+      return null;
+    });
+    container.__defineSetter__("value", function(value) {
+      var radios = this.radios;
+      for (var i = 0; i < radios.length; i++) {
+        var radio     = radios[i];
+        var origValue = radio.checked;
+        radio.checked = (radio.value == value);
+        if (radio.checked != origValue) {
+          this.selector._radioChange();
+        }
+      }
+    });
 
     // Fire create event so anything that wants to watch the content of the
     // selection can do so
@@ -221,31 +243,6 @@ var DesignSelection = function(container, designs) {
     evt.initEvent('create', true, true);
     container.dispatchEvent(evt);
   };
-
-  this.__defineGetter__("value", function() {
-    var radios = this.radios;
-    for (var i = 0; i < radios.length; i++) {
-      if (radios[i].checked)
-        return radios[i].value;
-    }
-    return null;
-  });
-
-  this.__defineSetter__("value", function(value) {
-    var radios = this.radios;
-    for (var i = 0; i < radios.length; i++) {
-      var radio     = radios[i];
-      var origValue = radio.checked;
-      radio.checked = (radio.value == value);
-      if (radio.checked != origValue) {
-        this._radioChange();
-      }
-    }
-  });
-
-  this.__defineGetter__("radios", function() {
-    return this.container.querySelectorAll("input[type=radio][name=design]");
-  });
 
   this._addDesigns = function(designs) {
     for (var i = 0; i < designs.length; i++) {
@@ -334,7 +331,7 @@ var DesignSelection = function(container, designs) {
   };
 
   this._radioChange = function(evt, reset) {
-    var radios = this.radios;
+    var radios = this.container.radios;
     for (var i = 0; i < radios.length; i++) {
       var radio = radios[i];
       var selected = radio.checked && !reset;
