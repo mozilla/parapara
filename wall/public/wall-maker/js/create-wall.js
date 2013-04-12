@@ -94,17 +94,9 @@ var CreateWallForm =
   getFormValues: function() {
     var result = {};
     result.name = this.form.name.value;
-    result.design = this.getRadioValue('design');
+    result.design =
+      document.querySelector("#screen-new .designSelection").value;
     return result;
-  },
-
-  getRadioValue: function(name) {
-    var radio = this.form[name];
-    for (var i = 0; i < radio.length; i++) {
-      if (radio[i].checked)
-        return radio[i].value;
-    }
-    return null;
   },
 
   get form() {
