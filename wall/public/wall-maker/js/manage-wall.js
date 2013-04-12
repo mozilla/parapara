@@ -7,29 +7,13 @@ var ManageWallController =
   init: function() {
     // Automatically save changes to text fields
     var saveTextField = function(elem, saver) {
-      if (this.wallId === null)
-        return;
-      var payload = {};
-      payload[elem.name] = elem.value;
-      ParaPara.putUrl('/api/walls/' + this.wallId,
-        payload,
+      this.saveValue(elem.name, elem.value,
         function (changedFields) {
           saver.showSaveSuccess(changedFields[elem.name]);
-          this.messageBox.showInfo('updated-field', elem.name, 1800);
-
-          // Update the wall summary view if necessary
-          if (elem.name == 'name') {
-            UserData.updateWalls();
-          }
-        }.bind(this),
+        },
         function (key, detail) {
-          if (key === 'logged-out') {
-            LoginController.logout();
-          } else {
-            saver.showSaveError();
-            this.messageBox.showError(key, detail);
-          }
-        }.bind(this)
+          saver.showSaveError();
+        }
       );
     }.bind(this);
     [ "manage-name" ].forEach(
@@ -360,27 +344,20 @@ var ManageWallController =
     // Update form
     this.setEditUrlFormState('send');
 
-    var payload = {};
-    payload['urlPath'] = $('wallPath').value;
-    ParaPara.putUrl('/api/walls/' + this.wallId,
-      payload,
-      function (changedFields) {
+    // Save
+    this.saveValue('urlPath', $('wallPath').value,
+      function(changedFields) {
         if (changedFields && changedFields.length !== 0) {
-          this.messageBox.showInfo('updated-field', 'urlPath', 1800);
           this.updateWallLinks(changedFields['wallUrl'],
                                changedFields['editorUrl'],
                                changedFields['editorUrlShort']);
-
+        } else {
+          this.messageBox.clear();
         }
         this.setEditUrlFormState('view');
       }.bind(this),
       function (key, detail) {
-        if (key === 'logged-out') {
-          LoginController.logout();
-        } else {
-          this.setEditUrlFormState('error');
-          this.messageBox.showError(key, detail);
-        }
+        this.setEditUrlFormState('error');
       }.bind(this)
     );
   },
@@ -544,31 +521,71 @@ var ManageWallController =
 
   saveDesign: function() {
     // Update UI
-    this.messageBox.clear();
     var selection = this.designSelection;
     selection.classList.add('sending');
 
-    // Send change
-    var payload = { designId: selection.value };
-    ParaPara.putUrl('/api/walls/' + this.wallId,
-      payload,
-      function (changedFields) {
-        this.messageBox.showInfo('updated-field', 'designId', 1800);
+    // Save
+    this.saveValue('designId', selection.value,
+      function(changedFields) {
         this.updateDesign(changedFields.designId,
                           changedFields.defaultDuration);
         this.updateThumbnail(changedFields.thumbnail);
-        selection.classList.remove('sending');
-        UserData.updateWalls();
       }.bind(this),
       function (key, detail) {
+        selection.value = selection.oldValue;
+      },
+      function () {
+        selection.classList.remove('sending');
+      }
+    );
+  },
+
+  /*
+   * Utility methods
+   */
+
+  // Common utility to save a value
+  //   field    - the field name
+  //   value    - the value to save
+  //   success  - function to call on success
+  //   error    - function to call on success (not called in the case of logout)
+  //   _finally - function to call in either case
+  saveValue: function(field, value, success, error, _finally) {
+    // Check we have a wall--this can happen when, for example a save function
+    // is triggered by a loss of focus when we are logging out
+    if (this.wallId === null)
+      return;
+
+    // Clear any lingering error messages
+    this.messageBox.clear();
+
+    // Send change
+    var payload = {};
+    payload[field] = value;
+    ParaPara.putUrl('/api/walls/' + this.wallId,
+      payload,
+      // Success
+      function (changedFields) {
+        this.messageBox.showInfo('updated-field', field, 1800);
+        if (success)
+          success(changedFields);
+        if (_finally)
+          _finally();
+        if (field == 'name' || field == 'designId') {
+          UserData.updateWalls();
+        }
+      }.bind(this),
+      // Error
+      function (key, detail) {
         if (key === 'logged-out') {
-          // XXX Factor this out somewhere
           LoginController.logout();
         } else {
           this.messageBox.showError(key, detail);
+          if (error)
+            error(key, detail);
         }
-        selection.value = selection.oldValue;
-        selection.classList.remove('sending');
+        if (_finally)
+          _finally();
       }.bind(this)
     );
   }
