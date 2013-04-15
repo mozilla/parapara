@@ -146,10 +146,10 @@
                   </span>
                   <span id="wallUrlSaveControls" class="controls" 
                     aria-hidden="true">
-                    <button type="button" id="saveWallUrl">
+                    <button type="button" class="small" id="saveWallUrl">
                       保存
                     </button>
-                    <button type="button" id="cancelSaveWallUrl">
+                    <button type="button" class="small" id="cancelSaveWallUrl">
                       キャンセル
                     </button>
                   </span>
@@ -225,17 +225,14 @@
             </section>
             <section id="manage-design" aria-role="tabpanel" aria-hidden="true">
               <div class="designSelection withIcon"></div>
-              <ul>
-                <li>
-                  <label class="inline">現在のアニメーションスピード</label>
-                  <input type="number" name="duration" autocomplete="off"
-                   maxlength="10" class="duration" id="manage-duration">秒
-                </li>
-                <li><label
-                  class="inline">既存のアニメーションスピード</label><label 
-                  id="manage-defaultDuration" 
-                  class="manage-value"></label>秒</li>
-              </ul>
+              <div id="durationControls" class="withIcon">
+                <label class="inline">一周期間 (秒）</label>
+                <input type="range" min=10 max=1200 value=240 step=10
+                  id="duration">
+                <span id="duration-units">3h30m</span>
+                <button type="button" class="small"
+                  id="reset-duration">Reset</button>
+              </div>
             </section>
             <section id="manage-gallery" aria-role="tabpanel"
               aria-hidden="true">
