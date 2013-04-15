@@ -240,23 +240,25 @@ class SetWallTestCase extends WallMakerTestCase {
 
   function testSetDuration() {
     // Update duration
-    $result = $this->updateWall($this->testWallId, array('duration' => 300));
+    $result = $this->updateWall($this->testWallId, array('duration' => 3000));
     $this->assertTrue(!array_key_exists('error_key', $result),
                       "Failed to update duration " . @$result['error_key']);
-    $this->assertEqual(@$result['duration'], 300);
+    $this->assertEqual(@$result['duration'], 3000);
+    $this->assertTrue(@$result['defaultDuration'] > 0,
+                      "Default duration not returned when updating design");
 
     // Check it was actually set
     $wall = $this->getWall($this->testWallId);
-    $this->assertEqual(300, @$wall['duration']);
+    $this->assertEqual(3000, @$wall['duration']);
 
     // Same value
-    $result = $this->updateWall($this->testWallId, array('duration' => 300));
+    $result = $this->updateWall($this->testWallId, array('duration' => 3000));
     $this->assertEqual(count($result), 0);
 
     // String value
     // (It's ok if this doesn't work but since it seems to, we should test it)
-    $result = $this->updateWall($this->testWallId, array('duration' => "500"));
-    $this->assertEqual(@$result['duration'], 500);
+    $result = $this->updateWall($this->testWallId, array('duration' => "5000"));
+    $this->assertEqual(@$result['duration'], 5000);
 
     // Out of range (negative)
     $result = $this->updateWall($this->testWallId, array('duration' => -100));
@@ -287,6 +289,9 @@ class SetWallTestCase extends WallMakerTestCase {
                       "Failed to update duration to null: "
                       . @$result['error_key']);
     $this->assertEqual(@$result['duration'], null);
+    $this->assertTrue(@$result['defaultDuration'] > 0,
+                      "Default duration should be non-null even " .
+                      "if duration is null");
 
     // Check it was actually set
     $wall = $this->getWall($this->testWallId);
@@ -305,7 +310,7 @@ class SetWallTestCase extends WallMakerTestCase {
 
     // Test you can't set defaultDuration
     $result = $this->updateWall($this->testWallId,
-                                array('defaultDuration' => 500));
+                                array('defaultDuration' => 5000));
     $this->assertEqual(@$result['error_key'], 'readonly-field');
   }
 }

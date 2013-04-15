@@ -389,6 +389,10 @@ class Wall {
           $changedFields['defaultDuration'] = $this->design->duration;
           break;
 
+        case 'duration':
+          $changedFields['duration'] = $this->duration;
+          $changedFields['defaultDuration'] = $this->defaultDuration;
+
         default:
           $changedFields[$name] = $this->$name;
           break;

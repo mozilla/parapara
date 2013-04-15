@@ -73,8 +73,7 @@ Accepted keys:
   complete one cycle of the wall
   * Accepts either an integer number of milliseconds of <code>null</code> to
     mean, "Reset back to the default duration for this design"
-  * Returns <code>duration</code>
-    whitespace)
+  * Returns <code>duration</code> and <code>defaultDuration</code>
 
 Errors:
 * <code>not-found</code> - The specified wall doesn't seem to exist
