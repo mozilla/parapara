@@ -623,7 +623,6 @@ var ManageWallController =
       }.bind(this),
       null,
       function () {
-        console.log("Finally!");
         block.classList.remove('sending');
       }
     );
