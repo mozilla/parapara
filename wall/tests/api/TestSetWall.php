@@ -237,4 +237,75 @@ class SetWallTestCase extends WallMakerTestCase {
                                 array('defaultDuration' => 5));
     $this->assertEqual(@$result['error_key'], 'readonly-field');
   }
+
+  function testSetDuration() {
+    // Update duration
+    $result = $this->updateWall($this->testWallId, array('duration' => 300));
+    $this->assertTrue(!array_key_exists('error_key', $result),
+                      "Failed to update duration " . @$result['error_key']);
+    $this->assertEqual(@$result['duration'], 300);
+
+    // Check it was actually set
+    $wall = $this->getWall($this->testWallId);
+    $this->assertEqual(300, @$wall['duration']);
+
+    // Same value
+    $result = $this->updateWall($this->testWallId, array('duration' => 300));
+    $this->assertEqual(count($result), 0);
+
+    // String value
+    // (It's ok if this doesn't work but since it seems to, we should test it)
+    $result = $this->updateWall($this->testWallId, array('duration' => "500"));
+    $this->assertEqual(@$result['duration'], 500);
+
+    // Out of range (negative)
+    $result = $this->updateWall($this->testWallId, array('duration' => -100));
+    $this->assertEqual(@$result['error_key'], 'bad-request');
+
+    // Out of range (zero)
+    $result = $this->updateWall($this->testWallId, array('duration' => 0));
+    $this->assertEqual(@$result['error_key'], 'bad-request');
+
+    // Out of range (overflow)
+    $result = $this->updateWall($this->testWallId,
+                                array('duration' => 2147483648));
+    $this->assertEqual(@$result['error_key'], 'bad-request');
+
+    // Not numeric
+    $result = $this->updateWall($this->testWallId, array('duration' => "abc"));
+    $this->assertEqual(@$result['error_key'], 'bad-request');
+
+    // Not numeric (2)
+    // (This checks we're not just blindly applying intval)
+    $result = $this->updateWall($this->testWallId,
+      array('duration' => "12 grapes"));
+    $this->assertEqual(@$result['error_key'], 'bad-request');
+
+    // Null ok
+    $result = $this->updateWall($this->testWallId, array('duration' => null));
+    $this->assertTrue(!array_key_exists('error_key', $result),
+                      "Failed to update duration to null: "
+                      . @$result['error_key']);
+    $this->assertEqual(@$result['duration'], null);
+
+    // Check it was actually set
+    $wall = $this->getWall($this->testWallId);
+    $this->assertEqual(null, @$wall['duration']);
+
+    // Same value
+    $result = $this->updateWall($this->testWallId, array('duration' => null));
+    $this->assertEqual(count($result), 0);
+
+    // String "null"
+    $result = $this->updateWall($this->testWallId, array('duration' => "null"));
+    $this->assertTrue(!array_key_exists('error_key', $result),
+                      "Failed to update duration to null: "
+                      . @$result['error_key']);
+    $this->assertEqual(@$result['duration'], null);
+
+    // Test you can't set defaultDuration
+    $result = $this->updateWall($this->testWallId,
+                                array('defaultDuration' => 500));
+    $this->assertEqual(@$result['error_key'], 'readonly-field');
+  }
 }

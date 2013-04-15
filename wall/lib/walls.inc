@@ -279,6 +279,19 @@ class Wall {
           throw new KeyedException('bad-request');
         DesignGallery::validateDesignId($value);
         break;
+
+      case 'duration':
+        // Special handling for "null", " NULL" etc.
+        // Since we accept the string "500" it makes sense to extend the same 
+        // courtesy to the null value.
+        if (is_string($value) && strtolower(trim($value)) === "null")
+          $value = null;
+        if (!is_numeric($value) && !is_null($value))
+          throw new KeyedException('bad-request');
+        $value = toIntOrNull($value);
+        if ($value < 1 && $value !== null)
+          throw new KeyedException('bad-request');
+        break;
     }
 
     // Check if the value is actually different
@@ -298,7 +311,8 @@ class Wall {
     switch ($name) {
       case 'urlPath':
         $editorUrlShort = Wall::getShortenedEditorUrlForPath($value);
-        if ($editorUrlShort !== $this->metadata['editorShortUrl']) {
+        if ($editorUrlShort &&
+            $editorUrlShort !== @$this->metadata['editorShortUrl']) {
           $this->metadata['editorUrlShort'] = $editorUrlShort;
           if (!in_array('editorUrlShort', $this->dirtyFields))
             array_push($this->dirtyFields, 'editorUrlShort');
@@ -339,6 +353,7 @@ class Wall {
       // Determine the type of the field
       switch ($fieldName) {
         case 'designId':
+        case 'duration':
           $type = 'integer';
           break;
 
