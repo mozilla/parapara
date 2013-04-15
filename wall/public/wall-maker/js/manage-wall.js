@@ -168,7 +168,7 @@ var ManageWallController =
     // Design
     this.updateDesign(wall.designId, wall.defaultDuration);
     this.updateDefaultDuration(wall.defaultDuration);
-    this.updateDuration(wall.duration);
+    this.updateDuration(wall.duration, true /*silent change*/);
 
     // Gallery
     var radios = document.getElementsByName("manage-galleryDisplay");
@@ -565,13 +565,16 @@ var ManageWallController =
     }
   },
 
-  updateDuration: function(duration) {
+  updateDuration: function(duration, silent) {
     var control = $('duration');
     control.setValue = duration;
     if (duration === null) {
       control.value = control.defaultValue ? control.defaultValue / 1000 : 240;
     } else {
       control.value = duration / 1000;
+      if (silent) {
+        control.observer.resetStoredValue();
+      }
     }
     this.updateDurationLabel();
   },
@@ -619,7 +622,8 @@ var ManageWallController =
     // Save
     this.saveValue('duration', control.setValue,
       function(changedFields) {
-        this.updateDuration(changedFields.duration);
+        if (changedFields && changedFields.length !== 0)
+          this.updateDuration(changedFields.duration);
       }.bind(this),
       null,
       function () {
@@ -886,10 +890,17 @@ function InputObserver(element, oninput, onchange)
   // Store current value so we can tell when the field actually changed
   this.value = element.value;
 
+  // Make this class accessible to the outside
+  element.observer = this;
+
   // Fallback timeout
   // We have this in case there's some input method other than a keyboard or
   // mouse being used and we fail to notice the change.
   this.TIMEOUT = 3000;
+
+  this.resetStoredValue = function(evt) {
+    this.value = this.element.value;
+  };
 
   // Event handlers
   this.onSomething = function(evt) {
@@ -943,8 +954,7 @@ function InputObserver(element, oninput, onchange)
     if (this.onchange) {
       this.onchange(this.element);
     }
-    // Update stored value
-    this.value = this.element.value;
+    this.resetStoredValue();
   };
 }
 
