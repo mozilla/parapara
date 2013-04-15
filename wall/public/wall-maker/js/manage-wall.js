@@ -121,10 +121,6 @@ var ManageWallController =
     return this._messageBox;
   },
 
-  get designSelection() {
-    return this.form.querySelector('.designSelection');
-  },
-
   loadSuccess: function(response, tabName) {
     // It doesn't make sense to show errors when we change wall
     this.messageBox.clear();
@@ -489,6 +485,10 @@ var ManageWallController =
   /*
    * Design management
    */
+  get designSelection() {
+    return this.form.querySelector('.designSelection');
+  },
+
   initDesigns: function() {
     // Listen for changes--need to re-register every time the design selection
     // gets re-generated
@@ -602,9 +602,31 @@ var ManageWallController =
 
   resetDuration: function() {
     this.updateDuration(null);
+    this.saveDuration();
   },
 
   saveDuration: function() {
+    // Check we didn't get called as the result of the form being logged out and
+    // the duration field losing focus etc.
+    if (!this.wallId)
+      return;
+
+    // Update UI
+    var control = $('duration');
+    var block = $('durationControls');
+    block.classList.add('sending');
+
+    // Save
+    this.saveValue('duration', control.setValue,
+      function(changedFields) {
+        this.updateDuration(changedFields.duration);
+      }.bind(this),
+      null,
+      function () {
+        console.log("Finally!");
+        block.classList.remove('sending');
+      }
+    );
   },
 
   /*
@@ -868,7 +890,7 @@ function InputObserver(element, oninput, onchange)
   // Fallback timeout
   // We have this in case there's some input method other than a keyboard or
   // mouse being used and we fail to notice the change.
-  this.TIMEOUT = 2000;
+  this.TIMEOUT = 3000;
 
   // Event handlers
   this.onSomething = function(evt) {
