@@ -94,6 +94,13 @@ a.button.center, button.center {
   margin-left: auto;
   margin-right: auto;
 }
+button.small, a.button.small {
+  padding: 4px 0.4em;
+  margin: 0 0.1em;
+  width: auto;
+  min-width: 3em;
+  font-size: smaller;
+}
 
 /*
  * Arrow buttons
@@ -427,13 +434,6 @@ hr {
   display: inline-block;
   margin-bottom: 4px;
 }
-.urlList button {
-  padding: 4px 0.4em;
-  margin: 0 0.1em;
-  width: auto;
-  min-width: 3em;
-  font-size: smaller;
-}
 .urlList .icon {
   margin: 0 0.3em;
   padding: 0;
@@ -648,4 +648,23 @@ section[aria-role=tabpanel] {
 }
 #manage-session .updating .spinner {
   visibility: visible;
+}
+
+/*
+ * Design screen
+ */
+#durationControls {
+  text-align: center;
+  padding: 1.2em 0;
+}
+#durationControls input[type=range] {
+  margin-bottom: -5px;
+}
+#durationControls #reset-duration {
+  margin-left: 1.2em;
+}
+#durationControls #duration-units {
+  display: inline-block;
+  min-width: 7em;
+  text-align: left;
 }

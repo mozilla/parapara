@@ -37,6 +37,7 @@ var ManageWallController =
     this.initWallLinks();
     this.initSessions();
     this.initDesigns();
+    this.initDuration();
 
     // Register additional clean-up handlers
     this.form.addEventListener('reset', function() {
@@ -170,9 +171,8 @@ var ManageWallController =
 
     // Design
     this.updateDesign(wall.designId, wall.defaultDuration);
-    $("manage-duration").value = wall.duration == null
-                               ? ""
-                               : wall.duration/1000;
+    this.updateDefaultDuration(wall.defaultDuration);
+    this.updateDuration(wall.duration);
 
     // Gallery
     var radios = document.getElementsByName("manage-galleryDisplay");
@@ -501,13 +501,6 @@ var ManageWallController =
         }
       }.bind(this)
     );
-
-    // Clear default duration on form reset
-    this.form.addEventListener('reset',
-      function() {
-        $("manage-defaultDuration").textContent = "";
-      }
-    );
   },
 
   updateDesign: function(designId, designDuration) {
@@ -516,7 +509,7 @@ var ManageWallController =
     this.designSelection.oldValue = designId;
 
     // Update default duration
-    $("manage-defaultDuration").textContent = designDuration / 1000;
+    this.updateDefaultDuration(designDuration);
   },
 
   saveDesign: function() {
@@ -538,6 +531,80 @@ var ManageWallController =
         selection.classList.remove('sending');
       }
     );
+  },
+
+  /*
+   * Duration
+   */
+  initDuration: function() {
+    // Watch for changes
+    new InputObserver($('duration'),
+      this.onDurationChange.bind(this),
+      this.saveDuration.bind(this));
+
+    // Reset to default
+    $('reset-duration').addEventListener('click',
+                                         this.resetDuration.bind(this));
+
+    // Clear duration caption on form reset
+    this.form.addEventListener('reset',
+      function() {
+        $('duration-units').textContent = '';
+        $('duration').setValue     = null;
+        $('duration').defaultValue = null;
+      }
+    );
+  },
+
+  updateDefaultDuration: function(duration) {
+    var control = $('duration');
+    control.defaultValue = duration;
+    if (control.setValue === null) {
+      control.value = duration / 1000;
+      this.updateDurationLabel();
+    }
+  },
+
+  updateDuration: function(duration) {
+    var control = $('duration');
+    control.setValue = duration;
+    if (duration === null) {
+      control.value = control.defaultValue ? control.defaultValue / 1000 : 240;
+    } else {
+      control.value = duration / 1000;
+    }
+    this.updateDurationLabel();
+  },
+
+  updateDurationLabel: function() {
+    var control  = $('duration');
+    var duration = parseInt(control.value);
+    var hours    = Math.floor(duration / (60 * 60));
+    var minutes  = Math.floor(duration / 60) % 60;
+    var seconds  = duration % 60;
+    var pad = function(num) { return ('0' + num).substr(-2); }
+    if (hours) {
+      var str = hours + '時間' + pad(minutes) + '分' + pad(seconds) + '秒';
+    } else if (minutes) {
+      var str = minutes + '分' + pad(seconds) + '秒';
+    } else {
+      var str = seconds + '秒';
+    }
+    if (control.setValue === null) {
+      str += ' (既存)';
+    }
+    $('duration-units').textContent = str;
+  },
+
+  onDurationChange: function() {
+    this.updateDuration($('duration').value * 1000);
+  },
+
+  resetDuration: function() {
+    this.updateDuration(null);
+  },
+
+  saveDuration: function() {
   },
 
   /*
@@ -782,6 +849,82 @@ function TextBoxSaver(element, container, saveCallback) {
   new TextBoxObserver(this.element,
                       this.onchange.bind(this),
                       this.onstartediting.bind(this));
+}
+
+// A generic input observer for form controls that have a lot of change events
+// (This is needed in part because Gecko and Blink seem to treat input and
+//  change events in almost the opposite way, at least for input type=range so
+//  we can't easily tell when the user has finished making a change)
+function InputObserver(element, oninput, onchange)
+{
+  this.timeoutId = null;
+  this.element   = element;
+  this.oninput   = oninput;
+  this.onchange  = onchange;
+
+  // Store current value so we can tell when the field actually changed
+  this.value = element.value;
+
+  // Fallback timeout
+  // We have this in case there's some input method other than a keyboard or
+  // mouse being used and we fail to notice the change.
+  this.TIMEOUT = 2000;
+
+  // Event handlers
+  this.onSomething = function(evt) {
+    if (this.oninput) {
+      this.oninput();
+    }
+    if (this._hasChanged()) {
+      this._resetTimeout();
+    }
+  };
+
+  this.onFinish = function(evt) {
+    this._clearTimeout();
+    if (this._hasChanged()) {
+      this._dispatchChange();
+    }
+  };
+
+  // Register for events
+  this.element.addEventListener('input', this.onSomething.bind(this));
+  this.element.addEventListener('change', this.onSomething.bind(this));
+  this.element.addEventListener('blur', this.onFinish.bind(this));
+  this.element.addEventListener('keyup', this.onFinish.bind(this));
+  this.element.addEventListener('mouseup', this.onFinish.bind(this));
+
+  this.onTimeout = function(evt) {
+    this.timeoutId = null;
+    this._dispatchChange();
+  };
+
+  this._hasChanged = function() {
+    return this.value !== element.value;
+  };
+
+  this._resetTimeout = function() {
+    this._clearTimeout();
+    this.timeoutId =
+      window.setTimeout(this.onTimeout.bind(this), this.TIMEOUT);
+  };
+
+  this._clearTimeout = function() {
+    if (this.timeoutId) {
+      window.clearTimeout(this.timeoutId);
+    }
+    this.timeoutId = null;
+  };
+
+  this._dispatchChange = function() {
+    console.assert(this.timeoutId === null,
+      "Dispatching a change while there are still timeouts waiting");
+    if (this.onchange) {
+      this.onchange(this.element);
+    }
+    // Update stored value
+    this.value = this.element.value;
+  };
 }
 
 window.addEventListener('load',
