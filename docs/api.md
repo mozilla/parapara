@@ -6,13 +6,18 @@ Common errors
 
 The following errors are not listed under each API since they're pretty common.
 
-* <code>logged-out</code> - No session was available for an API that requires a login
-* <code>no-auth</code> - Authorization check failed (e.g. trying to change someone else's wall)
+* <code>logged-out</code> - No session was available for an API that requires
+                            a login
+* <code>no-auth</code> - Authorization check failed (e.g. trying to change
+                         someone else's wall)
 * <code>server-error</code> - Something unexpected went wrong with the server
-* <code>bad-request</code> - The parameters to the function were missing or of the wrong format
+* <code>bad-request</code> - Required parameters to the function were missing or
+                             of the wrong format
 
-Errors are specified in the <code>error_key</code> element of the returned JSON array.
-Sometimes there is a <code>error_detail</code> element too and occasionally it contains some useful information.
+Errors are specified in the <code>error_key</code> element of the returned JSON
+array.
+Sometimes there is a <code>error_detail</code> element too and occasionally it
+contains some useful information.
 
 JSON API
 --------
@@ -35,7 +40,33 @@ Errors:
 <dd>Get details of the specified wall [auth required].
 
 Returns:
-the specified wall.
+the specified wall with the following parameters.
+* <code>wallId</code> - The unique ID of the wall
+* <code>name</code> - The name of the wall
+* <code>wallUrl</code> - The URL of the wall running the latest session
+* <code>editorUrl</code> - The URL of the editor tied to this wall
+* <code>editorUrlShort</code> - A shortened version of <code>editorUrl</code>.
+  <code>null</code> if no shortening service was available.
+* <code>duration</code> - The number of milliseconds required to complete
+  a single iteration of the wall.
+  Will be <code>null</code> if the design default duration is used (as specified
+  by <code>defaultDuration</code>).
+* <code>defaultDuration</code> - The default number of milliseconds required to
+  complete a single of the wall as specified by the design.
+* <code>ownerEmail</code> - The email address of the person who is the owner of
+  the wall.
+* <code>designId</code> - The unique identified of the design in use for this
+  wall.
+* <code>thumbnail</code> - A thumbnail representation of the wall.
+* <code>status</code> - Either <code>running</code> or <code>finished</code>
+  depending on if this wall has an active session or not.
+* <code>latestSession</code> - The most recently created session. Includes the
+  following information.
+** <code>id</code> - The identifier of the session
+** <code>start</code> - The time when the session was started in the format
+  "Y-m-d H:i:s"
+** <code>end</code> - The time when the session was ended in the format
+  "Y-m-d H:i:s" or <code>null</code> if the session has not yet ended.
 
 Errors:
 * <code>not-found</code> - Wall ID wasn't located
