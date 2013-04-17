@@ -185,13 +185,13 @@
               aria-controls="manage-session"
               aria-selected="true">セッション</a><a
               href="#design" aria-role="tab"
-              aria-controls="manage-design">デザイン</a><a
+              aria-controls="manage-design">デザイン</a><!-- <a
               href="#gallery" aria-role="tab"
               aria-controls="manage-gallery">ギャラリー</a><a
               href="#location" aria-role="tab"
               aria-controls="manage-location">場所</a><a
               href="#access" aria-role="tab"
-              aria-controls="manage-access">アクセス</a><a
+              aria-controls="manage-access">アクセス</a> --><a
               href="#characters" aria-role="tab"
               aria-controls="manage-characters">キャラクター</a>
           </menu>
@@ -234,6 +234,7 @@
                   id="reset-duration">Reset</button>
               </div>
             </section>
+<!--
             <section id="manage-gallery" aria-role="tabpanel"
               aria-hidden="true">
               <dl>
@@ -283,6 +284,7 @@
                 </dd>
               </dl>
             </section>
+-->
             <section id="manage-characters" aria-role="tabpanel" 
               aria-hidden="true">
               <h3>セッション１</h3>

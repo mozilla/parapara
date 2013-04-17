@@ -171,26 +171,8 @@ var ManageWallController =
     this.updateDuration(wall.duration, true /*silent change*/);
 
     // Gallery
-    var radios = document.getElementsByName("manage-galleryDisplay");
-    if (wall.galleryDisplay == 0) {
-      radios[0].checked = false;
-      radios[1].checked = true;
-    } else {
-      radios[0].checked = true;
-      radios[1].checked = false;
-    }
-    $("manage-eventDescr").value = wall.eventDescr;
-
     // Location
-    $("manage-eventLocation").value = wall.eventLocation;
-
     // Access
-    var dummypasscode = "";
-    for (var i = 0; i < wall.passcodeLen; i++) {
-      dummypasscode += "x";
-    }
-    $("manage-passcode").value = dummypasscode;
-
     // Characters
   },
 
