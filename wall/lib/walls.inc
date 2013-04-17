@@ -399,6 +399,10 @@ class Wall {
       }
     }
 
+    // Update modified date
+    array_push($assignments,
+      'modifyDate = ' . $conn->quote(gmdate('Y-m-d H:i:s'), 'timestamp'));
+
     // Run query
     $query = 'UPDATE walls SET '
       . implode(', ', $assignments)
