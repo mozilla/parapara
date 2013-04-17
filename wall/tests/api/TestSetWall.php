@@ -195,18 +195,18 @@ class SetWallTestCase extends WallMakerTestCase {
     // Update title and event description
     $result = $this->updateWall($this->testWallId,
       array('name' => 'ABCD',
-            'eventDescr' => 'A good event'));
+            'duration' => 1234));
     $this->assertTrue(!array_key_exists('error_key', $result),
-                      "Failed to set wall name and description"
+                      "Failed to set wall name and duration"
                       . @$result['error_key']);
-    $this->assertEqual(@count($result), 2);
+    $this->assertTrue(@count($result) >= 2);
     $this->assertEqual(@$result['name'], 'ABCD');
-    $this->assertEqual(@$result['eventDescr'], 'A good event');
+    $this->assertEqual(@$result['duration'], 1234);
 
     // Check it actually updated the wall
     $wall = $this->getWall($this->testWallId);
     $this->assertEqual(@$wall['name'], 'ABCD');
-    $this->assertEqual(@$wall['eventDescr'], 'A good event');
+    $this->assertEqual(@$wall['duration'], 1234);
   }
 
   function testSetDesign() {

@@ -732,17 +732,12 @@ class Walls {
 
     // Public information
     $metadata["name"]           = $row['eventname'];
-    $metadata["eventDescr"]     = $row['eventdescr'];
-    $metadata["eventLocation"]  = $row['eventlocation'];
-    $metadata["eventType"]      = $row['eventtype'];
-    $metadata["eventFinish"]    = $row['eventfinish'];
     $metadata["designId"]       = toIntOrNull($row['designid']);
     $metadata["urlPath"]        = $row['urlpath'];
     $metadata["editorUrlShort"] = $row['editorshorturl'];
 
     // Privileged information
     if ($hasAccess) {
-      $metadata["passcode"]   = $row['passcode'];
       $metadata["ownerEmail"] = $row['owneremail'];
     }
 
