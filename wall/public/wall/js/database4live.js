@@ -85,9 +85,12 @@ var Database = {
   // Get the characters that have not yet been assigned an x value
   loadUncompletedCharacters: function() {
     // Send ratio in the duration.
-    var parameter = Database.latest_character_id;
-    var url = API_DIR+"get_uncompleted_characters.php?charId="+
-              parameter+"&sessionId="+SESSION_ID+"&"+(new Date()).getTime();
+    var lastChar = Database.latest_character_id;
+    var url = API_DIR+"get_uncompleted_characters.php"
+            + "?charId=" + lastChar
+            + "&wallId=" + WALL_ID
+            + "&sessionId=" + SESSION_ID
+            + "&" +(new Date()).getTime();
     ParaPara.getUrl(url,
       function(response) {
         Database.append(response, true);
@@ -103,9 +106,11 @@ var Database = {
   // Get all characters that have already been assigned an x value (i.e. have
   // already made their debut on the stage)
   loadAllCharacters: function(callback) {
-    var url = API_DIR+"get_all_characters.php?threshold=" +
-              NUM_CHARACTERS_THRESHOLD+"&sessionId=" + SESSION_ID +
-              "&"+(new Date()).getTime();
+    var url = API_DIR+"get_all_characters.php"
+            + "?threshold=" + NUM_CHARACTERS_THRESHOLD
+            + "&wallId=" + WALL_ID
+            + "&sessionId=" + SESSION_ID
+            + "&" +(new Date()).getTime();
     ParaPara.getUrl(url,
       function(response) {
         Database.append(response, false);

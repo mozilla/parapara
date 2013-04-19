@@ -34,10 +34,11 @@ function addCharacter($wallId, $svg, $metadata) {
   
   $query =
     'INSERT INTO characters'
-    . ' (sessionId, title, author, x, groundOffset, width, height, createDate,'
-    . '  active)'
+    . ' (sessionId, wallId, title, author, x, groundOffset, width, height,'
+    . ' createDate,  active)'
     . ' VALUES '
     . '(' . $conn->quote($sessionId, 'integer')
+    . ',' . $conn->quote($wallId, 'integer')
     . ',' . $conn->quote($metadata['title'], 'text')
     . ',' . $conn->quote($metadata['author'], 'text')
     . ',' . $conn->quote($x, 'integer')

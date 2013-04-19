@@ -220,6 +220,27 @@ class SessionsTestCase extends WallMakerTestCase {
     $this->removeWall($wall['wallId']);
   }
 
+  function testSessionIds() {
+    // Session IDs should be wall-specific
+    $this->login();
+
+    // Create first wall
+    $wallA = $this->createWall('Wall 1', $this->testDesignId);
+    $idA = $wallA['latestSession']['id'];
+
+    // Create second wall
+    $wallB = $this->createWall('Wall 2', $this->testDesignId);
+    $idB = $wallB['latestSession']['id'];
+
+    // Check IDs
+    $this->assertEqual($idA, 1);
+    $this->assertEqual($idB, 1);
+
+    // Tidy up
+    $this->removeWall($wallA['wallId']);
+    $this->removeWall($wallB['wallId']);
+  }
+
   function isOpenSession($session) {
     return $this->checkSession($session, true);
   }

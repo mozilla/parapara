@@ -445,9 +445,9 @@ class Wall {
     return $result;
   }
 
-  public function startSession($sessionId, $datetime) {
+  public function startSession($currentSessionId, $datetime) {
     // Sanitize input
-    $sessionId = toIntOrNull($sessionId);
+    $currentSessionId = toIntOrNull($currentSessionId);
 
     // Check authorisation
     if (!$this->canAdminister()) {
@@ -458,19 +458,33 @@ class Wall {
     $latestSession = $this->latestSession;
 
     // Is the passed-in session ID correct?
-    if (toIntOrNull($latestSession['id']) !== $sessionId) {
+    if (toIntOrNull($latestSession['id']) !== $currentSessionId) {
       return false;
     }
 
     // Close the latest session if it's open
     if (@$latestSession['endDate'] === null) {
-      $this->endSession($sessionId, $datetime);
+      $this->endSession($currentSessionId, $datetime);
+    }
+
+    // Get sessionId for next session
+    $conn =& getDbConnection();
+    $quotedWallId = $conn->quote($this->id, 'integer');
+    $newSessionId =& $conn->queryOne(
+        'SELECT IFNULL(MAX(sessionId)+1, 1)'
+        . ' FROM sessions WHERE wallId = ' . $quotedWallId
+        . ' LIMIT 1',
+        'integer');
+    if (PEAR::isError($newSessionId)) {
+      error_log($newSessionId->getMessage() . ', '
+                . $newSessionId->getDebugInfo());
+      throw new KeyedException('db-error');
     }
 
     // Start a new session
-    $conn =& getDbConnection();
-    $query = 'INSERT INTO sessions(wallId, beginDate)'
-      . ' VALUES(' . $conn->quote($this->id, 'integer')
+    $query = 'INSERT INTO sessions(wallId, sessionId, beginDate)'
+      . ' VALUES(' . $quotedWallId
+      . ',' . $conn->quote($newSessionId, 'integer')
       . ',' . $conn->quote($datetime, 'timestamp')
       . ')';
     $res =& $conn->exec($query);
@@ -480,8 +494,7 @@ class Wall {
     }
 
     // Update latest session
-    $this->metadata['latestSession']['id']
-      = intval($conn->lastInsertId('sessions', 'sessionId'));
+    $this->metadata['latestSession']['id']    = $newSessionId;
     $this->metadata['latestSession']['start'] = $datetime;
     $this->metadata['latestSession']['end']   = null;
     $this->metadata['status'] = 'running';
@@ -491,9 +504,9 @@ class Wall {
     return true;
   }
 
-  public function endSession($sessionId, $datetime) {
+  public function endSession($currentSessionId, $datetime) {
     // Sanitize input
-    $sessionId = toIntOrNull($sessionId);
+    $currentSessionId = toIntOrNull($currentSessionId);
 
     // Check authorisation
     if (!$this->canAdminister()) {
@@ -507,14 +520,16 @@ class Wall {
     $latestSession = $this->latestSession;
     if ($latestSession === null ||
         $latestSession['end'] !== null ||
-        $latestSession['id'] !== $sessionId)
+        $latestSession['id'] !== $currentSessionId)
       return false;
 
     // End session
     $conn =& getDbConnection();
     $query = 'UPDATE sessions'
       . ' SET endDate=' . $conn->quote($datetime, 'timestamp')
-      . ' WHERE sessionId=' . $conn->quote($sessionId, 'integer');
+      . ' WHERE sessionId=' . $conn->quote($currentSessionId, 'integer')
+      . ' AND wallId=' . $conn->quote($this->id, 'integer');
+    // XXX This is wrong
     $res =& $conn->exec($query);
     if (PEAR::isError($res)) {
       error_log($res->getMessage() . ', ' . $res->getDebugInfo());
@@ -709,8 +724,8 @@ class Walls {
       . ' LEFT JOIN users ON'
       . '   walls.owner = users.userId'
       . ' LEFT JOIN sessions ON'
-      . '   sessions.sessionId = '
-      . '   (SELECT MAX(sessionId) FROM sessions'
+      . '   sessions.sessionSerial = '
+      . '   (SELECT MAX(sessionSerial) FROM sessions'
       . '    WHERE sessions.wallId = ' . $conn->quote($id, 'integer') . ')'
       . ' WHERE walls.wallId = ' . $conn->quote($id, 'integer')
       . ' LIMIT 1',

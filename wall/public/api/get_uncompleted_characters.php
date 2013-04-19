@@ -7,23 +7,30 @@ header("Content-Type: application/json; charset=UTF-8");
 
 require_once("../../lib/parapara.inc");
 require_once("db.inc");
+require_once("utils.inc");
 $connection = getConnection();
 
 $list = array();
 try {
-  if (!isset($_GET["sessionId"])) {
+  $wallId = toIntOrNull($_GET["wallId"]);
+  if (!$wallId || $wallId < 1) {
+    throwException("no wall id");
+  }
+  $sessionId = toIntOrNull($_GET["sessionId"]);
+  if (!$sessionId || $sessionId < 1) {
     throwException("no session id");
   }
-  if (!isset($_GET["charId"])) {
-    throwException("no charId");
-  } else if (!is_numeric($_GET["charId"])) {
-    throwException("invalid charId");
+  $charId = toIntOrNull($_GET["charId"]);
+  if ($charId === null || $charId < 0) {
+    throwException("no char id");
   }
-  $charId = intval($_GET["charId"]);
-  $sessionId = intval($_GET["sessionId"]);
 
   $query =
-    "SELECT charId,title,author,x,width,height,groundOffset FROM characters WHERE charId > ".$charId." AND sessionId=".$sessionId." AND active = 1";
+    "SELECT charId,title,author,x,width,height,groundOffset FROM characters"
+    . " WHERE charId > " . $charId
+    . " AND wallId=" . $wallId
+    . " AND sessionId=" . $sessionId
+    . " AND active = 1";
   $resultset = mysql_query($query, $connection) or throwException(mysql_error());
 
   $ids = "";

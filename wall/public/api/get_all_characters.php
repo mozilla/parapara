@@ -8,10 +8,13 @@ header("Content-Type: application/json; charset=UTF-8");
 require_once("../../lib/parapara.inc");
 require_once("db.inc");
 require_once("api.inc");
+require_once("utils.inc");
 
-$threshold = isset($_GET["threshold"])
-           ? intval($_GET["threshold"])
-           : null;
+$wallId = toIntOrNull($_GET["wallId"]);
+$threshold = toIntOrNull($_GET["threshold"]);
+
+if (!$wallId || $wallId < 1)
+  throw new KeyedException('bad-request', 'No wall ID provided');
 
 $conn =& getDbConnection();
 
@@ -30,6 +33,7 @@ if ($threshold !== null) {
     . " (SELECT charId, x, width, height, groundOffset"
     . "  FROM characters WHERE x IS NOT NULL"
     . "  AND active = 1"
+    . "  AND wallId = " . $conn->quote($wallId, 'integer')
     . ($sessionCond ? " AND $sessionCond" : "")
     . "  ORDER BY createDate DESC LIMIT " . $conn->quote($threshold, 'integer')
     . " )"
@@ -41,6 +45,7 @@ if ($threshold !== null) {
     . " FROM characters"
     . " WHERE x IS NOT NULL"
     . " AND active = 1"
+    . " AND wallId = " . $conn->quote($wallId, 'integer')
     . ($sessionCond ? " AND $sessionCond" : "")
     . " ORDER BY x";
 }
