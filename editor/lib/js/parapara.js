@@ -21,6 +21,8 @@ ParaPara.init = function(contentGroup) {
   ParaPara.frames        = new ParaPara.FrameList();
   ParaPara.currentStyle  = new ParaPara.Style();
   ParaPara.currentTool   = null;
+
+  ParaPara.feedbackControls = new ParaPara.FeedbackControls("../sounds/24dBshort.wav");
 }
 
 ParaPara.reset = function() {
@@ -211,6 +213,10 @@ ParaPara.DrawControls.prototype.mouseDown = function(evt) {
   evt.preventDefault();
   if (evt.button || this.linesInProgress.mouseLine)
     return;
+
+  //feedback
+  ParaPara.feedbackControls.start(evt.clientX, evt.clientY);
+
   var pt = this.getLocalCoords(evt.clientX, evt.clientY, this.frame);
   this.linesInProgress.mouseLine =
     new ParaPara.FreehandLine(pt.x, pt.y, this.frame);
@@ -220,6 +226,10 @@ ParaPara.DrawControls.prototype.mouseMove = function(evt) {
   evt.preventDefault();
   if (!this.linesInProgress.mouseLine)
     return;
+
+  //feedback
+  ParaPara.feedbackControls.update(evt.clientX, evt.clientY);
+
   var pt = this.getLocalCoords(evt.clientX, evt.clientY, this.frame);
   this.linesInProgress.mouseLine.addPoint(pt.x, pt.y);
 }
@@ -228,6 +238,10 @@ ParaPara.DrawControls.prototype.mouseUp = function(evt) {
   evt.preventDefault();
   if (!this.linesInProgress.mouseLine)
     return;
+
+  //feedback
+  ParaPara.feedbackControls.stop();
+
   this.linesInProgress.mouseLine.finishLine();
   delete this.linesInProgress.mouseLine;
   ParaPara.notifyGraphicChanged();
@@ -235,6 +249,11 @@ ParaPara.DrawControls.prototype.mouseUp = function(evt) {
 
 ParaPara.DrawControls.prototype.touchStart = function(evt) {
   evt.preventDefault();
+
+  //feedback
+  var first = evt.changedTouches[0];
+  ParaPara.feedbackControls.start(first.clientX, first.clientY);
+
   for (var i = 0; i < evt.changedTouches.length; ++i) {
     var touch = evt.changedTouches[i];
     var pt = this.getLocalCoords(touch.clientX, touch.clientY, this.frame);
@@ -245,6 +264,11 @@ ParaPara.DrawControls.prototype.touchStart = function(evt) {
 
 ParaPara.DrawControls.prototype.touchMove = function(evt) {
   evt.preventDefault();
+
+  //feedback
+  var first = evt.changedTouches[0];
+  ParaPara.feedbackControls.update(first.clientX, first.clientY);
+
   for (var i = 0; i < evt.changedTouches.length; ++i) {
     var touch = evt.changedTouches[i];
     var pt = this.getLocalCoords(touch.clientX, touch.clientY, this.frame);
@@ -256,6 +280,10 @@ ParaPara.DrawControls.prototype.touchMove = function(evt) {
 
 ParaPara.DrawControls.prototype.touchEnd = function(evt) {
   evt.preventDefault();
+
+  //feedback
+  ParaPara.feedbackControls.stop();
+
   for (var i = 0; i < evt.changedTouches.length; ++i) {
     var touch = evt.changedTouches[i];
     console.assert(this.linesInProgress[touch.identifier],
