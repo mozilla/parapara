@@ -64,7 +64,7 @@ CREATE TABLE `characters` (
   `createDate` datetime NOT NULL COMMENT 'Creation datetime in UTC',
   `active` tinyint(1) NOT NULL DEFAULT '1' COMMENT 'Indicates if the character should show on the wall',
   PRIMARY KEY (`charId`),
-  FOREIGN KEY (`wallId`, `sessionId`) fk_wallSession REFERENCES sessions(`wallId`, `sessionId`)
+  FOREIGN KEY fk_wallSession (`wallId`, `sessionId`) REFERENCES sessions(`wallId`, `sessionId`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 INSERT INTO designs (designId, name, duration) VALUES(1, 'space', 240000);
