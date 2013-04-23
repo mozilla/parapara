@@ -5,18 +5,24 @@
 
 require_once('../../lib/parapara.inc');
 require_once('simpletest/autorun.php');
-require_once('WallMakerTestCase.php');
+require_once('APITestCase.php');
 require_once('walls.inc');
 
-class TestMySummary extends WallMakerTestCase {
+class TestMySummary extends APITestCase {
 
   function __construct() {
     parent::__construct();
   }
 
+  function setUp() {
+    parent::setUp();
+    $this->api->login();
+  }
+
   function testNotLoggedIn() {
     // When logged out we should get an error
-    $summary = $this->getMySummary();
+    $this->api->logout();
+    $summary = $this->api->getUserSummary();
     $this->assertTrue(array_key_exists('error_key', $summary) &&
                       $summary['error_key'] == 'logged-out',
                       "Got summary whilst logged out.");
@@ -24,14 +30,13 @@ class TestMySummary extends WallMakerTestCase {
 
   function testLoggingInAndOut() {
     // Check logging in works
-    $this->login();
-    $summary = $this->getMySummary();
+    $summary = $this->api->getUserSummary();
     $this->assertTrue(!array_key_exists('error_key', $summary),
                       "Failed to get summary when logged in");
 
     // Check a subsequent logout
-    $this->logout();
-    $summary = $this->getMySummary();
+    $this->api->logout();
+    $summary = $this->api->getUserSummary();
     $this->assertTrue(array_key_exists('error_key', $summary) &&
                       $summary['error_key'] == 'logged-out',
                       "Got summary after logging out.");
@@ -39,16 +44,15 @@ class TestMySummary extends WallMakerTestCase {
 
   function testWalls() {
     // Initially walls should be an empty array
-    $this->login();
-    $summary = $this->getMySummary();
+    $summary = $this->api->getUserSummary();
     $this->assertTrue(array_key_exists('walls', $summary) &&
                       is_array($summary['walls']) &&
                       count($summary['walls']) === 0,
                       "Should have got an empty list of walls");
 
-    $wall = $this->createWall('Test wall', $this->testDesignId);
+    $wall = $this->api->createWall('Test wall', $this->testDesignId);
     $wallId = $wall['wallId'];
-    $summary = $this->getMySummary();
+    $summary = $this->api->getUserSummary();
     $this->assertTrue(count($summary['walls']) === 1,
                       "Should have got one wall back");
 
@@ -67,16 +71,12 @@ class TestMySummary extends WallMakerTestCase {
                       "Unexpected create date: " . $wall['createDate']);
     $this->assertTrue(preg_match($dateRegEx, $wall['modifyDate']),
                       "Unexpected modify date: " . $wall['modifyDate']);
-
-    // Tidy up by removing the wall
-    $this->removeWall($wallId);
   }
 
   function testDesigns() {
     // We should have at least one design initially since
     // WallMakerTestCase::setUp creates one
-    $this->login();
-    $summary = $this->getMySummary();
+    $summary = $this->api->getUserSummary();
     $this->assertTrue(array_key_exists('designs', $summary) &&
                       is_array($summary['designs']) &&
                       count($summary['designs']) >= 1,
@@ -101,23 +101,6 @@ class TestMySummary extends WallMakerTestCase {
                       "Design does not include duration or not numeric");
     $this->assertTrue(array_key_exists('thumbnail', $testDesign),
                       "Design does not include thumbnail");
-  }
-
-  function getMySummary() {
-    // Make request
-    global $config;
-    $url = $config['test']['wall_server'] . 'api/userSummary';
-    $response = $this->get($url);
-
-    // Check response
-    $this->assertResponse(200);
-    $this->assertMime('application/json; charset=UTF-8');
-
-    // Parse response
-    $summary = json_decode($response,true);
-    $this->assertTrue($summary !== null,
-                      "Failed to decode response: $response");
-    return $summary;
   }
 }
 

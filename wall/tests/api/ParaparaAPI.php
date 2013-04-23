@@ -277,6 +277,20 @@ class ParaparaAPI {
 
   /* ----------------------------------------------------------------------
    *
+   * User summary
+   *
+   * ---------------------------------------------------------------------*/
+
+  // XXX This will eventually die
+  function getUserSummary() {
+    // Make request
+    global $config;
+    $url = $config['test']['wall_server'] . 'api/userSummary';
+    return $this->getJson($url);
+  }
+
+  /* ----------------------------------------------------------------------
+   *
    * Request handling
    *
    * ---------------------------------------------------------------------*/
