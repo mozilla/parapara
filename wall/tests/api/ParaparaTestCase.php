@@ -6,6 +6,7 @@
 require_once('../../lib/parapara.inc');
 require_once('MDB2.php');
 require_once('simpletest/web_tester.php');
+require_once('ParaparaAPI.php');
 
 // SimpleTest seems to count the abstract WebTestCase as a test case
 // See: http://sourceforge.net/tracker/?func=detail&aid=3473481&group_id=76550&atid=547455
@@ -18,16 +19,6 @@ SimpleTest::ignore('WebTestCase');
  */
 abstract class ParaparaTestCase extends WebTestCase {
 
-  // Database connection singleton
-  static private $conn = null;
-
-  // An instance of SimpleTestCase so we can re-use its methods
-  // (Why WebTestCase doesn't inherit from UnitTestCase is beyond me.)
-  static protected $unitTestCase = null;
-
-  // Path to designs folder
-  protected $designsPath;
-
   function __construct($name = false) {
     parent::__construct($name);
     if (self::$conn === null) {
@@ -36,8 +27,41 @@ abstract class ParaparaTestCase extends WebTestCase {
     if (self::$unitTestCase === null) {
       self::$unitTestCase = new UnitTestCase();
     }
-    $this->designsPath = dirname(__FILE__) . '/../../public/designs/';
   }
+
+  /* ----------------------------------------------------------------------
+   *
+   * Fixing broken WebTestCase inheritance
+   *
+   * ---------------------------------------------------------------------*/
+
+  // An instance of SimpleTestCase so we can re-use its methods
+  // (Why WebTestCase doesn't inherit from UnitTestCase is beyond me.)
+  static protected $unitTestCase = null;
+
+  public function assertEqual($first, $second, $message = '%s') {
+    self::$unitTestCase->reporter = $this->reporter;
+    return self::$unitTestCase->assertEqual($first, $second, $message);
+  }
+
+  public function assertNotEqual($first, $second, $message = '%s') {
+    self::$unitTestCase->reporter = $this->reporter;
+    return self::$unitTestCase->assertNotEqual($first, $second, $message);
+  }
+
+  public function assertPattern($pattern, $subject, $message = '%s') {
+    self::$unitTestCase->reporter = $this->reporter;
+    return self::$unitTestCase->assertPattern($pattern, $subject, $message);
+  }
+
+  /* ----------------------------------------------------------------------
+   *
+   * Database handling
+   *
+   * ---------------------------------------------------------------------*/
+
+  // Database connection singleton
+  static private $conn = null;
 
   private static function initDb() {
     global $config;
@@ -106,23 +130,25 @@ abstract class ParaparaTestCase extends WebTestCase {
     return trim($str) != '';
   }
 
-  public function assertEqual($first, $second, $message = '%s') {
-    self::$unitTestCase->reporter = $this->reporter;
-    return self::$unitTestCase->assertEqual($first, $second, $message);
-  }
-
-  public function assertNotEqual($first, $second, $message = '%s') {
-    self::$unitTestCase->reporter = $this->reporter;
-    return self::$unitTestCase->assertNotEqual($first, $second, $message);
-  }
-
-  public function assertPattern($pattern, $subject, $message = '%s') {
-    self::$unitTestCase->reporter = $this->reporter;
-    return self::$unitTestCase->assertPattern($pattern, $subject, $message);
-  }
-
   public function getConnection() {
     return self::$conn;
+  }
+
+  /* ----------------------------------------------------------------------
+   *
+   * API member
+   *
+   * ---------------------------------------------------------------------*/
+
+  protected $_api = null;
+
+  public function __get($name) {
+    if ($name === 'api') {
+      if ($this->_api === null) {
+        $this->_api = new ParaparaAPI($this->getConnection());
+      }
+      return $this->_api;
+    }
   }
 }
 

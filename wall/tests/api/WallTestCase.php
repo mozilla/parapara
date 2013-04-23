@@ -22,9 +22,11 @@ abstract class WallTestCase extends ParaparaTestCase {
 
   protected $testDesignId     = null;
   protected $testDesignFolder = null;
+  protected $designsPath;
 
   function __construct($name = false) {
     parent::__construct($name);
+    $this->designsPath = dirname(__FILE__) . '/../../public/designs/';
   }
 
   protected function createTestDesign($previewFilesToAdd = array()) {

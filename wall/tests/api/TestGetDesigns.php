@@ -5,26 +5,24 @@
 
 require_once('../../lib/parapara.inc');
 require_once('simpletest/autorun.php');
-require_once('WallTestCase.php');
+require_once('APITestCase.php');
 
-class GetDesignsTestCase extends WallTestCase {
+class GetDesignsTestCase extends APITestCase {
 
   function __construct($name = false) {
     parent::__construct($name);
   }
 
-  function setUp() {
-    $this->createTestDesign();
-  }
-
-  function tearDown() {
-    $this->removeTestDesign();
-  }
-
   function testGetDesigns() {
-    $designs = $this->getDesigns();
+    $designs = $this->api->getDesigns();
 
-    // Check the number of results
+    // Check result
+    $this->assertTrue(!array_key_exists('error_key', $designs),
+      'Got error getting designs: ' . @$designs['error_key']
+      . ' (' . @$designs['error_detail'] . ')');
+
+    // Check the number of results---should have at least one test design
+    // (see APITestCase.php)
     $this->assertTrue(count($designs) >= 1,
                       "Too few designs: " . count($designs));
 
@@ -115,25 +113,8 @@ class GetDesignsTestCase extends WallTestCase {
       "Unexpected video file: " . $design['video'][1]);
   }
 
-  function getDesigns() {
-    // Make request
-    global $config;
-    $url = $config['test']['wall_server'] . 'api/designs';
-    $response = $this->get($url);
-
-    // Check response
-    $this->assertResponse(200);
-    $this->assertMime('application/json; charset=UTF-8');
-
-    // Parse response
-    $designs = json_decode($response,true);
-    $this->assertTrue($designs !== null,
-                      "Failed to decode response: $response");
-    return $designs;
-  }
-
   function getTestDesign() {
-    $designs = $this->getDesigns();
+    $designs = $this->api->getDesigns();
 
     $testDesign = null;
     foreach ($designs as $design) {
