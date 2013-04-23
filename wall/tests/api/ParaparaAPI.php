@@ -149,6 +149,30 @@ class ParaparaAPI {
 
   /* ----------------------------------------------------------------------
    *
+   * Wall session handling
+   *
+   * ---------------------------------------------------------------------*/
+
+  function startSession($wallId, $sessionId) {
+    // Prepare payload
+    $payload['sessionId'] = $sessionId;
+
+    // Make request
+    global $config;
+    $url = $config['test']['wall_server'] . "api/walls/$wallId/sessions";
+    return $this->postJson($url, $payload);
+  }
+
+  function endSession($wallId, $sessionId) {
+    // Make request
+    global $config;
+    $url = $config['test']['wall_server'] .
+      "api/walls/$wallId/sessions/$sessionId";
+    return $this->putJson($url, null);
+  }
+
+  /* ----------------------------------------------------------------------
+   *
    * Design handling
    *
    * ---------------------------------------------------------------------*/
@@ -256,6 +280,10 @@ class ParaparaAPI {
 
   protected function postJson($url, $parameters) {
     return $this->makeJsonRequest($url, "POST", $parameters);
+  }
+
+  protected function putJson($url, $parameters) {
+    return $this->makeJsonRequest($url, "PUT", $parameters);
   }
 
   protected function makeJsonRequest($url, $method, $parameters = null) {

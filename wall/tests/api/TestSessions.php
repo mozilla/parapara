@@ -5,9 +5,9 @@
 
 require_once('../../lib/parapara.inc');
 require_once('simpletest/autorun.php');
-require_once('WallMakerTestCase.php');
+require_once('APITestCase.php');
 
-class SessionsTestCase extends WallMakerTestCase {
+class SessionsTestCase extends APITestCase {
 
   protected $dateRegEx = '/2\d{3}-[01]\d-[0-3]\d [0-2]\d:[0-5]\d:[0-5]\d/';
 
@@ -15,12 +15,14 @@ class SessionsTestCase extends WallMakerTestCase {
     parent::__construct($name);
   }
 
-  function testCreateWall() {
-    // Login
-    $this->login();
+  function setUp() {
+    parent::setUp();
+    $this->api->login();
+  }
 
+  function testCreateWall() {
     // Create wall
-    $wall = $this->createWall('Test wall', $this->testDesignId);
+    $wall = $this->api->createWall('Test wall', $this->testDesignId);
     $this->assertEqual(@$wall['status'], 'running');
 
     // Check there is a session ID, start time and null end time
@@ -30,23 +32,17 @@ class SessionsTestCase extends WallMakerTestCase {
       $this->assertTrue($this->isOpenSession($wall['latestSession']),
                         "After creating a wall we should have an open session");
     }
-
-    // Tidy up by removing the wall
-    $this->removeWall($wall['wallId']);
   }
 
   function testEndSession() {
-    // Login
-    $this->login();
-
     // Create wall
-    $wall = $this->createWall('Test wall', $this->testDesignId);
+    $wall = $this->api->createWall('Test wall', $this->testDesignId);
 
     // Get current session ID
     $sessionId = $wall['latestSession']['id'];
 
     // End session
-    $response = $this->endSession($wall['wallId'], $sessionId);
+    $response = $this->api->endSession($wall['wallId'], $sessionId);
 
     // Check we got the times and status
     $this->assertTrue(!array_key_exists('error_key', $response),
@@ -59,36 +55,30 @@ class SessionsTestCase extends WallMakerTestCase {
                        "Got different session IDs: %s");
 
     // Re-fetch wall
-    $wall = $this->getWall($wall['wallId']);
+    $wall = $this->api->getWall($wall['wallId']);
     $this->assertTrue($wall['status'] == 'finished');
     $this->assertTrue($this->isClosedSession($wall['latestSession']),
                       "Refetched wall session does not appear to be ended.");
 
     // Logout and check it fails
-    $this->logout();
-    $response = $this->endSession($wall['wallId'], $sessionId);
+    $this->api->logout();
+    $response = $this->api->endSession($wall['wallId'], $sessionId);
     $this->assertTrue(@$response['error_key'] == 'logged-out',
                       "Closed session whilst logged out.");
-
-    // Tidy up by removing the wall
-    $this->removeWall($wall['wallId']);
   }
 
   function testEndClosedSession() {
-    // Login
-    $this->login();
-
     // Create wall
-    $wall = $this->createWall('Test wall', $this->testDesignId);
+    $wall = $this->api->createWall('Test wall', $this->testDesignId);
     $sessionId = $wall['latestSession']['id'];
 
     // End session
-    $response = $this->endSession($wall['wallId'], $sessionId);
+    $response = $this->api->endSession($wall['wallId'], $sessionId);
     $this->assertTrue($this->isClosedSession($response),
                       "Session does not appear to be ended");
 
     // End again
-    $response = $this->endSession($wall['wallId'], $sessionId);
+    $response = $this->api->endSession($wall['wallId'], $sessionId);
     $this->assertTrue(array_key_exists('error_key', $response) &&
                       $response['error_key'] == 'parallel-change',
                       "No error about parallel change when closing twice");
@@ -100,40 +90,30 @@ class SessionsTestCase extends WallMakerTestCase {
                        "Got different session IDs: %s");
 
     // Re-fetch wall (to check we're in a consistent state)
-    $wall = $this->getWall($wall['wallId']);
+    $wall = $this->api->getWall($wall['wallId']);
     $this->assertTrue($wall['status'] == 'finished');
     $this->assertTrue($this->isClosedSession($wall['latestSession']),
                       "Refetched wall session does not appear to be ended.");
-
-    // Tidy up by removing the wall
-    $this->removeWall($wall['wallId']);
   }
 
   function testEndSomeoneElsesWall() {
-    // Login as test user
-    $this->login();
-    $wall = $this->createWall('Test wall', $this->testDesignId);
+    // Create using test user
+    $wall = $this->api->createWall('Test wall', $this->testDesignId);
     $sessionId = $wall['latestSession']['id'];
 
     // Switch user
-    $this->login('abc@abc.org');
-    $response = $this->endSession($wall['wallId'], $sessionId);
+    $this->api->login('abc@abc.org');
+    $response = $this->api->endSession($wall['wallId'], $sessionId);
     $this->assertEqual(@$response['error_key'], 'no-auth');
-
-    // Tidy up by removing the wall
-    $this->removeWall($wall['wallId']);
   }
 
   function testStartNew() {
-    // Login
-    $this->login();
-
     // Create wall
-    $wall = $this->createWall('Test wall', $this->testDesignId);
+    $wall = $this->api->createWall('Test wall', $this->testDesignId);
     $sessionId = $wall['latestSession']['id'];
 
     // Start new session
-    $response = $this->startSession($wall['wallId'], $sessionId);
+    $response = $this->api->startSession($wall['wallId'], $sessionId);
 
     // Check we got the times and status
     $this->assertTrue(!array_key_exists('error_key', $response),
@@ -147,47 +127,36 @@ class SessionsTestCase extends WallMakerTestCase {
                        "Got unexpected session ID: %s");
 
     // Re-fetch wall
-    $wall = $this->getWall($wall['wallId']);
+    $wall = $this->api->getWall($wall['wallId']);
     $this->assertTrue($wall['status'] == 'running');
     $this->assertTrue($this->isOpenSession($wall['latestSession']),
                       "Refetched wall session does not appear to be open");
 
     // Logout and check it fails
-    $this->logout();
-    $response = $this->startSession($wall['wallId'], $sessionId);
+    $this->api->logout();
+    $response = $this->api->startSession($wall['wallId'], $sessionId);
     $this->assertTrue(array_key_exists('error_key', $response) &&
                       $response['error_key'] == 'logged-out',
                       "Started new session whilst logged out.");
-
-    // Tidy up by removing the wall
-    $this->removeWall($wall['wallId']);
   }
 
   function testBadRequest() {
-    // Login
-    $this->login();
-    $wall = $this->createWall('Test wall', $this->testDesignId);
+    $wall = $this->api->createWall('Test wall', $this->testDesignId);
     $sessionId = $wall['latestSession']['id'];
-    $response = $this->startSession($wall['wallId'], null);
+    $response = $this->api->startSession($wall['wallId'], null);
     $this->assertEqual(@$response['error_key'], 'bad-request');
-
-    // Tidy up by removing the wall
-    $this->removeWall($wall['wallId']);
   }
 
   function testParallelStartNew() {
-    // Login
-    $this->login();
-
     // Create wall
-    $wall = $this->createWall('Test wall', $this->testDesignId);
+    $wall = $this->api->createWall('Test wall', $this->testDesignId);
     $sessionId = $wall['latestSession']['id'];
 
     // Start new session
-    $responseA = $this->startSession($wall['wallId'], $sessionId);
+    $responseA = $this->api->startSession($wall['wallId'], $sessionId);
 
     // And do it again but with the OLD sessionId
-    $responseB = $this->startSession($wall['wallId'], $sessionId);
+    $responseB = $this->api->startSession($wall['wallId'], $sessionId);
     $this->assertTrue(array_key_exists('error_key', $responseB) &&
                       $responseB['error_key'] == 'parallel-change',
                       "No error about parallel change when starting with old "
@@ -200,45 +169,32 @@ class SessionsTestCase extends WallMakerTestCase {
     // when we first started a new session
     $this->assertEqual(@$responseA['id'], @$responseB['error_detail']['id'],
                        "Got unexpected session ID: %s");
-
-    // Tidy up by removing the wall
-    $this->removeWall($wall['wallId']);
   }
 
   function testStartSomeoneElsesWall() {
-    // Login as test user
-    $this->login();
-    $wall = $this->createWall('Test wall', $this->testDesignId);
+    // Create wall as test user
+    $wall = $this->api->createWall('Test wall', $this->testDesignId);
     $sessionId = $wall['latestSession']['id'];
 
     // Switch user
-    $this->login('abc@abc.org');
-    $response = $this->startSession($wall['wallId'], $sessionId);
+    $this->api->login('abc@abc.org');
+    $response = $this->api->startSession($wall['wallId'], $sessionId);
     $this->assertEqual(@$response['error_key'], 'no-auth');
-
-    // Tidy up by removing the wall
-    $this->removeWall($wall['wallId']);
   }
 
+  // Session IDs should be wall-specific
   function testSessionIds() {
-    // Session IDs should be wall-specific
-    $this->login();
-
     // Create first wall
-    $wallA = $this->createWall('Wall 1', $this->testDesignId);
+    $wallA = $this->api->createWall('Wall 1', $this->testDesignId);
     $idA = $wallA['latestSession']['id'];
 
     // Create second wall
-    $wallB = $this->createWall('Wall 2', $this->testDesignId);
+    $wallB = $this->api->createWall('Wall 2', $this->testDesignId);
     $idB = $wallB['latestSession']['id'];
 
     // Check IDs
     $this->assertEqual($idA, 1);
     $this->assertEqual($idB, 1);
-
-    // Tidy up
-    $this->removeWall($wallA['wallId']);
-    $this->removeWall($wallB['wallId']);
   }
 
   function isOpenSession($session) {
@@ -290,46 +246,6 @@ class SessionsTestCase extends WallMakerTestCase {
                       "Failed to get wall:" . @$wall['error_key']);
 
     return $wall;
-  }
-
-  function startSession($wallId, $sessionId) {
-    // Prepare payload
-    $payload['sessionId'] = $sessionId;
-
-    // Make request
-    global $config;
-    $url = $config['test']['wall_server'] . "api/walls/$wallId/sessions";
-    $response = $this->post($url, json_encode($payload));
-
-    // Check response
-    $this->assertResponse(200);
-    $this->assertMime('application/json; charset=UTF-8');
-
-    // Parse response
-    $parsedResponse = json_decode($response,true);
-    $this->assertTrue($parsedResponse !== null,
-                      "Failed to decode response: $response");
-
-    return $parsedResponse;
-  }
-
-  function endSession($wallId, $sessionId) {
-    // Make request
-    global $config;
-    $url = $config['test']['wall_server'] .
-      "api/walls/$wallId/sessions/$sessionId";
-    $response = $this->put($url, null);
-
-    // Check response
-    $this->assertResponse(200);
-    $this->assertMime('application/json; charset=UTF-8');
-
-    // Parse response
-    $parsedResponse = json_decode($response,true);
-    $this->assertTrue($parsedResponse !== null,
-                      "Failed to decode response: $response");
-
-    return $parsedResponse;
   }
 }
 
