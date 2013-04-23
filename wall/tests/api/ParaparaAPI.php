@@ -147,6 +147,13 @@ class ParaparaAPI {
     return $this->getJson($url);
   }
 
+  function updateWall($wallId, $payload) {
+    // Make request
+    global $config;
+    $url = $config['test']['wall_server'] . 'api/walls/' . $wallId;
+    return $this->putJson($url, $payload);
+  }
+
   /* ----------------------------------------------------------------------
    *
    * Wall session handling
@@ -291,7 +298,7 @@ class ParaparaAPI {
     $contentType = null;
 
     // Prepare payload
-    if ($parameters) {
+    if ($parameters !== null) {
       $payload = json_encode($parameters);
       $contentType = "application/json";
     }
