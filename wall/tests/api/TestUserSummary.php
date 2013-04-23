@@ -75,7 +75,6 @@ class TestMySummary extends APITestCase {
 
   function testDesigns() {
     // We should have at least one design initially since
-    // WallMakerTestCase::setUp creates one
     $summary = $this->api->getUserSummary();
     $this->assertTrue(array_key_exists('designs', $summary) &&
                       is_array($summary['designs']) &&
