@@ -25,8 +25,6 @@ if (!$sessionId) {
   $data = getRequestData();
   $sessionId = toIntOrNull(@$data['sessionId']);
 }
-if (!$sessionId)
-  bailWithError('bad-request');
 
 // Get wall
 $wall = Walls::getById($wallId, $email);
@@ -37,24 +35,38 @@ if ($wall === null)
 $currentdatetime = gmdate("Y-m-d H:i:s");
 
 // Determine action
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-  // Create new session
-  $madeChange = $wall->startSession($sessionId, $currentdatetime);
-} else if ($_SERVER['REQUEST_METHOD'] == 'PUT') {
-  // Update session... in other words, close it
-  $madeChange = $wall->endSession($sessionId, $currentdatetime);
+switch ($_SERVER['REQUEST_METHOD']) {
+  case 'GET':
+    $result = $wall->getSessions();
+    break;
+
+  case 'POST':
+    if (!$sessionId)
+      bailWithError('bad-request');
+    // Create new session
+    $madeChange = $wall->startSession($sessionId, $currentdatetime);
+    break;
+
+  case 'PUT':
+    if (!$sessionId)
+      bailWithError('bad-request');
+    // Update session... in other words, close it
+    $madeChange = $wall->endSession($sessionId, $currentdatetime);
+    break;
 }
 
-// Prepare the result
+// Prepare the result for when we updated the latest session
 // - If we made a change then return the latest session.
 // - Otherwise return a parallel-change notification with the latest session 
 //   in the detail.
-$latestSession = $wall->latestSession;
-if ($madeChange) {
-  $result = $latestSession;
-} else {
-  $result['error_key'] = 'parallel-change';
-  $result['error_detail'] = $latestSession;
+if (isset($madeChange)) {
+  $latestSession = $wall->latestSession;
+  if ($madeChange) {
+    $result = $latestSession;
+  } else {
+    $result['error_key'] = 'parallel-change';
+    $result['error_detail'] = $latestSession;
+  }
 }
 
 // Return the result

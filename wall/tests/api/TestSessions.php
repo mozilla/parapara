@@ -126,6 +126,11 @@ class SessionsTestCase extends APITestCase {
     $this->assertEqual(@$response['sessionId'], $sessionId+1,
                        "Got unexpected session ID: %s");
 
+    // Check previous session is closed
+    $sessions = $this->api->getSessions($wall['wallId']);
+    $this->assertTrue($this->isClosedSession($sessions[0]),
+                      "Previous session was not closed");
+
     // Re-fetch wall
     $wall = $this->api->getWall($wall['wallId']);
     $this->assertTrue($wall['status'] == 'running');
@@ -196,6 +201,26 @@ class SessionsTestCase extends APITestCase {
     // Check IDs
     $this->assertEqual($idA, 1);
     $this->assertEqual($idB, 1);
+
+    // Test next ID is 2
+    $response = $this->api->startSession($wallA['wallId'], $idA);
+    $this->assertEqual(@$response['sessionId'], 2);
+  }
+
+  function testInitialSessionList() {
+    // Get initial list
+    $wall = $this->api->createWall('Wall 1', $this->testDesignId);
+    $sessions = $this->api->getSessions($wall['wallId']);
+    $this->assertTrue(!array_key_exists('error_key', $sessions),
+      'Got error getting designs: ' . @$sessions['error_key']
+      . ' (' . @$sessions['error_detail'] . ')');
+
+    // Should have one element
+    $this->assertTrue(is_array($sessions) && count($sessions) === 1,
+      'Unexpected initial list of sessions: ' . print_r($sessions, true));
+    $this->assertEqual($sessions[0]['sessionId'], 1);
+    $this->assertTrue($this->isOpenSession($sessions[0]),
+                      "Session does not appear to be open");
   }
 
   function isOpenSession($session) {

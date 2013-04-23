@@ -178,6 +178,13 @@ class ParaparaAPI {
     return $this->putJson($url, null);
   }
 
+  function getSessions($wallId) {
+    // Make request
+    global $config;
+    $url = $config['test']['wall_server'] . "api/walls/$wallId/sessions";
+    return $this->getJson($url);
+  }
+
   /* ----------------------------------------------------------------------
    *
    * Design handling

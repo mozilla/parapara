@@ -545,6 +545,31 @@ class Wall {
     return true;
   }
 
+  public function getSessions() {
+    // Query sessions
+    $conn =& getDbConnection();
+    $res =& $conn->query(
+      'SELECT sessionId, beginDate as start, endDate as end FROM sessions'
+      . ' WHERE wallId = ' . $conn->quote($this->wallId, 'integer'));
+    if (PEAR::isError($res)) {
+      error_log($res->getMessage() . ', ' . $res->getDebugInfo());
+      throw new KeyedException('db-error');
+    }
+
+    // Process results
+    $result = array();
+    $conn->setFetchMode(MDB2_FETCHMODE_ASSOC);
+    while ($row = $res->fetchRow()) {
+      array_push($result, 
+        array('sessionId' => $row['sessionid'],
+              'start' => $row['start'],
+              'end' => $row['end']));
+    }
+    $conn->disconnect();
+
+    return $result;
+  }
+
   public static function getPathForName($name) {
     // Sanitize
     $path = Wall::sanitizePath($name);
