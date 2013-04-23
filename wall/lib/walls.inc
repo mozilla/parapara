@@ -558,7 +558,8 @@ class Wall {
     $conn =& getDbConnection();
     $res =& $conn->query(
       'SELECT sessionId, beginDate as start, endDate as end FROM sessions'
-      . ' WHERE wallId = ' . $conn->quote($this->wallId, 'integer'));
+      . ' WHERE wallId = ' . $conn->quote($this->wallId, 'integer')
+      . ' ORDER BY sessionId');
     if (PEAR::isError($res)) {
       error_log($res->getMessage() . ', ' . $res->getDebugInfo());
       throw new KeyedException('db-error');
