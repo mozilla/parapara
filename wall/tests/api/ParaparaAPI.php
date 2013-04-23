@@ -58,7 +58,7 @@ class ParaparaAPI {
    *
    * ---------------------------------------------------------------------*/
 
-  protected $userEmail = null;
+  public $userEmail = null;
   protected $sessionId = null;
 
   function login($email = null) {

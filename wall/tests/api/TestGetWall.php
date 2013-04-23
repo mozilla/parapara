@@ -13,9 +13,13 @@ class GetWallTestCase extends APITestCase {
     parent::__construct($name);
   }
 
+  function setUp() {
+    parent::setUp();
+    $this->api->login();
+  }
+
   function testLoggedOut() {
     // Create wall
-    $this->api->login();
     $wall = $this->api->createWall('Test wall', $this->testDesignId);
     $wallId = $wall['wallId'];
     $this->api->logout();
@@ -28,7 +32,6 @@ class GetWallTestCase extends APITestCase {
 
   function testGetWall() {
     // Create wall
-    $this->api->login();
     $wall = $this->api->createWall('Test wall', $this->testDesignId);
     $wallId = $wall['wallId'];
 
@@ -65,14 +68,12 @@ class GetWallTestCase extends APITestCase {
   }
 
   function testNotFound() {
-    $this->api->login();
     $wall = $this->api->getWall(5000);
     $this->assertEqual(@$wall['error_key'], 'not-found');
   }
 
   function testSomeoneElsesWall() {
     // Create wall
-    $this->api->login();
     $wall = $this->api->createWall('Test wall', $this->testDesignId);
     $wallId = $wall['wallId'];
     $this->api->logout();
