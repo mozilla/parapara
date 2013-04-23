@@ -39,7 +39,7 @@ class SessionsTestCase extends APITestCase {
     $wall = $this->api->createWall('Test wall', $this->testDesignId);
 
     // Get current session ID
-    $sessionId = $wall['latestSession']['id'];
+    $sessionId = $wall['latestSession']['sessionId'];
 
     // End session
     $response = $this->api->endSession($wall['wallId'], $sessionId);
@@ -51,7 +51,7 @@ class SessionsTestCase extends APITestCase {
                       "Session does not appear to be ended.");
 
     // Check the ID is the same
-    $this->assertEqual(@$response['id'], $sessionId,
+    $this->assertEqual(@$response['sessionId'], $sessionId,
                        "Got different session IDs: %s");
 
     // Re-fetch wall
@@ -70,7 +70,7 @@ class SessionsTestCase extends APITestCase {
   function testEndClosedSession() {
     // Create wall
     $wall = $this->api->createWall('Test wall', $this->testDesignId);
-    $sessionId = $wall['latestSession']['id'];
+    $sessionId = $wall['latestSession']['sessionId'];
 
     // End session
     $response = $this->api->endSession($wall['wallId'], $sessionId);
@@ -86,7 +86,7 @@ class SessionsTestCase extends APITestCase {
                       "Doubly-ended session does not appear to be ended");
 
     // Check ID hasn't changed
-    $this->assertEqual(@$response['error_detail']['id'], $sessionId,
+    $this->assertEqual(@$response['error_detail']['sessionId'], $sessionId,
                        "Got different session IDs: %s");
 
     // Re-fetch wall (to check we're in a consistent state)
@@ -99,7 +99,7 @@ class SessionsTestCase extends APITestCase {
   function testEndSomeoneElsesWall() {
     // Create using test user
     $wall = $this->api->createWall('Test wall', $this->testDesignId);
-    $sessionId = $wall['latestSession']['id'];
+    $sessionId = $wall['latestSession']['sessionId'];
 
     // Switch user
     $this->api->login('abc@abc.org');
@@ -110,7 +110,7 @@ class SessionsTestCase extends APITestCase {
   function testStartNew() {
     // Create wall
     $wall = $this->api->createWall('Test wall', $this->testDesignId);
-    $sessionId = $wall['latestSession']['id'];
+    $sessionId = $wall['latestSession']['sessionId'];
 
     // Start new session
     $response = $this->api->startSession($wall['wallId'], $sessionId);
@@ -123,7 +123,7 @@ class SessionsTestCase extends APITestCase {
                       "Session does not appear to be open");
 
     // Check the IDs differ
-    $this->assertEqual(@$response['id'], $sessionId+1,
+    $this->assertEqual(@$response['sessionId'], $sessionId+1,
                        "Got unexpected session ID: %s");
 
     // Re-fetch wall
@@ -142,7 +142,7 @@ class SessionsTestCase extends APITestCase {
 
   function testBadRequest() {
     $wall = $this->api->createWall('Test wall', $this->testDesignId);
-    $sessionId = $wall['latestSession']['id'];
+    $sessionId = $wall['latestSession']['sessionId'];
     $response = $this->api->startSession($wall['wallId'], null);
     $this->assertEqual(@$response['error_key'], 'bad-request');
   }
@@ -150,7 +150,7 @@ class SessionsTestCase extends APITestCase {
   function testParallelStartNew() {
     // Create wall
     $wall = $this->api->createWall('Test wall', $this->testDesignId);
-    $sessionId = $wall['latestSession']['id'];
+    $sessionId = $wall['latestSession']['sessionId'];
 
     // Start new session
     $responseA = $this->api->startSession($wall['wallId'], $sessionId);
@@ -167,14 +167,15 @@ class SessionsTestCase extends APITestCase {
 
     // Check the session returned by the parallel change matches that returned 
     // when we first started a new session
-    $this->assertEqual(@$responseA['id'], @$responseB['error_detail']['id'],
+    $this->assertEqual(@$responseA['sessionId'],
+                       @$responseB['error_detail']['sessionId'],
                        "Got unexpected session ID: %s");
   }
 
   function testStartSomeoneElsesWall() {
     // Create wall as test user
     $wall = $this->api->createWall('Test wall', $this->testDesignId);
-    $sessionId = $wall['latestSession']['id'];
+    $sessionId = $wall['latestSession']['sessionId'];
 
     // Switch user
     $this->api->login('abc@abc.org');
@@ -186,11 +187,11 @@ class SessionsTestCase extends APITestCase {
   function testSessionIds() {
     // Create first wall
     $wallA = $this->api->createWall('Wall 1', $this->testDesignId);
-    $idA = $wallA['latestSession']['id'];
+    $idA = $wallA['latestSession']['sessionId'];
 
     // Create second wall
     $wallB = $this->api->createWall('Wall 2', $this->testDesignId);
-    $idB = $wallB['latestSession']['id'];
+    $idB = $wallB['latestSession']['sessionId'];
 
     // Check IDs
     $this->assertEqual($idA, 1);
@@ -211,7 +212,7 @@ class SessionsTestCase extends APITestCase {
       return false;
        
     // Check session end
-    $this->assertTrue(intval(@$session['id']) > 0, "Bad session id");
+    $this->assertTrue(intval(@$session['sessionId']) > 0, "Bad session id");
 
     // Check session start
     $this->assertTrue(preg_match($this->dateRegEx, @$session['start']),

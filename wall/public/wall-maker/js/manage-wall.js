@@ -443,7 +443,7 @@ var ManageWallController =
       currentStatus.textContent = '終了';
       statusBlock.classList.add('finished');
       $("manage-endSession").disabled = true;
-      this.sessionId = session.id;
+      this.sessionId = session.sessionId;
     } else if (session && session.start) {
       // Open session
       statusBlock.classList.remove('finished');
@@ -451,7 +451,7 @@ var ManageWallController =
       currentStatus.textContent = '公開中';
       statusBlock.classList.add('running');
       $("manage-endSession").disabled = false;
-      this.sessionId = session.id;
+      this.sessionId = session.sessionId;
     } else {
       // No session
       statusBlock.classList.remove('finished');

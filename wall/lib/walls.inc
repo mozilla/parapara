@@ -458,7 +458,7 @@ class Wall {
     $latestSession = $this->latestSession;
 
     // Is the passed-in session ID correct?
-    if (toIntOrNull($latestSession['id']) !== $currentSessionId) {
+    if (toIntOrNull($latestSession['sessionId']) !== $currentSessionId) {
       return false;
     }
 
@@ -494,9 +494,9 @@ class Wall {
     }
 
     // Update latest session
-    $this->metadata['latestSession']['id']    = $newSessionId;
-    $this->metadata['latestSession']['start'] = $datetime;
-    $this->metadata['latestSession']['end']   = null;
+    $this->metadata['latestSession']['sessionId'] = $newSessionId;
+    $this->metadata['latestSession']['start']     = $datetime;
+    $this->metadata['latestSession']['end']       = null;
     $this->metadata['status'] = 'running';
 
     $conn->disconnect();
@@ -520,7 +520,7 @@ class Wall {
     $latestSession = $this->latestSession;
     if ($latestSession === null ||
         $latestSession['end'] !== null ||
-        $latestSession['id'] !== $currentSessionId)
+        $latestSession['sessionId'] !== $currentSessionId)
       return false;
 
     // End session
@@ -759,7 +759,7 @@ class Walls {
     // Session information
     if ($row['sessionid']) {
       if ($hasAccess) {
-        $session['id'] = intval($row['sessionid']);
+        $session['sessionId'] = intval($row['sessionid']);
         $session['start'] = $row['sessionstart'];
         $session['end'] = $row['sessionend'];
         $metadata['latestSession'] = $session;
