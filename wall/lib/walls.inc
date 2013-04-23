@@ -145,7 +145,7 @@ function getCurrentWallTimeForDuration($duration) {
 }
 
 class Wall {
-  private $_id      = null;
+  private $_wallId  = null;
   private $_design  = null;
   private $metadata = null;
   private $sessions = null;
@@ -153,14 +153,14 @@ class Wall {
   private $dirtyFields = array();
 
   static private $hiddenFields   = array('passcode');
-  static private $virtualFields  = array('id', 'passcodeLen',
+  static private $virtualFields  = array('passcodeLen',
                                          'wallUrl', 'editorUrl',
                                          'design', 'thumbnail',
                                          'defaultDuration');
-  static private $readOnlyFields = array('editorUrlShort');
+  static private $readOnlyFields = array('wallId', 'editorUrlShort');
 
-  public function __construct($id, $email, $metadata) {
-    $this->_id      = intval($id);
+  public function __construct($wallId, $email, $metadata) {
+    $this->_wallId  = $wallId;
     $this->email    = trim($email);
     $this->metadata = $metadata;
   }
@@ -179,8 +179,8 @@ class Wall {
 
     // Virtual fields
     switch ($name) {
-      case 'id':
-        return $this->_id;
+      case 'wallId':
+        return $this->_wallId;
 
       case 'wallUrl':
         return Wall::getUrlForPath($this->metadata['urlPath']);
@@ -213,7 +213,7 @@ class Wall {
 
     // Virtual fields
     switch ($name) {
-      case 'id':
+      case 'wallId':
         return true;
 
       case 'wallUrl':
@@ -406,7 +406,7 @@ class Wall {
     // Run query
     $query = 'UPDATE walls SET '
       . implode(', ', $assignments)
-      . ' WHERE wallId = ' . $conn->quote($this->id, 'integer');
+      . ' WHERE wallId = ' . $conn->quote($this->wallId, 'integer');
     $res =& $conn->exec($query);
     if (PEAR::isError($res)) {
       error_log($res->getMessage() . ', ' . $res->getDebugInfo());
@@ -425,7 +425,8 @@ class Wall {
     //
     // Associative keys map the regular value name used by users of this class 
     // to another more export-friendly value.
-    $keys = array('id' => 'wallId', 'name',
+    // (This mapping feature is no longer used and could be removed)
+    $keys = array('wallId', 'name',
                   'eventLocation',
                   'eventDescr',
                   'wallUrl', 'editorUrl', 'editorUrlShort',
@@ -469,7 +470,7 @@ class Wall {
 
     // Get sessionId for next session
     $conn =& getDbConnection();
-    $quotedWallId = $conn->quote($this->id, 'integer');
+    $quotedWallId = $conn->quote($this->wallId, 'integer');
     $newSessionId =& $conn->queryOne(
         'SELECT IFNULL(MAX(sessionId)+1, 1)'
         . ' FROM sessions WHERE wallId = ' . $quotedWallId
@@ -528,8 +529,7 @@ class Wall {
     $query = 'UPDATE sessions'
       . ' SET endDate=' . $conn->quote($datetime, 'timestamp')
       . ' WHERE sessionId=' . $conn->quote($currentSessionId, 'integer')
-      . ' AND wallId=' . $conn->quote($this->id, 'integer');
-    // XXX This is wrong
+      . ' AND wallId=' . $conn->quote($this->wallId, 'integer');
     $res =& $conn->exec($query);
     if (PEAR::isError($res)) {
       error_log($res->getMessage() . ', ' . $res->getDebugInfo());
@@ -709,7 +709,9 @@ class Walls {
     return self::getById($wallId, $email);
   }
 
-  public static function getById($id, $email) {
+  public static function getById($wallId, $email) {
+    $wallId = intval($wallId);
+
     $conn =& getDbConnection();
     $row =& $conn->queryRow(
         'SELECT walls.designId'
@@ -726,8 +728,8 @@ class Walls {
       . ' LEFT JOIN sessions ON'
       . '   sessions.sessionSerial = '
       . '   (SELECT MAX(sessionSerial) FROM sessions'
-      . '    WHERE sessions.wallId = ' . $conn->quote($id, 'integer') . ')'
-      . ' WHERE walls.wallId = ' . $conn->quote($id, 'integer')
+      . '    WHERE sessions.wallId = ' . $conn->quote($wallId, 'integer') . ')'
+      . ' WHERE walls.wallId = ' . $conn->quote($wallId, 'integer')
       . ' LIMIT 1',
       null,
       MDB2_FETCHMODE_ASSOC
@@ -776,7 +778,7 @@ class Walls {
     $metadata["duration"] = toIntOrNull($row['duration']);
     $metadata["defaultDuration"] = toIntOrNull($row['defaultduration']);
 
-    return new Wall($id, $email, $metadata);
+    return new Wall($wallId, $email, $metadata);
   }
 
   public static function isNameUnique($name) {

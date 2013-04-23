@@ -182,11 +182,11 @@ class SetWallTestCase extends APITestCase {
   function testId() {
     // It shouldn't be possible to change the wall ID 
     $result = $this->api->updateWall($this->testWallId, array('wallId' => 5));
-    $this->assertEqual(@$result['error_key'], 'unknown-field');
+    $this->assertEqual(@$result['error_key'], 'readonly-field');
 
     // Variation on the theme
     $result = $this->api->updateWall($this->testWallId, array('id' => 5));
-    $this->assertEqual(@$result['error_key'], 'readonly-field');
+    $this->assertEqual(@$result['error_key'], 'unknown-field');
   }
 
   function testNoChange() {

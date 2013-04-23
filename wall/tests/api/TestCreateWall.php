@@ -31,7 +31,8 @@ class CreateWallTestCase extends APITestCase {
     // Create wall
     $wall = $this->api->createWall('Test wall', $this->testDesignId);
     $this->assertTrue(!array_key_exists('error_key', $wall),
-                      "Got error creating wall");
+      'Got error creating wall: ' . @$wall['error_key']
+      . ' (' . @$wall['error_detail'] . ')');
     $this->assertTrue(is_int(@$wall['wallId']) && $wall['wallId'] > 0,
                       "Unexpected wall ID: " . @$wall['wallId']);
   }
