@@ -20,7 +20,7 @@ abstract class APITestCase extends ParaparaTestCase {
     parent::setUp();
     $this->testDesign = "test";
     list($this->testDesignId, $this->testDesignFolder) =
-      $this->api->addDesign($this->testDesign, "test.jpg");
+      $this->api->addDesign($this->testDesign, array("test.jpg"));
   }
 
   function tearDown() {

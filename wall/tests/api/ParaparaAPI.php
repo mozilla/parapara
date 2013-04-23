@@ -4,6 +4,7 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 require_once('../../lib/parapara.inc');
+require_once('walls.inc');
 require_once('MDB2.php');
 
 /*
@@ -14,11 +15,21 @@ require_once('MDB2.php');
  * database directly.
  */
 class ParaparaAPI {
+  const DEFAULT_USER_EMAIL = 'test@test.org';
+
+  static private $updatedSessionSettings = false;
+
   protected $db = null;
 
   function __construct($db) {
     $this->db = $db;
     $this->designsPath = dirname(__FILE__) . '/../../public/designs/';
+
+    if (!self::$updatedSessionSettings) {
+      // Don't let session_start use cookies since otherwise we'll get errors 
+      // about headers already being sent
+      ini_set("session.use_cookies",0);
+    }
   }
 
   /*
@@ -27,9 +38,113 @@ class ParaparaAPI {
    * This is provided so that test code can easily clean up after each test run.
    */
   function cleanUp() {
+    // Walls
+    while (count($this->createdWalls)) {
+      $this->removeWall($this->createdWalls[0]);
+    }
+    // Designs
     while (count($this->createdDesigns)) {
       $this->removeDesignByName($this->createdDesigns[0]);
     }
+    // Logout
+    if ($this->sessionId) {
+      $this->logout();
+    }
+  }
+
+  /* ----------------------------------------------------------------------
+   *
+   * Login / sessions
+   *
+   * ---------------------------------------------------------------------*/
+
+  protected $userEmail = null;
+  protected $sessionId = null;
+
+  function login($email = null) {
+    session_name(WALLMAKER_SESSION_NAME);
+    session_cache_limiter(''); // Prevent warnings about not being able to send 
+                               // cache limiting headers
+    session_start();
+
+    // Set email
+    $email = $email ? $email : self::DEFAULT_USER_EMAIL;
+    $_SESSION['email'] = $email;
+    $this->userEmail   = $email;
+
+    // We're about to call into the wall server which will want to access the 
+    // same session but session files are opened exclusively so we store the 
+    // session ID in a variable and then close it.
+    $this->sessionId = session_id();
+    session_write_close();
+  }
+
+  function logout() {
+    // Clear up the session on the server side
+    session_name(WALLMAKER_SESSION_NAME);
+    session_start();
+    unset($_SESSION['email']);
+    session_destroy();
+    session_write_close();
+
+    // Clear local state
+    $this->sessionId = null;
+    $this->userEmail = null;
+  }
+
+  /* ----------------------------------------------------------------------
+   *
+   * Wall handling
+   *
+   * ---------------------------------------------------------------------*/
+
+  protected $createdWalls = array();
+
+  function createWall($name, $designId) {
+    // Prepare payload
+    $payload['name']   = $name;
+    $payload['design'] = $designId;
+
+    // Make request
+    global $config;
+    $url = $config['test']['wall_server'] . 'api/walls';
+    $wall = $this->postJson($url, $payload);
+
+    // Track wall so we can clean it up
+    if (is_array($wall) && !array_key_exists('error_key', $wall) &&
+        array_key_exists('wallId', $wall)) {
+      array_push($this->createdWalls, $wall['wallId']);
+    }
+
+    return $wall;
+  }
+
+  function removeWall($wallId) {
+    // Remove connected sessions
+    $query = 'DELETE FROM sessions WHERE wallId = ' . $wallId;
+    $res =& $this->db->query($query);
+    if (PEAR::isError($res)) {
+      die($res->getMessage() . ', ' . $res->getDebugInfo());
+    }
+
+    // Remove wall
+    $query = 'DELETE FROM walls WHERE wallId = ' . $wallId;
+    $res =& $this->db->query($query);
+    if (PEAR::isError($res)) {
+      die($res->getMessage() . ', ' . $res->getDebugInfo());
+    }
+
+    // Remove from list of createdWalls
+    while (($pos = array_search($wallId, $this->createdWalls)) !== FALSE) {
+      array_splice($this->createdWalls, $pos, 1);
+    }
+  }
+
+  function getWall($wallId) {
+    // Make request
+    global $config;
+    $url = $config['test']['wall_server'] . 'api/walls/' . $wallId;
+    return $this->getJson($url);
   }
 
   /* ----------------------------------------------------------------------
@@ -136,38 +251,93 @@ class ParaparaAPI {
    * ---------------------------------------------------------------------*/
 
   protected function getJson($url) {
-    $ch = curl_init($url);
+    return $this->makeJsonRequest($url, "GET");
+  }
 
-    curl_setopt($ch, CURLOPT_HEADER, false);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);
-    curl_setopt($ch, CURLOPT_HTTPGET, true);
+  protected function postJson($url, $parameters) {
+    return $this->makeJsonRequest($url, "POST", $parameters);
+  }
 
-    $data = curl_exec($ch);
-    $info = curl_getinfo($ch);
-    curl_close($ch);
+  protected function makeJsonRequest($url, $method, $parameters = null) {
+    $payload     = null;
+    $contentType = null;
 
-    if (empty($info['http_code']) || $info['http_code'] !== 200) {
+    // Prepare payload
+    if ($parameters) {
+      $payload = json_encode($parameters);
+      $contentType = "application/json";
+    }
+
+    // Make request
+    list($data, $httpCode, $contentType) =
+      $this->makeRequest($url, $method, $payload, $contentType);
+
+    // Check response
+    if ($httpCode !== 200) {
       return array(
         'error_key' => 'server-error',
         'error_detail' => 'Unexpected HTTP code: ' . @$info['http_code']);
     }
-
-    if (empty($info['content_type']) ||
-        $info['content_type'] !== 'application/json; charset=UTF-8') {
+    if ($contentType !== 'application/json; charset=UTF-8') {
       return array(
         'error_key' => 'server-error',
         'error_detail' => 'Unexpected content-type: ' . @$info['content_type']);
     }
 
-    $response = json_decode($data,true);
+    // Decode
+    $response = json_decode($data, true);
     if ($response === null) {
       return array(
         'error_key' => 'server-error',
         'error_detail' => "Failed to parse response: $response");
     }
-
     return $response;
+  }
+
+  // Requests a URL using the specified method and payload
+  //
+  // Returns a triple: (data, http response code, response content type)
+  protected function makeRequest($url, $method,
+                                 $payload = null,
+                                 $payloadContentType = null) {
+    // Initialize request
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_HEADER, false);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
+
+    // Set up parameters if any
+    if ($payload) {
+      if ($payloadContentType) {
+        curl_setopt($ch, CURLOPT_HTTPHEADER,
+          array('Content-type: ' . $payloadContentType));
+      }
+      $fh = fopen('php://temp', 'rw');
+      fwrite($fh, $payload);
+      rewind($fh);
+      curl_setopt($ch, CURLOPT_INFILE, $fh);
+      curl_setopt($ch, CURLOPT_INFILESIZE, strlen($payload));
+      curl_setopt($ch, CURLOPT_PUT, true);
+    }
+
+    // Set session cookie if logged in
+    if ($this->sessionId) {
+      curl_setopt($ch, CURLOPT_COOKIE,
+        WALLMAKER_SESSION_NAME . "=" . $this->sessionId);
+    }
+
+    // Make request
+    $data = curl_exec($ch);
+    $info = curl_getinfo($ch);
+
+    // Tidy up
+    curl_close($ch);
+    if (isset($fh))
+      fclose($fh);
+
+    // Return result
+    return array($data, @$info['http_code'], @$info['content_type']);
   }
 }
 

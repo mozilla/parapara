@@ -12,6 +12,12 @@ class GetDesignsTestCase extends APITestCase {
   function __construct($name = false) {
     parent::__construct($name);
   }
+  function setUp() {
+    parent::setUp();
+    // The parent setup creates a test design for us, but it also adds 
+    // a thumbnail which is not what we want, so remove it
+    unlink($this->testDesignFolder . 'preview/test.jpg');
+  }
 
   function testGetDesigns() {
     $designs = $this->api->getDesigns();

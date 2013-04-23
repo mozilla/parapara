@@ -5,9 +5,9 @@
 
 require_once('../../lib/parapara.inc');
 require_once('simpletest/autorun.php');
-require_once('WallMakerTestCase.php');
+require_once('APITestCase.php');
 
-class GetWallTestCase extends WallMakerTestCase {
+class GetWallTestCase extends APITestCase {
 
   function __construct($name = false) {
     parent::__construct($name);
@@ -15,31 +15,25 @@ class GetWallTestCase extends WallMakerTestCase {
 
   function testLoggedOut() {
     // Create wall
-    $this->login();
-    $wall = $this->createWall('Test wall', $this->testDesignId);
+    $this->api->login();
+    $wall = $this->api->createWall('Test wall', $this->testDesignId);
     $wallId = $wall['wallId'];
-    $this->logout();
+    $this->api->logout();
 
     // Check it fails if we're logged out
-    $wall = $this->getWall($wallId);
-    $this->assertTrue(array_key_exists('error_key', $wall) &&
-                      $wall['error_key'] == 'logged-out',
-                      "Got wall whilst logged out.");
-
-    // Tidy up by removing the wall
-    // XXX Probably need to be logged in to do this once we switch to using the 
-    // API
-    $this->removeWall($wallId);
+    $wall = $this->api->getWall($wallId);
+    $this->assertEqual(@$wall['error_key'], 'logged-out',
+                       "Got wall whilst logged out.");
   }
 
   function testGetWall() {
     // Create wall
-    $this->login();
-    $wall = $this->createWall('Test wall', $this->testDesignId);
+    $this->api->login();
+    $wall = $this->api->createWall('Test wall', $this->testDesignId);
     $wallId = $wall['wallId'];
 
     // Check it succeeds
-    $wall = $this->getWall($wallId);
+    $wall = $this->api->getWall($wallId);
     $this->assertTrue(!array_key_exists('error_key', $wall),
                       "Failed to get wall even though logged in.");
 
@@ -68,32 +62,26 @@ class GetWallTestCase extends WallMakerTestCase {
     // Check thumbnail
     $this->assertEqual(@substr($wall['thumbnail'], -strlen("test.jpg")),
                        "test.jpg");
-
-    // Tidy up by removing the wall
-    $this->removeWall($wallId);
   }
 
   function testNotFound() {
-    $this->login();
-    $wall = $this->getWall(5000);
+    $this->api->login();
+    $wall = $this->api->getWall(5000);
     $this->assertEqual(@$wall['error_key'], 'not-found');
   }
 
   function testSomeoneElsesWall() {
     // Create wall
-    $this->login();
-    $wall = $this->createWall('Test wall', $this->testDesignId);
+    $this->api->login();
+    $wall = $this->api->createWall('Test wall', $this->testDesignId);
     $wallId = $wall['wallId'];
-    $this->logout();
+    $this->api->logout();
 
     // Login as someone else
-    $this->login('abc@abc.org');
-    $wall = $this->getWall($wallId);
+    $this->api->login('abc@abc.org');
+    $wall = $this->api->getWall($wallId);
     $this->assertEqual(@$wall['error_key'], 'no-auth');
-    $this->logout();
-
-    // Tidy up
-    $this->removeWall($wallId);
+    $this->api->logout();
   }
 
   function looksLikeAUrl($url) {
