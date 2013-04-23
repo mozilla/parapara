@@ -62,7 +62,7 @@ the specified wall with the following parameters.
   depending on if this wall has an active session or not.
 * <code>latestSession</code> - The most recently created session. Includes the
   following information.
- * <code>id</code> - The identifier of the session
+ * <code>sessionId</code> - The identifier of the session
  * <code>start</code> - The time when the session was started in the format
   "Y-m-d H:i:s"
  * <code>end</code> - The time when the session was ended in the format
