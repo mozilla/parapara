@@ -111,6 +111,18 @@ Errors:
 * <code>readonly-field</code> - The key is recognized, but you can't change that field
 * <code>unknown-field</code> - The key isn't recognized
 </dd>
+<dt>/api/walls/&lt;wall-id>/sessions[GET]</dt>
+<dd>Gets the list of sessions for the wall [auth currently required].
+
+Returns:
+an array of sessions ordered by sessionId with the following information
+for each session:
+* <code>sessionId</code> - The identifier of the session
+* <code>start</code> - The time when the session was started in the format
+  "Y-m-d H:i:s"
+* <code>end</code> - The time when the session was ended in the format
+  "Y-m-d H:i:s" or <code>null</code> if the session has not yet ended.
+</dd>
 <dt>/api/walls/&lt;wall-id>/sessions[POST]</dt>
 <dd>Closes the most recent session if it is open and creates a new session [auth required].
 
@@ -118,7 +130,8 @@ Parameters:
 * <code>sessionId</code> (The ID of the latest session) [Required]
 
 Returns:
-details of the latest session
+details of the latest session using the same format as each of the elements
+returned in the list of sessions.
 
 Errors:
 * <code>parallel-change</code> - The provided <code>sessionId</code> did not match the ID of the latest session. The <code>error_detail</code> in this case is filled in with the latest session.
@@ -127,7 +140,8 @@ Errors:
 <dd>Closes the current session [auth required].
 
 Returns:
-details of the latest session
+details of the latest session using the same format as each of the elements
+returned in the list of sessions.
 
 Errors:
 * <code>parallel-change</code> - The <code>session-id</code> specified in the URL did not match the ID of the latest session or that sesssion has already been closed. The <code>error_detail</code> in this case is filled in with the latest session.
