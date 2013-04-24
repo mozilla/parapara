@@ -464,7 +464,7 @@ class Wall {
     }
 
     // Close the latest session if it's open
-    if (@$latestSession['endDate'] === null) {
+    if (@$latestSession['end'] === null) {
       $this->endSession($currentSessionId, $datetime);
     }
 
@@ -743,7 +743,7 @@ class Walls {
     return self::getById($wallId, $email);
   }
 
-  public static function getById($wallId, $email) {
+  public static function getById($wallId, $email = null) {
     $wallId = intval($wallId);
 
     $conn =& getDbConnection();
@@ -794,17 +794,13 @@ class Walls {
 
     // Session information
     if ($row['sessionid']) {
-      if ($hasAccess) {
-        $session['sessionId'] = intval($row['sessionid']);
-        $session['start'] = $row['sessionstart'];
-        $session['end'] = $row['sessionend'];
-        $metadata['latestSession'] = $session;
-      }
+      $session['sessionId'] = intval($row['sessionid']);
+      $session['start'] = $row['sessionstart'];
+      $session['end'] = $row['sessionend'];
+      $metadata['latestSession'] = $session;
       $metadata['status'] = $row['sessionend'] ? 'finished' : 'running';
     } else {
-      if ($hasAccess) {
-        $metadata['latestSession'] = null;
-      }
+      $metadata['latestSession'] = null;
       $metadata['status'] = 'finished';
     }
 

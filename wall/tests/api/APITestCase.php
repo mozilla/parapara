@@ -25,6 +25,7 @@ abstract class APITestCase extends ParaparaTestCase {
 
   function tearDown() {
     $this->api->cleanUp();
+    parent::tearDown();
   }
 }
 

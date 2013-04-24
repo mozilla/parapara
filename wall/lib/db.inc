@@ -34,4 +34,11 @@ function getDbConnection() {
   return $conn;
 }
 
+function checkDbResult($res) {
+  if (PEAR::isError($res)) {
+    error_log($res->getMessage() . ', ' . $res->getDebugInfo());
+    throw new KeyedException('db-error');
+  }
+}
+
 ?>
