@@ -3,9 +3,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-require_once('../../lib/parapara.inc');
+require_once(dirname(__FILE__) . '/../lib/parapara.inc');
+require_once(dirname(__FILE__) . '/api/ParaparaAPI.php');
 require_once('MDB2.php');
-require_once('ParaparaAPI.php');
 
 /*
  * An abstract base class for all Parapara tests.
@@ -42,7 +42,8 @@ abstract class ParaparaTestCase extends UnitTestCase {
     }
 
     // Get statements to execute
-    $statements = self::getSqlStatements('../../database/create.sql');
+    $statements =
+      self::getSqlStatements(dirname(__FILE__) . '/../database/create.sql');
     if (!$statements) {
       die("Couldn't get SQL statements to init database");
     }

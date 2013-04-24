@@ -3,18 +3,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-require_once('../../lib/parapara.inc');
+require_once(dirname(__FILE__) . '/../../lib/parapara.inc');
 require_once('simpletest/autorun.php');
 
-class AllTests extends TestSuite {
-  function AllTests() {
+class APITestSuite extends TestSuite {
+  function APITestSuite() {
     parent::__construct();
-    $this->addFile('TestGetDesigns.php');
-    $this->addFile('TestCreateWall.php');
-    $this->addFile('TestGetWall.php');
-    $this->addFile('TestSetWall.php');
-    $this->addFile('TestSessions.php');
-    $this->addFile('TestUserSummary.php');
+    $this->TestSuite('API tests');
+    $this->addFile(dirname(__FILE__) . '/TestGetDesigns.php');
+    $this->addFile(dirname(__FILE__) . '/TestCreateWall.php');
+    $this->addFile(dirname(__FILE__) . '/TestGetWall.php');
+    $this->addFile(dirname(__FILE__) . '/TestSetWall.php');
+    $this->addFile(dirname(__FILE__) . '/TestSessions.php');
+    $this->addFile(dirname(__FILE__) . '/TestUserSummary.php');
   }
 }
 ?>
