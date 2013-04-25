@@ -38,7 +38,7 @@ function checkDbResult($res, $conn = null) {
   if (PEAR::isError($res)) {
     error_log($res->getMessage() . ', ' . $res->getDebugInfo());
     if ($conn && $conn->inTransaction()) {
-      $res->rollback();
+      $conn->rollback();
     }
     throw new KeyedException('db-error');
   }
