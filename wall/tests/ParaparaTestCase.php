@@ -14,6 +14,8 @@ require_once('MDB2.php');
  */
 abstract class ParaparaTestCase extends UnitTestCase {
 
+  protected $dateRegEx = '/^2\d{3}-[01]\d-[0-3]\d [0-2]\d:[0-5]\d:[0-5]\d$/';
+
   function __construct($name = false) {
     parent::__construct($name);
     if (self::$conn === null) {

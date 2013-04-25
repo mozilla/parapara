@@ -9,8 +9,6 @@ require_once('simpletest/autorun.php');
 
 class SessionsTestCase extends APITestCase {
 
-  protected $dateRegEx = '/2\d{3}-[01]\d-[0-3]\d [0-2]\d:[0-5]\d:[0-5]\d/';
-
   function __construct($name = false) {
     parent::__construct($name);
   }
@@ -250,8 +248,7 @@ class SessionsTestCase extends APITestCase {
     $this->assertTrue(intval(@$session['sessionId']) > 0, "Bad session id");
 
     // Check session start
-    $this->assertTrue(preg_match($this->dateRegEx, @$session['start']),
-                      "Unexpected session start: " . @$session['start']);
+    $this->assertPattern($this->dateRegEx, @$session['start']);
       
     // Check session end
     $this->assertTrue(array_key_exists('end', $session) &&

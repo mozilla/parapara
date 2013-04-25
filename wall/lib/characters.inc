@@ -158,13 +158,7 @@ class Characters {
 
     // Prepare fields
     $date = gmdate('Y-m-d H:i:s');
-    /*
-    // calculate X value
-    $duration = getWallDuration($wallId);
-    $currentWallTime = getCurrentWallTimeForDuration($duration);
-    $x = floor($currentWallTime / $duration * 1000);
-     */
-    $x = 0;
+    $x = floor($wall->getCurrentProgress() * 1000);
 
     // Insert record
     $query =
@@ -229,7 +223,8 @@ class Characters {
                      'author',
                      'x',
                      'groundoffset' => 'groundOffset',
-                     'width' => 'height',
+                     'width',
+                     'height',
                      'createdate' => 'createDate',
                      'active' => 'active');
     foreach ($mapping as $dbKey => $mdKey) {

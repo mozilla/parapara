@@ -579,6 +579,17 @@ class Wall {
     return $result;
   }
 
+  /* Returns a real number in the range [0,1) indicating the fractional progress
+   * of the wall through its cycle. */
+  public function getCurrentProgress() {
+    $effectiveDuration = $this->duration
+                       ? $this->duration
+                       : $this->defaultDuration;
+    $currentTimeMillis = bcmul(microtime(true), 1000);
+    $absoluteTime = bcmod($currentTimeMillis, $effectiveDuration);
+    return $absoluteTime / $effectiveDuration;
+  }
+
   public static function getPathForName($name) {
     // Sanitize
     $path = Wall::sanitizePath($name);
