@@ -51,9 +51,11 @@ class TestCharacters extends ParaparaTestCase {
 
   function testCreateCharacter() {
     $char = $this->createCharacter();
-    $this->assertEqual(@$char->charId, 1);
-    $this->assertEqual(@$char->wallId, 1);
-    $this->assertEqual(@$char->sessionId, 1);
+
+    $this->assertIdLike(@$char->charId, "Bad character ID: %s");
+    $this->assertIdLike(@$char->wallId, "Bad wall ID: %s");
+    $this->assertIdLike(@$char->sessionId, "Bad session ID: %s");
+
     $this->assertEqual(@$char->title, $this->testMetadata['title']);
     $this->assertEqual(@$char->author, $this->testMetadata['author']);
     $this->assertEqual(@$char->groundOffset,
@@ -64,13 +66,130 @@ class TestCharacters extends ParaparaTestCase {
     $this->assertEqual(@$char->active, TRUE);
     $this->assertWithinMargin(@$char->x,
       floor($this->testWall->getCurrentProgress() * 1000), 10);
-
-    // Test file
-    // Test email URL
   }
 
   function testWallNotFound() {
+    try {
+      $char = $this->createCharacter($this->testMetadata, 0);
+      $this->fail("Failed to throw exception with bad Wall ID");
+    } catch (KeyedException $e) {
+      $this->assertEqual($e->getKey(), "not-found");
+    }
   }
+
+  function testNoSession() {
+    $this->testWall->endSession($this->testWall->latestSession['sessionId'],
+                                gmdate("Y-m-d H:i:s"));
+    try {
+      $char = $this->createCharacter();
+      $this->fail("Failed to throw exception with no active session");
+    } catch (KeyedException $e) {
+      $this->assertEqual($e->getKey(), "no-active-session");
+    }
+  }
+
+  function testTitleTrimming() {
+    $this->testMetadata['title'] = " 　abc ";
+    $char = $this->createCharacter();
+    $this->assertEqual(@$char->title, "abc");
+  }
+
+  function testTitleIsOptional() {
+    $this->testMetadata['title'] = null;
+    $char = $this->createCharacter();
+    $this->assertEqual(@$char->title, null);
+  }
+
+  function testAuthorTrimming() {
+    $this->testMetadata['author'] = " 　author ";
+    $char = $this->createCharacter();
+    $this->assertEqual(@$char->author, "author");
+  }
+
+  function testAuthorOptional() {
+    $this->testMetadata['author'] = null;
+    $char = $this->createCharacter();
+    $this->assertEqual(@$char->author, null);
+  }
+
+  function testGroundOffset() {
+    // If not set -> 0
+    $metadata = $this->testMetadata;
+    unset($metadata['groundOffset']);
+    $char = $this->createCharacter($metadata);
+    $this->assertEqual(@$char->groundOffset, 0);
+
+    // Negative
+    $metadata['groundOffset'] = -0.5;
+    $char = $this->createCharacter($metadata);
+    $this->assertEqual(@$char->groundOffset, 0);
+
+    // > 1
+    $metadata['groundOffset'] = 2.5;
+    $char = $this->createCharacter($metadata);
+    $this->assertEqual(@$char->groundOffset, 1);
+
+    // Non float
+    $metadata['groundOffset'] = 'abc';
+    $char = $this->createCharacter($metadata);
+    $this->assertEqual(@$char->groundOffset, 0);
+  }
+
+  function testWidthHeightRequired() {
+    foreach (array('width', 'height') as $field) {
+      $metadata = $this->testMetadata;
+      unset($metadata[$field]);
+      try {
+        $char = $this->createCharacter($metadata);
+        $this->fail("Failed to throw exception when missing required field: "
+                    . $field);
+      } catch (KeyedException $e) {
+        $this->assertEqual($e->getKey(), "bad-request");
+      }
+    }
+  }
+
+  function testWidthHeightRange() {
+    // Negative / zero width/height / not numeric
+  }
+
+  function testFile() {
+  }
+
+  function testFileNoAccess() {
+    // Should backout DB change
+  }
+
+  function testLargeFile() {
+  }
+
+  function testFileExists() {
+  }
+
+  function testEmailUrl() {
+  }
+
+  function testThumbnail() {
+  }
+
+  function testGalleryUrl() {
+  }
+
+  function testGetById() {
+    // Bad ID
+  }
+
+  // testGetBySession
+  // testGetByWall
+  // testDelete
+  // testDeleteFileLocked
+  // testDeleteFileMissing
+  // testDeleteBySession
+  // testDeleteByWall
+  // testSetActive
+  // testSetX
+  // testSetTitle
+  // testSetAuthor
 
   protected $createdCharacters = array();
 
@@ -107,19 +226,6 @@ class TestCharacters extends ParaparaTestCase {
       array_splice($this->createdCharacters, $pos, 1);
     }
   }
-
-  // Wall ID not found
-  // Check when no session is available
-  // Titles are trimmed
-  // Titles are optional
-  // Authors are trimmed
-  // Authors are optional
-  // Negative ground offset
-  // Negative / zero width / height
-  // Negative x
-  // File handling
-  //   -- record is backed out if not writeable
-  //   -- large files are rejected
 }
 
 ?>

@@ -120,6 +120,25 @@ abstract class ParaparaTestCase extends UnitTestCase {
       return $this->_api;
     }
   }
+
+  /* ----------------------------------------------------------------------
+   *
+   * Extra assertions
+   *
+   * ---------------------------------------------------------------------*/
+
+  function idLike ($thing) {
+    return isset($thing) && is_int($thing) && $thing > 0;
+  }
+
+  function assertIdLike($candidate, $message = '%s') {
+      $dumper = new SimpleDumper();
+      $message = sprintf(
+              $message,
+              "[" .  $dumper->describeValue($candidate) .
+                      "] doesn't look like an ID");
+      return $this->assertTrue($this->idLike($candidate), $message);
+  }
 }
 
 ?>

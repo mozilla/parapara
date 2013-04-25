@@ -152,13 +152,24 @@ class Characters {
       throw new KeyedException('no-active-session');
     }
 
+    // Prepare fields
+    foreach (array('title', 'author') as $field) {
+      $metadata[$field] = isset($metadata[$field])
+                        ? wtrim($metadata[$field])
+                        : null;
+    }
+    $metadata['groundOffset'] = isset($metadata['groundOffset'])
+                      ? max(0.0, min(1.0, floatval(@$metadata['groundOffset'])))
+                      : 0.0;
+    $date = gmdate('Y-m-d H:i:s');
+    $x = floor($wall->getCurrentProgress() * 1000);
+    if (!isset($metadata['width']) || !isset($metadata['height'])) {
+      throw new KeyedException('bad-request', 'Missing width/height');
+    }
+
     // Start transaction
     $trans = $conn->beginTransaction();
     checkDbResult($trans);
-
-    // Prepare fields
-    $date = gmdate('Y-m-d H:i:s');
-    $x = floor($wall->getCurrentProgress() * 1000);
 
     // Insert record
     $query =
@@ -178,11 +189,11 @@ class Characters {
       . ',TRUE' // active 
       . ')';
     $res =& $conn->query($query);
-    checkDbResult($res);
+    checkDbResult($res, $conn);
 
     // Get id
     $charId = $conn->lastInsertID('characters', 'charId');
-    checkDbResult($charId);
+    checkDbResult($charId, $conn);
 
     // XXX Save file
 
@@ -229,7 +240,7 @@ class Characters {
                      'active' => 'active');
     foreach ($mapping as $dbKey => $mdKey) {
       $dbKey = is_int($dbKey) ? $mdKey : $dbKey;
-      if (!isset($row[$dbKey])) {
+      if (!array_key_exists($dbKey, $row)) {
         error_log("Failed to find field '$dbKey' when loading character");
         throw new KeyedException('db-error');
       }
@@ -237,7 +248,9 @@ class Characters {
     }
 
     // Process values that need special handling
-    $metadata['active'] = !!($metadata['active']);
+    $metadata['active'] = (bool)$metadata['active'];
+    $metadata['wallId'] = intval($metadata['wallId']);
+    $metadata['sessionId'] = intval($metadata['sessionId']);
 
     return new Character($charId, $metadata);
   }

@@ -34,9 +34,12 @@ function getDbConnection() {
   return $conn;
 }
 
-function checkDbResult($res) {
+function checkDbResult($res, $conn = null) {
   if (PEAR::isError($res)) {
     error_log($res->getMessage() . ', ' . $res->getDebugInfo());
+    if ($conn && $conn->inTransaction()) {
+      $res->rollback();
+    }
     throw new KeyedException('db-error');
   }
 }
