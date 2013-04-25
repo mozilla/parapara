@@ -161,11 +161,16 @@ class Characters {
     $metadata['groundOffset'] = isset($metadata['groundOffset'])
                       ? max(0.0, min(1.0, floatval(@$metadata['groundOffset'])))
                       : 0.0;
+    foreach (array('width', 'height') as $field) {
+      if (!isset($metadata[$field]) ||
+          !is_numeric($metadata[$field]) ||
+          $metadata[$field] <= 0 ||
+          $metadata[$field] >= 10000) {
+        throw new KeyedException('bad-request', 'Invalid width/height');
+      }
+    }
     $date = gmdate('Y-m-d H:i:s');
     $x = floor($wall->getCurrentProgress() * 1000);
-    if (!isset($metadata['width']) || !isset($metadata['height'])) {
-      throw new KeyedException('bad-request', 'Missing width/height');
-    }
 
     // Start transaction
     $trans = $conn->beginTransaction();

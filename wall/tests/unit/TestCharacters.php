@@ -150,7 +150,25 @@ class TestCharacters extends ParaparaTestCase {
   }
 
   function testWidthHeightRange() {
-    // Negative / zero width/height / not numeric
+    foreach (array('width', 'height') as $field) {
+      $this->checkExceptionCreatingCharWithValue($field, -1, 'bad-request');
+      $this->checkExceptionCreatingCharWithValue($field, 0, 'bad-request');
+      $this->checkExceptionCreatingCharWithValue($field, 'abc', 'bad-request');
+      $this->checkExceptionCreatingCharWithValue($field, 999999999999,
+                                                 'bad-request');
+    }
+  }
+
+  function checkExceptionCreatingCharWithValue($field, $value, $key) {
+    $metadata = $this->testMetadata;
+    $metadata[$field] = $value;
+    try {
+      $char = $this->createCharacter($metadata);
+      $this->fail("Failed to throw exception when setting $field to $value");
+    } catch (KeyedException $e) {
+      $this->assertEqual($e->getKey(), $key,
+        "Unexpected exception key when setting $field to $value: %s");
+    }
   }
 
   function testFile() {
