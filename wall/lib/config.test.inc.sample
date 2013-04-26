@@ -19,4 +19,7 @@ $config['test']['wall_server'] = 'http://127.0.0.1:8081/';
 $config['db']['dsn'] =
   'mysql://user:password@127.0.0.1/parapara_test';
 
+// Override character path
+$config['characters']['path'] = '../characters-test/';
+
 ?>

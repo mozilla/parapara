@@ -17,6 +17,8 @@ $config = array(
   ),
   'characters' => array(
     'path' => '../characters/',
+    // Maximum size of a character file in bytes
+    'max_size' => '500000',
     // Should URLs to the characters be published after sending the animation?
     // We disable this when running on an ad-hoc network for example since the
     // URLs won't be useful.
