@@ -250,15 +250,23 @@ class TestCharacters extends ParaparaTestCase {
     $this->assertNull(Characters::getById($nextId));
   }
 
-  function testEmailUrl() {
+  function testRawUrl() {
     $char = $this->createCharacter();
-    $this->assertPattern('/' . $char->charId . '\/email$/', @$char->emailUrl);
-  }
-
-  function testThumbnail() {
+    $this->assertTrue(strlen(@$char->rawUrl) > 0, "Empty raw URL");
   }
 
   function testGalleryUrl() {
+    $char = $this->createCharacter();
+    $this->assertTrue(strlen(@$char->galleryUrl) > 0, "Empty gallery URL");
+  }
+
+  function testThumbnailUrl() {
+    // XXX
+  }
+
+  function testEmailUrl() {
+    $char = $this->createCharacter();
+    $this->assertPattern('/' . $char->charId . '\/email$/', @$char->emailUrl);
   }
 
   function testGetById() {
