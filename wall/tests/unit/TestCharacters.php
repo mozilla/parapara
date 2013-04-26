@@ -251,6 +251,8 @@ class TestCharacters extends ParaparaTestCase {
   }
 
   function testEmailUrl() {
+    $char = $this->createCharacter();
+    $this->assertPattern('/' . $char->charId . '\/email$/', @$char->emailUrl);
   }
 
   function testThumbnail() {

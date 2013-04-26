@@ -109,6 +109,9 @@ class Character {
     switch ($name) {
       case 'charId':
         return $this->_charId;
+
+      case 'emailUrl':
+        return Character::getEmailUrl($this->_charId);
     }
 
     return null;
@@ -122,6 +125,7 @@ class Character {
     // Virtual fields
     switch ($name) {
       case 'charId':
+      case 'emailUrl':
         return true;
     }
 
@@ -144,6 +148,10 @@ class Character {
 
   public static function getFileForId($charId) {
     return self::getCharactersPath() . '/' . $charId . '.svg';
+  }
+
+  public static function getEmailUrl($charId) {
+    return getCurrentServer() . '/api/characters/' . $charId . '/email';
   }
 }
 
