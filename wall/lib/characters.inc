@@ -167,7 +167,7 @@ class Characters {
     // Check SVG
     if (isset($config['characters']['max_size']) &&
         strlen($svg) > $config['characters']['max_size']) {
-      throw new KeyedException('bad-request');
+      throw new KeyedException('character-too-large');
     }
 
     // Prepare fields

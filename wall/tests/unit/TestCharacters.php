@@ -242,7 +242,7 @@ class TestCharacters extends ParaparaTestCase {
                                      $this->testWall->wallId, $bigSvg);
       $this->fail("Failed to throw exception with large SVG file");
     } catch (KeyedException $e) {
-      $this->assertEqual($e->getKey(), 'bad-request',
+      $this->assertEqual($e->getKey(), 'character-too-large',
         "Unexpected exception key with large SVG file");
     }
 
