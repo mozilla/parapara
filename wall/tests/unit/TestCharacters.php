@@ -172,16 +172,82 @@ class TestCharacters extends ParaparaTestCase {
   }
 
   function testFile() {
+    $char = $this->createCharacter();
+
+    $expectedFile = Character::getFileForId($char->charId);
+    $this->assertTrue(is_readable($expectedFile),
+                      "SVG file not found at $expectedFile");
+    $this->assertEqual(@file_get_contents($expectedFile), $this->testSvg);
   }
 
-  function testFileNoAccess() {
-    // Should backout DB change
+  // XXX It would be good to test when the file can't be written but I can't 
+  // find an easy way to do this on Windows (short of abstracting out the file 
+  // system and using a mock object).
+
+  function testFileExists() {
+    $charA = $this->createCharacter();
+
+    // Create a file where the next character *would* be saved
+    $charAFile = Character::getFileForId($charA->charId);
+    $nextId = $charA->charId + 1;
+    $nextFile = preg_replace('/' . $charA->charId . '(\.\w+)$/',
+                             "$nextId\\1", $charAFile);
+    $handle = fopen($nextFile, 'w');
+    fclose($handle);
+
+    // Now try to create a character
+    try {
+      $charB = $this->createCharacter();
+      $this->fail("Failed to throw exception when target file already exists");
+    } catch (KeyedException $e) {
+      $this->assertEqual($e->getKey(), 'save-failed',
+        "Unexpected exception key when target file already exists");
+    }
+
+    // Check DB change was backed out
+    $this->assertNull(Characters::getById($nextId));
+
+    // Tidy up
+    unlink($nextFile);
   }
 
   function testLargeFile() {
-  }
+    // Work out what the current ID is
+    $prevChar = $this->createCharacter();
+    $nextId = $prevChar->charId + 1;
 
-  function testFileExists() {
+    // Work out the maximum
+    global $config;
+    if (!isset($config['characters']['max_size'])) {
+      $config['characters']['max_size'] = 6000;
+    }
+    $maxLen = $config['characters']['max_size'];
+
+    // Prepare SVG
+    $svgHeader = "<svg><path d=\"";
+    $svgFooter = "\"/></svg>";
+    $pathData = 
+      "M100 100C300,80 400,300 450,100 450,100  500,-100 -90,220110,150";
+    $iterationsRequired =
+      ceil(($maxLen - strlen($svgHeader) - strlen($svgFooter))
+           / strlen($pathData));
+    $bigSvg = $svgHeader;
+    while ($iterationsRequired--)
+      $bigSvg .= $pathData;
+    $bigSvg .= $svgFooter;
+
+    // Create a massive file
+    try {
+      $char = $this->createCharacter($this->testMetadata,
+                                     $this->testWall->wallId, $bigSvg);
+      $this->fail("Failed to throw exception with large SVG file");
+    } catch (KeyedException $e) {
+      $this->assertEqual($e->getKey(), 'bad-request',
+        "Unexpected exception key with large SVG file");
+    }
+
+    // Check DB change was backed out
+    $this->assertNull(Characters::getById($nextId));
   }
 
   function testEmailUrl() {
@@ -194,14 +260,69 @@ class TestCharacters extends ParaparaTestCase {
   }
 
   function testGetById() {
-    // Bad ID
+    // Test Bad ID
   }
 
   // testGetBySession
   // testGetByWall
-  // testDelete
-  // testDeleteFileLocked
-  // testDeleteFileMissing
+
+  function testDelete() {
+    $char =
+      Characters::create($this->testSvg, $this->testMetadata,
+                         $this->testWall->wallId);
+    $this->assertTrue(Characters::deleteById($char->charId));
+    $this->assertNull(Characters::getById($char->charId));
+    $this->assertFalse(Characters::deleteById($char->charId));
+
+    $expectedFile = Character::getFileForId($char->charId);
+    $this->assertFalse(file_exists($expectedFile),
+                       "SVG still remains at $expectedFile");
+  }
+
+  function testDeleteFileLocked() {
+    // Lock the character file
+    $char =
+      Characters::create($this->testSvg, $this->testMetadata,
+                         $this->testWall->wallId);
+    $file = $char->getFileForId($char->charId);
+    $fp = fopen($file, "rw+");
+    flock($fp, LOCK_EX);
+
+    // Try to delete
+    try {
+      $result = Characters::deleteById($char->charId);
+      $this->fail("Failed to throw exception when deleting locked file");
+    } catch (KeyedException $e) {
+      $this->assertEqual($e->getKey(), 'server-error',
+        "Unexpected exception key when deleting locked file");
+    }
+
+    // Check database was not changed
+    $this->assertNotNull(Characters::getById($char->charId));
+
+    // Tidy up
+    flock($fp, LOCK_UN);
+    fclose($fp);
+    $this->assertTrue(Characters::deleteById($char->charId));
+    $this->assertFalse(file_exists($file));
+  }
+
+  function testDeleteFileMissing() {
+    // Delete character file
+    $char =
+      Characters::create($this->testSvg, $this->testMetadata,
+                         $this->testWall->wallId);
+    $file = $char->getFileForId($char->charId);
+    unlink($file);
+
+    // Try to delete
+    $result = Characters::deleteById($char->charId);
+
+    // Check database WAS changed
+    $this->assertNull(Characters::getById($char->charId));
+    $this->assertFalse(Characters::deleteById($char->charId));
+  }
+
   // testDeleteBySession
   // testDeleteByWall
   // testSetActive
@@ -232,12 +353,7 @@ class TestCharacters extends ParaparaTestCase {
   }
 
   function removeCharacter($charId) {
-    // Remove character
-    $query = 'DELETE FROM characters WHERE charId = ' . $charId;
-    $res =& $this->getConnection()->query($query);
-    if (PEAR::isError($res)) {
-      die($res->getMessage() . ', ' . $res->getDebugInfo());
-    }
+    Characters::deleteById($charId);
 
     // Remove from list of createdCharacters
     while (($pos = array_search($charId, $this->createdCharacters)) !== FALSE) {

@@ -132,12 +132,24 @@ class Character {
   }
 
   // Set: active
+  
+  public static function getCharactersPath() {
+    global $config;
+    // $config['characters']['path'] stores a relative path from the API folder 
+    // (yep, silly idea, but hey) so, as a temporary workaround, we make some 
+    // assumptions about where the API folder is
+    return realpath(dirname(__FILE__) . '/../public/api/'
+                    . $config['characters']['path']);
+  }
+
+  public static function getFileForId($charId) {
+    return self::getCharactersPath() . '/' . $charId . '.svg';
+  }
 }
 
 class Characters {
   public static function create($svg, $metadata, $wallId, $email = null) {
-    // Get connection
-    $conn =& getDbConnection();
+    global $config;
 
     // Get wall
     $wall = Walls::getById($wallId, $email);
@@ -150,6 +162,12 @@ class Characters {
     $session = $wall->latestSession;
     if ($session === null || $session['end'] !== null) {
       throw new KeyedException('no-active-session');
+    }
+
+    // Check SVG
+    if (isset($config['characters']['max_size']) &&
+        strlen($svg) > $config['characters']['max_size']) {
+      throw new KeyedException('bad-request');
     }
 
     // Prepare fields
@@ -173,6 +191,7 @@ class Characters {
     $x = floor($wall->getCurrentProgress() * 1000);
 
     // Start transaction
+    $conn =& getDbConnection();
     $trans = $conn->beginTransaction();
     checkDbResult($trans);
 
@@ -200,7 +219,21 @@ class Characters {
     $charId = $conn->lastInsertID('characters', 'charId');
     checkDbResult($charId, $conn);
 
-    // XXX Save file
+    // Save file
+    $svgfilename = Character::getFileForId($charId);
+    if (file_exists($svgfilename)) {
+      $conn->rollback();
+      error_log("SVG file already exists: $svgfilename");
+      throw new KeyedException('save-failed', "Couldn't save character");
+    }
+    $svgfile = @fopen($svgfilename, 'w');
+    if ($svgfile == false) {
+      $conn->rollback();
+      error_log("Failed to save SVG to file: $svgfilename");
+      throw new KeyedException('save-failed', "Couldn't save character");
+    }
+    fwrite($svgfile, $svg);
+    fclose($svgfile);
 
     // Commit transaction
     $conn->commit();
@@ -267,6 +300,41 @@ class Characters {
   }
 
   public static function deleteById($charId) {
+    // Prepare parameters
+    $charId = intval($charId);
+    if ($charId < 1)
+      throw new KeyedException('bad-request', "Bad character ID");
+
+    // Start transaction
+    $conn =& getDbConnection();
+    $trans = $conn->beginTransaction();
+    checkDbResult($trans);
+
+    // Delete record
+    $res =& $conn->exec('DELETE FROM characters WHERE charId = '
+                        . $conn->quote($charId, 'integer'));
+    checkDbResult($res, $conn);
+
+    // If no rows were affected this character has already been deleted
+    if ($res === 0) {
+      $conn->rollback();
+      return false;
+    }
+
+    // Delete corresponding SVG file
+    $svgfilename = Character::getFileForId($charId);
+    if (file_exists($svgfilename)) {
+      if (@unlink($svgfilename) === FALSE) {
+        $conn->rollback();
+        throw new KeyedException('server-error', "Failed to delete file");
+        error_log("Failed to delete file: $svgfilename");
+      }
+    }
+
+    // Commit transaction
+    $conn->commit();
+
+    return true;
   }
 
   public static function deleteBySession($sessionId) {
