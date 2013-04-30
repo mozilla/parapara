@@ -260,9 +260,9 @@ class TestCharacters extends ParaparaTestCase {
     $this->assertTrue(strlen(@$char->galleryUrl) > 0, "Empty gallery URL");
   }
 
-  function testThumbnailUrl() {
+  function testPreviewUrl() {
     $char = $this->createCharacter();
-    $this->assertTrue(strlen(@$char->thumbnailUrl) > 0, "Empty thumbnail URL");
+    $this->assertTrue(strlen(@$char->previewUrl) > 0, "Empty preview URL");
   }
 
   function testEmailUrl() {
