@@ -85,7 +85,7 @@ class Character {
   private $metadata = null;
 
   static private $virtualFields =
-    array('rawUrl','galleryUrl', 'emailUrl', 'thumbnail');
+    array('rawUrl','galleryUrl', 'emailUrl', 'thumbnailUrl');
 
   static private $readOnlyFields = array('charId');
 
@@ -116,6 +116,9 @@ class Character {
       case 'galleryUrl':
         return Character::getGalleryUrl($this->_charId);
 
+      case 'thumbnailUrl':
+        return Character::getThumbnailUrl($this->_charId);
+
       case 'emailUrl':
         return Character::getEmailUrl($this->_charId);
     }
@@ -133,6 +136,7 @@ class Character {
       case 'charId':
       case 'rawUrl':
       case 'galleryUrl':
+      case 'thumbnailUrl':
       case 'emailUrl':
         return true;
     }
@@ -164,6 +168,10 @@ class Character {
 
   public static function getGalleryUrl($charId) {
     return fileToUrl(self::getCharactersPath()) . '/' . $charId;
+  }
+
+  public static function getThumbnailUrl($charId) {
+    return fileToUrl(self::getCharactersPath()) . '/' . $charId . '/thumbnail';
   }
 
   public static function getEmailUrl($charId) {
