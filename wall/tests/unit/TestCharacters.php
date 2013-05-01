@@ -309,7 +309,6 @@ class TestCharacters extends ParaparaTestCase {
     // Check new state
     $chars = Characters::getBySession($wallId, $sessionId);
     $this->assertEqual(count($chars), 3);
-    // XXX Verify this is actually comparing properly
     $this->assertEqual($chars[0], $charA);
     $this->assertEqual($chars[1], $charB);
     $this->assertEqual($chars[2], $charC);
@@ -344,8 +343,54 @@ class TestCharacters extends ParaparaTestCase {
     }
   }
 
-  // testGetBySession
-  // testGetByWall
+  function testGetByWall() {
+    $wallId = $this->testWall->wallId;
+
+    // Check initial state
+    $chars = Characters::getByWall($wallId);
+    $this->assertEqual(count($chars), 0);
+
+    // Add characters to first session
+    $sessionA = $this->testWall->latestSession['sessionId'];
+    $charAA = $this->createCharacter();
+    $charAB = $this->createCharacter();
+
+    // Add characters to a second session
+    $this->testWall->startSession($sessionA);
+    $sessionB = $this->testWall->latestSession['sessionId'];
+    $charBA = $this->createCharacter();
+
+    // Add a third empty session
+    // (These don't appear in the output)
+    $this->testWall->startSession($sessionB);
+    $sessionC = $this->testWall->latestSession['sessionId'];
+
+    // Check new state
+    $chars = Characters::getByWall($wallId);
+    $this->assertEqual(count($chars), 2);
+    $this->assertEqual(count(@$chars[$sessionA]), 2);
+    $this->assertEqual(@$chars[$sessionA][0], $charAA);
+    $this->assertEqual(@$chars[$sessionA][1], $charAB);
+    $this->assertEqual(count(@$chars[$sessionB]), 1);
+    $this->assertEqual(@$chars[$sessionB][0], $charBA);
+  }
+
+  function testBadWall() {
+    $this->assertNull(Characters::getByWall(99999));
+  }
+
+  function testInvalidWall() {
+    $invalidIds = array(0, -3, "abc", null);
+    foreach($invalidIds as $id) {
+      try {
+        $char = Characters::getByWall($id);
+        $this->fail("Failed to throw exception with bad wall id: $id");
+      } catch (KeyedException $e) {
+        $this->assertEqual($e->getKey(), 'bad-request',
+          "Unexpected exception key bad wall id '$id': %s");
+      }
+    }
+  }
 
   function testDelete() {
     $char =

@@ -375,6 +375,43 @@ class Characters {
   }
 
   public static function getByWall($wallId) {
+    // Prepare parameters
+    $wallId = intval($wallId);
+    if ($wallId < 1)
+      throw new KeyedException('bad-request');
+
+    // Verify wall ID is valid
+    $wall = Walls::getById($wallId);
+    if (!$wall)
+      return null;
+
+    // Run query
+    $conn =& getDbConnection();
+    $res =& $conn->query(
+        'SELECT * FROM characters'
+      . ' WHERE wallId = ' . $conn->quote($wallId, 'integer')
+      . ' ORDER BY sessionId, charId');
+    $conn->disconnect();
+    checkDbResult($res);
+
+    // Prepare result
+    $result    = array();
+    $session   = array();
+    $sessionId = null;
+    $conn->setFetchMode(MDB2_FETCHMODE_ASSOC);
+    while ($row = $res->fetchRow()) {
+      if ($sessionId && $sessionId != $row['sessionid']) {
+        $result[$sessionId] = $session;
+        $session = array();
+      }
+      array_push($session, self::dbRowToChar($row));
+      $sessionId = $row['sessionid'];
+    }
+    if ($sessionId) {
+      $result[$sessionId] = $session;
+    }
+
+    return $result;
   }
 
   public static function deleteById($charId) {

@@ -446,9 +446,11 @@ class Wall {
     return $result;
   }
 
-  public function startSession($currentSessionId, $datetime) {
+  public function startSession($currentSessionId, $datetime = null) {
     // Sanitize input
     $currentSessionId = toIntOrNull($currentSessionId);
+    if ($datetime === null)
+      $datetime = gmdate("Y-m-d H:i:s");
 
     // Check authorisation
     if (!$this->canAdminister()) {
