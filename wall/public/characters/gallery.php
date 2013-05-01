@@ -47,7 +47,7 @@ if ($id < 1 || !@file_exists($id . '.svg')) {
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
   <meta charset="UTF-8">
-  <title>Parapara Animation</title>
+  <title><?php if (!empty($title)) echo "$title @ " ?>Parapara Animation</title>
   <link rel="icon" type="image/png" href="favicon.png">
   <style type="text/css">
   body {
@@ -88,9 +88,12 @@ if ($id < 1 || !@file_exists($id . '.svg')) {
   #social {
     margin-top: 10px;
   }
-  .fb-like {
-    position: relative;
-    top: -4px;
+  iframe.fb-like {
+    border: none;
+    overflow: hidden;
+    width: 100px;
+    height: 21px;
+    display: inline;
   }
   @supports (display: flex) and (height: calc(100vh - 10px)) {
     #content {
@@ -140,20 +143,16 @@ if ($title || $desc) {
 <?php endif; ?>
 
     <div id="social">
-      <div class="fb-like" data-href="http://parapara.mozlabs.jp/Fukushima100/characters/<?php echo $id; ?>" data-send="false" data-layout="button_count" data-width="100" data-show-faces="false"></div>   
+      <!-- Facebook like -->
+      <iframe src="https://www.facebook.com/plugins/like.php?href=<?php
+        echo rawurlencode(Character::getGalleryUrl($id)) ?>;send=false&amp;layout=button_count&amp;width=100&amp;show_faces=false&amp"
+            scrolling="no" frameborder="0" allowTransparency="true"
+            sandbox class="fb-like"></iframe>
+      <!-- Twitter button -->
       <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
     </div>    
-
-<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
-<div id="fb-root"></div>
-<script>(function(d, s, id) {
-  var js, fjs = d.getElementsByTagName(s)[0];
-  if (d.getElementById(id)) return;
-  js = d.createElement(s); js.id = id;
-  js.src = "//connect.facebook.net/ja_JP/all.js#xfbml=1";
-  fjs.parentNode.insertBefore(js, fjs);
-}(document, 'script', 'facebook-jssdk'));</script>
-
   </div>
+<!-- Twitter script -->
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
 </body>
 </html>
