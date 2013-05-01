@@ -82,16 +82,16 @@ function addCharacter($wallId, $svg, $metadata) {
 
 class Character {
   private $_charId  = null;
-  private $metadata = null;
+  private $fields   = null;
 
   static private $virtualFields =
     array('rawUrl','galleryUrl', 'emailUrl', 'previewUrl');
 
   static private $readOnlyFields = array('charId');
 
-  public function __construct($charId, $metadata) {
+  public function __construct($charId, $fields) {
     $this->_charId  = $charId;
-    $this->metadata = $metadata;
+    $this->fields   = $fields;
   }
 
   public function __get($name) {
@@ -100,9 +100,9 @@ class Character {
       return null;
     }
 
-    // Regular metadata
-    if (array_key_exists($name, $this->metadata)) {
-      return $this->metadata[$name];
+    // Regular fields
+    if (array_key_exists($name, $this->fields)) {
+      return $this->fields[$name];
     }
 
     // Virtual fields
@@ -127,8 +127,8 @@ class Character {
   }
 
   public function __isset($name) {
-    // Regular metadata
-    if (array_key_exists($name, $this->metadata))
+    // Regular fields
+    if (array_key_exists($name, $this->fields))
       return true;
 
     // Virtual fields
@@ -180,7 +180,7 @@ class Character {
 }
 
 class Characters {
-  public static function create($svg, $metadata, $wallId, $email = null) {
+  public static function create($svg, $fields, $wallId, $email = null) {
     global $config;
 
     // Get wall
@@ -204,18 +204,18 @@ class Characters {
 
     // Prepare fields
     foreach (array('title', 'author') as $field) {
-      $metadata[$field] = isset($metadata[$field])
-                        ? wtrim($metadata[$field])
+      $fields[$field] = isset($fields[$field])
+                        ? wtrim($fields[$field])
                         : null;
     }
-    $metadata['groundOffset'] = isset($metadata['groundOffset'])
-                      ? max(0.0, min(1.0, floatval(@$metadata['groundOffset'])))
+    $fields['groundOffset'] = isset($fields['groundOffset'])
+                      ? max(0.0, min(1.0, floatval(@$fields['groundOffset'])))
                       : 0.0;
     foreach (array('width', 'height') as $field) {
-      if (!isset($metadata[$field]) ||
-          !is_numeric($metadata[$field]) ||
-          $metadata[$field] <= 0 ||
-          $metadata[$field] >= 10000) {
+      if (!isset($fields[$field]) ||
+          !is_numeric($fields[$field]) ||
+          $fields[$field] <= 0 ||
+          $fields[$field] >= 10000) {
         throw new KeyedException('bad-request', 'Invalid width/height');
       }
     }
@@ -235,12 +235,12 @@ class Characters {
       . ' VALUES '
       . '(' . $conn->quote($session['sessionId'], 'integer')
       . ',' . $conn->quote($wallId, 'integer')
-      . ',' . $conn->quote($metadata['title'], 'text')
-      . ',' . $conn->quote($metadata['author'], 'text')
+      . ',' . $conn->quote($fields['title'], 'text')
+      . ',' . $conn->quote($fields['author'], 'text')
       . ',' . $conn->quote($x, 'integer')
-      . ',' . $conn->quote($metadata['groundOffset'], 'decimal')
-      . ',' . $conn->quote($metadata['width'], 'float')
-      . ',' . $conn->quote($metadata['height'], 'float')
+      . ',' . $conn->quote($fields['groundOffset'], 'decimal')
+      . ',' . $conn->quote($fields['width'], 'float')
+      . ',' . $conn->quote($fields['height'], 'float')
       . ',' . $conn->quote($date, 'timestamp')
       . ',TRUE' // active 
       . ')';
