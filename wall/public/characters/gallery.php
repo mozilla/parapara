@@ -76,7 +76,7 @@ if ($id < 1 || !@file_exists($id . '.svg')) {
     max-width: 100%;
   }
   #character {
-    background-color: black;
+    background-color: #ddd;
     -moz-border-radius: 20px;
     -webkit-border-radius: 20px;
     -o-border-radius: 20px;
