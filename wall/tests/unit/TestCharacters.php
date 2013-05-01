@@ -271,7 +271,26 @@ class TestCharacters extends ParaparaTestCase {
   }
 
   function testGetById() {
-    // Test Bad ID
+    $createdChar = $this->createCharacter();
+    $fetchedChar = Characters::getById($createdChar->charId);
+    $this->assertEqual($createdChar, $fetchedChar);
+  }
+
+  function testGetBadId() {
+    $this->assertNull(Characters::getById(999999));
+  }
+
+  function testInvalidId() {
+    $invalidIds = array(0, -3, "abc", null);
+    foreach($invalidIds as $id) {
+      try {
+        $char = Characters::getById($id);
+        $this->fail("Failed to throw exception with bad id: $id");
+      } catch (KeyedException $e) {
+        $this->assertEqual($e->getKey(), 'bad-request',
+          "Unexpected exception key bad id '$id': %s");
+      }
+    }
   }
 
   // testGetBySession
