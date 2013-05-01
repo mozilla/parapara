@@ -293,6 +293,57 @@ class TestCharacters extends ParaparaTestCase {
     }
   }
 
+  function testGetBySession() {
+    $wallId = $this->testWall->wallId;
+    $sessionId = $this->testWall->latestSession['sessionId'];
+
+    // Check initial state
+    $chars = Characters::getBySession($wallId, $sessionId);
+    $this->assertEqual(count($chars), 0);
+
+    // Add characters
+    $charA = $this->createCharacter();
+    $charB = $this->createCharacter();
+    $charC = $this->createCharacter();
+
+    // Check new state
+    $chars = Characters::getBySession($wallId, $sessionId);
+    $this->assertEqual(count($chars), 3);
+    // XXX Verify this is actually comparing properly
+    $this->assertEqual($chars[0], $charA);
+    $this->assertEqual($chars[1], $charB);
+    $this->assertEqual($chars[2], $charC);
+  }
+
+  function testBadSession() {
+    $wallId = $this->testWall->wallId;
+    $sessionId = $this->testWall->latestSession['sessionId'];
+    $this->assertNull(Characters::getBySession($wallId, $sessionId + 1));
+  }
+
+  function testInvalidSession() {
+    $goodWallId    = $this->testWall->wallId;
+    $goodSessionId = $this->testWall->latestSession['sessionId'];
+    $invalidIds    = array(0, -3, "abc", null);
+
+    foreach($invalidIds as $badId) {
+      try {
+        $char = Characters::getBySession($badId, $goodSessionId);
+        $this->fail("Failed to throw exception with bad wall id: $badId");
+      } catch (KeyedException $e) {
+        $this->assertEqual($e->getKey(), 'bad-request',
+          "Unexpected exception key bad wall id '$badId': %s");
+      }
+      try {
+        $char = Characters::getBySession($goodWallId, $badId);
+        $this->fail("Failed to throw exception with bad session id: $badId");
+      } catch (KeyedException $e) {
+        $this->assertEqual($e->getKey(), 'bad-request',
+          "Unexpected exception key bad session id '$badId': %s");
+      }
+    }
+  }
+
   // testGetBySession
   // testGetByWall
 

@@ -244,7 +244,7 @@ class Characters {
       . ',' . $conn->quote($date, 'timestamp')
       . ',TRUE' // active 
       . ')';
-    $res =& $conn->query($query);
+    $res =& $conn->exec($query);
     checkDbResult($res, $conn);
 
     // Get id
@@ -296,8 +296,12 @@ class Characters {
     if ($row === null)
       return null;
 
-    // Load information into array
-    $metadata = array();
+    return self::dbRowToChar($row);
+  }
+
+  private static function dbRowToChar($row) {
+    // Map database fields
+    $data = array();
     $mapping = array('sessionid' => 'sessionId',
                      'wallid' => 'wallId',
                      'title',
@@ -314,18 +318,60 @@ class Characters {
         error_log("Failed to find field '$dbKey' when loading character");
         throw new KeyedException('db-error');
       }
-      $metadata[$mdKey] = $row[$dbKey];
+      $data[$mdKey] = $row[$dbKey];
     }
 
     // Process values that need special handling
-    $metadata['active'] = (bool)$metadata['active'];
-    $metadata['wallId'] = intval($metadata['wallId']);
-    $metadata['sessionId'] = intval($metadata['sessionId']);
+    $data['active']    = (bool)$data['active'];
+    $data['wallId']    = intval($data['wallId']);
+    $data['sessionId'] = intval($data['sessionId']);
 
-    return new Character($charId, $metadata);
+    // Create character
+    return new Character(intval($row['charid']), $data);
   }
 
-  public static function getBySession($sessionId) {
+  public static function getBySession($wallId, $sessionId) {
+    // Prepare parameters
+    $wallId = intval($wallId);
+    if ($wallId < 1)
+      throw new KeyedException('bad-request');
+    $sessionId = intval($sessionId);
+    if ($sessionId < 1)
+      throw new KeyedException('bad-request');
+
+    // Verify IDs are valid
+    // (We return an empty array if we have valid IDs but no characters but
+    // return NULL if the IDs are not valid. This is consistent with 
+    // Characters::getById etc. where 'not found' is represented by null)
+    $conn =& getDbConnection();
+    $res =& $conn->query(
+           'SELECT sessionId FROM sessions '
+           . ' WHERE wallId = ' . $conn->quote($wallId, 'integer')
+           . ' AND sessionId = ' . $conn->quote($sessionId, 'integer')
+           . ' LIMIT 1');
+    checkDbResult($res);
+    $validSession = $res->numRows() !== 0;
+    $res->free();
+    if (!$validSession)
+      return null;
+
+    // Run query
+    $res =& $conn->query(
+        'SELECT * FROM characters'
+      . ' WHERE wallId = ' . $conn->quote($wallId, 'integer')
+      . ' AND   sessionId = ' . $conn->quote($sessionId, 'integer')
+      . ' ORDER BY charId');
+    $conn->disconnect();
+    checkDbResult($res);
+
+    // Prepare result
+    $result = array();
+    $conn->setFetchMode(MDB2_FETCHMODE_ASSOC);
+    while ($row = $res->fetchRow()) {
+      array_push($result, self::dbRowToChar($row));
+    }
+
+    return $result;
   }
 
   public static function getByWall($wallId) {
