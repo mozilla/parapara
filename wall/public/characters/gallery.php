@@ -147,7 +147,7 @@ if ($title || $desc) {
       <iframe src="https://www.facebook.com/plugins/like.php?href=<?php
         echo rawurlencode(Character::getGalleryUrl($id)) ?>;send=false&amp;layout=button_count&amp;width=100&amp;show_faces=false&amp"
             scrolling="no" frameborder="0" allowTransparency="true"
-            sandbox class="fb-like"></iframe>
+            class="fb-like"></iframe>
       <!-- Twitter button -->
       <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
     </div>    
