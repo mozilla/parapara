@@ -55,14 +55,14 @@ if ($id < 1 || !@file_exists($id . '.svg')) {
     color: #333;
   }
   #content {
+    max-width: 85%;
     width: 400px;
-    max-width: 80%;
     margin: 0 auto;
     text-align: center;
   }
   #title {
     font-size: 24px;
-    margin: 18px 0px 12px 0px;
+    margin: 10px 0px 12px 0px;
   }
   #description {
     margin-top: 3px;
@@ -71,6 +71,10 @@ if ($id < 1 || !@file_exists($id . '.svg')) {
   #event, #date {
     display: inline-block;
   }
+  #characterFrame {
+    width: 400px;
+    max-width: 100%;
+  }
   #character {
     background-color: black;
     -moz-border-radius: 20px;
@@ -78,8 +82,8 @@ if ($id < 1 || !@file_exists($id . '.svg')) {
     -o-border-radius: 20px;
     -ms-border-radius: 20px;
     border-radius: 20px;
-    width: 400;
-    max-width: 100%;
+    width: 100%;
+    height: 100%;
   }
   #social {
     margin-top: 10px;
@@ -87,6 +91,28 @@ if ($id < 1 || !@file_exists($id . '.svg')) {
   .fb-like {
     position: relative;
     top: -4px;
+  }
+  @supports (display: flex) and (height: calc(100vh - 10px)) {
+    #content {
+      display: flex;
+      flex-direction: column;
+      height: calc(100vh - 10px);
+    }
+    #content > * {
+      flex: none;
+    }
+    #characterFrame {
+      flex: 0 1 auto;
+    }
+    #character {
+      max-width: 100%;
+      max-height: auto;
+    }
+  }
+  @media (max-width: 280px) {
+    #title {
+      font-size: 18px;
+    }
   }
   </style>
 </head>
