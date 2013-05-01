@@ -55,50 +55,38 @@ if ($id < 1 || !@file_exists($id . '.svg')) {
     color: #333;
   }
   #content {
-    width: 600px;
+    width: 400px;
+    max-width: 80%;
     margin: 0 auto;
+    text-align: center;
   }
   #title {
     font-size: 24px;
     margin: 18px 0px 12px 0px;
-    text-align: center;
   }
   #description {
     margin-top: 3px;
-    text-align: center;
     font-size: 12px;
   }
   #event, #date {
     display: inline-block;
   }
-  #parapara {
-    width: 600px;
-    height: 380px;
-    border-radius: 10px;
-    -moz-border-radius: 10px;
-    -webkit-border-radius: 10px;
-    -o-border-radius: 10px;
-    -ms-border-radius: 10px;
-  }
-  .fb-like {
-    position: relative;
-    top: -4px;
-  }
   #character {
     background-color: black;
-    border-radius: 20px;
     -moz-border-radius: 20px;
     -webkit-border-radius: 20px;
     -o-border-radius: 20px;
     -ms-border-radius: 20px;
+    border-radius: 20px;
+    width: 400;
+    max-width: 100%;
   }
-  #message {
-    font-size: 10px;
+  #social {
     margin-top: 10px;
   }
-  #feedbacks {
-    margin-top: 10px;
-    text-align: center;
+  .fb-like {
+    position: relative;
+    top: -4px;
   }
   </style>
 </head>
@@ -112,9 +100,9 @@ if ($title || $desc) {
   echo implode($elems, " - ");
   echo "\n</div>\n";
 } ?>
-    <center>
-    <img id="character" width="400" height="400" src="<?php echo $filename; ?>">
-    </center>
+    <div id="characterFrame">
+      <img id="character" src="<?php echo $filename; ?>">
+    </div>
 <?php if (!empty($eventName)): ?>
     <div id="description">
       <div id="event"><?php echo $eventName ?></div>
@@ -125,14 +113,11 @@ if ($title || $desc) {
     </div>
 <?php endif; ?>
 
-    <div id="feedbacks">
+    <div id="social">
       <div class="fb-like" data-href="http://parapara.mozlabs.jp/Fukushima100/characters/<?php echo $id; ?>" data-send="false" data-layout="button_count" data-width="100" data-show-faces="false"></div>   
       <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
     </div>    
 
-    <div id="message">
-    </div>    
-    
 <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
 <div id="fb-root"></div>
 <script>(function(d, s, id) {
