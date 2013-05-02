@@ -358,19 +358,11 @@ class Characters {
     // (We return an empty array if we have valid IDs but no characters but
     // return NULL if the IDs are not valid. This is consistent with 
     // Characters::getById etc. where 'not found' is represented by null)
-    $conn =& getDbConnection();
-    $res =& $conn->query(
-           'SELECT sessionId FROM sessions '
-           . ' WHERE wallId = ' . $conn->quote($wallId, 'integer')
-           . ' AND sessionId = ' . $conn->quote($sessionId, 'integer')
-           . ' LIMIT 1');
-    checkDbResult($res);
-    $validSession = $res->numRows() !== 0;
-    $res->free();
-    if (!$validSession)
+    if (!self::isValidSession($wallId, $sessionId))
       return null;
 
     // Run query
+    $conn =& getDbConnection();
     $res =& $conn->query(
         'SELECT * FROM characters'
       . ' WHERE wallId = ' . $conn->quote($wallId, 'integer')
@@ -471,10 +463,160 @@ class Characters {
     return true;
   }
 
-  public static function deleteBySession($sessionId) {
+  public static function deleteBySession($wallId, $sessionId,
+    $deleteMode = CharacterDeleteMode::DeleteAll)
+  {
+    // Prepare parameters
+    $wallId = intval($wallId);
+    if ($wallId < 1)
+      throw new KeyedException('bad-request');
+    $sessionId = intval($sessionId);
+    if ($sessionId < 1)
+      throw new KeyedException('bad-request');
+
+    // Verify IDs are valid
+    // (We return zero if we have valid IDs but no characters but
+    // return NULL if the IDs are not valid.)
+    if (!self::isValidSession($wallId, $sessionId))
+      return null;
+
+    // Get list of characters to remove
+    // (We need this so we can delete the corresponding files)
+    $conn =& getDbConnection();
+    $charIds =& $conn->queryCol(
+        'SELECT charId FROM characters'
+      . ' WHERE wallId = ' . $conn->quote($wallId, 'integer')
+      . ' AND   sessionId = ' . $conn->quote($sessionId, 'integer')
+      . ' ORDER BY charId',
+      'integer');
+    checkDbResult($charIds);
+    // XXX
+    error_log(print_r($charIds, true));
+
+    // Check if this session is already empty
+    if (count($charIds) === 0)
+      return 0;
+
+    // Start transaction
+    $trans = $conn->beginTransaction();
+    checkDbResult($trans);
+
+    // Delete record
+    $res =& $conn->exec('DELETE FROM characters'
+      . ' WHERE wallId = ' . $conn->quote($wallId, 'integer')
+      . ' AND sessionId = ' . $conn->quote($sessionId, 'integer'));
+    checkDbResult($res, $conn);
+    $rowsAffected = $res;
+
+    // Delete corresponding SVG files
+    if ($deleteMode === CharacterDeleteMode::DeleteAll) {
+      $deleter = new BatchFileDeleter();
+      foreach ($charIds as $charId) {
+        $filename = Character::getFileForId($charId);
+        if (!$deleter->deleteFile($filename)) {
+          $deleter->rollback();
+          $conn->rollback();
+          throw new KeyedException('server-error', "Failed to delete file");
+          error_log("Failed to delete file: $filename");
+        }
+      }
+      $deleter->commit();
+    }
+
+    // Commit transaction
+    $conn->commit();
+
+    return $rowsAffected;
   }
 
-  public static function deleteByWall($wallId) {
+  public static function deleteByWall($wallId,
+    $deleteMode = CharacterDeleteMode::DeleteAll)
+  {
+  }
+
+  private static function isValidSession($wallId, $sessionId) {
+    $conn =& getDbConnection();
+    $res =& $conn->query(
+           'SELECT sessionId FROM sessions '
+           . ' WHERE wallId = ' . $conn->quote($wallId, 'integer')
+           . ' AND sessionId = ' . $conn->quote($sessionId, 'integer')
+           . ' LIMIT 1');
+    checkDbResult($res);
+    $validSession = $res->numRows() !== 0;
+    $res->free();
+    return $validSession;
+  }
+}
+
+// A helper class that deletes a series of files in such a way that the whole 
+// lot can be rolled back
+class BatchFileDeleter {
+  // An array that maps each file that has been deleted to the temporary 
+  // location where it is stored
+  private $movedFiles = array();
+
+  public function __destruct() {
+    $this->rollback();
+  }
+
+  public function deleteFile($file) {
+    // If there is not file, fail silently
+    if (!file_exists($file))
+      return true;
+
+    // Make place to move file to
+    $temp = tempnam(sys_get_temp_dir(), 'character');
+    if ($temp === FALSE)
+      throw new KeyedException('server-error',
+                               "Couldn't create a temporary file");
+
+    // On Windows, rename fails if the target exists so delete it
+    unlink($temp);
+
+    // Move file
+    if (@rename($file, $temp) === FALSE)
+      return false;
+
+    // Store action so we can rollback / commit
+    $this->movedFiles[$file] = $temp;
+
+    return true;
+  }
+
+  public function commit() {
+    // Remove temporary files
+    foreach($this->movedFiles as $tempFile) {
+      // It doesn't really matter if this fails since it's a temporary file and 
+      // will get cleaned up eventually anyway
+      unlink($tempFile);
+    }
+
+    // Empty list of files
+    $this->movedFiles = array();
+  }
+
+  public function rollback() {
+    $failedRollback = false;
+    foreach($this->movedFiles as $origPath => $movedPath) {
+      // Revert each action
+      if (rename($movedPath, $origPath) === FALSE) {
+        // If we failed to restore a file we're really unlucky.
+        //
+        // This whole class is built around the assumption that if we can move 
+        // something to a temporary folder we can also move it back.
+        //
+        // For now just keep on going. We may be able to restore SOME files 
+        // which would be better in terms of avoiding data loss.
+        // We'll throw an exception when we're done.
+        $failedRollback = true;
+      }
+
+      // Empty list of files
+      $this->movedFiles = array();
+    }
+    if ($failedRollback)
+      throw new KeyedException('server-error',
+                               "Failed to restore deleted files");
   }
 }
 

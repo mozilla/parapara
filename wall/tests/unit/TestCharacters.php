@@ -489,12 +489,157 @@ class TestCharacters extends ParaparaTestCase {
   }
 
   function testDeleteBySession() {
+    $wallId = $this->testWall->wallId;
+    $sessionA = $this->testWall->latestSession['sessionId'];
+
+    // Check initial state
+    $result = Characters::deleteBySession($wallId, $sessionA);
+    $this->assertIdentical($result, 0);
+
+    // Add characters to first session
+    $charAA = $this->createCharacter();
+    $charAB = $this->createCharacter();
+
+    // Start a new session and add characters
+    $this->testWall->startSession($sessionA);
+    $sessionB = $this->testWall->latestSession['sessionId'];
+    $charBA = $this->createCharacter();
+
+    // Delete from first session
+    $result = Characters::deleteBySession($wallId, $sessionA);
+    $this->assertIdentical($result, 2);
+    $chars = Characters::getBySession($wallId, $sessionA);
+    $this->assertEqual(count($chars), 0);
+    $chars = Characters::getBySession($wallId, $sessionB);
+    $this->assertEqual(count($chars), 1);
+
+    // Delete from second session
+    $result = Characters::deleteBySession($wallId, $sessionB);
+    $this->assertIdentical($result, 1);
+    $chars = Characters::getBySession($wallId, $sessionB);
+    $this->assertEqual(count($chars), 0);
   }
 
   function testDeleteBadSession() {
+    $wallId = $this->testWall->wallId;
+    $sessionId = $this->testWall->latestSession['sessionId'];
+    $result = Characters::deleteBySession($wallId, $sessionId+1);
+    $this->assertIdentical($result, null);
   }
 
   function testDeleteInvalidSession() {
+    $goodWallId    = $this->testWall->wallId;
+    $goodSessionId = $this->testWall->latestSession['sessionId'];
+
+    foreach($this->invalidIds as $badId) {
+      try {
+        $char = Characters::deleteBySession($badId, $goodSessionId);
+        $this->fail("Failed to throw exception with bad wall id: $badId");
+      } catch (KeyedException $e) {
+        $this->assertEqual($e->getKey(), 'bad-request',
+          "Unexpected exception key bad wall id '$badId': %s");
+      }
+      try {
+        $char = Characters::deleteBySession($goodWallId, $badId);
+        $this->fail("Failed to throw exception with bad session id: $badId");
+      } catch (KeyedException $e) {
+        $this->assertEqual($e->getKey(), 'bad-request',
+          "Unexpected exception key bad session id '$badId': %s");
+      }
+    }
+  }
+
+  function testDeleteBySessionFileLocked() {
+    $wallId = $this->testWall->wallId;
+    $sessionId = $this->testWall->latestSession['sessionId'];
+
+    // Add characters
+    $charA = $this->createCharacter();
+    $charB = $this->createCharacter();
+    $charC = $this->createCharacter();
+
+    // Lock the second character file
+    $file = Character::getFileForId($charB->charId);
+    $fp = fopen($file, "rw+");
+    flock($fp, LOCK_EX);
+
+    // Try to delete session
+    try {
+      $result = Characters::deleteBySession($wallId, $sessionId);
+      $this->fail("Failed to throw exception when deleting locked file");
+    } catch (KeyedException $e) {
+      $this->assertEqual($e->getKey(), 'server-error',
+        "Unexpected exception key when deleting locked file");
+    }
+
+    // Check all files exist
+    $this->assertTrue(file_exists(Character::getFileForId($charA->charId)));
+    $this->assertTrue(file_exists(Character::getFileForId($charB->charId)));
+    $this->assertTrue(file_exists(Character::getFileForId($charC->charId)));
+
+    // Check database was not changed
+    $chars = Characters::getBySession($wallId, $sessionId);
+    $this->assertEqual(count($chars), 3);
+
+    // Unlock and delete properly
+    flock($fp, LOCK_UN);
+    fclose($fp);
+    $result = Characters::deleteBySession($wallId, $sessionId);
+    $this->assertIdentical($result, 3);
+  }
+
+  function testDeleteBySessionFileMissing() {
+    $wallId = $this->testWall->wallId;
+    $sessionId = $this->testWall->latestSession['sessionId'];
+
+    // Add characters
+    $charA = $this->createCharacter();
+    $charB = $this->createCharacter();
+    $charC = $this->createCharacter();
+
+    // Delete second file
+    $file = Character::getFileForId($charB->charId);
+    unlink($file);
+
+    // Delete session
+    $result = Characters::deleteBySession($wallId, $sessionId);
+    $this->assertIdentical($result, 3);
+
+    // Check all files are gone
+    $this->assertFalse(file_exists(Character::getFileForId($charA->charId)));
+    $this->assertFalse(file_exists(Character::getFileForId($charB->charId)));
+    $this->assertFalse(file_exists(Character::getFileForId($charC->charId)));
+
+    // Check database is up-to-date
+    $chars = Characters::getBySession($wallId, $sessionId);
+    $this->assertEqual(count($chars), 0);
+  }
+
+  function testDeleteBySessionKeepFiles() {
+    $wallId = $this->testWall->wallId;
+    $sessionId = $this->testWall->latestSession['sessionId'];
+
+    // Add characters
+    $charA = $this->createCharacter();
+    $charB = $this->createCharacter();
+
+    // Delete session
+    $result =
+      Characters::deleteBySession($wallId, $sessionId,
+                                  CharacterDeleteMode::DeleteRecordOnly);
+    $this->assertIdentical($result, 2);
+
+    // Check files are still there
+    $this->assertTrue(file_exists(Character::getFileForId($charA->charId)));
+    $this->assertTrue(file_exists(Character::getFileForId($charB->charId)));
+
+    // Check database is up-to-date
+    $chars = Characters::getBySession($wallId, $sessionId);
+    $this->assertEqual(count($chars), 0);
+
+    // Tidy up
+    unlink(Character::getFileForId($charA->charId));
+    unlink(Character::getFileForId($charB->charId));
   }
 
   function testDeleteByWall() {
@@ -506,8 +651,6 @@ class TestCharacters extends ParaparaTestCase {
   function testDeleteInvalidWall() {
   }
 
-  // testDeleteBySession
-  // testDeleteByWall
   // testSetActive
   // testSetX
   // testSetTitle
