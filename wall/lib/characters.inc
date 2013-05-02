@@ -82,10 +82,11 @@ function addCharacter($wallId, $svg, $metadata) {
 
 class Character {
   private $_charId  = null;
+  private $_wall    = null;
   private $fields   = null;
 
   static private $virtualFields =
-    array('rawUrl','galleryUrl', 'emailUrl', 'previewUrl');
+    array('rawUrl','galleryUrl', 'emailUrl', 'previewUrl', 'wall');
 
   static private $readOnlyFields = array('charId');
 
@@ -121,6 +122,10 @@ class Character {
 
       case 'emailUrl':
         return Character::getEmailUrl($this->_charId);
+
+      case 'wall':
+        // We call isset above which will fill this in
+        return $this->_wall;
     }
 
     return null;
@@ -139,6 +144,12 @@ class Character {
       case 'previewUrl':
       case 'emailUrl':
         return true;
+
+      case 'wall':
+        if ($this->_wall === null) {
+          $this->_wall = Walls::getById($this->wallId);
+        }
+        return $this->_wall !== null;
     }
 
     return false;

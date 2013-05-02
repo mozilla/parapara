@@ -34,7 +34,7 @@ if ($id < 1 || !@file_exists($id . '.svg')) {
       if ($char->createDate) {
         $createDate = strtotime($char->createDate);
       }
-      $wall = Walls::getById($char->wallId);
+      $wall = $char->wall;
     }
     if ($wall) {
       $eventName = $wall->name;
