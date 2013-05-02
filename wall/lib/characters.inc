@@ -187,6 +187,13 @@ class Character {
   }
 }
 
+abstract class CharacterDeleteMode {
+  // Deletes a character's database record and file (default)
+  const DeleteAll = 0;
+  // Deletes a character's database record but leaves the file
+  const DeleteRecordOnly = 1;
+}
+
 class Characters {
   public static function create($svg, $fields, $wallId, $email = null) {
     global $config;
@@ -422,7 +429,9 @@ class Characters {
     return $result;
   }
 
-  public static function deleteById($charId) {
+  public static function deleteById($charId,
+    $deleteMode = CharacterDeleteMode::DeleteAll)
+  {
     // Prepare parameters
     $charId = intval($charId);
     if ($charId < 1)
@@ -445,12 +454,14 @@ class Characters {
     }
 
     // Delete corresponding SVG file
-    $svgfilename = Character::getFileForId($charId);
-    if (file_exists($svgfilename)) {
-      if (@unlink($svgfilename) === FALSE) {
-        $conn->rollback();
-        throw new KeyedException('server-error', "Failed to delete file");
-        error_log("Failed to delete file: $svgfilename");
+    if ($deleteMode === CharacterDeleteMode::DeleteAll) {
+      $svgfilename = Character::getFileForId($charId);
+      if (file_exists($svgfilename)) {
+        if (@unlink($svgfilename) === FALSE) {
+          $conn->rollback();
+          throw new KeyedException('server-error', "Failed to delete file");
+          error_log("Failed to delete file: $svgfilename");
+        }
       }
     }
 

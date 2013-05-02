@@ -461,6 +461,47 @@ class TestCharacters extends ParaparaTestCase {
     $this->assertFalse(Characters::deleteById($char->charId));
   }
 
+  function testDeleteKeepFile() {
+    $char =
+      Characters::create($this->testSvg, $this->testMetadata,
+                         $this->testWall->wallId);
+    $this->assertTrue(Characters::deleteById($char->charId,
+        CharacterDeleteMode::DeleteRecordOnly));
+    $this->assertNull(Characters::getById($char->charId));
+    $this->assertFalse(Characters::deleteById($char->charId));
+
+    $expectedFile = Character::getFileForId($char->charId);
+    $this->assertTrue(file_exists($expectedFile),
+                      "SVG still remains at $expectedFile");
+    if (file_exists($expectedFile)) {
+      unlink($expectedFile);
+    }
+  }
+
+  function testDeleteBackup() {
+  }
+
+  function testDeleteInvalidId() {
+  }
+
+  function testDeleteBySession() {
+  }
+
+  function testDeleteBadSession() {
+  }
+
+  function testDeleteInvalidSession() {
+  }
+
+  function testDeleteByWall() {
+  }
+
+  function testDeleteBadWall() {
+  }
+
+  function testDeleteInvalidWall() {
+  }
+
   // testDeleteBySession
   // testDeleteByWall
   // testSetActive
