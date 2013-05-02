@@ -151,27 +151,35 @@ class Character {
   
   public static function getCharactersPath() {
     global $config;
-    // $config['characters']['path'] stores a relative path from the API folder 
-    // (yep, silly idea, but hey) so, as a temporary workaround, we make some 
-    // assumptions about where the API folder is
-    return realpath(dirname(__FILE__) . '/../public/api/'
-                    . $config['characters']['path']);
+    $path = trim($config['characters']['path']);
+    $lastChar = substr($path, -1);
+    if ($lastChar == '/' || $lastChar == '\\') {
+      $path = substr($path, 0, -1);
+    }
+    return $path;
+  }
+
+  public static function getCharactersFilePath() {
+    // The character path is a relative to the public folder
+    return realpath(dirname(__FILE__) . '/../public/' .
+                    self::getCharactersPath());
   }
 
   public static function getFileForId($charId) {
-    return self::getCharactersPath() . '/' . $charId . '.svg';
+    return self::getCharactersFilePath() . '/' . $charId . '.svg';
   }
 
   public static function getRawUrl($charId) {
-    return fileToUrl(self::getCharactersPath()) . '/' . $charId . '.svg';
+    return fileToUrl(self::getCharactersFilePath()) . '/' . $charId . '.svg';
   }
 
   public static function getGalleryUrl($charId) {
-    return fileToUrl(self::getCharactersPath()) . '/' . $charId;
+    return fileToUrl(self::getCharactersFilePath()) . '/' . $charId;
   }
 
   public static function getPreviewUrl($charId) {
-    return fileToUrl(self::getCharactersPath()) . '/' . $charId . '/preview';
+    return fileToUrl(self::getCharactersFilePath()) . '/' . $charId
+      . '/preview';
   }
 
   public static function getEmailUrl($charId) {

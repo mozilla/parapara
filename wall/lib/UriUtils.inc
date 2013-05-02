@@ -8,7 +8,7 @@ require_once("parapara.inc");
 function getFilenameForId($id)
 {
   global $config;
-  return $config['characters']['path'] . $id . ".svg";
+  return '../' . $config['characters']['path'] . '/' . $id . ".svg";
 }
 
 function getGalleryUrlForId($id)

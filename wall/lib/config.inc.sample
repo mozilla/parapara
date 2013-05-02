@@ -16,7 +16,9 @@ $config = array(
     'upload_server' => 'http://parapara.mozlabs.jp/'
   ),
   'characters' => array(
-    'path' => '../characters/',
+    // Path to characters folder relative to public
+    // (No trailing slash is needed. If added it will be removed.)
+    'path' => 'characters',
     // Maximum size of a character file in bytes
     'max_size' => '500000',
     // Should URLs to the characters be published after sending the animation?

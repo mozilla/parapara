@@ -180,6 +180,18 @@ class TestCharacters extends ParaparaTestCase {
     $this->assertEqual(@file_get_contents($expectedFile), $this->testSvg);
   }
 
+  function testFileConfig() {
+    // Test a trailing slash and whitespace is ignored
+    global $config;
+    $config['characters']['path'] .= '/ ';
+
+    $char = $this->createCharacter();
+    $expectedFile = Character::getFileForId($char->charId);
+    $this->assertTrue(is_readable($expectedFile),
+                      "SVG file not found at $expectedFile");
+    $this->assertEqual(@file_get_contents($expectedFile), $this->testSvg);
+  }
+
   // XXX It would be good to test when the file can't be written but I can't 
   // find an easy way to do this on Windows (short of abstracting out the file 
   // system and using a mock object).
