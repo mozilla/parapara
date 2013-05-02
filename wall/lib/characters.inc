@@ -490,8 +490,6 @@ class Characters {
       . ' ORDER BY charId',
       'integer');
     checkDbResult($charIds);
-    // XXX
-    error_log(print_r($charIds, true));
 
     // Check if this session is already empty
     if (count($charIds) === 0)
