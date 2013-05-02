@@ -451,8 +451,8 @@ class Characters {
       if (file_exists($svgfilename)) {
         if (@unlink($svgfilename) === FALSE) {
           $conn->rollback();
-          throw new KeyedException('server-error', "Failed to delete file");
           error_log("Failed to delete file: $svgfilename");
+          throw new KeyedException('server-error', "Failed to delete file");
         }
       }
     }
@@ -466,32 +466,56 @@ class Characters {
   public static function deleteBySession($wallId, $sessionId,
     $deleteMode = CharacterDeleteMode::DeleteAll)
   {
+    // _bulkDelete permits a null sessionId (it means, "all sessions for this 
+    // wall"), but this method should be getting called with a null value so we 
+    // handle it here instead
+    if ($sessionId === null)
+      throw new KeyedException('bad-request');
+
+    return self::_bulkDelete($wallId, $sessionId, $deleteMode);
+  }
+
+  public static function deleteByWall($wallId,
+    $deleteMode = CharacterDeleteMode::DeleteAll)
+  {
+    return self::_bulkDelete($wallId, null, $deleteMode);
+  }
+
+  protected static function _bulkDelete($wallId, $sessionId, $deleteMode) {
     // Prepare parameters
     $wallId = intval($wallId);
     if ($wallId < 1)
       throw new KeyedException('bad-request');
-    $sessionId = intval($sessionId);
-    if ($sessionId < 1)
+    $sessionId = toIntOrNull($sessionId);
+    if ($sessionId !== null && $sessionId < 1)
       throw new KeyedException('bad-request');
 
     // Verify IDs are valid
     // (We return zero if we have valid IDs but no characters but
     // return NULL if the IDs are not valid.)
-    if (!self::isValidSession($wallId, $sessionId))
-      return null;
+    if ($sessionId) {
+      if (!self::isValidSession($wallId, $sessionId))
+        return null;
+    } else {
+      $wall = Walls::getById($wallId);
+      if (!$wall)
+        return null;
+    }
+
+    // Set up condition for selecting characters
+    $conn =& getDbConnection();
+    $cond = 'wallId = ' . $conn->quote($wallId, 'integer');
+    if ($sessionId) {
+      $cond .= ' AND sessionId = ' . $conn->quote($sessionId, 'integer');
+    }
 
     // Get list of characters to remove
     // (We need this so we can delete the corresponding files)
-    $conn =& getDbConnection();
-    $charIds =& $conn->queryCol(
-        'SELECT charId FROM characters'
-      . ' WHERE wallId = ' . $conn->quote($wallId, 'integer')
-      . ' AND   sessionId = ' . $conn->quote($sessionId, 'integer')
-      . ' ORDER BY charId',
-      'integer');
+    $charIds =& $conn->queryCol('SELECT charId FROM characters WHERE ' . $cond,
+                                'integer');
     checkDbResult($charIds);
 
-    // Check if this session is already empty
+    // Check if this session/wall is already empty
     if (count($charIds) === 0)
       return 0;
 
@@ -499,10 +523,8 @@ class Characters {
     $trans = $conn->beginTransaction();
     checkDbResult($trans);
 
-    // Delete record
-    $res =& $conn->exec('DELETE FROM characters'
-      . ' WHERE wallId = ' . $conn->quote($wallId, 'integer')
-      . ' AND sessionId = ' . $conn->quote($sessionId, 'integer'));
+    // Delete records
+    $res =& $conn->exec('DELETE FROM characters WHERE ' . $cond);
     checkDbResult($res, $conn);
     $rowsAffected = $res;
 
@@ -514,8 +536,8 @@ class Characters {
         if (!$deleter->deleteFile($filename)) {
           $deleter->rollback();
           $conn->rollback();
-          throw new KeyedException('server-error', "Failed to delete file");
           error_log("Failed to delete file: $filename");
+          throw new KeyedException('server-error', "Failed to delete file");
         }
       }
       $deleter->commit();
@@ -525,11 +547,6 @@ class Characters {
     $conn->commit();
 
     return $rowsAffected;
-  }
-
-  public static function deleteByWall($wallId,
-    $deleteMode = CharacterDeleteMode::DeleteAll)
-  {
   }
 
   private static function isValidSession($wallId, $sessionId) {

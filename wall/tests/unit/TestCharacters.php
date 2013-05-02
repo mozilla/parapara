@@ -643,13 +643,63 @@ class TestCharacters extends ParaparaTestCase {
   }
 
   function testDeleteByWall() {
+    $wallId = $this->testWall->wallId;
+    $sessionA = $this->testWall->latestSession['sessionId'];
+
+    // Check initial state
+    $result = Characters::deleteByWall($wallId);
+    $this->assertIdentical($result, 0);
+
+    // Add characters to first session
+    $this->createCharacter();
+    $this->createCharacter();
+
+    // Start a new session and add characters
+    $this->testWall->startSession($sessionA);
+    $this->createCharacter();
+
+    // Delete characters
+    $result = Characters::deleteByWall($wallId);
+    $this->assertIdentical($result, 3);
+    $chars = Characters::getByWall($wallId);
+    $this->assertEqual(count($chars), 0);
   }
 
   function testDeleteBadWall() {
+    $wallId = $this->testWall->wallId;
+    $result = Characters::deleteByWall($wallId+1);
+    $this->assertIdentical($result, null);
   }
 
   function testDeleteInvalidWall() {
+    foreach($this->invalidIds as $id) {
+      try {
+        $char = Characters::deleteByWall($id);
+        $this->fail("Failed to throw exception with bad id: $id");
+      } catch (KeyedException $e) {
+        $this->assertEqual($e->getKey(), 'bad-request',
+          "Unexpected exception key bad id '$id': %s");
+      }
+    }
   }
+
+  function testDeleteWallKeepFiles() {
+    $wallId = $this->testWall->wallId;
+    $char = $this->createCharacter();
+
+    // Delete characters
+    $result =
+      Characters::deleteByWall($wallId, CharacterDeleteMode::DeleteRecordOnly);
+    $file = Character::getFileForId($char->charId);
+    $this->assertTrue(file_exists($file));
+
+    // Tidy up
+    unlink($file);
+  }
+
+  // We don't bother testing Character::deleteByWall with regards to missing 
+  // files, locked files etc. since we rely on the fact that it's using the same
+  // underlying code as deleteBySession for that
 
   // testSetActive
   // testSetX
