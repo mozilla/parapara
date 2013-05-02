@@ -20,6 +20,7 @@ class TestCharacters extends ParaparaTestCase {
       'height' => 456);
   protected $testSvg  = '<svg><circle cx="50" cy="50" r="100"></svg>';
   protected $testWall = null;
+  protected $invalidIds = array(0, -3, "abc", null);
 
   function __construct($name = false) {
     parent::__construct($name);
@@ -293,8 +294,7 @@ class TestCharacters extends ParaparaTestCase {
   }
 
   function testInvalidId() {
-    $invalidIds = array(0, -3, "abc", null);
-    foreach($invalidIds as $id) {
+    foreach($this->invalidIds as $id) {
       try {
         $char = Characters::getById($id);
         $this->fail("Failed to throw exception with bad id: $id");
@@ -335,9 +335,8 @@ class TestCharacters extends ParaparaTestCase {
   function testInvalidSession() {
     $goodWallId    = $this->testWall->wallId;
     $goodSessionId = $this->testWall->latestSession['sessionId'];
-    $invalidIds    = array(0, -3, "abc", null);
 
-    foreach($invalidIds as $badId) {
+    foreach($this->invalidIds as $badId) {
       try {
         $char = Characters::getBySession($badId, $goodSessionId);
         $this->fail("Failed to throw exception with bad wall id: $badId");
@@ -392,8 +391,7 @@ class TestCharacters extends ParaparaTestCase {
   }
 
   function testInvalidWall() {
-    $invalidIds = array(0, -3, "abc", null);
-    foreach($invalidIds as $id) {
+    foreach($this->invalidIds as $id) {
       try {
         $char = Characters::getByWall($id);
         $this->fail("Failed to throw exception with bad wall id: $id");
@@ -478,10 +476,16 @@ class TestCharacters extends ParaparaTestCase {
     }
   }
 
-  function testDeleteBackup() {
-  }
-
   function testDeleteInvalidId() {
+    foreach($this->invalidIds as $id) {
+      try {
+        $char = Characters::deleteById($id);
+        $this->fail("Failed to throw exception with bad id: $id");
+      } catch (KeyedException $e) {
+        $this->assertEqual($e->getKey(), 'bad-request',
+          "Unexpected exception key bad id '$id': %s");
+      }
+    }
   }
 
   function testDeleteBySession() {
