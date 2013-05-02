@@ -20,6 +20,6 @@ $config['db']['dsn'] =
   'mysql://user:password@127.0.0.1/parapara_test';
 
 // Override character path
-$config['characters']['path'] = '../characters-test/';
+$config['characters']['path'] = 'characters-test';
 
 ?>
