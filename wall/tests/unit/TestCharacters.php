@@ -773,9 +773,6 @@ class TestCharacters extends ParaparaTestCase {
     }
   }
 
-  // testSetTitle
-  // testSetAuthor
-
   protected $createdCharacters = array();
 
   // Utility wrapper that calls Characters::create and tracks the character so 

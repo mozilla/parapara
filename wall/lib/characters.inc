@@ -171,6 +171,9 @@ class Character {
         $value = self::sanitizeX($value);
         break;
 
+      // If we ever support setting the title and author, we'll need to rewrite 
+      // the metadata in the SVG file too
+
       default:
         throw new KeyedException('readonly-field');
     }
