@@ -15,7 +15,6 @@ class TestCharacters extends ParaparaTestCase {
     array(
       'title' => 'Test title',
       'author' => 'Test author',
-      'x' => 10,
       'groundOffset' => 0.1,
       'width' => 123.0,
       'height' => 456.0);
@@ -112,36 +111,6 @@ class TestCharacters extends ParaparaTestCase {
     $this->testMetadata['author'] = null;
     $char = $this->createCharacter();
     $this->assertIdentical(@$char->author, null);
-  }
-
-  function testX() {
-    // Required
-    $metadata = $this->testMetadata;
-    unset($metadata['x']);
-    try {
-      $char = $this->createCharacter($metadata);
-      $this->fail("Failed to throw exception when missing x field");
-    } catch (KeyedException $e) {
-      $this->assertEqual($e->getKey(), "bad-request");
-    }
-
-    // Out of range
-    $metadata['x'] = 2000;
-    try {
-      $char = $this->createCharacter($metadata);
-      $this->fail("Failed to throw exception with out of range x field");
-    } catch (KeyedException $e) {
-      $this->assertEqual($e->getKey(), "bad-request");
-    }
-
-    // Invalid value
-    $metadata['x'] = "abc";
-    try {
-      $char = $this->createCharacter($metadata);
-      $this->fail("Failed to throw exception with invalid x field");
-    } catch (KeyedException $e) {
-      $this->assertEqual($e->getKey(), "bad-request");
-    }
   }
 
   function testGroundOffset() {

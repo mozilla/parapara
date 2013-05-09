@@ -341,7 +341,6 @@ class Characters {
     $fields['groundOffset'] = isset($fields['groundOffset'])
                       ? max(0.0, min(1.0, floatval(@$fields['groundOffset'])))
                       : 0.0;
-    $fields['x'] = Character::sanitizeX(@$fields['x']);
     $fields['width']  = Character::sanitizeWidthOrHeight(@$fields['width']);
     $fields['height'] = Character::sanitizeWidthOrHeight(@$fields['height']);
     $date = gmdate('Y-m-d H:i:s');
