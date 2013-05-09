@@ -11,7 +11,7 @@ require_once('characters.inc');
 define("NOT_SET", "This parameter is not set");
 
 class TestCharacters extends ParaparaTestCase {
-  protected $testMetadata =
+  protected $testFields =
     array(
       'title' => 'Test title',
       'author' => 'Test author',
@@ -57,12 +57,12 @@ class TestCharacters extends ParaparaTestCase {
     $this->assertIdLike(@$char->wallId, "Bad wall ID: %s");
     $this->assertIdLike(@$char->sessionId, "Bad session ID: %s");
 
-    $this->assertIdentical(@$char->title, $this->testMetadata['title']);
-    $this->assertIdentical(@$char->author, $this->testMetadata['author']);
+    $this->assertIdentical(@$char->title, $this->testFields['title']);
+    $this->assertIdentical(@$char->author, $this->testFields['author']);
     $this->assertIdentical(@$char->groundOffset,
-                       $this->testMetadata['groundOffset']);
-    $this->assertIdentical(@$char->width, $this->testMetadata['width']);
-    $this->assertIdentical(@$char->height, $this->testMetadata['height']);
+                       $this->testFields['groundOffset']);
+    $this->assertIdentical(@$char->width, $this->testFields['width']);
+    $this->assertIdentical(@$char->height, $this->testFields['height']);
     $this->assertPattern($this->dateRegEx, @$char->createDate);
     $this->assertIdentical(@$char->active, TRUE);
     $this->assertWithinMargin(@$char->x,
@@ -71,7 +71,7 @@ class TestCharacters extends ParaparaTestCase {
 
   function testWallNotFound() {
     try {
-      $char = $this->createCharacter($this->testMetadata, 0);
+      $char = $this->createCharacter($this->testFields, 0);
       $this->fail("Failed to throw exception with bad Wall ID");
     } catch (KeyedException $e) {
       $this->assertEqual($e->getKey(), "not-found");
@@ -90,58 +90,58 @@ class TestCharacters extends ParaparaTestCase {
   }
 
   function testTitleTrimming() {
-    $this->testMetadata['title'] = " 　abc ";
+    $this->testFields['title'] = " 　abc ";
     $char = $this->createCharacter();
     $this->assertIdentical(@$char->title, "abc");
   }
 
   function testTitleIsOptional() {
-    $this->testMetadata['title'] = null;
+    $this->testFields['title'] = null;
     $char = $this->createCharacter();
     $this->assertIdentical(@$char->title, null);
   }
 
   function testAuthorTrimming() {
-    $this->testMetadata['author'] = " 　author ";
+    $this->testFields['author'] = " 　author ";
     $char = $this->createCharacter();
     $this->assertIdentical(@$char->author, "author");
   }
 
   function testAuthorOptional() {
-    $this->testMetadata['author'] = null;
+    $this->testFields['author'] = null;
     $char = $this->createCharacter();
     $this->assertIdentical(@$char->author, null);
   }
 
   function testGroundOffset() {
     // If not set -> 0
-    $metadata = $this->testMetadata;
-    unset($metadata['groundOffset']);
-    $char = $this->createCharacter($metadata);
+    $fields = $this->testFields;
+    unset($fields['groundOffset']);
+    $char = $this->createCharacter($fields);
     $this->assertIdentical(@$char->groundOffset, 0.0);
 
     // Negative
-    $metadata['groundOffset'] = -0.5;
-    $char = $this->createCharacter($metadata);
+    $fields['groundOffset'] = -0.5;
+    $char = $this->createCharacter($fields);
     $this->assertIdentical(@$char->groundOffset, 0.0);
 
     // > 1
-    $metadata['groundOffset'] = 2.5;
-    $char = $this->createCharacter($metadata);
+    $fields['groundOffset'] = 2.5;
+    $char = $this->createCharacter($fields);
     $this->assertIdentical(@$char->groundOffset, 1.0);
 
     // Non float
-    $metadata['groundOffset'] = 'abc';
-    $char = $this->createCharacter($metadata);
+    $fields['groundOffset'] = 'abc';
+    $char = $this->createCharacter($fields);
     $this->assertIdentical(@$char->groundOffset, 0.0);
   }
 
   function testWidthHeightRequired() {
     foreach (array('width', 'height') as $field) {
-      $metadata = $this->testMetadata;
-      unset($metadata[$field]);
+      $fields = $this->testFields;
+      unset($fields[$field]);
       try {
-        $char = $this->createCharacter($metadata);
+        $char = $this->createCharacter($fields);
         $this->fail("Failed to throw exception when missing required field: "
                     . $field);
       } catch (KeyedException $e) {
@@ -161,10 +161,10 @@ class TestCharacters extends ParaparaTestCase {
   }
 
   function checkExceptionCreatingCharWithValue($field, $value, $key) {
-    $metadata = $this->testMetadata;
-    $metadata[$field] = $value;
+    $fields = $this->testFields;
+    $fields[$field] = $value;
     try {
-      $char = $this->createCharacter($metadata);
+      $char = $this->createCharacter($fields);
       $this->fail("Failed to throw exception when setting $field to $value");
     } catch (KeyedException $e) {
       $this->assertEqual($e->getKey(), $key,
@@ -251,7 +251,7 @@ class TestCharacters extends ParaparaTestCase {
 
     // Create a massive file
     try {
-      $char = $this->createCharacter($this->testMetadata,
+      $char = $this->createCharacter($this->testFields,
                                      $this->testWall->wallId, $bigSvg);
       $this->fail("Failed to throw exception with large SVG file");
     } catch (KeyedException $e) {
@@ -404,7 +404,7 @@ class TestCharacters extends ParaparaTestCase {
 
   function testDelete() {
     $char =
-      Characters::create($this->testSvg, $this->testMetadata,
+      Characters::create($this->testSvg, $this->testFields,
                          $this->testWall->wallId);
     $this->assertTrue(Characters::deleteById($char->charId));
     $this->assertNull(Characters::getById($char->charId));
@@ -418,7 +418,7 @@ class TestCharacters extends ParaparaTestCase {
   function testDeleteFileLocked() {
     // Lock the character file
     $char =
-      Characters::create($this->testSvg, $this->testMetadata,
+      Characters::create($this->testSvg, $this->testFields,
                          $this->testWall->wallId);
     $file = $char->getFileForId($char->charId);
     $fp = fopen($file, "rw+");
@@ -446,7 +446,7 @@ class TestCharacters extends ParaparaTestCase {
   function testDeleteFileMissing() {
     // Delete character file
     $char =
-      Characters::create($this->testSvg, $this->testMetadata,
+      Characters::create($this->testSvg, $this->testFields,
                          $this->testWall->wallId);
     $file = $char->getFileForId($char->charId);
     unlink($file);
@@ -461,7 +461,7 @@ class TestCharacters extends ParaparaTestCase {
 
   function testDeleteKeepFile() {
     $char =
-      Characters::create($this->testSvg, $this->testMetadata,
+      Characters::create($this->testSvg, $this->testFields,
                          $this->testWall->wallId);
     $this->assertTrue(Characters::deleteById($char->charId,
         CharacterDeleteMode::DeleteRecordOnly));
@@ -792,18 +792,18 @@ class TestCharacters extends ParaparaTestCase {
 
   // Utility wrapper that calls Characters::create and tracks the character so 
   // it will be deleted automatically on tear-down
-  function createCharacter($metadata = NOT_SET, $wallId = NOT_SET,
+  function createCharacter($fields = NOT_SET, $wallId = NOT_SET,
                            $svg = NOT_SET)
   {
     // Fill in default parameters
-    if ($metadata === NOT_SET)
-      $metadata = $this->testMetadata;
+    if ($fields === NOT_SET)
+      $fields = $this->testFields;
     if ($wallId === NOT_SET)
       $wallId = $this->testWall->wallId;
     if ($svg === NOT_SET)
       $svg = $this->testSvg;
 
-    $char = Characters::create($svg, $metadata, $wallId);
+    $char = Characters::create($svg, $fields, $wallId);
     if ($char !== null && isset($char->charId)) {
       array_push($this->createdCharacters, $char->charId);
     }
