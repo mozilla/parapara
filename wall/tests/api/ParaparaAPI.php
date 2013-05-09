@@ -38,6 +38,10 @@ class ParaparaAPI {
    * This is provided so that test code can easily clean up after each test run.
    */
   function cleanUp() {
+    // Characters
+    while (count($this->createdCharacters)) {
+      $this->removeCharacter($this->createdCharacters[0]);
+    }
     // Walls
     while (count($this->createdWalls)) {
       $this->removeWall($this->createdWalls[0]);
@@ -183,6 +187,54 @@ class ParaparaAPI {
     global $config;
     $url = $config['test']['wall_server'] . "api/walls/$wallId/sessions";
     return $this->getJson($url);
+  }
+
+  /* ----------------------------------------------------------------------
+   *
+   * Character handling
+   *
+   * ---------------------------------------------------------------------*/
+
+  // Characters created here that have not yet been removed
+  protected $createdCharacters = array();
+
+  static protected $testCharacterFields =
+    array(
+      'title' => 'Test title',
+      'author' => 'Test author',
+      'groundOffset' => 0.1,
+      'width' => 123.0,
+      'height' => 456.0);
+  static protected $testSvg = '<svg><circle cx="50" cy="50" r="100"></svg>';
+
+  function createCharacter($wallIdOrPath, $fields = null, $svg = null) {
+    // Prepare payload
+    $payload['fields'] = $fields || self::$testCharacterFields;
+    $payload['svg']    = $svg || self::$testSvg;
+
+    // Make request
+    global $config;
+    $url = $config['test']['wall_server'] . 'api/walls/'
+         . $wallIdOrPath . '/characters';
+    $char = $this->postJson($url, $payload);
+
+    // Track wall so we can clean it up
+    if (is_array($char) && !array_key_exists('error_key', $char) &&
+        array_key_exists('charId', $char)) {
+      array_push($this->createdCharacters, $char['charId']);
+    }
+
+    return $char;
+  }
+
+  function removeCharacter($charId) {
+    // XXX Switch over to using API when it is done
+    Characters::deleteById($charId);
+
+    // Remove from list of createdCharacters
+    while (($pos = array_search($charId, $this->createdCharacters)) !== FALSE) {
+      array_splice($this->createdCharacters, $pos, 1);
+    }
   }
 
   /* ----------------------------------------------------------------------
