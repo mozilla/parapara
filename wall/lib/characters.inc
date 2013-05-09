@@ -241,6 +241,20 @@ class Character {
   }
 
   public function asArray() {
+    $keys = array_merge(array_keys($this->fields),
+                        self::$virtualFields,
+                        self::$readOnlyFields);
+
+    // Fields we don't want to export
+    $keysToDrop = array('wall');
+    
+    $result = array();
+    foreach ($keys as $key) {
+      if (!in_array($key, $keysToDrop)) {
+        $result[$key] = $this->$key;
+      }
+    }
+    return $result;
   }
 
   public static function getCharactersPath() {

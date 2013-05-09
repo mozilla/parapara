@@ -773,6 +773,21 @@ class TestCharacters extends ParaparaTestCase {
     }
   }
 
+  function testAsArray() {
+    $char = $this->createCharacter();
+
+    $array = $char->asArray();
+    $this->assertTrue(is_array($array));
+    // Check read-only fields
+    $this->assertIdentical(@$array['charId'], $char->charId);
+    // Check regular fields
+    $this->assertIdentical(@$array['wallId'], $char->wallId);
+    // Check virtual fields
+    $this->assertIdentical(@$array['galleryUrl'], $char->galleryUrl);
+    // Check some fields are dropped
+    $this->assertTrue(!array_key_exists('wall', $array));
+  }
+
   protected $createdCharacters = array();
 
   // Utility wrapper that calls Characters::create and tracks the character so 
