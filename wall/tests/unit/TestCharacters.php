@@ -697,14 +697,56 @@ class TestCharacters extends ParaparaTestCase {
     unlink($file);
   }
 
-  function testSetActive() {
-  }
-
   // We don't bother testing Character::deleteByWall with regards to missing 
   // files, locked files etc. since we rely on the fact that it's using the same
   // underlying code as deleteBySession for that
 
-  // testSetActive
+  function testSetReadonly() {
+    $char = $this->createCharacter();
+    try {
+      $char->charId = 5;
+      $this->fail("Failed to throw exception when setting character ID");
+    } catch (KeyedException $e) {
+      $this->assertEqual($e->getKey(), "readonly-field");
+    }
+  }
+
+  function testEmptySave() {
+    $char = $this->createCharacter();
+    $rv = $char->save();
+    $this->assertTrue(is_array($rv),
+      "Even when there is nothing to save,"
+      . " the return value should be an array");
+  }
+
+  function testSetActive() {
+    $char = $this->createCharacter();
+    $this->assertIdentical(@$char->active, TRUE);
+
+    // Update
+    $char->active = FALSE;
+    $rv = $char->save();
+    $this->assertIdentical(@count($rv), 1,
+      "Unexpected number of changed fields when changing active state");
+    $this->assertIdentical(@$rv['active'], FALSE);
+
+    // Check if has been saved
+    $fetchedChar = Characters::getById($char->charId);
+    $this->assertIdentical($fetchedChar->active, FALSE);
+
+    // Check no change
+    $char->active = FALSE;
+    $rv = $char->save();
+    $this->assertIdentical(@count($rv), 0, "Redundant change not detected");
+
+    // Check value coercion
+    $char->active = "true";
+    $rv = $char->save();
+    $this->assertIdentical(@count($rv), 1,
+      "Unexpected number of changed fields when changing active state");
+    $this->assertIdentical(@$rv['active'], TRUE);
+  }
+
   // testSetX
   // testSetTitle
   // testSetAuthor

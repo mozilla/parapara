@@ -81,9 +81,10 @@ function addCharacter($wallId, $svg, $metadata) {
 }
 
 class Character {
-  private $_charId  = null;
-  private $_wall    = null;
-  private $fields   = null;
+  private $_charId     = null;
+  private $_wall       = null;
+  private $fields      = null;
+  private $dirtyFields = array();
 
   static private $virtualFields =
     array('rawUrl','galleryUrl', 'emailUrl', 'previewUrl', 'wall');
@@ -153,6 +154,83 @@ class Character {
     }
 
     return false;
+  }
+
+  public function __set($name, $value) {
+    // Check if we recognize the field
+    if (!isset($this->$name))
+      throw new KeyedException('unknown-field');
+
+    // Sanitize values
+    switch($name) {
+      case 'active':
+        $value = (bool)$value;
+        break;
+
+      default:
+        throw new KeyedException('readonly-field');
+    }
+
+    // Check if the value is actually different
+    if ($this->$name === $value)
+      return;
+
+    // Regular fields
+    if (array_key_exists($name, $this->fields)) {
+      $this->fields[$name] = $value;
+      // Mark field as dirty
+      if (!in_array($name, $this->dirtyFields))
+        array_push($this->dirtyFields, $name);
+    }
+  }
+
+  public function save() {
+    // Check there is something to save
+    if (count($this->dirtyFields) === 0)
+      return array();
+
+    // Start connection
+    $conn =& getDbConnection();
+
+    // Build up pieces of query and result array
+    $changedFields = array();
+    $assignments = array();
+    foreach ($this->dirtyFields as $name) {
+      // Determine the type of the field
+      switch ($name) {
+        case 'active':
+          $type = 'boolean';
+          break;
+
+        default:
+          $type = 'text';
+          break;
+      }
+
+      // Build up query pieces
+      array_push($assignments,
+        $conn->quoteIdentifier($name) . ' = '
+        . $conn->quote($this->$name, $type));
+
+      // Build up result
+      $changedFields[$name] = $this->$name;
+    }
+
+    // Run query
+    $query = 'UPDATE characters SET '
+      . implode(', ', $assignments)
+      . ' WHERE charId = ' . $conn->quote($this->charId, 'integer');
+    $res =& $conn->exec($query);
+    if (PEAR::isError($res)) {
+      error_log($res->getMessage() . ', ' . $res->getDebugInfo());
+      throw new KeyedException('db-error');
+    }
+    $conn->disconnect();
+
+    // Reset dirty fields
+    $this->dirtyFields = array();
+
+    return $changedFields;
   }
 
   public function asArray() {
