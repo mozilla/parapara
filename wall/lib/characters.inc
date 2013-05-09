@@ -277,6 +277,18 @@ class Character {
     return getCurrentServer() . '/api/characters/' . $charId . '/email';
   }
 
+  public static function sanitizeWidthOrHeight($dimension) {
+    if (!is_numeric($dimension))
+      throw new KeyedException('bad-request', 'Invalid width/height');
+
+    $dimension = floatval($dimension);
+
+    if ($dimension <= 0 || $dimension >= 10000)
+      throw new KeyedException('bad-request', 'Invalid width/height');
+
+    return $dimension;
+  }
+
   public static function sanitizeX($x) {
     if (!is_numeric($x))
       throw new KeyedException('bad-request');
@@ -330,14 +342,8 @@ class Characters {
                       ? max(0.0, min(1.0, floatval(@$fields['groundOffset'])))
                       : 0.0;
     $fields['x'] = Character::sanitizeX(@$fields['x']);
-    foreach (array('width', 'height') as $field) {
-      if (!isset($fields[$field]) ||
-          !is_numeric($fields[$field]) ||
-          $fields[$field] <= 0 ||
-          $fields[$field] >= 10000) {
-        throw new KeyedException('bad-request', 'Invalid width/height');
-      }
-    }
+    $fields['width']  = Character::sanitizeWidthOrHeight(@$fields['width']);
+    $fields['height'] = Character::sanitizeWidthOrHeight(@$fields['height']);
     $date = gmdate('Y-m-d H:i:s');
     $x = floor($wall->getCurrentProgress() * 1000);
 
