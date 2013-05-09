@@ -286,7 +286,7 @@ class TestCharacters extends ParaparaTestCase {
     $config['mail']['transport'] = 'smtp';
     $this->assertPattern('/' . $char->charId . '\/email$/', @$char->emailUrl);
 
-    // Disable test
+    // Disable email
     unset($config['mail']['transport']);
     $this->assertFalse(isset($char->emailUrl));
   }
