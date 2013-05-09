@@ -167,6 +167,10 @@ class Character {
         $value = (bool)$value;
         break;
 
+      case 'x':
+        $value = self::sanitizeX($value);
+        break;
+
       default:
         throw new KeyedException('readonly-field');
     }
@@ -236,8 +240,6 @@ class Character {
   public function asArray() {
   }
 
-  // Set: active
-  
   public static function getCharactersPath() {
     global $config;
     $path = trim($config['characters']['path']);
@@ -273,6 +275,18 @@ class Character {
 
   public static function getEmailUrl($charId) {
     return getCurrentServer() . '/api/characters/' . $charId . '/email';
+  }
+
+  public static function sanitizeX($x) {
+    if (!is_numeric($x))
+      throw new KeyedException('bad-request');
+
+    $x = intval($x);
+
+    if ($x < 0 || $x > 1000)
+      throw new KeyedException('bad-request');
+
+    return $x;
   }
 }
 
@@ -315,6 +329,7 @@ class Characters {
     $fields['groundOffset'] = isset($fields['groundOffset'])
                       ? max(0.0, min(1.0, floatval(@$fields['groundOffset'])))
                       : 0.0;
+    $fields['x'] = Character::sanitizeX(@$fields['x']);
     foreach (array('width', 'height') as $field) {
       if (!isset($fields[$field]) ||
           !is_numeric($fields[$field]) ||
@@ -429,6 +444,7 @@ class Characters {
     $data['active']       = (bool)$data['active'];
     $data['wallId']       = intval($data['wallId']);
     $data['sessionId']    = intval($data['sessionId']);
+    $data['x']            = intval($data['x']);
     $data['groundOffset'] = floatval($data['groundOffset']);
     $data['width']        = floatval($data['width']);
     $data['height']       = floatval($data['height']);
