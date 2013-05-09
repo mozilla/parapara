@@ -4,13 +4,12 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 require_once(dirname(__FILE__) . '/../../lib/parapara.inc');
-require_once(dirname(__FILE__) . '/../ParaparaTestCase.php');
-require_once('simpletest/autorun.php');
+require_once(dirname(__FILE__) . '/ParaparaUnitTestCase.php');
 require_once('characters.inc');
 
 define("NOT_SET", "This parameter is not set");
 
-class TestCharacters extends ParaparaTestCase {
+class TestCharacters extends ParaparaUnitTestCase {
   protected $testFields =
     array(
       'title' => 'Test title',
@@ -18,20 +17,13 @@ class TestCharacters extends ParaparaTestCase {
       'groundOffset' => 0.1,
       'width' => 123.0,
       'height' => 456.0);
-  protected $testSvg  = '<svg><circle cx="50" cy="50" r="100"></svg>';
-  protected $testWall = null;
-  protected $invalidIds = array(0, -3, "abc", null);
 
   function __construct($name = false) {
     parent::__construct($name);
   }
 
   function setUp() {
-    parent::setUp();
-    list($designId) = $this->api->addDesign("test", array("test.jpg"));
-
-    $this->testWall = Walls::create("Test wall", $designId, "test@test.org");
-    $this->testWall->startSession(null, gmdate("Y-m-d H:i:s"));
+    parent::setUp("Don't create test character");
   }
 
   function tearDown() {
@@ -40,13 +32,6 @@ class TestCharacters extends ParaparaTestCase {
       $this->removeCharacter($this->createdCharacters[0]);
     }
 
-    // Remove test wall
-    // XXX Replace this with a method call once we have it
-    $this->api->removeWall($this->testWall->wallId);
-    $this->testWall = null;
-
-    // Clean up other resources
-    $this->api->cleanUp();
     parent::tearDown();
   }
 
@@ -796,6 +781,7 @@ class TestCharacters extends ParaparaTestCase {
     $this->assertTrue(!array_key_exists('wall', $array));
   }
 
+  // Array to track all created characters so we can clean them up
   protected $createdCharacters = array();
 
   // Utility wrapper that calls Characters::create and tracks the character so 

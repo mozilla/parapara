@@ -11,6 +11,7 @@ class UnitTestSuite extends TestSuite {
     parent::__construct();
     $this->TestSuite('Unit tests');
     $this->addFile(dirname(__FILE__) . '/TestCharacters.php');
+    $this->addFile(dirname(__FILE__) . '/TestCharacterEmail.php');
   }
 }
 ?>

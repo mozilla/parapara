@@ -6,11 +6,16 @@
 
 require_once("parapara.inc");
 require_once("exceptions.inc");
+require_once("template.inc");
+require_once("Mail.php");
 
 class CharacterEmailer {
   public static function isEmailEnabled() {
     global $config;
     return strlen(@$config['mail']['transport']) > 0;
+  }
+
+  public static function sendEmail($char, $address, $locale) {
   }
 }
 
