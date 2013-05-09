@@ -35,16 +35,19 @@ class CharacterEmailer {
     // adding it back in appears to be non-trivial since @ symbols can be
     // escaped).
 
-    // Make up email template
+    // Get email template
     $locale = trim($locale);
-    $templateFile = self::getTemplateFileForLocale($locale);
+    $templateFile = getTemplateFileForLocale('email_anim', $locale);
+    if (!$templateFile)
+      throw new KeyedException('server-error');
+
+    // Compile template
     $template = compileEmailTemplate($templateFile,
       array("url" => $char->galleryUrl,
             "author" => $char->author,
             "title" => $char->title));
     if (!$template)
       throw new KeyedException('server-error');
-
 
     // Prepare mail
     $headers['From']         = $config['mail']['from'];
@@ -71,17 +74,6 @@ class CharacterEmailer {
                 . $sendResult->getDebugInfo());
       throw new KeyedException('sending-failed');
     }
-  }
-
-  // XXX Move this to template.inc
-  protected static function getTemplateFileForLocale($locale) {
-    $reLangCode = "/^([[:alpha:]]{1,8})(-[[:alpha:]]{1,8})?$/";
-    if ($locale && preg_match($reLangCode, $locale)) {
-      $test = "email_anim." . $locale . ".inc";
-      if (getTemplateFile($test))
-        return $test;
-    }
-    return "email_anim.en-US.inc";
   }
 }
 

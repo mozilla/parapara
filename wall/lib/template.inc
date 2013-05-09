@@ -57,4 +57,20 @@ function getTemplateFile($file)
   return is_readable($file) && is_file($file) ? $file : null;
 }
 
+// Looks for a file matching <templateName>.<locale>.inc.
+// If it's not found, it tries <templateName>.en-US.inc
+function getTemplateFileForLocale($templateName, $locale) {
+  $reLangCode = "/^([[:alpha:]]{1,8})(-[[:alpha:]]{1,8})?$/";
+  $candidates = array();
+  if ($locale && preg_match($reLangCode, $locale)) {
+    $candidates[] = $templateName . '.' . $locale . '.inc';
+  }
+  $candidates[] = $templateName . '.en-US.inc';
+  foreach ($candidates as $candidate) {
+    if (getTemplateFile($candidate))
+      return $candidate;
+  }
+  return null;
+}
+
 ?>

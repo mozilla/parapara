@@ -83,4 +83,35 @@ class TestCharacterEmail extends ParaparaUnitTestCase {
     $this->assertTrue(
       strpos(@$message['body'], $this->testCharacter->author) !== false);
   }
+
+  function testBadLocale() {
+    // Send
+    CharacterEmailer::sendEmail($this->testCharacter, $this->testAddress,
+                                'abc', $this->testMailer);
+
+    // Check message was sent
+    $this->assertEqual(count($this->testMailer->sentMessages), 1);
+    $message = @$this->testMailer->sentMessages[0];
+    $this->assertTrue(strlen(@$message['body']) > 0);
+  }
+
+  function testGoodLocale() {
+    // Get default body
+    CharacterEmailer::sendEmail($this->testCharacter, $this->testAddress,
+                                null, $this->testMailer);
+
+    // Send with Japanese template
+    CharacterEmailer::sendEmail($this->testCharacter, $this->testAddress,
+                                'ja', $this->testMailer);
+
+    // Check messages were sent
+    $this->assertEqual(count($this->testMailer->sentMessages), 2);
+
+    // Compare bodies
+    $defaultMessage  = @$this->testMailer->sentMessages[0];
+    $japaneseMessage = @$this->testMailer->sentMessages[1];
+    $this->assertTrue(strlen(@$defaultMessage['body']) > 0);
+    $this->assertTrue(strlen(@$japaneseMessage['body']) > 0);
+    $this->assertNotEqual($defaultMessage, $japaneseMessage);
+  }
 }
