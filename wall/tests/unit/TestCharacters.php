@@ -280,7 +280,15 @@ class TestCharacters extends ParaparaTestCase {
 
   function testEmailUrl() {
     $char = $this->createCharacter();
+
+    // The email URL should only be set if email is enabled so make sure it is
+    global $config;
+    $config['mail']['transport'] = 'smtp';
     $this->assertPattern('/' . $char->charId . '\/email$/', @$char->emailUrl);
+
+    // Disable test
+    unset($config['mail']['transport']);
+    $this->assertFalse(isset($char->emailUrl));
   }
 
   function testGetById() {
