@@ -16,8 +16,8 @@ class TestCharacters extends ParaparaTestCase {
       'title' => 'Test title',
       'author' => 'Test author',
       'groundOffset' => 0.1,
-      'width' => 123,
-      'height' => 456);
+      'width' => 123.0,
+      'height' => 456.0);
   protected $testSvg  = '<svg><circle cx="50" cy="50" r="100"></svg>';
   protected $testWall = null;
   protected $invalidIds = array(0, -3, "abc", null);
@@ -57,14 +57,14 @@ class TestCharacters extends ParaparaTestCase {
     $this->assertIdLike(@$char->wallId, "Bad wall ID: %s");
     $this->assertIdLike(@$char->sessionId, "Bad session ID: %s");
 
-    $this->assertEqual(@$char->title, $this->testMetadata['title']);
-    $this->assertEqual(@$char->author, $this->testMetadata['author']);
-    $this->assertEqual(@$char->groundOffset,
+    $this->assertIdentical(@$char->title, $this->testMetadata['title']);
+    $this->assertIdentical(@$char->author, $this->testMetadata['author']);
+    $this->assertIdentical(@$char->groundOffset,
                        $this->testMetadata['groundOffset']);
-    $this->assertEqual(@$char->width, $this->testMetadata['width']);
-    $this->assertEqual(@$char->height, $this->testMetadata['height']);
+    $this->assertIdentical(@$char->width, $this->testMetadata['width']);
+    $this->assertIdentical(@$char->height, $this->testMetadata['height']);
     $this->assertPattern($this->dateRegEx, @$char->createDate);
-    $this->assertEqual(@$char->active, TRUE);
+    $this->assertIdentical(@$char->active, TRUE);
     $this->assertWithinMargin(@$char->x,
       floor($this->testWall->getCurrentProgress() * 1000), 10);
   }
@@ -92,25 +92,25 @@ class TestCharacters extends ParaparaTestCase {
   function testTitleTrimming() {
     $this->testMetadata['title'] = " 　abc ";
     $char = $this->createCharacter();
-    $this->assertEqual(@$char->title, "abc");
+    $this->assertIdentical(@$char->title, "abc");
   }
 
   function testTitleIsOptional() {
     $this->testMetadata['title'] = null;
     $char = $this->createCharacter();
-    $this->assertEqual(@$char->title, null);
+    $this->assertIdentical(@$char->title, null);
   }
 
   function testAuthorTrimming() {
     $this->testMetadata['author'] = " 　author ";
     $char = $this->createCharacter();
-    $this->assertEqual(@$char->author, "author");
+    $this->assertIdentical(@$char->author, "author");
   }
 
   function testAuthorOptional() {
     $this->testMetadata['author'] = null;
     $char = $this->createCharacter();
-    $this->assertEqual(@$char->author, null);
+    $this->assertIdentical(@$char->author, null);
   }
 
   function testGroundOffset() {
@@ -118,22 +118,22 @@ class TestCharacters extends ParaparaTestCase {
     $metadata = $this->testMetadata;
     unset($metadata['groundOffset']);
     $char = $this->createCharacter($metadata);
-    $this->assertEqual(@$char->groundOffset, 0);
+    $this->assertIdentical(@$char->groundOffset, 0.0);
 
     // Negative
     $metadata['groundOffset'] = -0.5;
     $char = $this->createCharacter($metadata);
-    $this->assertEqual(@$char->groundOffset, 0);
+    $this->assertIdentical(@$char->groundOffset, 0.0);
 
     // > 1
     $metadata['groundOffset'] = 2.5;
     $char = $this->createCharacter($metadata);
-    $this->assertEqual(@$char->groundOffset, 1);
+    $this->assertIdentical(@$char->groundOffset, 1.0);
 
     // Non float
     $metadata['groundOffset'] = 'abc';
     $char = $this->createCharacter($metadata);
-    $this->assertEqual(@$char->groundOffset, 0);
+    $this->assertIdentical(@$char->groundOffset, 0.0);
   }
 
   function testWidthHeightRequired() {
@@ -178,7 +178,7 @@ class TestCharacters extends ParaparaTestCase {
     $expectedFile = Character::getFileForId($char->charId);
     $this->assertTrue(is_readable($expectedFile),
                       "SVG file not found at $expectedFile");
-    $this->assertEqual(@file_get_contents($expectedFile), $this->testSvg);
+    $this->assertIdentical(@file_get_contents($expectedFile), $this->testSvg);
   }
 
   function testFileConfig() {
@@ -190,7 +190,7 @@ class TestCharacters extends ParaparaTestCase {
     $expectedFile = Character::getFileForId($char->charId);
     $this->assertTrue(is_readable($expectedFile),
                       "SVG file not found at $expectedFile");
-    $this->assertEqual(@file_get_contents($expectedFile), $this->testSvg);
+    $this->assertIdentical(@file_get_contents($expectedFile), $this->testSvg);
   }
 
   // XXX It would be good to test when the file can't be written but I can't 
@@ -286,7 +286,7 @@ class TestCharacters extends ParaparaTestCase {
   function testGetById() {
     $createdChar = $this->createCharacter();
     $fetchedChar = Characters::getById($createdChar->charId);
-    $this->assertEqual($createdChar, $fetchedChar);
+    $this->assertIdentical($createdChar, $fetchedChar);
   }
 
   function testGetBadId() {
@@ -311,7 +311,7 @@ class TestCharacters extends ParaparaTestCase {
 
     // Check initial state
     $chars = Characters::getBySession($wallId, $sessionId);
-    $this->assertEqual(count($chars), 0);
+    $this->assertIdentical(count($chars), 0);
 
     // Add characters
     $charA = $this->createCharacter();
@@ -320,10 +320,10 @@ class TestCharacters extends ParaparaTestCase {
 
     // Check new state
     $chars = Characters::getBySession($wallId, $sessionId);
-    $this->assertEqual(count($chars), 3);
-    $this->assertEqual($chars[0], $charA);
-    $this->assertEqual($chars[1], $charB);
-    $this->assertEqual($chars[2], $charC);
+    $this->assertIdentical(count($chars), 3);
+    $this->assertIdentical($chars[0], $charA);
+    $this->assertIdentical($chars[1], $charB);
+    $this->assertIdentical($chars[2], $charC);
   }
 
   function testBadSession() {
@@ -359,7 +359,7 @@ class TestCharacters extends ParaparaTestCase {
 
     // Check initial state
     $chars = Characters::getByWall($wallId);
-    $this->assertEqual(count($chars), 0);
+    $this->assertIdentical(count($chars), 0);
 
     // Add characters to first session
     $sessionA = $this->testWall->latestSession['sessionId'];
@@ -378,12 +378,12 @@ class TestCharacters extends ParaparaTestCase {
 
     // Check new state
     $chars = Characters::getByWall($wallId);
-    $this->assertEqual(count($chars), 2);
-    $this->assertEqual(count(@$chars[$sessionA]), 2);
-    $this->assertEqual(@$chars[$sessionA][0], $charAA);
-    $this->assertEqual(@$chars[$sessionA][1], $charAB);
-    $this->assertEqual(count(@$chars[$sessionB]), 1);
-    $this->assertEqual(@$chars[$sessionB][0], $charBA);
+    $this->assertIdentical(count($chars), 2);
+    $this->assertIdentical(count(@$chars[$sessionA]), 2);
+    $this->assertIdentical(@$chars[$sessionA][0], $charAA);
+    $this->assertIdentical(@$chars[$sessionA][1], $charAB);
+    $this->assertIdentical(count(@$chars[$sessionB]), 1);
+    $this->assertIdentical(@$chars[$sessionB][0], $charBA);
   }
 
   function testBadWall() {
@@ -509,15 +509,15 @@ class TestCharacters extends ParaparaTestCase {
     $result = Characters::deleteBySession($wallId, $sessionA);
     $this->assertIdentical($result, 2);
     $chars = Characters::getBySession($wallId, $sessionA);
-    $this->assertEqual(count($chars), 0);
+    $this->assertIdentical(count($chars), 0);
     $chars = Characters::getBySession($wallId, $sessionB);
-    $this->assertEqual(count($chars), 1);
+    $this->assertIdentical(count($chars), 1);
 
     // Delete from second session
     $result = Characters::deleteBySession($wallId, $sessionB);
     $this->assertIdentical($result, 1);
     $chars = Characters::getBySession($wallId, $sessionB);
-    $this->assertEqual(count($chars), 0);
+    $this->assertIdentical(count($chars), 0);
   }
 
   function testDeleteBadSession() {
@@ -579,7 +579,7 @@ class TestCharacters extends ParaparaTestCase {
 
     // Check database was not changed
     $chars = Characters::getBySession($wallId, $sessionId);
-    $this->assertEqual(count($chars), 3);
+    $this->assertIdentical(count($chars), 3);
 
     // Unlock and delete properly
     flock($fp, LOCK_UN);
@@ -612,7 +612,7 @@ class TestCharacters extends ParaparaTestCase {
 
     // Check database is up-to-date
     $chars = Characters::getBySession($wallId, $sessionId);
-    $this->assertEqual(count($chars), 0);
+    $this->assertIdentical(count($chars), 0);
   }
 
   function testDeleteBySessionKeepFiles() {
@@ -635,7 +635,7 @@ class TestCharacters extends ParaparaTestCase {
 
     // Check database is up-to-date
     $chars = Characters::getBySession($wallId, $sessionId);
-    $this->assertEqual(count($chars), 0);
+    $this->assertIdentical(count($chars), 0);
 
     // Tidy up
     unlink(Character::getFileForId($charA->charId));
@@ -662,7 +662,7 @@ class TestCharacters extends ParaparaTestCase {
     $result = Characters::deleteByWall($wallId);
     $this->assertIdentical($result, 3);
     $chars = Characters::getByWall($wallId);
-    $this->assertEqual(count($chars), 0);
+    $this->assertIdentical(count($chars), 0);
   }
 
   function testDeleteBadWall() {
@@ -695,6 +695,9 @@ class TestCharacters extends ParaparaTestCase {
 
     // Tidy up
     unlink($file);
+  }
+
+  function testSetActive() {
   }
 
   // We don't bother testing Character::deleteByWall with regards to missing 

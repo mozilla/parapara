@@ -348,9 +348,12 @@ class Characters {
     }
 
     // Process values that need special handling
-    $data['active']    = (bool)$data['active'];
-    $data['wallId']    = intval($data['wallId']);
-    $data['sessionId'] = intval($data['sessionId']);
+    $data['active']       = (bool)$data['active'];
+    $data['wallId']       = intval($data['wallId']);
+    $data['sessionId']    = intval($data['sessionId']);
+    $data['groundOffset'] = floatval($data['groundOffset']);
+    $data['width']        = floatval($data['width']);
+    $data['height']       = floatval($data['height']);
 
     // Create character
     return new Character(intval($row['charid']), $data);
