@@ -757,11 +757,18 @@ class Walls {
   }
 
   public static function getById($wallId, $email = null) {
-    $wallId = intval($wallId);
+    return self::getWall($wallId, null, $email);
+  }
 
+  public static function getByPath($wallPath, $email = null) {
+    return self::getWall(null, $wallPath, $email);
+  }
+
+  protected static function getWall($wallId, $wallPath, $email) {
+    // Prepare query
     $conn =& getDbConnection();
-    $row =& $conn->queryRow(
-        'SELECT walls.designId'
+    $query =
+        'SELECT walls.wallId, walls.designId'
       . ' ,eventName, eventDescr, eventLocation, eventType, eventFinish'
       . ' ,urlPath, editorShortUrl'
       . ' ,walls.duration, galleryDisplay, passcode'
@@ -775,12 +782,17 @@ class Walls {
       . ' LEFT JOIN sessions ON'
       . '   sessions.sessionSerial = '
       . '   (SELECT MAX(sessionSerial) FROM sessions'
-      . '    WHERE sessions.wallId = ' . $conn->quote($wallId, 'integer') . ')'
-      . ' WHERE walls.wallId = ' . $conn->quote($wallId, 'integer')
-      . ' LIMIT 1',
-      null,
-      MDB2_FETCHMODE_ASSOC
-    );
+      . '    WHERE sessions.wallId = walls.wallId)'
+      . ' WHERE ';
+    if ($wallId) {
+      $query .= 'walls.wallId = ' . $conn->quote($wallId, 'integer');
+    } else {
+      $query .= 'walls.urlPath = ' . $conn->quote($wallPath, 'text');
+    }
+    $query .= ' LIMIT 1';
+
+    // Run query
+    $row =& $conn->queryRow($query, null, MDB2_FETCHMODE_ASSOC);
     $conn->disconnect();
     if (PEAR::isError($row)) {
       error_log($row->getMessage() . ', ' . $row->getDebugInfo());
@@ -793,6 +805,9 @@ class Walls {
 
     // Check auth
     $hasAccess = $email == $row['owneremail'];
+
+    // Get wall ID in case this is a look up by wall path
+    $wallId = intval($row['wallid']);
 
     // Public information
     $metadata["name"]           = $row['eventname'];

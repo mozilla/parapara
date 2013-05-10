@@ -27,7 +27,7 @@ class GetWallTestCase extends APITestCase {
     // Check it fails if we're logged out
     $wall = $this->api->getWall($wallId);
     $this->assertEqual(@$wall['error_key'], 'logged-out',
-                       "Got wall whilst logged out.");
+                       "Got wall whilst logged out: %s");
   }
 
   function testGetWall() {
@@ -38,7 +38,7 @@ class GetWallTestCase extends APITestCase {
     // Check it succeeds
     $wall = $this->api->getWall($wallId);
     $this->assertTrue(!array_key_exists('error_key', $wall),
-                      "Failed to get wall even though logged in.");
+                      "Failed to get wall even though logged in");
 
     // Check name
     $this->assertTrue(@$wall['name'] === 'Test wall',
@@ -65,6 +65,20 @@ class GetWallTestCase extends APITestCase {
     // Check thumbnail
     $this->assertEqual(@substr($wall['thumbnail'], -strlen("test.jpg")),
                        "test.jpg");
+  }
+
+  function testGetWallByPath() {
+    // Create wall
+    $createdWall = $this->api->createWall('Test wall', $this->testDesignId);
+
+    // Get wall
+    $fetchedWall = $this->api->getWall('test-wall');
+    $this->assertTrue(!array_key_exists('error_key', $fetchedWall),
+                      "Failed to get wall using path");
+    $this->assertIdentical(@$fetchedWall['wallId'], @$createdWall['wallId']);
+
+    // Check session information is also loaded correctly
+    $this->assertIdentical(@$fetchedWall['status'], @$createdWall['status']);
   }
 
   function testNotFound() {

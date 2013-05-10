@@ -124,6 +124,9 @@ class ParaparaAPI {
   }
 
   function removeWall($wallId) {
+    // XXX When we have an API for this, allow providing a wall path as 
+    // a parameter too
+
     // Remove connected sessions
     $query = 'DELETE FROM sessions WHERE wallId = ' . $wallId;
     $res =& $this->db->query($query);
@@ -144,17 +147,17 @@ class ParaparaAPI {
     }
   }
 
-  function getWall($wallId) {
-    // Make request
+  function getWall($wallIdOrPath) {
     global $config;
-    $url = $config['test']['wall_server'] . 'api/walls/' . $wallId;
+    $url = $config['test']['wall_server'] . 'api/walls/'
+         . (is_int($wallIdOrPath) ? $wallIdOrPath : "byname/$wallIdOrPath");
     return $this->getJson($url);
   }
 
-  function updateWall($wallId, $payload) {
-    // Make request
+  function updateWall($wallIdOrPath, $payload) {
     global $config;
-    $url = $config['test']['wall_server'] . 'api/walls/' . $wallId;
+    $url = $config['test']['wall_server'] . 'api/walls/'
+         . (is_int($wallIdOrPath) ? $wallIdOrPath : "byname/$wallIdOrPath");
     return $this->putJson($url, $payload);
   }
 
@@ -215,7 +218,8 @@ class ParaparaAPI {
     // Make request
     global $config;
     $url = $config['test']['wall_server'] . 'api/walls/'
-         . $wallIdOrPath . '/characters';
+         . (is_int($wallIdOrPath) ? $wallIdOrPath : "byname/$wallIdOrPath")
+         . '/characters';
     $char = $this->postJson($url, $payload);
 
     // Track wall so we can clean it up

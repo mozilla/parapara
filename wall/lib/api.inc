@@ -36,4 +36,31 @@ function getRequestData() {
   return $json;
 }
 
+// Looks for either wallId or wallName and returns:
+//
+// * the corresponding Wall object if found
+// * null if either a wallId or wallName was specified but it wasn't found
+// * "Not specified" if neither wallId or wallName were specified
+function getRequestedWall($email = null) {
+  // Sanitize input
+  $wallId = toIntOrNull(@$_REQUEST['wallId']);
+  $wallName = !isset($_REQUEST['wallName']) ||
+              is_null($_REQUEST['wallName']) ||
+              strlen(trim($_REQUEST['wallName'])) == 0
+            ? null
+            : trim($_REQUEST['wallName']);
+
+  // Check if anything was specified
+  if ($wallId === null && $wallName === null)
+    return "Not specified";
+
+  // Try the ID first since it's faster and easier
+  $wall = Walls::getById($wallId, $email);
+  if ($wall)
+    return $wall;
+
+  // Try the path
+  return Walls::getByPath($wallName, $email);
+}
+
 ?>

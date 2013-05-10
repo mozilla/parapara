@@ -15,21 +15,18 @@ header('Content-Type: application/json; charset=UTF-8');
 $email = getUserEmail();
 
 // Prepare common parameters
-$wallId    = toIntOrNull(@$_REQUEST['wallId']);
-$sessionId = toIntOrNull(@$_REQUEST['sessionId']);
-if (!$wallId)
+$wall = getRequestedWall($email);
+if ($wall === "Not specified")
   bailWithError('bad-request');
+if ($wall === null)
+  bailWithError('not-found');
+$sessionId = toIntOrNull(@$_REQUEST['sessionId']);
 
 // If there is no sessionId, look for it in the request data
 if (!$sessionId) {
   $data = getRequestData();
   $sessionId = toIntOrNull(@$data['sessionId']);
 }
-
-// Get wall
-$wall = Walls::getById($wallId, $email);
-if ($wall === null)
-  bailWithError('not-found');
 
 // Prepare change timestamp
 $currentdatetime = gmdate("Y-m-d H:i:s");

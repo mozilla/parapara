@@ -15,7 +15,7 @@ header('Content-Type: application/json; charset=UTF-8');
 $email = getUserEmail();
 
 // Prepare common parameters
-$wallId = toIntOrNull(@$_REQUEST['id']);
+$wall = getRequestedWall($email);
 
 // Parse input
 $data = getRequestData();
@@ -36,11 +36,10 @@ switch ($_SERVER['REQUEST_METHOD']) {
     break;
 
   case 'GET':
-    if ($wallId === null) {
+    if ($wall === "Not specified") {
       // XXX Return the list of walls here
       bailWithError('bad-request');
     }
-    $wall = Walls::getById($wallId, $email);
     if ($wall === null)
       bailWithError('not-found');
 
@@ -62,11 +61,8 @@ switch ($_SERVER['REQUEST_METHOD']) {
     break;
 
   case 'PUT':
-    if ($wallId === null)
+    if ($wall === "Not specified")
       bailWithError('bad-request');
-
-    // Get wall
-    $wall = Walls::getById($wallId, $email);
     if ($wall === null)
       bailWithError('not-found');
 
