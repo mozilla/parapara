@@ -38,8 +38,6 @@ switch ($_SERVER['REQUEST_METHOD']) {
     break;
 
   case 'POST':
-    if (!$sessionId)
-      bailWithError('bad-request');
     // Create new session
     $madeChange = $wall->startSession($sessionId, $currentdatetime);
     break;
