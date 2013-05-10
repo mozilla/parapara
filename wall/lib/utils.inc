@@ -16,4 +16,13 @@ function toIntOrNull($intLike) {
   return !isset($intLike) || is_null($intLike) ? null : intval($intLike);
 }
 
+function trimTrailingSlash($path) {
+  $path = rtrim($path);
+  $lastChar = substr($path, -1);
+  if ($lastChar == '/' || $lastChar == '\\') {
+    $path = substr($path, 0, -1);
+  }
+  return $path;
+}
+
 ?>

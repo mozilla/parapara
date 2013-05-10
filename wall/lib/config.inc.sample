@@ -30,7 +30,8 @@ $config = array(
     'publish_url' => true
   ),
   'templates' => array(
-    'path' => '../../templates/'
+    // Path to templates folder relative to 'wall' (i.e. the parent of 'public')
+    'path' => 'templates'
   ),
   'bitly' => array(
     'login' => '',

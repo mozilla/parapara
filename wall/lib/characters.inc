@@ -263,12 +263,7 @@ class Character {
 
   public static function getCharactersPath() {
     global $config;
-    $path = trim($config['characters']['path']);
-    $lastChar = substr($path, -1);
-    if ($lastChar == '/' || $lastChar == '\\') {
-      $path = substr($path, 0, -1);
-    }
-    return $path;
+    return trimTrailingSlash($config['characters']['path']);
   }
 
   public static function getCharactersFilePath() {

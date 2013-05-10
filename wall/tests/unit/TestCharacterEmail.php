@@ -44,7 +44,7 @@ class TestCharacterEmail extends ParaparaUnitTestCase {
         null, $this->testMailer);
     } catch (KeyedException $e) {
       $this->fail("Failed to send mail with manual mailer, exception: "
-                  . $e->getKey());
+                  . $e->getKey() . ", " . $e->getMessage());
     }
   }
 

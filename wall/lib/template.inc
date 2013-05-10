@@ -52,9 +52,11 @@ function compileEmailTemplate($file, $vars)
 function getTemplateFile($file)
 {
   global $config;
-  $file = $config['templates']['path'] . $file;
+  $file = realpath(dirname(__FILE__) . '/../'
+                   . trimTrailingSlash($config['templates']['path'])
+                   . '/' . $file);
   // Check file exists and is readable
-  return is_readable($file) && is_file($file) ? $file : null;
+  return is_readable($file) ? $file : null;
 }
 
 // Looks for a file matching <templateName>.<locale>.inc.

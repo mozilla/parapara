@@ -39,7 +39,7 @@ class CharacterEmailer {
     $locale = trim($locale);
     $templateFile = getTemplateFileForLocale('email_anim', $locale);
     if (!$templateFile)
-      throw new KeyedException('server-error');
+      throw new KeyedException('server-error', "No template file");
 
     // Compile template
     $template = compileEmailTemplate($templateFile,
@@ -47,7 +47,7 @@ class CharacterEmailer {
             "author" => $char->author,
             "title" => $char->title));
     if (!$template)
-      throw new KeyedException('server-error');
+      throw new KeyedException('server-error', "Failed to compile template");
 
     // Prepare mail
     $headers['From']         = $config['mail']['from'];
