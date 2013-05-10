@@ -143,13 +143,6 @@ class SessionsTestCase extends APITestCase {
                       "Started new session whilst logged out.");
   }
 
-  function testBadRequest() {
-    $wall = $this->api->createWall('Test wall', $this->testDesignId);
-    $sessionId = $wall['latestSession']['sessionId'];
-    $response = $this->api->startSession($wall['wallId'], null);
-    $this->assertEqual(@$response['error_key'], 'bad-request');
-  }
-
   function testParallelStartNew() {
     // Create wall
     $wall = $this->api->createWall('Test wall', $this->testDesignId);
