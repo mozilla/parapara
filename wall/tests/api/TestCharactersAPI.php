@@ -7,7 +7,7 @@ require_once(dirname(__FILE__) . '/../../lib/parapara.inc');
 require_once(dirname(__FILE__) . '/APITestCase.php');
 require_once('simpletest/autorun.php');
 
-class TestCharacters extends APITestCase {
+class TestCharactersAPI extends APITestCase {
   function __construct($name = false) {
     parent::__construct($name);
   }
