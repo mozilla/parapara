@@ -37,6 +37,11 @@ switch ($_SERVER['REQUEST_METHOD']) {
     $svg    = $data["svg"];
     $char   = Characters::create($svg, $fields, $wall->wallId);
     $result = $char->asArray();
+
+    // Hide email URL field if emailing is not available
+    if (!CharacterEmailer::isEmailEnabled()) {
+      unset($result['emailUrl']);
+    }
     break;
 
   default:

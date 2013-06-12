@@ -83,13 +83,15 @@ function addCharacter($wallId, $svg, $metadata) {
 }
 
 class Character {
-  private $_charId     = null;
-  private $_wall       = null;
-  private $fields      = null;
-  private $dirtyFields = array();
+  private $_charId          = null;
+  private $_wall            = null;
+  private $_galleryUrlShort = null;
+  private $fields           = null;
+  private $dirtyFields      = array();
 
   static private $virtualFields =
-    array('rawUrl','galleryUrl', 'emailUrl', 'previewUrl', 'wall');
+    array('rawUrl','galleryUrl', 'galleryUrlShort',
+          'emailUrl', 'previewUrl', 'wall');
 
   static private $readOnlyFields = array('charId');
 
@@ -120,6 +122,10 @@ class Character {
       case 'galleryUrl':
         return Character::getGalleryUrl($this->_charId);
 
+      case 'galleryUrlShort':
+        // isset above will fill in _galleryUrlShort if possible
+        return $this->_galleryUrlShort;
+
       case 'previewUrl':
         return Character::getPreviewUrl($this->_charId);
 
@@ -146,6 +152,13 @@ class Character {
       case 'galleryUrl':
       case 'previewUrl':
         return true;
+
+      case 'galleryUrlShort':
+        if (!$this->_galleryUrlShort) {
+          $this->_galleryUrlShort =
+            Character::getShortGalleryUrl($this->_charId);
+        }
+        return $this->_galleryUrlShort != null;
 
       case 'emailUrl':
         return CharacterEmailer::isEmailEnabled();
@@ -251,6 +264,9 @@ class Character {
 
     // Fields we don't want to export
     $keysToDrop = array('wall');
+    if (!isset($this->galleryUrlShort)) {
+      $keysToDrop[] = 'galleryUrlShort';
+    }
     
     $result = array();
     foreach ($keys as $key) {
@@ -282,6 +298,12 @@ class Character {
 
   public static function getGalleryUrl($charId) {
     return fileToUrl(self::getCharactersFilePath()) . '/' . $charId;
+  }
+
+  public static function getShortGalleryUrl($charId) {
+    $long  = self::getGalleryUrl($charId);
+    $short = shortenUrl($long);
+    return $long == $short ? null : $short;
   }
 
   public static function getPreviewUrl($charId) {

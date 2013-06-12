@@ -145,11 +145,10 @@ ParaPara.send = function(uploadPath, successCallback, failureCallback, metadata)
   ParaPara.postRequest(uploadPath, payload, successCallback, failureCallback);
 }
 
-ParaPara.sendEmail = function(email, animationId, locale, uploadPath,
+ParaPara.sendEmail = function(address, url, locale,
                               successCallback, failureCallback) {
-  var payload = { address: email, id: animationId, locale: locale };
-  ParaPara.postRequest(uploadPath, payload, successCallback,
-                       failureCallback);
+  var payload = { address: address, locale: locale };
+  ParaPara.postRequest(url, payload, successCallback, failureCallback);
 }
 
 ParaPara.fixPrecision = function(x) { return x.toFixed(2); }
@@ -897,7 +896,7 @@ ParaPara.Animator.prototype.getDecoratedBbox = function(frame) {
 
   // Calculate max stroke width
   var maxStrokeWidth = 0;
-  var geometryNodes = frame.querySelectorAll("path, circle");
+  var geometryNodes = frame.querySelectorAll("path");
   for (var i = 0; i < geometryNodes.length; i++) {
     var strokeWidth =
       parseInt(window.getComputedStyle(geometryNodes[i]).strokeWidth);

@@ -145,11 +145,10 @@ ParaPara.send = function(uploadPath, successCallback, failureCallback, metadata)
   ParaPara.postRequest(uploadPath, payload, successCallback, failureCallback);
 }
 
-ParaPara.sendEmail = function(email, animationId, locale, uploadPath,
+ParaPara.sendEmail = function(address, url, locale,
                               successCallback, failureCallback) {
-  var payload = { address: email, id: animationId, locale: locale };
-  ParaPara.postRequest(uploadPath, payload, successCallback,
-                       failureCallback);
+  var payload = { address: address, locale: locale };
+  ParaPara.postRequest(url, payload, successCallback, failureCallback);
 }
 
 ParaPara.fixPrecision = function(x) { return x.toFixed(2); }

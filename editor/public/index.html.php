@@ -137,7 +137,6 @@
             <div class="field-note" id="spam-filter-note"
               data-l10n-id="spam-filter-note"
               data-l10n-args='{ "send.domain": "mozilla-japan.org" }'></div>
-            <input type="hidden" name="animation-id">
             <input type="hidden" name="email-url">
           </form>
           <div id="animation-link">

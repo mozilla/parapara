@@ -22,8 +22,7 @@ EditorUI.LONG_PRESS_DELAY_MS = 350;
 EditorUI.LONG_PRESS_RATE_MS  = 120;
 
 // API paths
-EditorUI.UPLOAD_SERVER   = "<?php echo $config['editor']['upload_server']; ?>";
-EditorUI.UPLOAD_SCRIPT   = "upload";
+EditorUI.UPLOAD_SERVER = "<?php echo $config['editor']['upload_server']; ?>";
 
 // -------------- Initialisation -----------
 
@@ -195,7 +194,8 @@ EditorUI.send = function() {
     EditorUI.sendFail('no-access');
     return;
   }
-  var uploadPath = [server,'wall',wallName,'upload'].join('/');
+  var uploadPath =
+    [server,'api','walls','byname',wallName,'characters'].join('/');
 
   ParaPara.send(uploadPath, EditorUI.sendSuccess, EditorUI.sendFail, metadata);
 }
@@ -210,7 +210,10 @@ EditorUI.getRadioValue = function(radio) {
 
 EditorUI.sendSuccess = function(response) {
   EditorUI.displayNote("noteSendingComplete");
-  if (response.url) {
+  var url = response.galleryUrlShort
+          ? response.galleryUrlShort
+          : response.galleryUrl;
+  if (url) {
     // If we have a URL, prepare the sharing screen to be shown after the
     // success screen
 
@@ -218,8 +221,7 @@ EditorUI.sendSuccess = function(response) {
     if (response.emailUrl) {
       EditorUI.clearEmailForm();
       var form = document.forms["email-form"];
-      form['animation-id'].value = response.id;
-      form['email-url'].value    = response.emailUrl;
+      form['email-url'].value = response.emailUrl;
     } else {
       EditorUI.hideEmailForm();
     }
@@ -229,18 +231,18 @@ EditorUI.sendSuccess = function(response) {
 
     // Prepare QR code
     var qr = new QRCode(0, QRCode.QRErrorCorrectLevel.M);
-    qr.addData(response.url);
+    qr.addData(url);
     qr.make();
     var image = qr.getImage(4 /*cell size*/);
     parts.push("<img src=\"" + image.data +
                "\" width=\"" + image.width +
                "\" height\"" + image.height +
-               "\" alt=\"" + response.url + "\">");
+               "\" alt=\"" + url + "\">");
 
     // We deliberately DON'T wrap the URL in an <a> element since we don't
     // really want users following the link and navigating away from the editor.
     // It's just there so they can copy it down into a notepad as a last resort.
-    parts.push("<div class=\"url\">" + response.url + "</div>");
+    parts.push("<div class=\"url\">" + url + "</div>");
 
     // Set the link block
     var linkBlock = document.getElementById("animation-link");
@@ -368,29 +370,18 @@ EditorUI.hideEmailForm = function() {
 EditorUI.sendEmail = function() {
   EditorUI.clearEmailStatus();
 
-  // If no email, ignore
-  var emailField = document.forms["email-form"].email;
-  var email = emailField.value.trim();
-  if (!email)
+  // If no address, ignore
+  var addressField = document.forms["email-form"].email;
+  var address = addressField.value.trim();
+  if (!address)
     return;
 
   // Email address validation: For UAs that support HTML5 form validation, we
   // won't get this far if the address isn't valid. For other UAs, we'll just
   // rely on the server to do the validation.
 
-  // Get ID for animation (stored in a hidden field)
-  // (We send the ID rather than the animation URL so that people don't
-  // commandeer the server to send arbitrary URLs)
-  var animationId =
-    parseInt(document.forms["email-form"].elements["animation-id"].value);
-  if (!animationId) {
-    EditorUI.setEmailStatus("failed");
-    return;
-  }
-
   // Get the URL to send to
-  var emailUrl =
-    document.forms["email-form"].elements["email-url"].value;
+  var emailUrl = document.forms["email-form"].elements["email-url"].value;
   if (!emailUrl) {
     // Generally we should hide the email field if there is no URL to send to so
     // if we're reaching here, something has gone unexpectedly wrong.
@@ -405,8 +396,7 @@ EditorUI.sendEmail = function() {
 
   // Send away
   EditorUI.setEmailStatus("waiting");
-  ParaPara.sendEmail(email, animationId, document.webL10n.getLanguage(),
-                     emailUrl,
+  ParaPara.sendEmail(address, emailUrl, document.webL10n.getLanguage(),
                      EditorUI.sendEmailSuccess, EditorUI.sendEmailFail);
 }
 
