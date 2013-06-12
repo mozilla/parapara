@@ -17,6 +17,7 @@ class APITestSuite extends TestSuite {
     $this->addFile(dirname(__FILE__) . '/TestSessions.php');
     $this->addFile(dirname(__FILE__) . '/TestUserSummary.php');
     $this->addFile(dirname(__FILE__) . '/TestCharactersAPI.php');
+    $this->addFile(dirname(__FILE__) . '/TestEmailAPI.php');
   }
 }
 ?>

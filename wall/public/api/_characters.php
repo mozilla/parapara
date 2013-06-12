@@ -5,7 +5,6 @@
 
 require_once('../../lib/parapara.inc');
 require_once('api.inc');
-require_once('login.inc');
 require_once('utils.inc');
 require_once('characters.inc');
 

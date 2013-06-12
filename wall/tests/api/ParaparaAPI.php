@@ -241,6 +241,14 @@ class ParaparaAPI {
       array_splice($this->createdCharacters, $pos, 1);
     }
   }
+  
+  // Unlike other methods in this class in this case we take the URL as 
+  // a parameter. This is because the create character action returns an email 
+  // URL (so the editor is a little less coupled to the backend) and we want to 
+  // test that the returned URL is actually correct.
+  function emailCharacterByUrl($url, $fields) {
+    return $this->postJson($url, $fields);
+  }
 
   /* ----------------------------------------------------------------------
    *

@@ -6,10 +6,10 @@
 
 // Common utility functions for XHR APIs
 
-function bailWithError($code, $detail = NULL) {
+function bailWithError($code, $detail = null) {
   $result = "{\"error_key\":\"$code\"";
-  if ($detail) {
-    $result .= ", " .  "\"error_detail\":\"$detail\"";
+  if ($detail !== null) {
+    $result .= ", \"error_detail\":\"$detail\"";
   }
   $result .= "}\n\n";
   print $result;
