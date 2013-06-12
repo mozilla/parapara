@@ -1,0 +1,4 @@
+Options       ExecCGI +FollowSymLinks Includes -MultiViews
+RewriteEngine on
+RewriteRule ^(\d+)$ gallery.php?id=$1
+RewriteRule ^(\d+)/preview.svg$ preview.php?id=$1
