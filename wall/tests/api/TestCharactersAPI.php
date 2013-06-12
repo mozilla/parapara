@@ -20,12 +20,19 @@ class TestCharactersAPI extends APITestCase {
     $this->api->login();
     $wall = $this->api->createWall('Test wall', $this->testDesignId);
 
-    // Don't need to be logged in, in order to create a character
+    // Don't need to be logged-in in order to create a character
     $this->api->logout();
-    /*
     $char = $this->api->createCharacter($wall['wallId']);
     $this->assertTrue(@$char['charId'] > 0, "Failed to create character");
-     */
+
+    // Try fetching the character
+    $contents = file_get_contents($char['rawUrl']);
+    $this->assertTrue($contents !== FALSE, "Failed to load character from URL: "
+                      . $char['rawUrl']);
+    if ($contents) {
+      $this->assertTrue(strpos($contents, "<svg") !== FALSE,
+         "Saved SVG doesn't look like SVG: $contents");
+    }
   }
 }
 ?>

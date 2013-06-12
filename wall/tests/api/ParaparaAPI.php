@@ -5,6 +5,7 @@
 
 require_once(dirname(__FILE__) . '/../../lib/parapara.inc');
 require_once('walls.inc');
+require_once('characters.inc');
 require_once('MDB2.php');
 
 /*
@@ -212,8 +213,8 @@ class ParaparaAPI {
 
   function createCharacter($wallIdOrPath, $fields = null, $svg = null) {
     // Prepare payload
-    $payload['fields'] = $fields || self::$testCharacterFields;
-    $payload['svg']    = $svg || self::$testSvg;
+    $payload['metadata'] = $fields ? $fields : self::$testCharacterFields;
+    $payload['svg']      = $svg ? $svg : self::$testSvg;
 
     // Make request
     global $config;
@@ -222,7 +223,7 @@ class ParaparaAPI {
          . '/characters';
     $char = $this->postJson($url, $payload);
 
-    // Track wall so we can clean it up
+    // Track character so we can clean it up
     if (is_array($char) && !array_key_exists('error_key', $char) &&
         array_key_exists('charId', $char)) {
       array_push($this->createdCharacters, $char['charId']);
