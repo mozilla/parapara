@@ -11,6 +11,7 @@ require_once("UriUtils.inc");
 require_once("designs.inc");
 require_once("users.inc");
 require_once("utils.inc");
+require_once("characters.inc");
 
 // When updating this, be sure to update login-controller.js as well
 define("WALLMAKER_SESSION_NAME", "WMSESSID");
@@ -547,7 +548,7 @@ class Wall {
     return true;
   }
 
-  public function getSessions() {
+  public function getSessions($includeCharacters) {
     // Just as we currently disallow access to wall info via the API to 
     // strangers we do the same for session information.
     //
@@ -572,11 +573,24 @@ class Wall {
     $conn->setFetchMode(MDB2_FETCHMODE_ASSOC);
     while ($row = $res->fetchRow()) {
       array_push($result, 
-        array('sessionId' => $row['sessionid'],
+        array('sessionId' => intval($row['sessionid']),
               'start' => $row['start'],
               'end' => $row['end']));
     }
     $conn->disconnect();
+
+    // Insert characters if required
+    if ($includeCharacters == "Include characters") {
+      $characters = Characters::getByWall($this->wallId);
+      foreach ($result as &$session) {
+        $sessionId = $session['sessionId'];
+        if (array_key_exists($sessionId, $characters)) {
+          $session['characters'] = $characters[$sessionId];
+        } else {
+          $session['characters'] = array();
+        }
+      }
+    }
 
     return $result;
   }
