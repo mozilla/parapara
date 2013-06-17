@@ -7,32 +7,18 @@ require_once(dirname(__FILE__) . '/../../lib/parapara.inc');
 require_once(dirname(__FILE__) . '/ParaparaUnitTestCase.php');
 require_once('characters.inc');
 
-define("NOT_SET", "This parameter is not set");
-
 class TestCharacters extends ParaparaUnitTestCase {
-  protected $testFields =
-    array(
-      'title' => 'Test title',
-      'author' => 'Test author',
-      'groundOffset' => 0.1,
-      'width' => 123.0,
-      'height' => 456.0);
+  protected $testFields;
+  protected $testSvg;
 
   function __construct($name = false) {
     parent::__construct($name);
+    $this->testFields =& $this->testCharacterFields;
+    $this->testSvg    =& $this->testCharacterSvg;
   }
 
   function setUp() {
     parent::setUp("Don't create test character");
-  }
-
-  function tearDown() {
-    // Remove characters
-    while (count($this->createdCharacters)) {
-      $this->removeCharacter($this->createdCharacters[0]);
-    }
-
-    parent::tearDown();
   }
 
   function testCreateCharacter() {
@@ -779,38 +765,6 @@ class TestCharacters extends ParaparaUnitTestCase {
     $this->assertIdentical(@$array['galleryUrl'], $char->galleryUrl);
     // Check some fields are dropped
     $this->assertTrue(!array_key_exists('wall', $array));
-  }
-
-  // Array to track all created characters so we can clean them up
-  protected $createdCharacters = array();
-
-  // Utility wrapper that calls Characters::create and tracks the character so 
-  // it will be deleted automatically on tear-down
-  function createCharacter($fields = NOT_SET, $wallId = NOT_SET,
-                           $svg = NOT_SET)
-  {
-    // Fill in default parameters
-    if ($fields === NOT_SET)
-      $fields = $this->testFields;
-    if ($wallId === NOT_SET)
-      $wallId = $this->testWall->wallId;
-    if ($svg === NOT_SET)
-      $svg = $this->testSvg;
-
-    $char = Characters::create($svg, $fields, $wallId);
-    if ($char !== null && isset($char->charId)) {
-      array_push($this->createdCharacters, $char->charId);
-    }
-    return $char;
-  }
-
-  function removeCharacter($charId) {
-    Characters::deleteById($charId);
-
-    // Remove from list of createdCharacters
-    while (($pos = array_search($charId, $this->createdCharacters)) !== FALSE) {
-      array_splice($this->createdCharacters, $pos, 1);
-    }
   }
 }
 

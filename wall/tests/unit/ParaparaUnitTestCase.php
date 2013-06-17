@@ -6,11 +6,24 @@
 require_once(dirname(__FILE__) . '/../../lib/parapara.inc');
 require_once(dirname(__FILE__) . '/../ParaparaTestCase.php');
 
+define("NOT_SET", "This parameter is not set");
+
 abstract class ParaparaUnitTestCase extends ParaparaTestCase {
   protected $testWall      = null;
   protected $testCharacter = null;
-  protected $testSvg       = '<svg><circle cx="50" cy="50" r="100"></svg>';
   protected $invalidIds    = array(0, -3, "abc", null);
+
+  // Test character data
+  protected $testCharacterSvg = '<svg><circle cx="50" cy="50" r="100"></svg>';
+  protected $testCharacterFields = array(
+                                     'title' => 'Test title',
+                                     'author' => 'Test author',
+                                     'groundOffset' => 0.1,
+                                     'width' => 123.0,
+                                     'height' => 456.0);
+
+  // Array to track all created characters so we can clean them up
+  protected $createdCharacters = array();
 
   function __construct($name = false) {
     parent::__construct($name);
@@ -28,25 +41,16 @@ abstract class ParaparaUnitTestCase extends ParaparaTestCase {
 
     // Test character
     if ($testCharacter != "Don't create test character") {
-      $this->testCharacter =
-        Characters::create($this->testSvg,
-                           array(
-                             'title' => 'Title',
-                             'author' => 'Author',
-                             'groundOffset' => 0,
-                             'width' => 123,
-                             'height' => 456
-                           ),
-                           $this->testWall->wallId);
+      $this->testCharacter = $this->createCharacter();
     }
   }
 
   function tearDown() {
-    // Remove test character
-    if ($this->testCharacter) {
-      Characters::deleteById($this->testCharacter->charId);
-      $this->testCharacter = null;
+    // Remove test characters
+    while (count($this->createdCharacters)) {
+      $this->removeCharacter($this->createdCharacters[0]);
     }
+    $this->testCharacter = null;
 
     // Remove test wall
     // XXX Replace this with a method call once we have it
@@ -57,6 +61,35 @@ abstract class ParaparaUnitTestCase extends ParaparaTestCase {
     $this->api->cleanUp();
 
     parent::tearDown();
+  }
+
+  // Utility wrapper that calls Characters::create and tracks the character so 
+  // it will be deleted automatically on tear-down
+  function createCharacter($fields = NOT_SET, $wallId = NOT_SET,
+                           $svg = NOT_SET)
+  {
+    // Fill in default parameters
+    if ($fields === NOT_SET)
+      $fields = $this->testCharacterFields;
+    if ($wallId === NOT_SET)
+      $wallId = $this->testWall->wallId;
+    if ($svg === NOT_SET)
+      $svg = $this->testCharacterSvg;
+
+    $char = Characters::create($svg, $fields, $wallId);
+    if ($char !== null && isset($char->charId)) {
+      array_push($this->createdCharacters, $char->charId);
+    }
+    return $char;
+  }
+
+  function removeCharacter($charId) {
+    Characters::deleteById($charId);
+
+    // Remove from list of createdCharacters
+    while (($pos = array_search($charId, $this->createdCharacters)) !== FALSE) {
+      array_splice($this->createdCharacters, $pos, 1);
+    }
   }
 }
 
