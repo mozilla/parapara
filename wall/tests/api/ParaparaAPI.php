@@ -213,7 +213,10 @@ class ParaparaAPI {
 
   function createCharacter($wallIdOrPath, $fields = null, $svg = null) {
     // Prepare payload
-    $payload['metadata'] = $fields ? $fields : self::$testCharacterFields;
+    $payload['metadata'] = self::$testCharacterFields;
+    $payload['metadata'] = $fields
+                         ? array_merge(self::$testCharacterFields, $fields)
+                         : self::$testCharacterFields;
     $payload['svg']      = $svg ? $svg : self::$testSvg;
 
     // Make request
@@ -248,6 +251,13 @@ class ParaparaAPI {
   // test that the returned URL is actually correct.
   function emailCharacterByUrl($url, $fields) {
     return $this->postJson($url, $fields);
+  }
+
+  function getCharactersBySession($wallId, $sessionId) {
+    global $config;
+    $url = $config['test']['wall_server'] . 'api/walls/' . $wallId
+         . '/sessions/' . $sessionId . '/characters';
+    return $this->getJson($url);
   }
 
   /* ----------------------------------------------------------------------

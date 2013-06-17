@@ -34,5 +34,38 @@ class TestCharactersAPI extends APITestCase {
          "Saved SVG doesn't look like SVG: $contents");
     }
   }
+
+  function testGetCharactersBySession() {
+    // Make wall
+    $this->api->login();
+    $wall = $this->api->createWall('Test wall', $this->testDesignId);
+
+    // Create one character in the first session
+    $this->api->createCharacter($wall['wallId']);
+
+    // Create a couple of characters in a new session
+    $newSession = 
+      $this->api->startSession($wall['wallId'],
+        $wall['latestSession']['sessionId']);
+    $charA = $this->api->createCharacter($wall['wallId'],
+      array('title' => 'Character A'));
+    $charB = $this->api->createCharacter($wall['wallId'],
+      array('title' => 'Character B'));
+    $this->api->logout();
+
+    // Fetch
+    $result =
+      $this->api->getCharactersBySession($wall['wallId'],
+                                         $newSession['sessionId']);
+
+    // Check result
+    $this->assertNotNull($result);
+    $this->assertEqual(count($result), 2);
+    $this->assertIdentical($charA, $result[0]);
+    $this->assertIdentical($charB, $result[1]);
+  }
+
+  function testGetCharactersByWall() {
+  }
 }
 ?>

@@ -426,10 +426,10 @@ class Characters {
 
   public static function getBySession($wallId, $sessionId) {
     // Prepare parameters
-    $wallId = intval($wallId);
+    $wallId = @intval($wallId);
     if ($wallId < 1)
       throw new KeyedException('bad-request');
-    $sessionId = intval($sessionId);
+    $sessionId = @intval($sessionId);
     if ($sessionId < 1)
       throw new KeyedException('bad-request');
 

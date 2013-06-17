@@ -44,6 +44,19 @@ switch ($_SERVER['REQUEST_METHOD']) {
     }
     break;
 
+  case 'GET':
+    $sessionId = array_key_exists('sessionId', $_REQUEST)
+               ? intval($_REQUEST['sessionId']) : null;
+    $flatten = create_function('$char', 'return $char->asArray();');
+    if ($sessionId) {
+      $characters = Characters::getBySession($wall->wallId, $sessionId);
+      $result = array_map($flatten, $characters);
+    } else {
+      // XXX
+      // $characters = $wall->getSessions("Include characters");
+    }
+    break;
+
   default:
     bailWithError('bad-request');
 }
