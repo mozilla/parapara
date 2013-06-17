@@ -260,6 +260,13 @@ class ParaparaAPI {
     return $this->getJson($url);
   }
 
+  function getCharactersByWall($wallId) {
+    global $config;
+    $url = $config['test']['wall_server'] . 'api/walls/' . $wallId
+         . '/characters';
+    return $this->getJson($url);
+  }
+
   /* ----------------------------------------------------------------------
    *
    * Design handling

@@ -12,7 +12,7 @@ require_once('utils.inc');
 header('Content-Type: application/json; charset=UTF-8');
 
 // Check we are logged in
-$email = getUserEmail();
+$email = getAndRequireUserEmail();
 
 // Prepare common parameters
 $wall = getRequestedWall($email);

@@ -9,10 +9,15 @@ function getUserEmail() {
     session_name(WALLMAKER_SESSION_NAME);
     session_start();
   }
-  if (!isset($_SESSION['email'])) {
+  return isset($_SESSION['email']) ? $_SESSION['email'] : null;
+}
+
+function getAndRequireUserEmail() {
+  $email = getUserEmail();
+  if (!$email) {
     throw new KeyedException('logged-out');
   }
-  return $_SESSION['email'];
+  return $email;
 }
 
 function login($assertion) {

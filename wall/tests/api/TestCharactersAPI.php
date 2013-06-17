@@ -66,6 +66,42 @@ class TestCharactersAPI extends APITestCase {
   }
 
   function testGetCharactersByWall() {
+    // Make wall
+    $this->api->login();
+    $wall = $this->api->createWall('Test wall', $this->testDesignId);
+
+    // Create the following structure:
+    // 
+    //   - Session 1
+    //     - Character A
+    //     - Character B
+    //   - Session 2
+    //   - Session 3
+    //     - Character C
+    $session1 = $wall['latestSession'];
+    $charA = $this->api->createCharacter($wall['wallId'],
+      array('title' => 'Character A'));
+    $charB = $this->api->createCharacter($wall['wallId'],
+      array('title' => 'Character B'));
+    $session2 = 
+      $this->api->startSession($wall['wallId'], $session1['sessionId']);
+    $session3 = 
+      $this->api->startSession($wall['wallId'], $session2['sessionId']);
+    $charC = $this->api->createCharacter($wall['wallId'],
+      array('title' => 'Character C'));
+
+    // Fetch
+    $result = $this->api->getCharactersByWall($wall['wallId']);
+
+    // Check result
+    $this->assertNotNull($result);
+    $this->assertEqual(count($result), 3);
+    $this->assertEqual(count($result[0]['characters']), 2);
+    $this->assertIdentical($charA, $result[0]['characters'][0]);
+    $this->assertIdentical($charB, $result[0]['characters'][1]);
+    $this->assertEqual(count($result[1]['characters']), 0);
+    $this->assertEqual(count($result[2]['characters']), 1);
+    $this->assertIdentical($charC, $result[2]['characters'][0]);
   }
 }
 ?>

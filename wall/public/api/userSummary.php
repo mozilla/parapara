@@ -11,7 +11,7 @@ require_once('login.inc');
 header('Content-Type: application/json; charset=UTF-8');
 
 // Check we are logged in
-$email = getUserEmail();
+$email = getAndRequireUserEmail();
 
 // Get walls
 $walls = getWallSummaryForUser($email);

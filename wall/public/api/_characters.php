@@ -7,6 +7,7 @@ require_once('../../lib/parapara.inc');
 require_once('api.inc');
 require_once('utils.inc');
 require_once('characters.inc');
+require_once('login.inc');
 
 // We allow uploading characters from anywhere, so setup CORS headers as needed
 if ($_SERVER['REQUEST_METHOD'] == 'POST' ||
@@ -23,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS')
 header('Content-Type: application/json; charset=UTF-8');
 
 // Get wall
-$wall = getRequestedWall();
+$wall = getRequestedWall(getUserEmail());
 if (!$wall || $wall == "Not specified") {
   bailWithError('no-wall');
 }
@@ -52,8 +53,10 @@ switch ($_SERVER['REQUEST_METHOD']) {
       $characters = Characters::getBySession($wall->wallId, $sessionId);
       $result = array_map($flatten, $characters);
     } else {
-      // XXX
-      // $characters = $wall->getSessions("Include characters");
+      $result = $wall->getSessions("Include characters");
+      foreach($result as &$session) {
+        $session['characters'] = array_map($flatten, $session['characters']);
+      }
     }
     break;
 
