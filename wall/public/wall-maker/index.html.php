@@ -21,6 +21,9 @@
     var WallMaker = WallMaker || {};
     WallMaker.rootUrl = '<?php echo $wallMakerRoot ?>';
   </script>
+  <script data-main="<?php echo $wallMakerRoot ?>/js/wall-maker.js"
+    src="/js/lib/require.js"></script>
+  <!--
   <script src="<?php echo $wallMakerRoot ?>/js/utils.js"></script>
   <script src="<?php echo $wallMakerRoot ?>/js/xhr.js"></script>
   <script src="<?php echo $wallMakerRoot ?>/js/messages.js"></script>
@@ -31,6 +34,7 @@
   <script src="<?php echo $wallMakerRoot ?>/js/manage-wall.js"></script>
   <script src="<?php echo $wallMakerRoot ?>/js/login-controller.js"></script>
   <script src="<?php echo $wallMakerRoot ?>/js/qrcode.js" async></script>
+  -->
 </head>
 <body>
 
