@@ -22,8 +22,8 @@ function ($, _, Backbone,
 
     // Generic screen navigation function
     var toggleScreen = function(targetScreen) {
-      $('div.screen').attr('hidden', 'true');
-      targetScreen.attr('hidden', 'false');
+      $('div.screen').attr('hidden', 'hidden');
+      targetScreen.removeAttr('hidden');
     };
 
     // Persistant views
@@ -34,7 +34,7 @@ function ($, _, Backbone,
                             siteName: 'Parapara Animation' });
     login.on("login", function(email) {
       loginStatusView.loggedIn(email);
-      toggleScreen($('screen-loading'));
+      toggleScreen($('#screen-loading'));
       // XXX Trigger load of user walls and designs (in parallel) and fill out
       // models
       // THEN do the following...
@@ -53,7 +53,7 @@ function ($, _, Backbone,
 
       // Show logged out view
       loginStatusView.loggedOut();
-      toggleScreen($('screen-login'));
+      toggleScreen($('#screen-login'));
 
       // XXX Clear all models
 
