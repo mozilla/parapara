@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this file,
    - You can obtain one at http://mozilla.org/MPL/2.0/.  -->
@@ -21,7 +21,7 @@
     var WallMaker = WallMaker || {};
     WallMaker.rootUrl = '<?php echo $wallMakerRoot ?>';
   </script>
-  <script data-main="<?php echo $wallMakerRoot ?>/js/wall-maker.js"
+  <script data-main="<?php echo $wallMakerRoot ?>/js/main.js"
     src="/js/lib/require.js"></script>
   <!--
   <script src="<?php echo $wallMakerRoot ?>/js/utils.js"></script>
@@ -45,9 +45,6 @@
     <!-- Login status and Mozilla tab -->
     <nav>
       <div id="loginStatus">
-        <span class="login-mail" id="loginMail"></span>
-        <span class="logout">(<a href="<?php echo $wallMakerRoot ?>/logout"
-          id="logout">サインアウト</a>)</span>
       </div>
       <a href="http://www.mozilla.org" class="mozilla-tab"><img 
         src="/img/tab.png"></a>
@@ -63,8 +60,8 @@
   <div class="screen" id="screen-loading">
     <img src="<?php echo $wallMakerRoot?>/img/spinner.gif" class="spinner">
   </div>
-  <div class="screen" id="screen-loggedOut" aria-hidden="true">
-    <div id="loginError" aria-hidden="true" class="callout">
+  <div class="screen" id="screen-login" hidden>
+    <div id="loginError" class="callout" hidden>
     </div>
     <div class="callout loginExplain">
       <p>(Mozilla Personaについて説明する)</p>
@@ -74,6 +71,8 @@
       </div>
     </div>
   </div>
+  <div class="screen" id="screen-home" hidden>
+  <!--
   <div class="screen" id="screen-home" aria-hidden="true">
     <div id="wallSummaryHome">
       <nav aria-role="navigation">
@@ -189,13 +188,13 @@
               aria-controls="manage-session"
               aria-selected="true">セッション</a><a
               href="#design" aria-role="tab"
-              aria-controls="manage-design">デザイン</a><!-- <a
+              aria-controls="manage-design">デザイン</a><a
               href="#gallery" aria-role="tab"
               aria-controls="manage-gallery">ギャラリー</a><a
               href="#location" aria-role="tab"
               aria-controls="manage-location">場所</a><a
               href="#access" aria-role="tab"
-              aria-controls="manage-access">アクセス</a> --><a
+              aria-controls="manage-access">アクセス</a><a
               href="#characters" aria-role="tab"
               aria-controls="manage-characters">キャラクター</a>
           </menu>
@@ -238,7 +237,6 @@
                   id="reset-duration">Reset</button>
               </div>
             </section>
-<!--
             <section id="manage-gallery" aria-role="tabpanel"
               aria-hidden="true">
               <dl>
@@ -288,7 +286,6 @@
                 </dd>
               </dl>
             </section>
--->
             <section id="manage-characters" aria-role="tabpanel" 
               aria-hidden="true">
               <h3>セッション１</h3>
@@ -299,7 +296,8 @@
       </form>
     </div>
   </div>
-  <div class="screen" id="screen-error" aria-hidden="true">
+-->
+  <div class="screen" id="screen-error" hidden>
     <div class="message error">
       <div class="messageText"></div>
       <a href="<?php echo $wallMakerRoot ?>/"
@@ -309,7 +307,7 @@
     </div>
   </div>
 </div>
-<div class="overlay" aria-hidden="true">
+<div class="overlay" hidden>
   <div class="container">
     <div class="content" id="qrCode">
       <img>

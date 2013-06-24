@@ -2,150 +2,171 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var ParaPara = ParaPara || {};
+define(["underscore",
+        "backbone",
+        "ParaParaXHR" ], function(_, Backbone, ParaParaXHR) {
 
-ParaPara.Login = function(sessionName, loggedIn, loggedOut, loginError,
-                          loginOptions) {
-  this.sessionName        = sessionName;
-  this.loggedIn           = loggedIn;
-  this.loggedOut          = loggedOut;
-  this.loginError         = loginError;
-  this.loginOptions       = loginOptions;
-  this.watching           = false;
-  this.silent             = false;
-}
+  return function(options) {
 
-// This tries to re-establish the previous session if there was one and must be
-// called first.
-ParaPara.Login.prototype.relogin = function() {
-  // Persona doesn't call our login/logout method if it agrees about who (if
-  // anyone) is logged in, so if we have a valid session we should go ahead and
-  // call this.loggedIn/loggedOut and if Persona disagrees it will tell us about
-  // it later (after we start watching).
-  var alreadyLoggedIn =
-      function(response) {
-        this.startWatching(response.email);
-        this.loggedIn(response.email);
-      }.bind(this);
-  var notLoggedIn = function() {
-        this.startWatching(null);
-        this.loggedOut();
-      }.bind(this);
+    // Check required parameters
+    console.assert(!!options.sessionName, "No session name specified");
 
-  // Don't call loginError if this causes problems
-  this.silent = true;
+    // Private state
+    var watching = false;
+    var silent   = false;
 
-  // See if we still have a valid session
-  if (this.haveSessionCookie()) {
-    ParaPara.getUrl('/api/whoami',
-      // Got a cookie and the server recognises the session
-      alreadyLoggedIn,
-      // Server error, probably session has expired
-      notLoggedIn
-    );
-  } else {
-    notLoggedIn();
+    // Public members
+    this.email   = null;
+
+    // Event dispatching
+    _.extend(this, Backbone.Events);
+
+    // This pointer
+    var Login = this;
+
+    // This tries to re-establish the previous session if there was one and must
+    // be called first.
+    this.init = function() {
+      // Check this was only called once
+      console.assert(!watching, "Already called init?");
+
+      // Clear email
+      Login.email = null;
+
+      // Don't fire a 'loginerror' event if this causes problems
+      silent = true;
+
+      // See if we still have a valid session
+      if (haveSessionCookie()) {
+        ParaParaXHR.getUrl('/api/whoami',
+          // Got a cookie and the server recognises the session
+          function(response) {
+            startWatching(response.email);
+          },
+          // Server error, probably session has expired
+          function() {
+            startWatching(null);
+          }
+        );
+      } else {
+        startWatching(null);
+      }
+    };
+
+    // This must be called in a trusted context, e.g. a click handler
+    this.login = function() {
+      // Clear email
+      Login.email = null;
+
+      // Check watch() has been called
+      console.assert(watching, "Forgot to call init");
+
+      // Report errors since this is an explicit login request (not
+      // a relogin)
+      silent = false;
+
+      // Do login
+      navigator.id.request(_.omit(options, 'sessionName'));
+    };
+
+    // This must be called in a trusted context, e.g. a click handler
+    this.logout = function() {
+      // Clear email
+      Login.email = null;
+
+      // Check watch() has been called
+      console.assert(watching, "Forgot to call init");
+
+      navigator.id.logout();
+    }
+
+    // ----------------------------
+    // Internal helpers
+    // ----------------------------
+
+    // Register with Persona for login/logout calls
+    function startWatching(email) {
+      // Make sure we dispatch either a login or logout event on initial match
+      onmatch = email
+              ? function(response) {
+                  onPersonaLoginSuccess( { email: email });
+                }
+              : onPersonaLogout;
+
+      // Start watching
+      watching = true;
+      navigator.id.watch({
+        loggedInUser: email,
+        onlogin: onPersonaLogin,
+        onlogout: onPersonaLogout,
+        onmatch: onmatch
+      });
+    }
+
+    // Verify an assertion and if it's ok, finish logging in
+    function onPersonaLogin(assertion) {
+      ParaParaXHR.postUrl('/api/login',
+                          { assertion: assertion },
+                          // Success, finish logging in
+                          onPersonaLoginSuccess,
+                          // Couldn't verify
+                          onPersonaLoginFail);
+    }
+
+    function onPersonaLoginSuccess(response) {
+      Login.email = response.email;
+      Login.trigger("login", response.email);
+    }
+
+    function onPersonaLoginFail(reason, detail) {
+      // Known reasons (roughly in order of when they might happen):
+      //
+      //   send-fail :      something went wrong with sending the request
+      //   no-access :      couldn't access the server
+      //   timeout :        timed out waiting for response
+      //   no-assertion :   didn't send an assertion to verify
+      //   server-fail :    something went wrong on our server
+      //   browserid-fail : something went wrong with browserid
+      //   login-fail :     browser id says status == failure
+      //
+      var debugMsg = "Login failed [" + reason + "]";
+      if (detail) {
+        debugMsg += ": " + detail;
+      }
+      console.debug(debugMsg);
+
+      Login.email = null;
+      if (!silent) {
+        Login.trigger("loginerror", reason, detail);
+      }
+      Login.logout();
+    }
+
+    // Clear login state (but DON'T call Persona since this is called in
+    // situations where Persona already knows we're logged out)
+    function onPersonaLogout() {
+      Login.email = null;
+      clearSessionCookie();
+      Login.trigger("logout");
+    }
+
+    function clearSessionCookie() {
+      var expiryDate = new Date();
+      expiryDate.setDate(expiryDate.getDate()-1);
+      document.cookie =
+        options.sessionName + "=; expires=" +
+        expiryDate.toGMTString() + "; path=/";
+    }
+
+    function haveSessionCookie() {
+      var cookieEq = options.sessionName + "=";
+      var cookies = document.cookie.split(';');
+      for(var i=0; i < cookies.length; i++) {
+        var cookie = cookies[i].trim();
+        if (cookie.substring(0, cookieEq.length) == cookieEq)
+          return true;
+      }
+      return false;
+    }
   }
-}
-
-// This must be called in a trusted context, e.g. a click handler
-ParaPara.Login.prototype.login = function() {
-  // Check watch() has been called
-  if (!this.watching) {
-    this.startWatching();
-  }
-  // Set up options object
-  if (!this.loginOptions) {
-    this.loginOptions = {};
-  }
-  this.loginOptions.oncancel = this.onlogout.bind(this);
-  // Do report errors since this is an explicit login request (not a relogin)
-  this.silent = false;
-  // Do login
-  navigator.id.request(this.loginOptions);
-}
-
-// This must be called in a trusted context, e.g. a click handler
-ParaPara.Login.prototype.logout = function() {
-  // Check watch() has been called
-  if (!this.watching) {
-    this.startWatching();
-  }
-  navigator.id.logout();
-}
-
-// ----------------------------
-// Internal helpers
-// ----------------------------
-
-// Register with Persona for login/logout calls
-ParaPara.Login.prototype.startWatching = function(email) {
-  if (this.watching)
-    return;
-  this.watching = true;
-  navigator.id.watch({
-    loggedInUser: email,
-    onlogin: this.gotAssertion.bind(this),
-    onlogout: this.onlogout.bind(this)
-  });
-}
-
-// Clear login state (but DON'T call Persona since this is called in situations
-// where Persona already knows we're logged out)
-ParaPara.Login.prototype.onlogout = function() {
-  this.clearSessionCookie();
-  this.loggedOut();
-}
-
-// Verify an assertion and if it's ok, finish logging in
-ParaPara.Login.prototype.gotAssertion = function(assertion) {
-  ParaPara.postUrl('/api/login',
-                   { assertion: assertion },
-                   // Success, finish logging in
-                   function(response) {
-                     this.loggedIn(response.email);
-                   }.bind(this),
-                   // Couldn't verify
-                   this.loginFail.bind(this));
-}
-
-ParaPara.Login.prototype.loginFail = function(reason, detail) {
-  // Known reasons (roughly in order of when they might happen):
-  //
-  //   send-fail :      something went wrong with sending the request
-  //   no-access :      couldn't access the server
-  //   timeout :        timed out waiting for response
-  //   no-assertion :   didn't send an assertion to verify
-  //   server-fail :    something went wrong on our server
-  //   browserid-fail : something went wrong with browserid
-  //   login-fail :     browser id says status == failure
-  //
-  var debugMsg = "Login failed [" + reason + "]";
-  if (detail) {
-    debugMsg += ": " + detail;
-  }
-  console.debug(debugMsg);
-
-  if (!this.silent && this.loginError) {
-    this.loginError(reason, detail);
-  }
-  this.logout();
-}
-
-ParaPara.Login.prototype.clearSessionCookie = function() {
-  var expiryDate = new Date();
-  expiryDate.setDate(expiryDate.getDate()-1);
-  document.cookie =
-    this.sessionName + "=; expires=" + expiryDate.toGMTString() + "; path=/";
-}
-
-ParaPara.Login.prototype.haveSessionCookie = function() {
-  var cookieEq = this.sessionName + "=";
-  var cookies = document.cookie.split(';');
-  for(var i=0; i < cookies.length; i++) {
-    var cookie = cookies[i].trim();
-    if (cookie.substring(0, cookieEq.length) == cookieEq)
-      return true;
-  }
-  return false;
-}
+});
