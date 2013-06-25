@@ -4,12 +4,10 @@ div.canvas-background {
   background-color: white;
   /* Fallback syntax for WebKit which doesn't do four-value syntax yet (WebKit
    * bug 37514) */
-  background: url('tree.png') right bottom no-repeat,
-              url('mountains.jpg') left top repeat-x,
+  background: url('mountains.jpg') left top repeat-x,
               white;
   /* Full effect */
-  background: url('tree.png') right -50px bottom no-repeat,
-              url('mountains.jpg') left 10% top repeat-x,
+  background: url('mountains.jpg') left 10% top repeat-x,
               white;
   background-size: auto 100%, auto 60%;
 }
