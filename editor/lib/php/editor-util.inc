@@ -32,9 +32,9 @@ function getStylesheet() {
   // Construct URL to stylesheet
   // XXX Rename upload_server to wall_server
   $server_path = $config['editor']['upload_server'];
-  // Make sure server path ends with a /
-  if (substr($server_path, -1) !== "/")
-    $server_path .= "/";
+  // Make sure server doesn't ends with a /
+  if (substr($server_path, -1) == "/")
+    $server_path = substr($server_path, 0, -1);
   return $server_path . $design->editorStylesheet;
 }
 ?>
