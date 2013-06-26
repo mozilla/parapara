@@ -5,7 +5,7 @@
 define([ ],
 function () {
   return function($, login) {
-    Backbone.$.ajaxPrefilter(function (options, originalOptions, jqXHR) {
+    $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
       // Automatically look for 'error_key' in the response object and if it's
       // there, turn the response into an error
       if (options.checkForErrors) {
