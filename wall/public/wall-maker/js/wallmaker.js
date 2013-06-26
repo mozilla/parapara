@@ -8,11 +8,13 @@ define([ 'jquery',
          'wallmaker/router',
          'wallmaker/login',
          'wallmaker/login-status-view',
+         'wallmaker/normalize-xhr',
          'wallmaker/link-watcher' ],
 function ($, _, Backbone,
           WallmakerRouter,
           Login,
           LoginStatusView,
+          NormalizeXHR,
           LinkWatcher) {
 
   // Make the root URL available to all views (for templating)
@@ -125,6 +127,22 @@ function ($, _, Backbone,
           break;
       }
     });
+
+    // Adjust XHR handling to:
+    //  - translate our error codes into AJAX errors
+    //  - automatically log us out when the error code is 'logged-out'
+    //  - automatically serialize objects as JSON (and adjusts content-type)
+    //    for any data that hasn't been automatically converted to a string
+    NormalizeXHR(Backbone.$, login);
+    Backbone.$.ajaxSetup(
+      { checkForErrors: true,
+        autoLogout: true,
+        // Turn off automatic conversion of objects to strings since we will
+        // convert objects to JSON in the normalization function
+        processData: false,
+        timeout: 8000
+      }
+    );
 
     // Restore previous login state
     login.init();

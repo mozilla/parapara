@@ -9,10 +9,7 @@ require.config({
     templates: '../../wall-maker/templates',
     jquery: 'jquery-2.0.2.min',
     underscore: 'underscore-min',
-    backbone: 'backbone-min',
-    // XXX This is just a temporary measure until we write a proper module for
-    // this
-    ParaParaXHR: '../../wall-maker/js/xhr'
+    backbone: 'backbone-min'
   },
   shim: {
     'underscore': {
@@ -21,9 +18,6 @@ require.config({
     'backbone': {
       deps: ['underscore', 'jquery', 'json2'],
       exports: 'Backbone'
-    },
-    'ParaParaXHR': {
-      exports: 'ParaPara'
     }
   }
 });

@@ -3,8 +3,7 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(["underscore",
-        "backbone",
-        "ParaParaXHR" ], function(_, Backbone, ParaParaXHR) {
+        "backbone" ], function(_, Backbone) {
 
   return function(options) {
 
@@ -38,16 +37,11 @@ define(["underscore",
 
       // See if we still have a valid session
       if (haveSessionCookie()) {
-        ParaParaXHR.getUrl('/api/whoami',
+        Backbone.$.get('/api/whoami')
           // Got a cookie and the server recognises the session
-          function(response) {
-            startWatching(response.email);
-          },
+          .done( function(response) { startWatching(response.email); } )
           // Server error, probably session has expired
-          function() {
-            startWatching(null);
-          }
-        );
+          .fail( function() { startWatching(null); } );
       } else {
         startWatching(null);
       }
@@ -105,12 +99,12 @@ define(["underscore",
 
     // Verify an assertion and if it's ok, finish logging in
     function onPersonaLogin(assertion) {
-      ParaParaXHR.postUrl('/api/login',
-                          { assertion: assertion },
-                          // Success, finish logging in
-                          onPersonaLoginSuccess,
-                          // Couldn't verify
-                          onPersonaLoginFail);
+      Backbone.$.post('/api/login',
+                    { assertion: assertion })
+        // Success, finish logging in
+        .done(onPersonaLoginSuccess)
+        // Couldn't verify
+        .fail(onPersonaLoginFail);
     }
 
     function onPersonaLoginSuccess(response) {
@@ -118,7 +112,7 @@ define(["underscore",
       Login.trigger("login", response.email);
     }
 
-    function onPersonaLoginFail(reason, detail) {
+    function onPersonaLoginFail(xhr, reason, detail) {
       // Known reasons (roughly in order of when they might happen):
       //
       //   send-fail :      something went wrong with sending the request
