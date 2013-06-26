@@ -1008,7 +1008,9 @@ EditorUI.updateToolbox = function() {
     picker.style.width = parseFloat(picker.style.height) * ratio + 'px';
   }
   // Needed for WebKit
-  picker.contentDocument.updateViewbox();
+  if (picker.contentDocument.updateViewbox) {
+    picker.contentDocument.updateViewbox();
+  }
 }
 
 EditorUI.getAspectRatio = function(panel) {
@@ -1019,6 +1021,11 @@ EditorUI.getAspectRatio = function(panel) {
     return 0.6845;
   }
   var viewBox = panel.contentDocument.documentElement.getAttribute("viewBox");
+  if (!viewBox) {
+    // This can happen during loading when the contentDocument can be set to 
+    // about:blank
+    return 1;
+  }
   var parts = viewBox.split(" ");
   return parseFloat(parts[2]) / parseFloat(parts[3]);
 }
