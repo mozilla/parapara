@@ -150,6 +150,9 @@ summary::-webkit-details-marker {
 .langSummary:lang(ja) {
   background: url("../img/flags/jp.png") no-repeat;
 }
+.langSummary:lang(ca) {
+  background: url("../img/flags/catalonia.png") no-repeat;
+}
 
 /* Pop-out menu */
 .settingsMenu menu {
@@ -178,6 +181,9 @@ summary::-webkit-details-marker {
 }
 .settingsMenu li.lang:lang(ja) {
   list-style-image: url("../img/flags/jp.png");
+}
+.settingsMenu li.lang:lang(ca) {
+  list-style-image: url("../img/flags/catalonia.png");
 }
 .settingsMenu li[aria-role=menuitemcheckbox] {
   list-style: none;

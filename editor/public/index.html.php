@@ -51,6 +51,8 @@
                   lang=en>English
                 <li class=lang aria-checked=false aria-role=menuitemradio 
                   lang=ja>日本語
+                <li class=lang aria-checked=false aria-role=menuitemradio 
+                  lang=ca>Català
               </menu>
             </details>
           </nav>
