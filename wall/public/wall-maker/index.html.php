@@ -23,18 +23,6 @@
   </script>
   <script data-main="<?php echo $wallMakerRoot ?>/js/main.js"
     src="/js/lib/require.js"></script>
-  <!--
-  <script src="<?php echo $wallMakerRoot ?>/js/utils.js"></script>
-  <script src="<?php echo $wallMakerRoot ?>/js/xhr.js"></script>
-  <script src="<?php echo $wallMakerRoot ?>/js/messages.js"></script>
-  <script src="<?php echo $wallMakerRoot ?>/js/login.js"></script>
-  <script src="<?php echo $wallMakerRoot ?>/js/user-data.js"></script>
-  <script src="<?php echo $wallMakerRoot ?>/js/navi.js"></script>
-  <script src="<?php echo $wallMakerRoot ?>/js/create-wall.js"></script>
-  <script src="<?php echo $wallMakerRoot ?>/js/manage-wall.js"></script>
-  <script src="<?php echo $wallMakerRoot ?>/js/login-controller.js"></script>
-  <script src="<?php echo $wallMakerRoot ?>/js/qrcode.js" async></script>
-  -->
 </head>
 <body>
 
