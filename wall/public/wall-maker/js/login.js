@@ -82,7 +82,7 @@ define(["underscore",
     function startWatching(email) {
       // Make sure we dispatch either a login or logout event on initial match
       onmatch = email
-              ? function(response) {
+              ? function() {
                   onPersonaLoginSuccess( { email: email });
                 }
               : onPersonaLogout;
@@ -100,7 +100,7 @@ define(["underscore",
     // Verify an assertion and if it's ok, finish logging in
     function onPersonaLogin(assertion) {
       Backbone.$.post('/api/login',
-                    { assertion: assertion })
+                      { assertion: assertion })
         // Success, finish logging in
         .done(onPersonaLoginSuccess)
         // Couldn't verify
@@ -115,9 +115,11 @@ define(["underscore",
     function onPersonaLoginFail(xhr, reason, detail) {
       // Known reasons (roughly in order of when they might happen):
       //
-      //   send-fail :      something went wrong with sending the request
-      //   no-access :      couldn't access the server
+      //   error :          something went wrong with sending the request
+      //                    (e.g. 404 etc.)
       //   timeout :        timed out waiting for response
+      //   parsererror :    failed to parse the response?
+      //   abort :          send request aborted
       //   no-assertion :   didn't send an assertion to verify
       //   server-fail :    something went wrong on our server
       //   browserid-fail : something went wrong with browserid
@@ -132,8 +134,9 @@ define(["underscore",
       Login.email = null;
       if (!silent) {
         Login.trigger("loginerror", reason, detail);
+      } else {
+        Login.trigger("logout");
       }
-      Login.logout();
     }
 
     // Clear login state (but DON'T call Persona since this is called in

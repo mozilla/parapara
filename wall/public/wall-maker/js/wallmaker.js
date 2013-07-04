@@ -8,12 +8,14 @@ define([ 'jquery',
          'wallmaker/router',
          'wallmaker/login',
          'wallmaker/login-status-view',
+         'wallmaker/login-screen-view',
          'wallmaker/normalize-xhr',
          'wallmaker/link-watcher' ],
 function ($, _, Backbone,
           WallmakerRouter,
           Login,
           LoginStatusView,
+          LoginScreenView,
           NormalizeXHR,
           LinkWatcher) {
 
@@ -30,6 +32,7 @@ function ($, _, Backbone,
 
     // Persistant views
     var loginStatusView = new LoginStatusView();
+    var loginScreenView = new LoginScreenView();
 
     // Login management
     var login = new Login({ sessionId: 'WMSESSID',
@@ -44,8 +47,8 @@ function ($, _, Backbone,
     });
 
     login.on("loginerror", function(error, detail) {
-      // XXX Show error block and fill in
-      // $('loginError').show();
+      loginScreenView.setError(error);
+      toggleScreen(loginScreenView.$el);
     });
 
     login.on("logout", function() {
@@ -55,7 +58,7 @@ function ($, _, Backbone,
 
       // Show logged out view
       loginStatusView.loggedOut();
-      toggleScreen($('#screen-login'));
+      toggleScreen(loginScreenView.$el);
 
       // XXX Clear all models
 
@@ -115,6 +118,7 @@ function ($, _, Backbone,
     linkWatcher.on("navigate", function(href) {
       switch (href) {
         case 'login':
+          loginScreenView.clearError();
           login.login();
           break;
 
@@ -140,6 +144,8 @@ function ($, _, Backbone,
         // Turn off automatic conversion of objects to strings since we will
         // convert objects to JSON in the normalization function
         processData: false,
+        dataType: 'json',
+        accepts: { json: 'application/json' },
         timeout: 8000
       }
     );
