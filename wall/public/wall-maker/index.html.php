@@ -60,6 +60,7 @@
     </div>
   </div>
   <div class="screen" id="screen-home" hidden>
+  </div>
   <!--
   <div class="screen" id="screen-home" aria-hidden="true">
     <div id="wallSummaryHome">
@@ -295,6 +296,13 @@
     </div>
   </div>
 </div>
+<footer>
+  <label for="lang">Other languages:</label>
+  <select id="lang" name="lang" dir="ltr">
+    <option value="en-US">English</option>
+    <option value="ja">日本語</option>
+  </select>
+</footer>
 <div class="overlay" hidden>
   <div class="container">
     <div class="content" id="qrCode">
