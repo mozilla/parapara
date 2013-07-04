@@ -127,9 +127,6 @@ button.arrow.right:hover, a.button.arrow.right:hover {
 /*
  * Header bar
  */
-header {
-  background-image: url('../img/bg-diamond.png');
-}
 header .heading {
   background-image: url('../img/header-wall-maker.png');
   background-repeat: no-repeat;
