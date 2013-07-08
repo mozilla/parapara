@@ -10,7 +10,7 @@ function($, _, Backbone, webL10n) {
   return Backbone.View.extend({
     el: $('footer'),
     events: {
-      "select #lang": "switchLanguage"
+      "change #lang": "switchLanguage"
     },
     initialize: function() {
       $(window).on("localized", null, this.localized.bind(this));
@@ -62,9 +62,8 @@ function($, _, Backbone, webL10n) {
       // Update menu selection
       this.$('select#lang').val(selectedLangItem.value);
     },
-    switchLanguage: function() {
-      // XXX
-      // webL10n.setLanguage(...)
+    switchLanguage: function(evt) {
+      webL10n.setLanguage(evt.target.value);
     },
   });
 });
