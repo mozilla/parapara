@@ -48,7 +48,7 @@ function($, _, Backbone, webL10n) {
             "select#lang option:lang(" + genericLang.toLowerCase() + ")");
       }
       if (!selectedLangItem) {
-        selectedLangItem = this.$("#lang option:lang(en)");
+        selectedLangItem = this.el.querySelector("#lang option:lang(en)");
       }
 
       // Update direction to match language
