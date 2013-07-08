@@ -9,7 +9,8 @@ require.config({
     templates: '../../wall-maker/templates',
     jquery: 'jquery-2.0.2.min',
     underscore: 'underscore-min',
-    backbone: 'backbone-min'
+    backbone: 'backbone-min',
+    webL10n: 'l10n'
   },
   shim: {
     'underscore': {
@@ -18,6 +19,9 @@ require.config({
     'backbone': {
       deps: ['underscore', 'jquery', 'json2'],
       exports: 'Backbone'
+    },
+    'webL10n': {
+      exports: 'document.webL10n'
     }
   }
 });

@@ -9,6 +9,7 @@ define([ 'jquery',
          'wallmaker/login',
          'wallmaker/login-status-view',
          'wallmaker/login-screen-view',
+         'wallmaker/footer-view',
          'wallmaker/normalize-xhr',
          'wallmaker/link-watcher' ],
 function ($, _, Backbone,
@@ -16,6 +17,7 @@ function ($, _, Backbone,
           Login,
           LoginStatusView,
           LoginScreenView,
+          FooterView,
           NormalizeXHR,
           LinkWatcher) {
 
@@ -33,6 +35,7 @@ function ($, _, Backbone,
     // Persistant views
     var loginStatusView = new LoginStatusView();
     var loginScreenView = new LoginScreenView();
+    var footerView      = new FooterView();
 
     // Login management
     var login = new Login({ sessionId: 'WMSESSID',

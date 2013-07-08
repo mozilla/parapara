@@ -7,7 +7,7 @@
   // e.g. 'server/wall-maker/manage/8' we can still find all the resources
   $wallMakerRoot = dirname($_SERVER['SCRIPT_NAME']);
 ?>
-<html lang="ja">
+<html>
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <title>パラパラアニメーション・壁の作成・管理</title>
@@ -16,6 +16,8 @@
     href="<?php echo $wallMakerRoot; ?>/css/wall-maker.css">
   <link rel="stylesheet"
     href="<?php echo $wallMakerRoot; ?>/css/persona.css">
+  <link rel="resource" type="application/l10n"
+    href="<?php echo $wallMakerRoot; ?>/locales/locales.ini">
   <script src="https://login.persona.org/include.js"></script>
   <script>
     var WallMaker = WallMaker || {};
@@ -297,7 +299,7 @@
   </div>
 </div>
 <footer>
-  <label for="lang">Other languages:</label>
+  <label for="lang" data-l10n-id="other-lang">Other languages</label>
   <select id="lang" name="lang" dir="ltr">
     <option value="en-US">English</option>
     <option value="ja">日本語</option>
