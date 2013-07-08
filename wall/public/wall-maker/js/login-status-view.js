@@ -5,14 +5,16 @@
 define([ 'jquery',
          'underscore',
          'backbone',
+         'webL10n',
          'text!templates/login-status.html' ],
-function($, _, Backbone, template) {
+function($, _, Backbone, webL10n, template) {
   return Backbone.View.extend({
     el: $('#loginStatus'),
     email: null,
     render: function() {
       this.$el.html(_.template(template,
                     { email: this.email, appRoot: Backbone.View.appRoot }));
+      webL10n.translate(this.el);
     },
     loggedIn: function(email) {
       this.email = email;
