@@ -38,7 +38,7 @@ function ($, _, Backbone,
     var footerView      = new FooterView();
 
     // Login management
-    var login = new Login({ sessionId: 'WMSESSID',
+    var login = new Login({ sessionName: 'WMSESSID',
                             siteName: 'Parapara Animation' });
     login.on("login", function(email) {
       loginStatusView.loggedIn(email);
