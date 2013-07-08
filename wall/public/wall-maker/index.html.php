@@ -301,8 +301,8 @@
 <footer>
   <label for="lang" data-l10n-id="other-lang">Other languages</label>
   <select id="lang" name="lang" dir="ltr">
-    <option value="en-US">English</option>
-    <option value="ja">日本語</option>
+    <option lang="en" value="en">English</option>
+    <option lang="ja" value="ja">日本語</option>
   </select>
 </footer>
 <div class="overlay" hidden>
