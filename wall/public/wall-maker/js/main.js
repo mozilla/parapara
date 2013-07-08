@@ -7,9 +7,10 @@ require.config({
   paths: {
     wallmaker: '../../wall-maker/js',
     templates: '../../wall-maker/templates',
+    // Shims
+    backbone: 'backbone-min',
     jquery: 'jquery-2.0.2.min',
     underscore: 'underscore-min',
-    backbone: 'backbone-min',
     webL10n: 'l10n'
   },
   shim: {

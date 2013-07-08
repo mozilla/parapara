@@ -4,17 +4,34 @@
 
 define([ 'jquery',
          'underscore',
-         'backbone' ],
-function($, _, Backbone, webl10n) {
+         'backbone',
+         'webL10n' ],
+function($, _, Backbone, webL10n) {
   return Backbone.View.extend({
     el: $('#screen-login'),
     setError: function(errorKey) {
       var errorBlock = this.$('#loginError');
       if (errorKey) {
-        errorBlock.removeAttr('hidden');
-        // XXXl10n Fetch message
-        var message = errorKey;
+        var message;
+        switch (errorKey) {
+          case 'timeout':
+            // Timeout, advise user to try again.
+            message = webL10n.get('login-timeout-try-again');
+            break;
+
+          case 'login-fail':
+            // Login failed, advise user to try again.
+            message = webL10n.get('login-failed-try-again');
+            break;
+
+          default:
+            // All others. Includes all sorts of internal errors with the
+            // server. Not really worth trying again.
+            message = webL10n.get('login-failed');
+            break;
+        }
         errorBlock.html(message);
+        errorBlock.removeAttr('hidden');
       } else {
         errorBlock.attr('hidden', 'hidden');
         errorBlock.html();

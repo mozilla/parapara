@@ -81,11 +81,27 @@ define(["underscore",
     // Register with Persona for login/logout calls
     function startWatching(email) {
       // Make sure we dispatch either a login or logout event on initial match
-      onmatch = email
-              ? function() {
-                  onPersonaLoginSuccess( { email: email });
-                }
-              : onPersonaLogout;
+      // There seems to be a bug in Persona where when we pass loggedInUser:null
+      // and the server agrees the user is not logged in, we don't get a call to
+      // onmatch. However, we *do* get a call to onready so we hook in there and
+      // call onPersonalLogout if necessary.
+      var onmatch = null,
+          onready = null;
+      if (email) {
+        onmatch = function() { onPersonaLoginSuccess( { email: email }); };
+      } else {
+        var calledOnMatch = false;
+        onmatch = function() {
+          calledOnMatch = true;
+          onPersonaLogout();
+        };
+        onready = function() {
+          if (!calledOnMatch) {
+            onPersonaLogout();
+          }
+        };
+        email = null;
+      }
 
       // Start watching
       watching = true;
@@ -93,7 +109,8 @@ define(["underscore",
         loggedInUser: email,
         onlogin: onPersonaLogin,
         onlogout: onPersonaLogout,
-        onmatch: onmatch
+        onmatch: onmatch,
+        onready: onready
       });
     }
 
