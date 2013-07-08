@@ -236,6 +236,7 @@ div.message button, div.message a.button {
 .loginExplain {
   background: #cfc;
   border: 1px solid #0d0;
+  text-align: center;
 }
 .loginButtonLarge {
   text-align: center;

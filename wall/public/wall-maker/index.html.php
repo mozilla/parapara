@@ -10,7 +10,7 @@
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  <title>パラパラアニメーション・壁の作成・管理</title>
+  <title data-l10n-id="page-title">Parapara Animation Wall Maker</title>
   <link rel="stylesheet" href="/css/parapara.css">
   <link rel="stylesheet"
     href="<?php echo $wallMakerRoot; ?>/css/wall-maker.css">
@@ -41,7 +41,7 @@
     </nav>
     <!-- Title part -->
     <div class="heading">
-      <h1>壁メーカー</h1>
+      <h1 data-l10n-id="page-heading">Wall maker</h1>
     </div>
   </div>
 </header>
@@ -54,10 +54,11 @@
     <div id="loginError" class="callout" hidden>
     </div>
     <div class="callout loginExplain">
-      <p>(Mozilla Personaについて説明する)</p>
+      <p data-l10n-id="persona-explanation"></p>
       <div class="loginButtonLarge">
         <a href="<?php echo $wallMakerRoot ?>/login"
-          class="persona-button orange"><span>サインイン</span></a>
+          class="persona-button orange"><span
+          data-l10n-id="sign-in">Sign in</span></a>
       </div>
     </div>
   </div>
