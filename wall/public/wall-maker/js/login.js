@@ -81,34 +81,50 @@ define(["underscore",
     // Register with Persona for login/logout calls
     function startWatching(email) {
       // Make sure we dispatch either a login or logout event on initial match
-      // There seems to be a bug in Persona where when we pass loggedInUser:null
-      // and the server agrees the user is not logged in, we don't get a call to
-      // onmatch. However, we *do* get a call to onready so we hook in there and
-      // call onPersonalLogout if necessary.
-      var onmatch = null,
-          onready = null;
-      if (email) {
-        onmatch = function() { onPersonaLoginSuccess( { email: email }); };
-      } else {
-        var calledOnMatch = false;
-        onmatch = function() {
-          calledOnMatch = true;
-          onPersonaLogout();
-        };
-        onready = function() {
-          if (!calledOnMatch) {
-            onPersonaLogout();
-          }
-        };
-        email = null;
-      }
+      //
+      // There seem to be a couple of bugs/features in Persona:
+      //
+      // (a) When we pass loggedInUser:null and the server agrees the user is
+      //     not logged in, we don't get a call to onmatch.
+      //     However, we *do* get a call to onready so we need to hook in there
+      //     and call onPersonalLogout if necessary.
+      //
+      // (b) After case (a), if we attempt to login, *then* we get a call to
+      //     onmatch. So we need to ignore that call.
+      //
+      // We cover these by wrapping the callbacks with functions that set/check
+      // a flag indicating if we've received an initial callback or not.
+
+      var gotInitialCallback = false;
+      var doLogin = function(assertion) {
+        gotInitialCallback = true;
+        onPersonaLogin(assertion);
+      };
+      var doLogout = function() {
+        gotInitialCallback = true;
+        onPersonaLogout();
+      };
+      var doInitialLogin = function() {
+        if (gotInitialCallback)
+          return;
+        gotInitialCallback = true;
+        onPersonaLoginSuccess( { email: email } );
+      };
+      var doInitialLogout = function() {
+        if (gotInitialCallback)
+          return;
+        doLogout();
+      };
+
+      var onmatch = email ? doInitialLogin : doInitialLogout;
+      var onready = email ? undefined : doInitialLogout;
 
       // Start watching
       watching = true;
       navigator.id.watch({
         loggedInUser: email,
-        onlogin: onPersonaLogin,
-        onlogout: onPersonaLogout,
+        onlogin: doLogin,
+        onlogout: doLogout,
         onmatch: onmatch,
         onready: onready
       });
@@ -116,6 +132,7 @@ define(["underscore",
 
     // Verify an assertion and if it's ok, finish logging in
     function onPersonaLogin(assertion) {
+      Login.trigger("loginverify");
       Backbone.$.post('/api/login',
                       { assertion: assertion })
         // Success, finish logging in

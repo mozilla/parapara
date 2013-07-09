@@ -54,6 +54,12 @@ function ($, _, Backbone,
       toggleScreen(loginScreenView.$el);
     });
 
+    login.on("loginverify", function() {
+      // This is called when the Persona window has closed and it is up to us to
+      // verify the assertion. So we show a loading window while we wait.
+      toggleScreen($('#screen-loading'));
+    });
+
     login.on("logout", function() {
       if (Backbone.history.started) {
         Backbone.history.stop();
