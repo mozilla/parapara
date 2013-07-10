@@ -90,11 +90,9 @@ function ($, _, Backbone,
 
     // Set up router
     var router = Router.initialize();
-    console.log(router);
 
     router.on("route:home",
       function() {
-        console.log("home");
         toggleScreen($('screen-home'));
         /*
         if (!userScreens.wallsView) {
