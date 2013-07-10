@@ -65,31 +65,6 @@
   <div class="screen" id="screen-home" hidden>
   </div>
   <!--
-  <div class="screen" id="screen-home" aria-hidden="true">
-    <div id="wallSummaryHome">
-      <nav aria-role="navigation">
-        <a href="<?php echo $wallMakerRoot ?>/new"
-          class="button newWallLink center">新しい壁を作る</a>
-      </nav>
-      <hr/>
-      <div id="wallSummary" class="thumbnailGrid" aria-hidden="true"></div>
-      <div id="wallSummaryLoading">
-        <img src="<?php echo $wallMakerRoot ?>/img/spinner.gif" class="spinner">
-      </div>
-      <div id="wallSummaryError" aria-hidden="true">
-        <p>壁の読み込みが失敗しました。</p>
-        <button type="button" class="retry"
-          onclick="javascript:UserData.updateWalls()">再試行</button>
-      </div>
-    </div>
-    <div id="firstTimeHome" class="callout" aria-hidden="true">
-      <p>壁まだありませんので、作りましょう～</p>
-      <nav aria-role="navigation">
-        <a href="<?php echo $wallMakerRoot ?>/new"
-          class="button newWallLink center">新しい壁を作る</a>
-      </nav>
-    </div>
-  </div>
   <div class="screen" id="screen-new" aria-hidden="true">
     <h2>新しい壁を作る</h2>
     <div class="message" id="create-message" aria-hidden="true">
