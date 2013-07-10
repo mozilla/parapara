@@ -10,6 +10,7 @@ define([ 'jquery',
          'wallmaker/login-status-view',
          'wallmaker/login-screen-view',
          'wallmaker/footer-view',
+         'wallmaker/collections/walls',
          'wallmaker/normalize-xhr',
          'wallmaker/link-watcher' ],
 function ($, _, Backbone,
@@ -18,6 +19,7 @@ function ($, _, Backbone,
           LoginStatusView,
           LoginScreenView,
           FooterView,
+          Walls,
           NormalizeXHR,
           LinkWatcher) {
 
@@ -46,6 +48,8 @@ function ($, _, Backbone,
       // XXX Trigger load of user walls and designs (in parallel) and fill out
       // models
       // THEN do the following...
+      var walls = new Walls();
+      walls.fetch({});
       Backbone.history.loadUrl();
     });
 
