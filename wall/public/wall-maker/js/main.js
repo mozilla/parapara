@@ -6,7 +6,9 @@ require.config({
   baseUrl: '/js/lib',
   paths: {
     wallmaker: '../../wall-maker/js',
+    collections: '../../wall-maker/js/collections',
     templates: '../../wall-maker/templates',
+    views: '../../wall-maker/js/views',
     // Shims
     backbone: 'backbone-min',
     jquery: 'jquery-2.0.2.min',

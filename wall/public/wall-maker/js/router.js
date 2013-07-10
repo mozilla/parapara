@@ -4,7 +4,7 @@
 
 define([ 'jquery', 'underscore', 'backbone',
           'wallmaker/login',
-          'wallmaker/login-status-view' ],
+          'views/login-status-view' ],
 function($, _, Backbone, Login, LoginView) {
   var WallmakerRouter = Backbone.Router.extend({
     routes: {

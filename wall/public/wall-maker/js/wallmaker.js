@@ -7,23 +7,23 @@ define([ 'jquery',
          'backbone',
          'wallmaker/router',
          'wallmaker/login',
-         'wallmaker/collections/walls',
-         'wallmaker/login-status-view',
-         'wallmaker/login-screen-view',
-         'wallmaker/footer-view',
-         'wallmaker/views/load-error-screen-view',
          'wallmaker/normalize-xhr',
-         'wallmaker/link-watcher' ],
+         'wallmaker/link-watcher',
+         'collections/walls',
+         'views/footer-view',
+         'views/login-status-view',
+         'views/login-screen-view',
+         'views/load-error-screen-view' ],
 function ($, _, Backbone,
-          WallmakerRouter,
+          Router,
           Login,
+          NormalizeXHR,
+          LinkWatcher,
           Walls,
+          FooterView,
           LoginStatusView,
           LoginScreenView,
-          FooterView,
-          LoadErrorScreenView,
-          NormalizeXHR,
-          LinkWatcher) {
+          LoadErrorScreenView) {
 
   // Make the root URL available to all views (for templating)
   Backbone.View.appRoot = WallMaker.rootUrl;
@@ -89,7 +89,7 @@ function ($, _, Backbone,
         manageWallView: null };
 
     // Set up router
-    var router = WallmakerRouter.initialize();
+    var router = Router.initialize();
     console.log(router);
 
     router.on("route:home",
