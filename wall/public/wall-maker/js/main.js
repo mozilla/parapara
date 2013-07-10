@@ -7,6 +7,7 @@ require.config({
   paths: {
     wallmaker: '../../wall-maker/js',
     collections: '../../wall-maker/js/collections',
+    models: '../../wall-maker/js/models',
     templates: '../../wall-maker/templates',
     views: '../../wall-maker/js/views',
     // Shims

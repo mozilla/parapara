@@ -11,6 +11,7 @@ define([ 'jquery',
          'wallmaker/link-watcher',
          'collections/walls',
          'views/footer-view',
+         'views/home-screen-view',
          'views/login-status-view',
          'views/login-screen-view',
          'views/load-error-screen-view' ],
@@ -21,6 +22,7 @@ function ($, _, Backbone,
           LinkWatcher,
           Walls,
           FooterView,
+          HomeScreenView,
           LoginStatusView,
           LoginScreenView,
           LoadErrorScreenView) {
@@ -84,7 +86,7 @@ function ($, _, Backbone,
 
     // Logged-in screens (cleared on logout)
     var userScreens =
-      { wallsView: null,
+      { homeScreen: null,
         createWallView: null,
         manageWallView: null };
 
@@ -93,25 +95,22 @@ function ($, _, Backbone,
 
     router.on("route:home",
       function() {
-        toggleScreen($('screen-home'));
-        /*
-        if (!userScreens.wallsView) {
-          userScreens.wallsView = new WallView(walls);
+        if (!userScreens.homeScreen) {
+          userScreens.homeScreen = new HomeScreenView({ walls: walls });
         }
-        toggleScreen(userScreens.wallsView.render());
-        */
+        toggleScreen(userScreens.homeScreen.render().$el);
       });
+
     /*
-    router.on("new",
+    router.on("route:new",
       function() {
         if (!userScreens.createWallView) {
           userScreens.createWallView = new CreateWallView(designs);
         }
         toggleScreen(userScreens.createWallView.render());
       });
-    router.on("manageWall",
+    router.on("route:manageWall",
       function(wall, tab) {
-        // XXX Download wall info
         if (!userScreens.manageWallView) {
           userScreens.manageWallView = new ManageWallView(wall, designs);
         } else {

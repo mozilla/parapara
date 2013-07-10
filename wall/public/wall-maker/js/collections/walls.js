@@ -5,7 +5,7 @@
 define([ 'jquery',
          'underscore',
          'backbone',
-         'wallmaker/models/wall' ],
+         'models/wall' ],
 function($, _, Backbone, Wall) {
   var Walls = Backbone.Collection.extend({
     model: Wall,
