@@ -808,30 +808,68 @@ class Walls {
     // Run query
     $row =& $conn->queryRow($query, null, MDB2_FETCHMODE_ASSOC);
     $conn->disconnect();
-    if (PEAR::isError($row)) {
-      error_log($row->getMessage() . ', ' . $row->getDebugInfo());
-      throw new KeyedException('db-error');
-    }
+    checkDbResult($row);
 
     // Check if wall was found
     if ($row === null)
       return null;
 
+    return self::dbRowToWall($row, $email);
+  }
+
+  public static function getAllForUser($email) {
+    // Prepare query
+    $conn =& getDbConnection();
+    $query =
+        'SELECT walls.wallId, walls.designId'
+      . ' ,eventName, eventDescr, eventLocation, eventType, eventFinish'
+      . ' ,urlPath, editorShortUrl'
+      . ' ,walls.duration, galleryDisplay, passcode'
+      . ' ,designs.duration AS defaultDuration'
+      . ' ,users.email AS ownerEmail'
+      . ' ,sessionId, beginDate as sessionStart, endDate as sessionEnd'
+      . ' FROM walls'
+      . ' INNER JOIN designs ON walls.designId = designs.designId'
+      . ' INNER JOIN users ON'
+      . '   walls.owner = users.userId AND'
+      . '   users.email = ' . $conn->quote($email)
+      . ' LEFT JOIN sessions ON'
+      . '   sessions.sessionSerial = '
+      . '   (SELECT MAX(sessionSerial) FROM sessions'
+      . '    WHERE sessions.wallId = walls.wallId)'
+      . ' ORDER BY walls.createDate DESC';
+
+    // Run query
+    $res =& $conn->query($query);
+    $conn->disconnect();
+    checkDbResult($res);
+
+    // Prepare result
+    $result = array();
+    $conn->setFetchMode(MDB2_FETCHMODE_ASSOC);
+    while ($row = $res->fetchRow()) {
+      array_push($result, self::dbRowToWall($row, $email));
+    }
+
+    return $result;
+  }
+
+  private static function dbRowToWall($row, $email) {
     // Check auth
     $hasAccess = $email == $row['owneremail'];
 
-    // Get wall ID in case this is a look up by wall path
+    // Get wall ID
     $wallId = intval($row['wallid']);
 
     // Public information
-    $metadata["name"]           = $row['eventname'];
-    $metadata["designId"]       = toIntOrNull($row['designid']);
-    $metadata["urlPath"]        = $row['urlpath'];
-    $metadata["editorUrlShort"] = $row['editorshorturl'];
+    $fields["name"]           = $row['eventname'];
+    $fields["designId"]       = toIntOrNull($row['designid']);
+    $fields["urlPath"]        = $row['urlpath'];
+    $fields["editorUrlShort"] = $row['editorshorturl'];
 
     // Privileged information
     if ($hasAccess) {
-      $metadata["ownerEmail"] = $row['owneremail'];
+      $fields["ownerEmail"] = $row['owneremail'];
     }
 
     // Session information
@@ -839,18 +877,18 @@ class Walls {
       $session['sessionId'] = intval($row['sessionid']);
       $session['start'] = $row['sessionstart'];
       $session['end'] = $row['sessionend'];
-      $metadata['latestSession'] = $session;
-      $metadata['status'] = $row['sessionend'] ? 'finished' : 'running';
+      $fields['latestSession'] = $session;
+      $fields['status'] = $row['sessionend'] ? 'finished' : 'running';
     } else {
-      $metadata['latestSession'] = null;
-      $metadata['status'] = 'finished';
+      $fields['latestSession'] = null;
+      $fields['status'] = 'finished';
     }
 
     // Duration information
-    $metadata["duration"] = toIntOrNull($row['duration']);
-    $metadata["defaultDuration"] = toIntOrNull($row['defaultduration']);
+    $fields["duration"]        = toIntOrNull($row['duration']);
+    $fields["defaultDuration"] = toIntOrNull($row['defaultduration']);
 
-    return new Wall($wallId, $email, $metadata);
+    return new Wall($wallId, $email, $fields);
   }
 
   public static function isNameUnique($name) {
