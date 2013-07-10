@@ -8,22 +8,17 @@ define([ 'jquery', 'underscore', 'backbone',
 function($, _, Backbone, Login, LoginView) {
   var WallmakerRouter = Backbone.Router.extend({
     routes: {
-      '/new': 'new',
-      '/wall/:wallid(#*tab)': 'manageWall',
-      '/wall/:wallid/session/:sessionid': 'manageSession',
+      'new': 'new',
+      'wall/:wallid(#*tab)': 'manageWall',
+      'wall/:wallid/session/:sessionid': 'manageSession',
       '*actions': 'home'
     }
   });
 
-  var init = function(login) {
+  var initialize = function(login) {
 
     // Set up router
     var router = new WallmakerRouter();
-
-    // If we're not already logged-in, don't jump to the current URL since we
-    // should show the login screen but keep the same URL.
-    // Once login is complete, we'll jump to the current screen.
-    var silent = !login.email;
 
     // We don't want to use hashes as a fallback since we use the hash
     // component to represent parts within a resource
@@ -33,12 +28,14 @@ function($, _, Backbone, Login, LoginView) {
         pushState: true,
         hashChange: false,
         root: "/wall-maker/",
-        silent: silent
+        // We don't jump to the current URL until we finish logging in which we
+        // assumed hasn't happened yet
+        silent: true
       }
     );
 
     return router;
   };
 
-  return { init: init };
+  return { initialize: initialize };
 });

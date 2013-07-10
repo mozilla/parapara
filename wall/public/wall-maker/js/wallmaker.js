@@ -7,55 +7,51 @@ define([ 'jquery',
          'backbone',
          'wallmaker/router',
          'wallmaker/login',
+         'wallmaker/collections/walls',
          'wallmaker/login-status-view',
          'wallmaker/login-screen-view',
          'wallmaker/footer-view',
-         'wallmaker/collections/walls',
+         'wallmaker/views/load-error-screen-view',
          'wallmaker/normalize-xhr',
          'wallmaker/link-watcher' ],
 function ($, _, Backbone,
           WallmakerRouter,
           Login,
+          Walls,
           LoginStatusView,
           LoginScreenView,
           FooterView,
-          Walls,
+          LoadErrorScreenView,
           NormalizeXHR,
           LinkWatcher) {
 
   // Make the root URL available to all views (for templating)
   Backbone.View.appRoot = WallMaker.rootUrl;
 
-  var init = function() {
+  var initialize = function() {
 
-    // Generic screen navigation function
-    var toggleScreen = function(targetScreen) {
-      $('div.screen').attr('hidden', 'hidden');
-      targetScreen.removeAttr('hidden');
-    };
+    // Collections
+    var walls;
 
-    // Persistant views
-    var loginStatusView = new LoginStatusView();
-    var loginScreenView = new LoginScreenView();
-    var footerView      = new FooterView();
+    // Persistent views (not removed on logout)
+    var fixedViews =
+      { loginStatus:     new LoginStatusView(),
+        loginScreen:     new LoginScreenView(),
+        footer:          new FooterView(),
+        loadErrorScreen: new LoadErrorScreenView(
+                          { onreload: loadCurrentPage } ) };
 
     // Login management
     var login = new Login({ sessionName: 'WMSESSID',
                             siteName: 'Parapara Animation' });
     login.on("login", function(email) {
-      loginStatusView.loggedIn(email);
-      toggleScreen($('#screen-loading'));
-      // XXX Trigger load of user walls and designs (in parallel) and fill out
-      // models
-      // THEN do the following...
-      var walls = new Walls();
-      walls.fetch({});
-      Backbone.history.loadUrl();
+      fixedViews.loginStatus.loggedIn(email);
+      loadCurrentPage();
     });
 
     login.on("loginerror", function(error, detail) {
-      loginScreenView.setError(error);
-      toggleScreen(loginScreenView.$el);
+      fixedViews.loginScreen.setError(error);
+      toggleScreen(fixedViews.loginScreen.$el);
     });
 
     login.on("loginverify", function() {
@@ -70,8 +66,8 @@ function ($, _, Backbone,
       }
 
       // Show logged out view
-      loginStatusView.loggedOut();
-      toggleScreen(loginScreenView.$el);
+      fixedViews.loginStatus.loggedOut();
+      toggleScreen(fixedViews.loginScreen.$el);
 
       // XXX Clear all models
 
@@ -93,10 +89,12 @@ function ($, _, Backbone,
         manageWallView: null };
 
     // Set up router
-    var router = WallmakerRouter.init(login);
+    var router = WallmakerRouter.initialize();
+    console.log(router);
 
-    router.on("home",
+    router.on("route:home",
       function() {
+        console.log("home");
         toggleScreen($('screen-home'));
         /*
         if (!userScreens.wallsView) {
@@ -131,7 +129,7 @@ function ($, _, Backbone,
     linkWatcher.on("navigate", function(href) {
       switch (href) {
         case 'login':
-          loginScreenView.clearError();
+          fixedViews.loginScreen.clearError();
           login.login();
           break;
 
@@ -164,8 +162,33 @@ function ($, _, Backbone,
     );
 
     // Restore previous login state
-    login.init();
+    login.initialize();
+
+    // Load the current page and any resources needed
+    function loadCurrentPage() {
+      // Show loading screen while we wait
+      toggleScreen($('#screen-loading'));
+      // If we haven't loaded the set of walls yet, then do that now
+      if (!walls) {
+        walls = new Walls();
+        walls.fetch().then(function() {
+          var matched = Backbone.history.loadUrl();
+        }).fail(function() {
+          walls = undefined;
+          toggleScreen($('#screen-load-error'));
+        });
+      } else {
+        Backbone.history.loadUrl();
+      }
+    }
+
+    // Generic screen navigation function
+    function toggleScreen(targetScreen) {
+      $('div.screen').attr('hidden', 'hidden');
+      targetScreen.removeAttr('hidden');
+    };
+
   };
 
-  return { init: init };
+  return { initialize: initialize };
 });

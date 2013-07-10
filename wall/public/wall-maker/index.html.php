@@ -289,6 +289,13 @@
     </div>
   </div>
 -->
+  <div class="screen" id="screen-load-error" hidden>
+    <div class="message error">
+      <div class="messageText" data-l10n-id="load-error"></div>
+      <button type="button" class="retry" data-l10n-id="retry">Retry</button>
+    </div>
+  </div>
+<!--
   <div class="screen" id="screen-error" hidden>
     <div class="message error">
       <div class="messageText"></div>
@@ -298,6 +305,7 @@
         onclick="javascript:UserData.updateWalls()">再試行</button>
     </div>
   </div>
+-->
 </div>
 <footer>
   <label for="lang" data-l10n-id="other-lang">Other languages</label>

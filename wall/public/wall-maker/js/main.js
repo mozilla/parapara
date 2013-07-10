@@ -28,5 +28,5 @@ require.config({
 });
 
 require(['wallmaker/wallmaker'], function (wallmaker) {
-  wallmaker.init();
+  wallmaker.initialize();
 });

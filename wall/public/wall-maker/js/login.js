@@ -25,9 +25,9 @@ define(["underscore",
 
     // This tries to re-establish the previous session if there was one and must
     // be called first.
-    this.init = function() {
+    this.initialize = function() {
       // Check this was only called once
-      console.assert(!watching, "Already called init?");
+      console.assert(!watching, "Already called initialize?");
 
       // Clear email
       Login.email = null;
@@ -53,7 +53,7 @@ define(["underscore",
       Login.email = null;
 
       // Check watch() has been called
-      console.assert(watching, "Forgot to call init");
+      console.assert(watching, "Forgot to call initialize");
 
       // Report errors since this is an explicit login request (not
       // a relogin)
@@ -69,7 +69,7 @@ define(["underscore",
       Login.email = null;
 
       // Check watch() has been called
-      console.assert(watching, "Forgot to call init");
+      console.assert(watching, "Forgot to call initialize");
 
       navigator.id.logout();
     }
