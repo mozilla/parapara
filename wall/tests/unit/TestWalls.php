@@ -84,7 +84,7 @@ class TestWalls extends ParaparaUnitTestCase {
                            "test@test.org");
     $walls = Walls::getAllForUser("test@test.org");
     $this->assertEqual(count($walls), 2);
-    $this->assertIdentical(@$walls[1], $wall2);
+    $this->assertIdentical(@$walls[0], $wall2);
 
     // Remove both walls
     // XXX Replace this with a method call once we have it

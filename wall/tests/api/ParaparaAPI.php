@@ -148,6 +148,12 @@ class ParaparaAPI {
     }
   }
 
+  function getWalls() {
+    global $config;
+    $url = $config['test']['wall_server'] . 'api/walls';
+    return $this->getJson($url);
+  }
+
   function getWall($wallIdOrPath) {
     global $config;
     $url = $config['test']['wall_server'] . 'api/walls/'

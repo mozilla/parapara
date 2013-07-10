@@ -837,7 +837,7 @@ class Walls {
       . '   sessions.sessionSerial = '
       . '   (SELECT MAX(sessionSerial) FROM sessions'
       . '    WHERE sessions.wallId = walls.wallId)'
-      . ' ORDER BY walls.createDate DESC';
+      . ' ORDER BY walls.createDate, walls.wallId DESC';
 
     // Run query
     $res =& $conn->query($query);
