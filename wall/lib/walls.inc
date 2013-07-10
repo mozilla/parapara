@@ -148,7 +148,7 @@ function getCurrentWallTimeForDuration($duration) {
 class Wall {
   private $_wallId  = null;
   private $_design  = null;
-  private $metadata = null;
+  private $fields   = null;
   private $sessions = null;
   private $email    = null;
   private $dirtyFields = array();
@@ -160,10 +160,10 @@ class Wall {
                                          'defaultDuration');
   static private $readOnlyFields = array('wallId', 'editorUrlShort');
 
-  public function __construct($wallId, $email, $metadata) {
+  public function __construct($wallId, $email, $fields) {
     $this->_wallId  = $wallId;
     $this->email    = trim($email);
-    $this->metadata = $metadata;
+    $this->fields   = $fields;
   }
 
   public function __get($name) {
@@ -173,9 +173,9 @@ class Wall {
       return null;
     }
 
-    // Regular metadata
-    if (array_key_exists($name, $this->metadata)) {
-      return $this->metadata[$name];
+    // Regular fields
+    if (array_key_exists($name, $this->fields)) {
+      return $this->fields[$name];
     }
 
     // Virtual fields
@@ -184,13 +184,13 @@ class Wall {
         return $this->_wallId;
 
       case 'wallUrl':
-        return Wall::getUrlForPath($this->metadata['urlPath']);
+        return Wall::getUrlForPath($this->fields['urlPath']);
 
       case 'editorUrl':
-        return Wall::getEditorUrlForPath($this->metadata['urlPath']);
+        return Wall::getEditorUrlForPath($this->fields['urlPath']);
 
       case 'passcodeLen':
-        return strlen($this->metadata['passcode']);
+        return strlen($this->fields['passcode']);
 
       case 'design':
         return $this->getDesign();
@@ -208,8 +208,8 @@ class Wall {
     if (in_array($name, self::$hiddenFields))
       return false;
 
-    // Regular metadata
-    if (array_key_exists($name, $this->metadata))
+    // Regular fields
+    if (array_key_exists($name, $this->fields))
       return true;
 
     // Virtual fields
@@ -219,10 +219,10 @@ class Wall {
 
       case 'wallUrl':
       case 'editorUrl':
-        return isset($this->metadata['urlPath']);
+        return isset($this->fields['urlPath']);
 
       case 'passcodeLen':
-        return isset($this->metadata['passcode']);
+        return isset($this->fields['passcode']);
 
       case 'design':
         return $this->getDesign() !== null;
@@ -300,9 +300,9 @@ class Wall {
     if ($this->$name === $value)
       return;
 
-    // Regular metadata
-    if (array_key_exists($name, $this->metadata)) {
-      $this->metadata[$name] = $value;
+    // Regular fields
+    if (array_key_exists($name, $this->fields)) {
+      $this->fields[$name] = $value;
       // Mark field as dirty
       if (!in_array($name, $this->dirtyFields))
         array_push($this->dirtyFields, $name);
@@ -313,8 +313,8 @@ class Wall {
       case 'urlPath':
         $editorUrlShort = Wall::getShortenedEditorUrlForPath($value);
         if ($editorUrlShort &&
-            $editorUrlShort !== @$this->metadata['editorShortUrl']) {
-          $this->metadata['editorUrlShort'] = $editorUrlShort;
+            $editorUrlShort !== @$this->fields['editorShortUrl']) {
+          $this->fields['editorUrlShort'] = $editorUrlShort;
           if (!in_array('editorUrlShort', $this->dirtyFields))
             array_push($this->dirtyFields, 'editorUrlShort');
         }
@@ -498,10 +498,10 @@ class Wall {
     }
 
     // Update latest session
-    $this->metadata['latestSession']['sessionId'] = $newSessionId;
-    $this->metadata['latestSession']['start']     = $datetime;
-    $this->metadata['latestSession']['end']       = null;
-    $this->metadata['status'] = 'running';
+    $this->fields['latestSession']['sessionId'] = $newSessionId;
+    $this->fields['latestSession']['start']     = $datetime;
+    $this->fields['latestSession']['end']       = null;
+    $this->fields['status'] = 'running';
 
     $conn->disconnect();
 
@@ -541,8 +541,8 @@ class Wall {
     $conn->disconnect();
 
     // Update latest session
-    $this->metadata['latestSession']['end'] = $datetime;
-    $this->metadata['status'] = 'finished';
+    $this->fields['latestSession']['end'] = $datetime;
+    $this->fields['status'] = 'finished';
 
     // Return true since we made a change
     return true;
