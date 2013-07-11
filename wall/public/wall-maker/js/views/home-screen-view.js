@@ -15,10 +15,7 @@ function(_, Backbone, ContainerView, WallGridView, webL10n, template) {
       this.wallGridView = new WallGridView({ collection: this.options.walls });
     },
     render: function() {
-      this.$el.html(_.template(template, { walls: this.options.walls.toJSON(),
-                                           appRoot: Backbone.View.appRoot }));
-      webL10n.translate(this.el);
-
+      this.renderTemplate(template, { walls: this.options.walls.toJSON() });
       this.renderSubview('#wallSummary', this.wallGridView);
 
       return this;
