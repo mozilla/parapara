@@ -10,6 +10,7 @@ define([ 'jquery',
          'wallmaker/normalize-xhr',
          'wallmaker/link-watcher',
          'collections/walls',
+         'collections/designs',
          'views/language-selection-view',
          'views/home-screen-view',
          'views/login-status-view',
@@ -21,6 +22,7 @@ function ($, _, Backbone,
           NormalizeXHR,
           LinkWatcher,
           Walls,
+          Designs,
           LanguageSelectionView,
           HomeScreenView,
           LoginStatusView,
@@ -165,12 +167,15 @@ function ($, _, Backbone,
     function loadCurrentPage() {
       // Show loading screen while we wait
       toggleScreen($('#screen-loading'));
-      // If we haven't loaded the set of walls yet, then do that now
-      if (!walls) {
+      // If we haven't loaded common data needed for all pages, do that now
+      if (!walls || !designs) {
         walls = new Walls();
-        walls.fetch().then(function() {
+        designs = new Designs();
+        $.when(walls.fetch(), designs.fetch())
+        .then(function() {
           var matched = Backbone.history.loadUrl();
-        }).fail(function() {
+        })
+        .fail(function() {
           walls = undefined;
           toggleScreen($('#screen-load-error'));
         });
