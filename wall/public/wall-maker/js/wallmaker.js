@@ -96,7 +96,7 @@ function ($, _, Backbone,
     router.on("route:home",
       function() {
         if (!userScreens.homeScreen) {
-          userScreens.homeScreen = new HomeScreenView({ walls: walls });
+          userScreens.homeScreen = new HomeScreenView({ collection: walls });
         }
         toggleScreen(userScreens.homeScreen.render().$el);
       });

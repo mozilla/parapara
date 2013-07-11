@@ -11,7 +11,7 @@ function(_, Backbone, BaseView, webL10n, template) {
   return BaseView.extend({
     el: $("#screen-home"),
     render: function() {
-      this.renderTemplate(template, { walls: this.options.walls.toJSON() });
+      this.renderTemplate(template, { walls: this.collection.toJSON() });
       return this;
     }
   });
