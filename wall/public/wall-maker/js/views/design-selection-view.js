@@ -13,6 +13,12 @@ function(_, Backbone, BaseView, template) {
     },
     render: function() {
       this.renderTemplate(template, { designs: this.collection.toJSON() });
+
+      // Clear state on reset
+      this.$el.closest("form").on("reset", function(evt) {
+        this.radioChange(evt, true);
+      }.bind(this));
+
       return this;
     },
     radioChange: function(evt, reset) {
@@ -20,7 +26,7 @@ function(_, Backbone, BaseView, template) {
         var selected = this.checked && !reset;
 
         // Set selected class on parent label
-        var label = $(this).parent("label");
+        var label = $(this).closest("label");
         if (!label)
           return;
         label.toggleClass("selected", selected);
