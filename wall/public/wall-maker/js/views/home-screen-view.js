@@ -5,19 +5,13 @@
 define([ 'underscore',
          'backbone',
          'views/base-view',
-         'views/wall-grid-view',
          'webL10n',
          'text!templates/home-screen.html' ],
-function(_, Backbone, BaseView, WallGridView, webL10n, template) {
+function(_, Backbone, BaseView, webL10n, template) {
   return BaseView.extend({
     el: $("#screen-home"),
-    initialize: function() {
-      this.wallGridView = new WallGridView({ collection: this.options.walls });
-    },
     render: function() {
       this.renderTemplate(template, { walls: this.options.walls.toJSON() });
-      this.renderSubview('#wallSummary', this.wallGridView);
-
       return this;
     }
   });

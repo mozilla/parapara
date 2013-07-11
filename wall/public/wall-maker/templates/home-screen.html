@@ -5,7 +5,18 @@
       data-l10n-id="new-wall-link"></a>
   </nav>
   <hr/>
-  <div id="wallSummary" class="thumbnailGrid"></div>
+  <div id="wallSummary" class="thumbnailGrid">
+    <ul>
+    <% _.each(walls, function(wall) { %>
+      <li>
+        <a href="<%= appRoot %>/wall/<%= wall.wallId %>"
+          title="<%- wall.name %>" class="thumbnail"><img
+          src="<%= wall.thumbnail %>"></a>
+        <div class="label"><%- wall.name %></div>
+      </li>
+    <% }); %>
+    </ul>
+  </div>
 </div>
 <% } else { %>
 <div id="firstTimeHome" class="callout">
