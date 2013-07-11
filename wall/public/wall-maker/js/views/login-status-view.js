@@ -12,9 +12,7 @@ function($, _, Backbone, webL10n, template) {
     el: $('#loginStatus'),
     email: null,
     render: function() {
-      this.$el.html(_.template(template,
-                    { email: this.email, appRoot: Backbone.View.appRoot }));
-      webL10n.translate(this.el);
+      return this.renderTemplate(template, { email: this.email });
     },
     loggedIn: function(email) {
       this.email = email;
