@@ -4,12 +4,12 @@
 
 define([ 'underscore',
          'backbone',
-         'views/container-view',
+         'views/base-view',
          'views/wall-grid-view',
          'webL10n',
          'text!templates/home-screen.html' ],
-function(_, Backbone, ContainerView, WallGridView, webL10n, template) {
-  return ContainerView.extend({
+function(_, Backbone, BaseView, WallGridView, webL10n, template) {
+  return BaseView.extend({
     el: $("#screen-home"),
     initialize: function() {
       this.wallGridView = new WallGridView({ collection: this.options.walls });
