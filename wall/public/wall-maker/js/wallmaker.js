@@ -10,7 +10,7 @@ define([ 'jquery',
          'wallmaker/normalize-xhr',
          'wallmaker/link-watcher',
          'collections/walls',
-         'views/footer-view',
+         'views/language-selection-view',
          'views/home-screen-view',
          'views/login-status-view',
          'views/login-screen-view',
@@ -21,7 +21,7 @@ function ($, _, Backbone,
           NormalizeXHR,
           LinkWatcher,
           Walls,
-          FooterView,
+          LanguageSelectionView,
           HomeScreenView,
           LoginStatusView,
           LoginScreenView,
@@ -37,11 +37,11 @@ function ($, _, Backbone,
 
     // Persistent views (not removed on logout)
     var fixedViews =
-      { loginStatus:     new LoginStatusView(),
-        loginScreen:     new LoginScreenView(),
-        footer:          new FooterView(),
-        loadErrorScreen: new LoadErrorScreenView(
-                          { onreload: loadCurrentPage } ) };
+      { loginStatus:       new LoginStatusView(),
+        loginScreen:       new LoginScreenView(),
+        languageSelection: new LanguageSelectionView(),
+        loadErrorScreen:   new LoadErrorScreenView(
+                                 { onreload: loadCurrentPage } ) };
 
     // Login management
     var login = new Login({ sessionName: 'WMSESSID',

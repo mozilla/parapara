@@ -9,9 +9,9 @@ define([ 'jquery',
 function($, _, Backbone, webL10n) {
   return Backbone.View.extend({
     initialLoad: true,
-    el: $('footer'),
+    el: $('select#lang'),
     events: {
-      "change #lang": "switchLanguage"
+      "change": "switchLanguage"
     },
     initialize: function() {
       $(window).on("localized", null, this.localized.bind(this));
@@ -35,7 +35,7 @@ function($, _, Backbone, webL10n) {
         // language, and, if so, set that.
         var previousLanguage = localStorage.getItem("previousLanguage");
         if (previousLanguage !== null &&
-            $('select#lang option:lang('+previousLanguage+')').length != 0) {
+            $('option:lang('+previousLanguage+')').length != 0) {
           webL10n.setLanguage(previousLanguage);
           // Calling setLanguage above will cause this function to be called
           // again so we can return early for now.
@@ -60,15 +60,15 @@ function($, _, Backbone, webL10n) {
         // language. So, we too, have to do a bit of that kind of matching.
         var selectedLangItem =
           this.el.querySelector(
-            "select#lang option:lang(" + selectedLang.toLowerCase() + ")");
+            "option:lang(" + selectedLang.toLowerCase() + ")");
         if (!selectedLangItem) {
           var genericLang = selectedLang.replace(/-[a-z]+$/i, '');
           selectedLangItem =
             this.el.querySelector(
-              "select#lang option:lang(" + genericLang.toLowerCase() + ")");
+              "option:lang(" + genericLang.toLowerCase() + ")");
         }
         if (!selectedLangItem) {
-          selectedLangItem = this.el.querySelector("#lang option:lang(en)");
+          selectedLangItem = this.el.querySelector("option:lang(en)");
         }
         selectedLang = selectedLangItem.value;
 
@@ -82,7 +82,7 @@ function($, _, Backbone, webL10n) {
       document.documentElement.dir = dir;
 
       // Update menu selection
-      this.$('select#lang').val(selectedLang);
+      this.$el.val(selectedLang);
     },
     switchLanguage: function(evt) {
       webL10n.setLanguage(evt.target.value);
