@@ -1,10 +1,10 @@
+<ul>
 <% _.each(walls, function(wall) { %>
-  <ul>
-    <li>
-      <a href="<%= appRoot %>/wall/<%= wall.wallId %>"
-        title="<%- wall.name %>" class="thumbnail"><img
-        src="<%= wall.thumbnail %>"></a>
-      <div class="label"><%- wall.name %></div>
-    </li>
-  </ul>
+  <li>
+    <a href="<%= appRoot %>/wall/<%= wall.wallId %>"
+      title="<%- wall.name %>" class="thumbnail"><img
+      src="<%= wall.thumbnail %>"></a>
+    <div class="label"><%- wall.name %></div>
+  </li>
 <% }); %>
+</ul>
