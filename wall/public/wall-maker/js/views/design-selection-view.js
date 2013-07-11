@@ -19,6 +19,19 @@ function(_, Backbone, BaseView, template) {
         this.radioChange(evt, true);
       }.bind(this));
 
+      // Annotate container with convenience methods
+      this.el.__defineGetter__("value", function() {
+        return this.$("input[name=design]:checked").val()
+      }.bind(this));
+      this.el.__defineSetter__("value", function(value) {
+        if (this.el.value === value)
+          return;
+        console.log("input[name=design][value=" + value + "]");
+        console.log(this.$("input[name=design][value=" + value + "]"));
+        this.$("input[name=design][value=" + value + "]").prop('checked', true);
+        this.radioChange();
+      }.bind(this));
+
       return this;
     },
     radioChange: function(evt, reset) {
