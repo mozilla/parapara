@@ -26,8 +26,6 @@ function(_, Backbone, BaseView, template) {
       this.el.__defineSetter__("value", function(value) {
         if (this.el.value === value)
           return;
-        console.log("input[name=design][value=" + value + "]");
-        console.log(this.$("input[name=design][value=" + value + "]"));
         this.$("input[name=design][value=" + value + "]").prop('checked', true);
         this.radioChange();
       }.bind(this));
