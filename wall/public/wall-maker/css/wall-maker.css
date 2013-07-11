@@ -276,7 +276,7 @@ hr {
   margin: 0 15px 1em 15px;
 }
 #wallSummary .thumbnail {
-  display: block;
+  display: inline-block;
   padding: 15px;
   border-radius: 10px;
   background-color: rgb(61, 51, 20);
