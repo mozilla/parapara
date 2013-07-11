@@ -10,8 +10,7 @@ function(_, Backbone, BaseView, template) {
   return BaseView.extend({
     el: $("#screen-home"),
     render: function() {
-      this.renderTemplate(template, { walls: this.collection.toJSON() });
-      return this;
+      return this.renderTemplate(template, { walls: this.collection.toJSON() });
     }
   });
 });
