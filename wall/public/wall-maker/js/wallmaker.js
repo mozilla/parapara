@@ -11,11 +11,12 @@ define([ 'jquery',
          'wallmaker/link-watcher',
          'collections/walls',
          'collections/designs',
-         'views/language-selection-view',
          'views/home-screen-view',
+         'views/language-selection-view',
          'views/login-status-view',
          'views/login-screen-view',
-         'views/load-error-screen-view' ],
+         'views/load-error-screen-view',
+         'views/new-wall-screen-view' ],
 function ($, _, Backbone,
           Router,
           Login,
@@ -23,11 +24,12 @@ function ($, _, Backbone,
           LinkWatcher,
           Walls,
           Designs,
-          LanguageSelectionView,
           HomeScreenView,
+          LanguageSelectionView,
           LoginStatusView,
           LoginScreenView,
-          LoadErrorScreenView) {
+          LoadErrorScreenView,
+          NewWallScreenView) {
 
   // Make the root URL available to all views (for templating)
   Backbone.View.appRoot = WallMaker.rootUrl;
@@ -89,7 +91,7 @@ function ($, _, Backbone,
     // Logged-in screens (cleared on logout)
     var userScreens =
       { homeScreen: null,
-        createWallView: null,
+        newWallScreen: null,
         manageWallView: null };
 
     // Set up router
@@ -103,14 +105,16 @@ function ($, _, Backbone,
         toggleScreen(userScreens.homeScreen.render().$el);
       });
 
-    /*
     router.on("route:new",
       function() {
-        if (!userScreens.createWallView) {
-          userScreens.createWallView = new CreateWallView(designs);
+        if (!userScreens.newWallScreen) {
+          userScreens.newWallScreen = new NewWallScreenView(
+            { designs: designs, walls: walls });
         }
-        toggleScreen(userScreens.createWallView.render());
+        toggleScreen(userScreens.newWallScreen.render().$el);
       });
+
+    /*
     router.on("route:manageWall",
       function(wall, tab) {
         if (!userScreens.manageWallView) {

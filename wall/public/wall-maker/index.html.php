@@ -64,24 +64,9 @@
   </div>
   <div class="screen" id="screen-home" hidden>
   </div>
-  <!--
-  <div class="screen" id="screen-new" aria-hidden="true">
-    <h2>新しい壁を作る</h2>
-    <div class="message" id="create-message" aria-hidden="true">
-    </div>
-    <form name="createWall" action="javascript:CreateWallController.create()">
-      <input type="text" name="name" required autocomplete="off"
-        maxlength="255" id="create-name"
-        placeholder="イベントタイトル">
-      <div class="designSelection"></div>
-      <div class="center">
-        <button type="submit" name="作成" class="submitButton">作成</button>
-        <button type="button" class="cancel"
-          onclick="javascript:CreateWallController.cancel()"
-          >キャンセル</button>
-      </div>
-    </form>
+  <div class="screen" id="screen-new" hidden>
   </div>
+  <!--
   <div class="screen" id="screen-manage" aria-hidden="true">
     <nav aria-role="navigation">
       <a href="<?php echo $wallMakerRoot ?>/"
