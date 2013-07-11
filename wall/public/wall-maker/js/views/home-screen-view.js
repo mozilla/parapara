@@ -5,9 +5,8 @@
 define([ 'underscore',
          'backbone',
          'views/base-view',
-         'webL10n',
          'text!templates/home-screen.html' ],
-function(_, Backbone, BaseView, webL10n, template) {
+function(_, Backbone, BaseView, template) {
   return BaseView.extend({
     el: $("#screen-home"),
     render: function() {

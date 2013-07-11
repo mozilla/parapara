@@ -5,10 +5,9 @@
 define([ 'jquery',
          'underscore',
          'backbone',
-         'webL10n',
          'views/base-view',
          'text!templates/login-status.html' ],
-function($, _, Backbone, webL10n, BaseView, template) {
+function($, _, Backbone, BaseView, template) {
   return BaseView.extend({
     el: $('#loginStatus'),
     email: null,
