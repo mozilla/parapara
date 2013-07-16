@@ -16,67 +16,6 @@ require_once("characters.inc");
 // When updating this, be sure to update login-controller.js as well
 define("WALLMAKER_SESSION_NAME", "WMSESSID");
 
-// Given a user id, returns an array of walls owned by that user with the 
-// following information:
-//
-//   wallId
-//   event name
-//   design thumb URL
-//   whether they will display in the gallery or not
-//   creation date (UTC)
-//   modification date (UTC)
-//
-// The results will be sorted by creation date such that recently created walls 
-// sort before older walls.
-
-function getWallSummaryForUser($email) {
-  // Get connection
-  $conn =& getDbConnection();
-
-  // Run query
-  $res =& $conn->query(
-      'SELECT walls.wallId, walls.eventName, designs.designId,'
-    . ' walls.galleryDisplay, walls.createDate, walls.modifyDate,'
-    . ' walls.designId'
-    . ' FROM users, walls'
-    . ' LEFT JOIN designs on designs.designId = walls.designId'
-    . ' WHERE users.email = '
-    . $conn->quote($email, 'text')
-    . '   AND walls.owner = users.userId'
-    . ' ORDER BY walls.createDate DESC');
-  if (PEAR::isError($res)) {
-    error_log($res->getMessage() . ', ' . $res->getDebugInfo());
-    throw new KeyedException('db-error');
-  }
-
-  // Process each array so we can tweak the values and make them a little less 
-  // bound to the db schema
-  $result = array();
-  $conn->setFetchMode(MDB2_FETCHMODE_ASSOC);
-  while ($row = $res->fetchRow()) {
-    // Get design
-    $design = DesignGallery::getById(intval($row['designid']));
-    $thumbnail = $design && $design->thumbnail
-               ? $design->thumbnail
-               : null;
-
-    $result[] =
-      array(
-        'wallId' => intval($row['wallid']),
-        'eventName' => $row['eventname'],
-        'thumbnail' => $thumbnail,
-        'galleryDisplay' => !!($row['gallerydisplay']),
-        'createDate' => $row['createdate'],
-        'modifyDate' => $row['modifydate']
-      );
-  }
-
-  // Tidy up and finish
-  $conn->disconnect();
-
-  return $result;
-}
-
 // Returns NULL if the wall is not found
 function getWallIdFromPath($path) {
   $conn =& getDbConnection();
