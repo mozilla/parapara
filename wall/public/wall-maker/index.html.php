@@ -25,6 +25,7 @@
   </script>
   <script data-main="<?php echo $wallMakerRoot ?>/js/main.js"
     src="/js/lib/require.js"></script>
+  <meta name="viewport" content="width=580">
 </head>
 <body>
 
