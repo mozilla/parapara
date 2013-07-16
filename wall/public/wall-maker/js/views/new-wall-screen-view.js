@@ -11,6 +11,9 @@ define([ 'underscore',
 function(_, Backbone, webL10n, BaseView, DesignSelectionView, template) {
   return BaseView.extend({
     el: $("#screen-new"),
+    events: {
+      "click button.cancel": "cancel"
+    },
     initialize: function() {
       this.designSelectionView =
         new DesignSelectionView({ collection: this.options.designs });
@@ -25,6 +28,10 @@ function(_, Backbone, webL10n, BaseView, DesignSelectionView, template) {
       this.renderSubview('.designSelection', this.designSelectionView);
 
       return this;
+    },
+    cancel: function() {
+      Backbone.history.navigate('./', { trigger: true });
+      this.$("form").trigger("reset");
     }
   });
 });
