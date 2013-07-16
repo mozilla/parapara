@@ -3,11 +3,11 @@
     <input type="radio" name="design" value="<%- design.designId %>" required>
     <% if (design.video) { %>
       <% if (design.video.length == 1) { %>
-        <video class="designPreview" loop tabindex="-1"
+        <video class="designPreview" loop preload="auto" tabindex="-1"
           src="<%- design.video[0] %>"<%-
           design.thumbnail ? ' poster=' + design.thumbnail : '' %>></video>
       <% } else { %>
-        <video class="designPreview" loop tabindex="-1"<%-
+        <video class="designPreview" loop preload="auto" tabindex="-1"<%-
           design.thumbnail ? ' poster=' + design.thumbnail : '' %>>
         <% _.each(design.video, function(video) { %>
           <source src="<%- video %>">
