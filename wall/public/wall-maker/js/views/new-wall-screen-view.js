@@ -55,22 +55,23 @@ function(_, Backbone, webL10n, BaseView, DesignSelectionView, MessageBoxView,
       // XXX Loading indication
 
       // Create wall
-      var thisView = this;
+      var view = this;
       this.options.walls.create({ name: name, design: design },
         { wait: true,
+          at: 0,
           success: function(wall) {
             Backbone.history.navigate('/wall/' + wall.get('wallId'),
                                       { trigger: true });
-            thisView.form.reset();
+            view.form.reset();
           },
           error: function(wall, resp) {
             var error = resp.responseJSON ? resp.responseJSON.error_key
                                           : resp.statusText;
-            thisView.messageBoxView.setMessage(error, "create-failed");
+            view.messageBoxView.setMessage(error, "create-failed");
           },
           complete: function() {
             // Re-enable form controls
-            thisView.$("input").removeAttr("disabled");
+            view.$("input").removeAttr("disabled");
             // XXX Clear loading indication
           }
         });
