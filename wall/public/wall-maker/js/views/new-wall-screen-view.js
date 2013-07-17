@@ -15,7 +15,9 @@ function(_, Backbone, webL10n, BaseView, DesignSelectionView, MessageBoxView,
     el: $("#screen-new"),
     events: {
       "submit form": "create",
-      "click button.cancel": "cancel"
+      "click button.cancel": "cancel",
+      "input input": "clearErrors",
+      "change input": "clearErrors"
     },
     initialize: function() {
       // Create subviews
@@ -76,6 +78,9 @@ function(_, Backbone, webL10n, BaseView, DesignSelectionView, MessageBoxView,
     cancel: function() {
       Backbone.history.navigate('./', { trigger: true });
       this.form.reset();
+      this.messageBoxView.clearMessage();
+    },
+    clearErrors: function() {
       this.messageBoxView.clearMessage();
     },
     disableForm: function() {
