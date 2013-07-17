@@ -8,7 +8,6 @@ define([ 'jquery',
          'webL10n' ],
 function($, _, Backbone, webL10n) {
   return Backbone.View.extend({
-    el: $('#screen-login'),
     initialize: function() {
       $(window).on("localized", null, this.render.bind(this));
     },

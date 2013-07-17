@@ -3,39 +3,24 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([ 'jquery',
-         'underscore',
          'backbone',
-         'webL10n' ],
-function($, _, Backbone, webL10n) {
+         'views/message-box-view' ],
+function($, Backbone, MessageBoxView) {
   return Backbone.View.extend({
     el: $('#screen-login'),
+    initialize: function() {
+      this.messageBoxView = new MessageBoxView();
+      // Since we don't currently call 'render' on this view, we just directly
+      // set the element on the subview (normally this happens in the call to
+      // renderSubview)
+      this.messageBoxView.setElement(this.$('#loginError'));
+    },
     setError: function(errorKey) {
-      var errorBlock = this.$('#loginError');
-      if (errorKey) {
-        var message;
-        switch (errorKey) {
-          case 'timeout':
-            // Timeout, advise user to try again.
-            message = webL10n.get('login-timeout-try-again');
-            break;
-
-          case 'login-fail':
-            // Login failed, advise user to try again.
-            message = webL10n.get('login-failed-try-again');
-            break;
-
-          default:
-            // All others. Includes all sorts of internal errors with the
-            // server. Not really worth trying again.
-            message = webL10n.get('login-failed');
-            break;
-        }
-        errorBlock.html(message);
-        errorBlock.removeAttr('hidden');
-      } else {
-        errorBlock.attr('hidden', 'hidden');
-        errorBlock.html();
-      }
+      // When we get a login-fail message it's usually an authentication problem
+      // which is non-fatal so tell the user to try again.
+      if (errorKey == "login-fail")
+        errorKey = "try-again";
+      this.messageBoxView.setMessage(errorKey, "login-failed");
     },
     clearError: function() {
       this.setError();
