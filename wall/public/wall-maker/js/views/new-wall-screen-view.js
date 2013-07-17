@@ -7,18 +7,23 @@ define([ 'underscore',
          'webL10n',
          'views/base-view',
          'views/design-selection-view',
+         'views/message-box-view',
          'text!templates/new-wall-screen.html' ],
-function(_, Backbone, webL10n, BaseView, DesignSelectionView, template) {
+function(_, Backbone, webL10n, BaseView, DesignSelectionView, MessageBoxView,
+         template) {
   return BaseView.extend({
     el: $("#screen-new"),
     events: {
-      "click button[type=submit]": "create",
+      "submit form": "create",
       "click button.cancel": "cancel"
     },
     initialize: function() {
+      // Create subviews
       this.designSelectionView =
         new DesignSelectionView({ collection: this.options.designs });
-      // Add a 'form' property
+      this.messageBoxView = new MessageBoxView();
+
+      // Add a 'form' property to this view
       Object.defineProperty(this, "form",
         { get: function() { return this.$("form")[0]; }, enumerable: true });
     },
@@ -28,8 +33,9 @@ function(_, Backbone, webL10n, BaseView, DesignSelectionView, template) {
       this.$el.html(template);
       webL10n.translate(this.el);
 
-      // Render design selection
+      // Render subviews
       this.renderSubview('.designSelection', this.designSelectionView);
+      this.renderSubview('.message', this.messageBoxView);
 
       return this;
     },
@@ -41,26 +47,38 @@ function(_, Backbone, webL10n, BaseView, DesignSelectionView, template) {
       name = this.form.name.value;
       design = parseInt($("input[name=design]:checked", this.form).val());
 
-      // XXX Clear message box
-      // XXX Show loading screen / indication
+      // Clear message box
+      this.messageBoxView.clearMessage();
+
+      // Disable form and show loading indication
+      this.$("input").attr("disabled", "disabled");
+      // XXX Loading indication
 
       // Create wall
-      var newWallView = this;
+      var thisView = this;
       this.options.walls.create({ name: name, design: design },
         { wait: true,
           success: function(wall) {
-            // XXX Redirect to manage wall page
-            newWallView.form.reset();
+            Backbone.history.navigate('/wall/' + wall.get('wallId'),
+                                      { trigger: true });
+            thisView.form.reset();
           },
-          error: function() {
-            // XXX Display error message here
+          error: function(wall, resp) {
+            var error = resp.responseJSON ? resp.responseJSON.error_key
+                                          : resp.statusText;
+            thisView.messageBoxView.setMessage(error, "create-failed");
+          },
+          complete: function() {
+            // Re-enable form controls
+            thisView.$("input").removeAttr("disabled");
+            // XXX Clear loading indication
           }
         });
     },
     cancel: function() {
       Backbone.history.navigate('./', { trigger: true });
       this.form.reset();
-      // XXX Reset the message box too
+      this.messageBoxView.clearMessage();
     }
   });
 });
