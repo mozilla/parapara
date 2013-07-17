@@ -144,6 +144,14 @@ img.spinner {
   margin: 2em auto;
   display: block;
 }
+div.inline-spinner {
+  display: inline-block;
+  background: url('../img/sync.gif');
+  background-repeat: no-repeat;
+  width: 16px;
+  height: 16px;
+  vertical-align: middle;
+}
 
 /*
  * Overlays

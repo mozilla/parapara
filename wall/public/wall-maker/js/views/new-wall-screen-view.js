@@ -51,9 +51,7 @@ function(_, Backbone, webL10n, BaseView, DesignSelectionView, MessageBoxView,
       this.messageBoxView.clearMessage();
 
       // Disable form and show loading indication
-      this.$("input,button").attr("disabled", "disabled");
-      this.$("label").addClass("disabled");
-      // XXX Loading indication
+      this.disableForm();
 
       // Create wall
       var view = this;
@@ -71,10 +69,7 @@ function(_, Backbone, webL10n, BaseView, DesignSelectionView, MessageBoxView,
             view.messageBoxView.setMessage(error, "create-failed");
           },
           complete: function() {
-            // Re-enable form controls
-            view.$("input,button").removeAttr("disabled");
-            view.$("label").removeClass("disabled");
-            // XXX Clear loading indication
+            view.enableForm();
           }
         });
     },
@@ -82,6 +77,16 @@ function(_, Backbone, webL10n, BaseView, DesignSelectionView, MessageBoxView,
       Backbone.history.navigate('./', { trigger: true });
       this.form.reset();
       this.messageBoxView.clearMessage();
+    },
+    disableForm: function() {
+      this.$("input,button").attr("disabled", "disabled");
+      this.$("label").addClass("disabled");
+      this.$(".inline-spinner").removeAttr("hidden");
+    },
+    enableForm: function() {
+      this.$("input,button").removeAttr("disabled");
+      this.$("label").removeClass("disabled");
+      this.$(".inline-spinner").attr("hidden", "hidden");
     }
   });
 });
