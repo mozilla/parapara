@@ -52,6 +52,7 @@ function(_, Backbone, webL10n, BaseView, DesignSelectionView, MessageBoxView,
 
       // Disable form and show loading indication
       this.$("input,button").attr("disabled", "disabled");
+      this.$("label").addClass("disabled");
       // XXX Loading indication
 
       // Create wall
@@ -72,6 +73,7 @@ function(_, Backbone, webL10n, BaseView, DesignSelectionView, MessageBoxView,
           complete: function() {
             // Re-enable form controls
             view.$("input,button").removeAttr("disabled");
+            view.$("label").removeClass("disabled");
             // XXX Clear loading indication
           }
         });

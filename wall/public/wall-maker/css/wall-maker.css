@@ -345,6 +345,10 @@ hr {
   background: #ffed8b;
   border-color: #f7931e;
 }
+.designSelection label.selected.disabled {
+  background: lightgrey;
+  border-color: grey;
+}
 .designSelection label input[type=radio] {
   /* Hide the radio but don't change its position as otherwise if the radio is
    * a required field, when the browser goes to adds its UI to say, "Hey this
