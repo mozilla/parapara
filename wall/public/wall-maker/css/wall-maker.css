@@ -298,21 +298,19 @@ hr {
   display: inline-block;
   margin: 0.2em;
   padding: 10px;
-  border: 2px solid rgba(0,0,0,0);
   border-radius: 25px;
   transition-property: all;
   transition-duration: 0.2s;
 }
 .designSelection label:hover,
 .designSelection label.selected {
-  background: rgba(61, 51, 20, 0.2);
+  background: rgba(61, 51, 20, 0.15);
 }
 .designSelection label.selected {
-  border-color: rgb(61, 51, 20);
+  background: rgba(61, 51, 20, 0.4);
 }
 .designSelection label.selected.disabled {
   background: lightgrey;
-  border-color: grey;
 }
 .designSelection label input[type=radio] {
   /* Hide the radio but don't change its position as otherwise if the radio is
