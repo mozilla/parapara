@@ -263,6 +263,7 @@ hr {
   padding: 10px;
   border-radius: 10px;
   vertical-align: middle;
+  background: white;
 }
 #wallSummary .thumbnail img {
   border-radius: 6px;
