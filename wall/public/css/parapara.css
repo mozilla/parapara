@@ -4,15 +4,6 @@
  */
 
 /*
- * Base styles
- */
-body {
-  margin: 0;
-  padding: 0;
-  font-family: sans-serif;
-}
-
-/*
  * Page style
  */
 body {
@@ -21,7 +12,7 @@ body {
   background-repeat: repeat-x;
 }
 #page, header, footer {
-  max-width: 960px;
+  max-width: 1170px;
   margin: 0 auto;
 }
 #page {
@@ -63,10 +54,12 @@ header .heading {
   position: relative;
 }
 header h1 {
-  color: #362d10;
   display: inline-block;
   position: absolute;
   bottom: 0;
+}
+h1, h2, h3, h4, h5, h6 {
+  color: #362d10;
 }
 
 /*
@@ -92,4 +85,21 @@ footer select {
 }
 footer select option {
   padding: 0.1em;
+}
+
+/*
+ * Form controls
+ */
+.btn-primary {
+  background: rgb(61, 51, 20);
+}
+.btn {
+  border-radius: 12px;
+  font-size: 20px;
+  padding: 0.5em 0px;
+  background-image: none;
+}
+input[type="text"].input-xlarge {
+  padding: 10px;
+  height: auto;
 }

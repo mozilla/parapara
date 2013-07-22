@@ -48,7 +48,7 @@
   </div>
 </header>
 
-<div id="page">
+<div id="page" class="container">
   <div class="screen" id="screen-loading">
     <img src="<?php echo $wallMakerRoot?>/img/spinner.gif" class="spinner">
   </div>

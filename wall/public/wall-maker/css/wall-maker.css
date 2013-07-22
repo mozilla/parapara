@@ -5,12 +5,6 @@
 /*
  * Base styles
  */
-h2, h3 {
-  font-weight: normal;
-}
-h2 {
-  margin-top: 1.5em;
-}
 .center {
   text-align: center;
 }
@@ -60,13 +54,11 @@ input[type=text], input[type=password], textarea {
  */
 a.button, button {
   display: inline-block;
-  width: 200px;
   border-radius: 12px;
   vertical-align: middle;
   background-color: rgb(61, 51, 20);
   text-align: center;
   padding: 0.5em 0;
-  margin: 0 1em;
   color: white;
   font-size: 18px;
 }
@@ -310,48 +302,32 @@ hr {
 /*
  * Create wall wizard
  */
-#screen-new {
-  width: 90%;
-  margin-left: auto;
-  margin-right: auto;
-  text-align: center;
-}
-#screen-new button {
-  margin-left: 0.3em;
-  margin-right: 0.3em;
-}
-#create-name {
-  width: 90%;
-  max-width: 20em;
-}
-#screen-new .designSelection {
-  margin-bottom: 2em;
+.fieldDescr {
+  color: #362d10;
+  padding-top: 2px;
 }
 
 /*
  * Design selection graphical radio buttons
  */
-.designSelection {
-  display: block;
-  text-align: center;
-  margin: 0.5em;
+.designSelection label {
+  display: inline-block;
 }
 .designSelection label {
   display: inline-block;
   margin: 0.2em;
-  padding: 1em;
-  border: 3px dashed rgba(0,0,0,0);
-  border-radius: 0.8em;
+  padding: 10px;
+  border: 2px solid rgba(0,0,0,0);
+  border-radius: 25px;
   transition-property: all;
   transition-duration: 0.2s;
 }
-.designSelection label:hover {
-  background: rgba(200,200,255,0.3);
-  border-color: blue;
+.designSelection label:hover,
+.designSelection label.selected {
+  background: rgba(61, 51, 20, 0.2);
 }
 .designSelection label.selected {
-  background: #ffed8b;
-  border-color: #f7931e;
+  border-color: rgb(61, 51, 20);
 }
 .designSelection label.selected.disabled {
   background: lightgrey;
