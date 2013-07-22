@@ -47,9 +47,12 @@ function ($, _, Backbone, Bootstrap,
         languageSelection: new LanguageSelectionView(),
         loadErrorScreen:   new LoadErrorScreenView(
                                  { onreload: loadCurrentPage } ) };
-    fixedViews.loginStatus.on("logout", function() {
-      login.logout();
-    });
+
+    // Logged-in screens (cleared on logout)
+    var userScreens =
+      { homeScreen: null,
+        newWallScreen: null,
+        manageWallView: null };
 
     // Login management
     var login = new Login({ sessionName: 'WMSESSID',
@@ -79,24 +82,22 @@ function ($, _, Backbone, Bootstrap,
       fixedViews.loginStatus.loggedOut();
       toggleScreen(fixedViews.loginScreen.$el);
 
-      // XXX Clear all models
+      // Clear all models
+      walls = undefined;
+      designs = undefined;
 
       // Clear all screens so user data is not available by inspecting the DOM
       _.each(userScreens, function (screen, index, array) {
         if (screen) {
-          screen.$el.remove();
+          screen.$el.empty();
         }
         array[index] = null;
       });
     });
 
-    // Screen navigation
-
-    // Logged-in screens (cleared on logout)
-    var userScreens =
-      { homeScreen: null,
-        newWallScreen: null,
-        manageWallView: null };
+    fixedViews.loginStatus.on("logout", function() {
+      login.logout();
+    });
 
     // Set up router
     var router = Router.initialize();
@@ -182,6 +183,7 @@ function ($, _, Backbone, Bootstrap,
         })
         .fail(function() {
           walls = undefined;
+          designs = undefined;
           toggleScreen($('#screen-load-error'));
         });
       } else {
