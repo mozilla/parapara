@@ -272,7 +272,7 @@
 <footer>
   <form class="form-inline">
     <label for="lang" data-l10n-id="other-lang">Other languages</label>
-    <select id="lang" name="lang" dir="ltr" class="input-small">
+    <select id="lang" name="lang" dir="ltr" class="input-medium">
       <option lang="en" value="en">English</option>
       <option lang="ja" value="ja">日本語</option>
     </select>
