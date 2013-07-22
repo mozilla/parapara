@@ -20,7 +20,7 @@ function($, Backbone, MessageBoxView) {
       // which is non-fatal so tell the user to try again.
       if (errorKey == "login-fail")
         errorKey = "try-again";
-      this.messageBoxView.setMessage(errorKey, "login-failed");
+      this.messageBoxView.setMessage(errorKey, { keyPrefix: "login-failed" });
     },
     clearError: function() {
       this.setError();

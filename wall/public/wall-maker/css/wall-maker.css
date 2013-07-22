@@ -214,17 +214,12 @@ div.alert[hidden] {
 }
 div.alert button, div.alert a.button {
   display: inline-block;
-  margin-top: 1.5em;
-  margin-button: 0.5em;
+  margin-top: 0.5em;
 }
 
 /*
  * Login screen
  */
-#loginError {
-  background: papayawhip;
-  border: 1px solid #aa0;
-}
 .loginExplain {
   background: #cfc;
   border: 1px solid #0d0;

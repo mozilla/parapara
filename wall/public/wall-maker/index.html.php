@@ -53,8 +53,7 @@
     <img src="<?php echo $wallMakerRoot?>/img/spinner.gif" class="spinner">
   </div>
   <div class="screen" id="screen-login" hidden>
-    <div id="loginError" class="callout" hidden>
-    </div>
+    <div id="loginError" class="alert" hidden></div>
     <div class="callout loginExplain">
       <p data-l10n-id="persona-explanation"></p>
       <div class="loginButtonLarge">
@@ -252,22 +251,12 @@
   </div>
 -->
   <div class="screen" id="screen-load-error" hidden>
-    <div class="message error">
+    <div class="alert alert-error">
       <div class="messageText" data-l10n-id="load-error"></div>
-      <button type="button" class="retry" data-l10n-id="retry">Retry</button>
+      <button type="button" class="btn btn-primary retry"
+        data-l10n-id="retry">Retry</button>
     </div>
   </div>
-<!--
-  <div class="screen" id="screen-error" hidden>
-    <div class="message error">
-      <div class="messageText"></div>
-      <a href="<?php echo $wallMakerRoot ?>/"
-        class="button arrow left center return">戻る</a>
-      <button type="button" class="retry"
-        onclick="javascript:UserData.updateWalls()">再試行</button>
-    </div>
-  </div>
--->
 </div>
 <footer>
   <form class="form-inline">
