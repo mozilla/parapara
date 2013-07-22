@@ -64,9 +64,7 @@ header .heading {
 }
 header h1 {
   color: #362d10;
-  font-size: 2.2em;
   display: inline-block;
-  margin: 0 0.5em 0.5em;
   position: absolute;
   bottom: 0;
 }
@@ -82,13 +80,16 @@ footer {
   text-align: right;
   color: #666;
 }
+footer form {
+  margin-bottom: 0;
+}
+footer label {
+  vertical-align: bottom;
+}
 footer select {
   margin-right: 0.75em;
   opacity: 0.7;
 }
 footer select option {
   padding: 0.1em;
-}
-footer * {
-  font-size: 0.9em;
 }
