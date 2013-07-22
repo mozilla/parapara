@@ -10,6 +10,9 @@ define([ 'jquery',
 function($, _, Backbone, BaseView, template) {
   return BaseView.extend({
     el: $('#loginStatus'),
+    events: {
+      "click button": function() { this.trigger("logout"); }
+    },
     email: null,
     render: function() {
       return this.renderTemplate(template, { email: this.email });

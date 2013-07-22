@@ -47,6 +47,9 @@ function ($, _, Backbone, Bootstrap,
         languageSelection: new LanguageSelectionView(),
         loadErrorScreen:   new LoadErrorScreenView(
                                  { onreload: loadCurrentPage } ) };
+    fixedViews.loginStatus.on("logout", function() {
+      login.logout();
+    });
 
     // Login management
     var login = new Login({ sessionName: 'WMSESSID',
@@ -132,13 +135,10 @@ function ($, _, Backbone, Bootstrap,
     var linkWatcher = new LinkWatcher(WallMaker.rootUrl);
     linkWatcher.on("navigate", function(href) {
       switch (href) {
+        // XXX This should eventually disappear
         case 'login':
           fixedViews.loginScreen.clearError();
           login.login();
-          break;
-
-        case 'logout':
-          login.logout();
           break;
 
         default:
