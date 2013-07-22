@@ -98,7 +98,8 @@ footer select option {
 }
 .btn:not(.btn-mini) {
   font-size: 20px;
-  padding: 0.5em 0px;
+  padding-top: 0.5em;
+  padding-bottom: 0.5em;
 }
 input[type="text"].input-xlarge {
   padding: 10px;

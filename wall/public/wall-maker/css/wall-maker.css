@@ -263,44 +263,33 @@ hr {
 /*
  * Wall list
  */
-#wallSummary {
-  margin-top: 2em;
-}
 #wallSummary ul {
-  padding: 0;
   text-align: center;
-  margin: 0.5em 0;
-}
-#wallSummary li {
-  display: inline-block;
-  margin: 0 15px 1em 15px;
 }
 #wallSummary .thumbnail {
   display: inline-block;
-  padding: 15px;
+  padding: 10px;
   border-radius: 10px;
-  background-color: rgb(61, 51, 20);
   vertical-align: middle;
 }
 #wallSummary .thumbnail img {
-  border-radius: 10px;
-  vertical-align: middle;
+  border-radius: 6px;
 }
-#wallSummary .label {
+.wall-label {
+  display: block;
   margin-top: 5px;
   text-align: center;
+  font-weight: bold;
+  color: black;
 }
 #firstTimeHome {
   text-align: center;
   background: #cfc;
   border: 1px solid #0d0;
 }
-#wallSummaryError {
-  text-align: center;
-}
 
 /*
- * Create wall wizard
+ * New wall screen
  */
 .fieldDescr {
   color: #362d10;
