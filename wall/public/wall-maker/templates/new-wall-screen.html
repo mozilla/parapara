@@ -2,14 +2,25 @@
 <div class="message" id="create-message" hidden>
 </div>
 <form name="createWall">
-  <input type="text" name="name" required autocomplete="off"
-    maxlength="255" id="create-name" data-l10n-id="new-wall-name"
-    placeholder="">
-  <div class="designSelection"></div>
-  <div class="center">
-    <button type="submit" name="" class="submitButton"
+  <div class="row">
+    <span class="span2 fieldDescr">Name of the event</span>
+    <span class="span10">
+      <input type="text" name="name" required autocomplete="off"
+        maxlength="255" id="create-name" data-l10n-id="new-wall-name"
+        placeholder="" class="input-xlarge">
+    </span>
+  </div>
+  <div class="row">
+    <span class="span2 fieldDescr">Wall theme</span>
+    <span class="span10">
+      <div class="designSelection"></div>
+    </span>
+  </div>
+  <div class="form-actions">
+    <button type="submit" class="btn btn-primary input-medium"
       data-l10n-id="create"></button>
-    <button type="button" class="cancel" data-l10n-id="cancel"></button>
+    <button type="button" class="btn input-medium cancel"
+      data-l10n-id="cancel"></button>
     <div class="inline-spinner" hidden></div>
   </div>
 </form>
