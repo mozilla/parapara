@@ -12,17 +12,21 @@ require.config({
     views: '../../wall-maker/js/views',
     // Shims
     backbone: 'backbone-min',
+    bootstrap: 'bootstrap.min',
     jquery: 'jquery-2.0.2.min',
     underscore: 'underscore-min',
     webL10n: 'l10n'
   },
   shim: {
-    'underscore': {
-      exports: '_'
-    },
     'backbone': {
       deps: ['underscore', 'jquery', 'json2'],
       exports: 'Backbone'
+    },
+    'bootstrap': {
+      deps: ['jquery']
+    },
+    'underscore': {
+      exports: '_'
     },
     'webL10n': {
       exports: 'document.webL10n'

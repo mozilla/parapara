@@ -11,6 +11,7 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <title data-l10n-id="page-title">Parapara Animation Wall Maker</title>
+  <link rel="stylesheet" href="/css/bootstrap.min.css" media="screen">
   <link rel="stylesheet" href="/css/parapara.css">
   <link rel="stylesheet"
     href="<?php echo $wallMakerRoot; ?>/css/wall-maker.css">
@@ -25,7 +26,7 @@
   </script>
   <script data-main="<?php echo $wallMakerRoot ?>/js/main.js"
     src="/js/lib/require.js"></script>
-  <meta name="viewport" content="width=580">
+  <meta name="viewport" content="width=580, initial-scale=1.0">
 </head>
 <body>
 
