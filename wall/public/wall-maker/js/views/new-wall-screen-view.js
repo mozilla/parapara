@@ -37,7 +37,7 @@ function(_, Backbone, webL10n, BaseView, DesignSelectionView, MessageBoxView,
 
       // Render subviews
       this.renderSubview('.designSelection', this.designSelectionView);
-      this.renderSubview('.message', this.messageBoxView);
+      this.renderSubview('.alert', this.messageBoxView);
 
       return this;
     },
@@ -68,7 +68,8 @@ function(_, Backbone, webL10n, BaseView, DesignSelectionView, MessageBoxView,
           error: function(wall, resp) {
             var error = resp.responseJSON ? resp.responseJSON.error_key
                                           : resp.statusText;
-            view.messageBoxView.setMessage(error, "create-failed");
+            view.messageBoxView.setMessage(error,
+              { keyPrefix: "create-failed" });
           },
           complete: function() {
             view.enableForm();
