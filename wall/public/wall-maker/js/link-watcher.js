@@ -31,9 +31,13 @@ define(["backbone"], function(Backbone) {
               function (newNode) {
                 if (newNode.nodeType != Node.ELEMENT_NODE)
                   return;
+                // Look for links amongst the nodes descendants
                 links =
                   links.concat(
                     [].slice.call(newNode.getElementsByTagName("a")));
+                // Don't forget the node itself
+                if (newNode.tagName == 'A')
+                  links.push(newNode);
               }
             );
             links.forEach(possiblyAddListener);
