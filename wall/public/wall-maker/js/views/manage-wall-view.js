@@ -54,13 +54,14 @@ function(_, Backbone, webL10n, BaseView, AutoSaveTextBox, MessageBoxView,
             var message = webL10n.get(messageKey);
             $(field).popover({ placement: 'right', animation: true,
                                content: message, trigger: 'focus' })
-                    .popover('show');
+                    .popover('show')
+                    .attr('data-popover-enabled', 'data-popover-enabled');
           }
         });
       this.listenTo(this.model, "sync",
         function() {
           view.messageBoxView.clearMessage();
-          this.$('.popover').remove();
+          this.$('[data-popover-enabled]').popover('destroy');
         });
     },
     render: function() {
