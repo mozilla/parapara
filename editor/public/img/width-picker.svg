@@ -30,7 +30,15 @@
   </symbol>
 </defs>
 <!-- Background -->
-<rect width="254" height="102" rx="20" ry="20" fill="#F9EBB8"/>
+<rect width="254" height="102" rx="20" ry="20" fill="#F9EBB8">
+  <!-- Workaround for Mozilla bug 882527
+       By animating the background it seems we cause the invalidation region to
+       be larger and we don't get left with artifacts.
+       https://bugzilla.mozilla.org/show_bug.cgi?id=882527 -->
+  <animate attributeName="opacity"
+    values="0.99; 1" dur="0.4s"
+    begin="grow\-big.begin; grow\-middle.begin; grow\-small.begin"/>
+</rect>
 <!-- Selection rings -->
 <g transform="translate(52 51)">
   <circle r="34.41" class="selectionRing" stroke-dasharray="10.8"

@@ -51,6 +51,8 @@
                   lang=en>English
                 <li class=lang aria-checked=false aria-role=menuitemradio 
                   lang=ja>日本語
+                <li class=lang aria-checked=false aria-role=menuitemradio 
+                  lang=ca>Català
               </menu>
             </details>
           </nav>
@@ -143,7 +145,8 @@
             <!-- The content here is dynamically inserted -->
           </div>
           <button type="button" class="text" style="margin-top: 0.6em"
-            onclick="EditorUI.clearNoteAndReset()" data-l10n-id="ok">OK</button>
+            onclick="EditorUI.clearNoteAndReset()"
+            data-l10n-id="close">Close</button>
         </div>
         <div class="overlay-contents error" id="noteSendingFailed">
           <span data-l10n-id="sending-failed">Sending failed</span><br><br>

@@ -893,11 +893,20 @@ EditorUI.updateSVGCanvasSize = function() {
   var vbHeight = 300; // This is fixed
   var vbWidth = vbHeight * availWidth / availHeight;
 
+  // There seems to be an invalidation bug in Fennec (Bug 887113) that causes 
+  // a strip along the top of the canvas to not be rendered. We work around this
+  // by shifting the canvas up and adjusting the viewbox accordingly.
+  var overlap = 50;
+
   // Set the SVG canvas size explicitly.
   var canvas = document.getElementById("canvas");
   canvas.setAttribute("width", availWidth);
-  canvas.setAttribute("height", availHeight);
-  canvas.setAttribute("viewBox", [0, 0, vbWidth, vbHeight].join(" "));
+  canvas.setAttribute("height", availHeight + overlap);
+  canvas.setAttribute("viewBox",
+                      [0, -50, vbWidth, vbHeight + overlap].join(" "));
+  if (overlap) {
+    canvas.parentElement.style.marginTop = '-' + overlap + 'px';
+  }
 }
 
 EditorUI.updateToolbox = function() {
@@ -1008,7 +1017,9 @@ EditorUI.updateToolbox = function() {
     picker.style.width = parseFloat(picker.style.height) * ratio + 'px';
   }
   // Needed for WebKit
-  picker.contentDocument.updateViewbox();
+  if (picker.contentDocument.updateViewbox) {
+    picker.contentDocument.updateViewbox();
+  }
 }
 
 EditorUI.getAspectRatio = function(panel) {
@@ -1019,6 +1030,11 @@ EditorUI.getAspectRatio = function(panel) {
     return 0.6845;
   }
   var viewBox = panel.contentDocument.documentElement.getAttribute("viewBox");
+  if (!viewBox) {
+    // This can happen during loading when the contentDocument can be set to 
+    // about:blank
+    return 1;
+  }
   var parts = viewBox.split(" ");
   return parseFloat(parts[2]) / parseFloat(parts[3]);
 }
