@@ -3,4 +3,150 @@
     data-l10n-id="return"></a>
 </nav>
 <hr>
-<div id="wall-info"><h3><%- wall.name %></div>
+<div id="wall-info">
+  <form name="manageWall">
+    <section id="wall-summary">
+      <div id="wall-thumbnail">
+        <img src="<%- wall.thumbnail %>">
+      </div>
+      <div>
+        <div class="withIcon"><input type="text" id="manage-name"
+          name="name" value="<%- wall.name %>" size="<%=
+          Math.max(wall.name.length, 20) %>"></div>
+        <ul class="urlList">
+          <li>
+            <label data-l10n-id="wall-url"></label>
+            <span class="urlDetails">
+              <span class="highlighted-url">
+                <a id="wallUrl" href="<%- wall.wallUrl %>"><%=
+                  decodeURIComponent(wall.wallUrl) %></a>
+                <%
+    var splitPoint = wall.wallUrl.lastIndexOf('/') + 1;
+    var basePath = wall.wallUrl.slice(0, splitPoint);
+    var wallPath = decodeURIComponent(wall.wallUrl.slice(splitPoint));
+                %>
+                <span id="wallUrlEdit" hidden>
+                  <span id="wallUrlBase"><%- basePath %></span>
+                  <input type="text" id="wallPath" value="<%- wallPath %>"
+                    size="<%= Math.max(wallPath.length, 10) %>">
+                </span>
+              </span>
+              <span id="wallUrlViewControls" class="controls">
+                <button
+                  type="button" class="icon editUrl" id="editWallUrl" 
+                  title="" data-l10n-id="edit-wall-url"></button>
+              </span>
+              <span id="wallUrlSaveControls" class="controls">
+                <button type="button" class="btn btn-mini btn-primary"
+                  id="saveWallUrl" data-l10n-id="save"></button>
+                <button type="button" class="btn btn-mini"
+                  id="cancelSaveWallUrl" data-l10n-id="cancel"></button>
+              </span>
+            </span>
+          </li>
+          <li>
+            <label data-l10n-id="editor-url"></label>
+            <span class="urlDetails">
+              <span class="highlighted-url">
+                <a id="editorUrl" href="<%- wall.editorUrl %>"><%=
+                  decodeURIComponent(wall.editorUrl) %></a>
+              </span>
+              <span id="shortEditorUrlBlock">
+                or&nbsp;
+                <span class="highlighted-url">
+                  <a id="shortEditorUrl"></a>
+                  <a id="shortEditorUrl" href="<%- wall.editorUrlShort %>"><%=
+                    decodeURIComponent(wall.editorUrlShort) %></a>
+                </span>
+                <button type="button" class="icon qrCode"
+                  id="showEditorUrlQrCode"
+                  title="Show 2D barcode for this URL">QR</button>
+              </span>
+            </span>
+          </li>
+        </ul>
+      </div>
+    </section>
+    <hr>
+    <div class="message" hidden>
+      <div class="messageText"></div>
+    </div>
+    <div id="wall-details">
+      <menu type="toolbar" aria-role="tablist">
+        <a href="#session" aria-role="tab"
+          aria-controls="manage-session"
+          aria-selected="true">セッション</a><a
+          href="#design" aria-role="tab"
+          aria-controls="manage-design">デザイン</a><a
+          href="#characters" aria-role="tab"
+          aria-controls="manage-characters">キャラクター</a>
+      </menu>
+      <div class="tab-pages">
+        <section id="manage-session" aria-role="tabpanel">
+          <div class="wallStatus">
+            <span class="currentWallStatus"></span>
+            <div class="spinnerContainer">
+              <img src="<?php echo $wallMakerRoot?>/img/spinner.gif" 
+                class="spinner">
+            </div>
+            <div class="latestSession">
+              <label>最新のセッション</label>
+              <span class="latestSessionTime"></span>
+            </div>
+          </div>
+          <div class="sessionButtons">
+            <button type="button"
+              id="manage-startSession">新セッションをスタートする</button>
+            <button type="button"
+               id="manage-endSession">セッションを終了する</button>
+          </div>
+          <div class="callout">
+            <p>
+              新しいセッションをスタートすると現在見えるキャラクター全てが見えなくなります。
+            </p>
+            <p>
+              セッションを終了するとこの壁が新しいキャラクターを受け取りません。
+            </p>
+          </div>
+        </section>
+        <section id="manage-design" aria-role="tabpanel" hidden>
+          <div class="designSelection withIcon"></div>
+          <div id="durationControls" class="withIcon">
+            <label class="inline">一周期間 (秒）</label>
+            <input type="range" min=10 max=1200 value=240 step=10
+              id="duration">
+            <span id="duration-units">3h30m</span>
+            <button type="button" class="small"
+              id="reset-duration">Reset</button>
+          </div>
+        </section>
+        <section id="manage-gallery" aria-role="tabpanel" hidden>
+          <dl>
+            <dt>ギャラリーに表示</dt>
+            <dd class="alongside">
+              <label>
+                <input type="radio" name="manage-galleryDisplay" value="1"
+                  checked>On
+              </label>
+              <label>
+                <input type="radio" name="manage-galleryDisplay" value="0">
+                Off
+              </label>
+              <div class="fieldExplain">ギャラリーの説明</div>
+            </dd>
+            <dt><label class="optional"
+              for="create-eventDescr">イベントの説明</label></dt>
+            <dd>
+              <textarea name="eventDescr" class="eventDescr"
+                id="manage-eventDescr"></textarea>
+            </dd>
+          </dl>
+        </section>
+        <section id="manage-characters" aria-role="tabpanel" hidden>
+          <h3>セッション１</h3>
+          <h3>セッション２</h3>
+        </section>
+      </div>
+    </div>
+  </form>
+</div>
