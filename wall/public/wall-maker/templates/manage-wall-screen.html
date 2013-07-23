@@ -1,6 +1,7 @@
 <nav aria-role="navigation">
   <a href="<%= appRoot %>/" class="btn btn-primary input-medium left arrow"
     data-l10n-id="return"></a>
+  <div class="alert"></div>
 </nav>
 <hr>
 <div id="wall-info">
@@ -10,8 +11,8 @@
         <img src="<%- wall.thumbnail %>">
       </div>
       <div>
-        <div class="withIcon"><input type="text" id="manage-name"
-          name="name" value="<%- wall.name %>" size="<%=
+        <div id="manage-name-wrapper" class="withIcon"><input type="text"
+          id="manage-name" name="name" value="<%- wall.name %>" size="<%=
           Math.max(wall.name.length, 20) %>"></div>
         <ul class="urlList">
           <li>
@@ -68,9 +69,6 @@
       </div>
     </section>
     <hr>
-    <div class="message" hidden>
-      <div class="messageText"></div>
-    </div>
     <div id="wall-details">
       <menu type="toolbar" aria-role="tablist">
         <a href="#session" aria-role="tab"
@@ -86,8 +84,7 @@
           <div class="wallStatus">
             <span class="currentWallStatus"></span>
             <div class="spinnerContainer">
-              <img src="<?php echo $wallMakerRoot?>/img/spinner.gif" 
-                class="spinner">
+              <img src="<%= appRoot %>/img/spinner.gif" class="spinner">
             </div>
             <div class="latestSession">
               <label>最新のセッション</label>

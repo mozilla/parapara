@@ -11,7 +11,11 @@ function(_, Backbone, webL10n, BaseView, template) {
   return BaseView.extend({
     events: {
       "click .retry": function() { this.trigger("retry"); },
-      "click .return": function() { this.trigger("back"); }
+      "click .return": function() { this.trigger("back"); },
+      // The way we use these message boxes is that they extend an existing
+      // element. When we dismiss one of these we don't want to remove that
+      // element from the DOM but just hide it.
+      "click .close": function() { this.clearMessage(); }
     },
     render: function() {
       if (this.messageKey) {

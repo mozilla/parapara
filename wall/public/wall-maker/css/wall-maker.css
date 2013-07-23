@@ -75,9 +75,6 @@ button {
   -webkit-box-sizing: content-box;
   box-sizing: content-box;
 }
-a.button:hover, button:hover {
-  background-color: black;
-}
 button[disabled], a.button.disabled {
   background-color: lightgrey;
 }
@@ -334,8 +331,10 @@ hr {
   box-shadow: 2px 2px 3px rgba(0,0,0,0.4);
   width: 90%;
 }
-#wall-info .message {
-  width: 80%;
+#screen-manage .alert {
+  position: fixed;
+  top: 10px;
+  box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1)
 }
 #wall-summary > div {
   display: inline-block;
@@ -351,11 +350,12 @@ hr {
  * Management screen wall summmary
  */
 #manage-name {
-  font-size: 1.7em;
+  height: auto; /* Bootstrap's fixed height obscures the IME underline */
   font-weight: bold;
   color: #362D10;
   background: none;
   border: 1px inset transparent;
+  box-shadow: none;
 }
 #manage-name:hover, #manage-name:focus, .sending #manage-name {
   background: white;
@@ -508,7 +508,7 @@ section[aria-role=tabpanel] {
   width: 16px;
   height: 16px;
   margin: 5px;
-  vertical-align: bottom;
+  vertical-align: middle;
   background-repeat: no-repeat;
 }
 #screen-manage .withIcon.editing:after {

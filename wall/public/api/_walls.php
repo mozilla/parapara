@@ -71,6 +71,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
     break;
 
   case 'PUT':
+  case 'PATCH':
     if ($wall === "Not specified")
       bailWithError('bad-request');
     if ($wall === null)
