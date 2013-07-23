@@ -8,7 +8,10 @@ define([ 'underscore',
          'text!templates/manage-wall-screen.html' ],
 function(_, Backbone, BaseView, template) {
   return BaseView.extend({
-    el: $("#screen-manage"),
+    tagName: 'div',
+    className: 'screen',
+    attributes: { 'hidden': 'hidden' },
+    id: 'screen-manage',
     initialize: function() {
       this.listenTo(this.model, "change", this.render);
       // XXX Trigger async refresh of wall data

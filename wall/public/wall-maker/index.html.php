@@ -63,9 +63,6 @@
       </div>
     </div>
   </div>
-  <div class="screen" id="screen-home" hidden></div>
-  <div class="screen" id="screen-new" hidden></div>
-  <div class="screen" id="screen-manage" hidden></div>
   <!--
   <div class="screen" id="screen-manage" aria-hidden="true">
     <nav aria-role="navigation">

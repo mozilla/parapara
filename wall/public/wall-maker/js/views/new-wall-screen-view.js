@@ -12,7 +12,10 @@ define([ 'underscore',
 function(_, Backbone, webL10n, BaseView, DesignSelectionView, MessageBoxView,
          template) {
   return BaseView.extend({
-    el: $("#screen-new"),
+    tagName: 'div',
+    className: 'screen',
+    attributes: { 'hidden': 'hidden' },
+    id: 'screen-new',
     events: {
       "submit form": "create",
       "click button.cancel": "cancel",

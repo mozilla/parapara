@@ -92,7 +92,7 @@ function ($, _, Backbone, Bootstrap,
       // Clear all screens so user data is not available by inspecting the DOM
       _.each(userScreens, function (screen, index, array) {
         if (screen) {
-          screen.$el.empty();
+          screen.remove();
         }
         array[index] = null;
       });
@@ -109,6 +109,7 @@ function ($, _, Backbone, Bootstrap,
       function() {
         if (!userScreens.homeScreen) {
           userScreens.homeScreen = new HomeScreenView({ collection: walls });
+          $('#page').append(userScreens.homeScreen.el);
         }
         toggleScreen(userScreens.homeScreen.render().$el);
       });
@@ -118,28 +119,35 @@ function ($, _, Backbone, Bootstrap,
         if (!userScreens.newWallScreen) {
           userScreens.newWallScreen = new NewWallScreenView(
             { designs: designs, walls: walls });
+          $('#page').append(userScreens.newWallScreen.el);
         }
         toggleScreen(userScreens.newWallScreen.render().$el);
       });
 
     router.on("route:manageWall",
       function(wallId, tab) {
-        var wall = walls.get(wallId);
-        if (!wall) {
-          // XXX Not found, no authorisation
-        } else {
-          // Remove any old instance
+        // Load wall
+        if (!userScreens.manageWallView ||
+            userScreens.manageWallView.model.id !== wallId) {
+          // Remove any old views
           if (userScreens.manageWallView) {
             userScreens.manageWallView.remove();
             userScreens.manageWallView = null;
           }
+          // Fetch wall
+          var wall = walls.get(wallId);
+          if (!wall) {
+            // XXX Not found, no authorisation
+            return;
+          }
           // Create and render screen
           userScreens.manageWallView =
             new ManageWallView({ model: wall, designs: designs });
-          toggleScreen(userScreens.manageWallView.render());
+          $('#page').append(userScreens.manageWallView.el);
+          toggleScreen(userScreens.manageWallView.render().$el);
         }
+        // XXX Switch tab
       });
-    router.on("manageSession", function() { } );
 
     // Link watching
     var linkWatcher = new LinkWatcher(WallMaker.rootUrl);

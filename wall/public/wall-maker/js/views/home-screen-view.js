@@ -8,7 +8,10 @@ define([ 'underscore',
          'text!templates/home-screen.html' ],
 function(_, Backbone, BaseView, template) {
   return BaseView.extend({
-    el: $("#screen-home"),
+    tagName: 'div',
+    className: 'screen',
+    attributes: { 'hidden': 'hidden' },
+    id: 'screen-home',
     render: function() {
       return this.renderTemplate(template, { walls: this.collection.toJSON() });
     }
