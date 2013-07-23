@@ -97,22 +97,24 @@ button.small, a.button.small {
 /*
  * Arrow buttons
  */
-button.arrow, a.button.arrow {
+.btn.arrow {
   background-size: 100% 100%;
   background-position: center;
   background-repeat: no-repeat;
   background-color: transparent;
+  border-style: none;
+  box-shadow: none;
 }
-button.arrow.left, a.button.arrow.left {
+.btn.arrow.left {
   background-image: url("data:image/svg+xml,<svg viewBox='0 0 200 36' height='100%' width='100%' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none'><path fill='rgb(61, 51, 20)' d='M200,5c0,-2,-2,-5,-5,-5h-168c-6,0,-26,14,-26,18c0,4,20,18,26,18h168c3,0,5,-2,5,-5z'/></svg>");
 }
-button.arrow.right, a.button.arrow.right {
+.btn.arrow.right {
   background-image: url("data:image/svg+xml,<svg viewBox='0 0 200 36' height='100%' width='100%' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none'><path fill='rgb(61, 51, 20)' d='M0,5c0,-2,2,-5,5,-5h168c6,0,26,14,26,18c0,4,-20,18,-26,18h-168c-3,0,-5,-2,-5,-5z'/></svg>");
 }
-button.arrow.left:hover, a.button.arrow.left:hover {
+.btn.arrow.left:hover {
   background-image: url("data:image/svg+xml,<svg viewBox='0 0 200 36' height='100%' width='100%' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none'><path fill='black' d='M200,5c0,-2,-2,-5,-5,-5h-168c-6,0,-26,14,-26,18c0,4,20,18,26,18h168c3,0,5,-2,5,-5z'/></svg>");
 }
-button.arrow.right:hover, a.button.arrow.right:hover {
+.btn.arrow.right:hover {
   background-image: url("data:image/svg+xml,<svg viewBox='0 0 200 36' height='100%' width='100%' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none'><path fill='black' d='M0,5c0,-2,2,-5,5,-5h168c6,0,26,14,26,18c0,4,-20,18,-26,18h-168c-3,0,-5,-2,-5,-5z'/></svg>");
 }
 
@@ -244,7 +246,7 @@ hr {
   width: 95%;
   height: 1px:
   display: block;
-  margin: 20px auto;
+  margin: 1em auto;
 }
 
 /*
