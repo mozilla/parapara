@@ -63,10 +63,9 @@
       </div>
     </div>
   </div>
-  <div class="screen" id="screen-home" hidden>
-  </div>
-  <div class="screen" id="screen-new" hidden>
-  </div>
+  <div class="screen" id="screen-home" hidden></div>
+  <div class="screen" id="screen-new" hidden></div>
+  <div class="screen" id="screen-manage" hidden></div>
   <!--
   <div class="screen" id="screen-manage" aria-hidden="true">
     <nav aria-role="navigation">
@@ -250,12 +249,8 @@
     </div>
   </div>
 -->
-  <div class="screen" id="screen-load-error" hidden>
-    <div class="alert alert-error">
-      <div class="messageText" data-l10n-id="load-error"></div>
-      <button type="button" class="btn btn-primary retry"
-        data-l10n-id="retry">Retry</button>
-    </div>
+  <div class="screen" id="screen-error" hidden>
+    <div class="alert alert-block"></div>
   </div>
 </div>
 <footer>

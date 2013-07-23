@@ -6,6 +6,7 @@ define([ 'jquery',
          'underscore',
          'backbone' ],
 function($, _, Backbone) {
-  var Wall = Backbone.Model.extend({ });
-  return Wall;
+  return Backbone.Model.extend({
+    idAttribute: 'wallId'
+  });
 });

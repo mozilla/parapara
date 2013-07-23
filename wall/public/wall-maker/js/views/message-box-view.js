@@ -2,18 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([ 'jquery',
-         'underscore',
+define([ 'underscore',
          'backbone',
-         'webL10n' ],
-function($, _, Backbone, webL10n) {
-  return Backbone.View.extend({
-    initialize: function() {
-      $(window).on("localized", null, this.render.bind(this));
+         'webL10n',
+         'views/base-view',
+         'text!templates/message-box.html' ],
+function(_, Backbone, webL10n, BaseView, template) {
+  return BaseView.extend({
+    events: {
+      "click .retry": function() { this.trigger("retry"); },
+      "click .return": function() { this.trigger("back"); }
     },
     render: function() {
       if (this.messageKey) {
-        // Setup message
+        // Find message key
+        //
         // Try keys in order:
         //   i.   prefix-key
         //   ii.  key
@@ -25,16 +28,15 @@ function($, _, Backbone, webL10n) {
           : [ this.messageKey ];
         var key =
           _.find(candidateKeys,
-            function(candidate) {
-              return !!webL10n.getData()[candidate]; }
+            function(candidate) { return !!webL10n.getData()[candidate]; }
           );
-        var message = key ? webL10n.get(key) : "Something went wrong.";
-        this.$el.html(message);
 
-        // Add dismissal button
-        if (this.messageOptions.dismiss)
-          this.$el.prepend('<button type="button" class="close"' +
-            ' data-dismiss="alert">&times;</button>');
+        // Render
+        this.renderTemplate(template,
+          { messageKey: key,
+            dismiss: this.messageOptions.dismiss,
+            back: this.messageOptions.back,
+            retry: this.messageOptions.retry });
 
         // Update classes
         var container = this.$el;
@@ -45,14 +47,21 @@ function($, _, Backbone, webL10n) {
         // Show
         this.$el.removeAttr('hidden');
       } else {
+        // Hide
         this.$el.attr('hidden', 'hidden');
         this.$el.empty();
       }
+
+      return this;
     },
     setMessage: function(messageKey, options) {
       this.messageKey = messageKey;
       this.messageOptions =
-        _.defaults(options || {}, { category: 'error', dismiss: false } );
+        _.defaults(options || {},
+                   { category: 'error',
+                     dismiss: false,
+                     retry: false,
+                     back: false } );
       if (this.el) {
         this.render();
       }

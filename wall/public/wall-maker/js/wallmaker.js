@@ -16,7 +16,8 @@ define([ 'jquery',
          'views/language-selection-view',
          'views/login-status-view',
          'views/login-screen-view',
-         'views/load-error-screen-view',
+         'views/manage-wall-view',
+         'views/message-box-view',
          'views/new-wall-screen-view' ],
 function ($, _, Backbone, Bootstrap,
           Router,
@@ -29,7 +30,8 @@ function ($, _, Backbone, Bootstrap,
           LanguageSelectionView,
           LoginStatusView,
           LoginScreenView,
-          LoadErrorScreenView,
+          ManageWallView,
+          MessageBoxView,
           NewWallScreenView) {
 
   // Make the root URL available to all views (for templating)
@@ -42,11 +44,12 @@ function ($, _, Backbone, Bootstrap,
 
     // Persistent views (not removed on logout)
     var fixedViews =
-      { loginStatus:       new LoginStatusView(),
-        loginScreen:       new LoginScreenView(),
-        languageSelection: new LanguageSelectionView(),
-        loadErrorScreen:   new LoadErrorScreenView(
-                                 { onreload: loadCurrentPage } ) };
+      { loginStatus:        new LoginStatusView(),
+        loginScreen:        new LoginScreenView(),
+        languageSelection:  new LanguageSelectionView(),
+        errorScreenMessage: new MessageBoxView(
+                              { el: $('#screen-error .alert') }) };
+    fixedViews.errorScreenMessage.on("retry", loadCurrentPage);
 
     // Logged-in screens (cleared on logout)
     var userScreens =
@@ -119,18 +122,24 @@ function ($, _, Backbone, Bootstrap,
         toggleScreen(userScreens.newWallScreen.render().$el);
       });
 
-    /*
     router.on("route:manageWall",
-      function(wall, tab) {
-        if (!userScreens.manageWallView) {
-          userScreens.manageWallView = new ManageWallView(wall, designs);
+      function(wallId, tab) {
+        var wall = walls.get(wallId);
+        if (!wall) {
+          // XXX Not found, no authorisation
         } else {
-          userScreens.manageWallView.model = wall;
+          // Remove any old instance
+          if (userScreens.manageWallView) {
+            userScreens.manageWallView.remove();
+            userScreens.manageWallView = null;
+          }
+          // Create and render screen
+          userScreens.manageWallView =
+            new ManageWallView({ model: wall, designs: designs });
+          toggleScreen(userScreens.manageWallView.render());
         }
-        toggleScreen(userScreens.manageWallView.render());
       });
     router.on("manageSession", function() { } );
-    */
 
     // Link watching
     var linkWatcher = new LinkWatcher(WallMaker.rootUrl);
@@ -179,12 +188,15 @@ function ($, _, Backbone, Bootstrap,
         designs = new Designs();
         $.when(walls.fetch(), designs.fetch())
         .then(function() {
-          var matched = Backbone.history.loadUrl();
+          Backbone.history.loadUrl();
         })
         .fail(function() {
+          console.log("fail");
           walls = undefined;
           designs = undefined;
-          toggleScreen($('#screen-load-error'));
+          fixedViews.errorScreenMessage.setMessage('load-error',
+            { retry: true });
+          toggleScreen($('#screen-error'));
         });
       } else {
         Backbone.history.loadUrl();

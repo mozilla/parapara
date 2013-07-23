@@ -1,0 +1,12 @@
+<% if (dismiss) { %>
+<button type="button" class="close" data-dismiss="alert">&times;</button>
+<% } %>
+<div data-l10n-id="<%- messageKey %>"></div>
+<% if (back) { %>
+<a class="btn btn-primary return" data-l10n-id="return"
+  href="<%= appRoot %>"></a>
+<% } %>
+<% if (retry) { %>
+<button type="button" class="btn btn-primary retry"
+  data-l10n-id="retry"></button>
+<% } %>
