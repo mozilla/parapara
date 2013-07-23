@@ -137,7 +137,9 @@ function ($, _, Backbone, Bootstrap,
           // Fetch wall
           var wall = walls.get(wallId);
           if (!wall) {
-            // XXX Not found, no authorisation
+            fixedViews.errorScreenMessage.setMessage('wall-not-found',
+              { back: true });
+            toggleScreen($('#screen-error'));
             return;
           }
           // Create and render screen

@@ -212,7 +212,7 @@ div.alert[hidden] {
   line-height: 0;
   overflow: hidden;
 }
-div.alert button, div.alert a.button {
+div.alert .btn {
   display: inline-block;
   margin-top: 0.5em;
 }
