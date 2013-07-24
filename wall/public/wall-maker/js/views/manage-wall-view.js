@@ -25,8 +25,7 @@ function(_, Backbone, webL10n, BaseView, AutoSaveTextBox, MessageBoxView,
       this.autoSaveNameView = new AutoSaveTextBox();
       this.autoSaveNameView.on("save",
         function(textbox, saver) {
-          wall.attributes.name = textbox.value;
-          wall.save({ name: textbox.value }, { patch: true })
+          wall.save({ name: textbox.value }, { patch: true, wait: true })
           .then(function(wall) { saver.showSaveSuccess(wall.name); })
           .fail(function() { saver.showSaveError(); });
         });
@@ -34,7 +33,9 @@ function(_, Backbone, webL10n, BaseView, AutoSaveTextBox, MessageBoxView,
 
       // Register for changes
       var view = this;
-      this.listenTo(this.model, "change", this.render);
+      this.listenTo(this.model, "change", function() {
+        // view.render();
+      });
 
       // Common error handling
       this.listenTo(this.model, "error",
@@ -58,7 +59,8 @@ function(_, Backbone, webL10n, BaseView, AutoSaveTextBox, MessageBoxView,
                     .attr('data-popover-enabled', 'data-popover-enabled');
           }
         });
-      this.listenTo(this.model, "sync",
+      // Clear pop-ups when we go to save changes
+      this.listenTo(this.model, "request",
         function() {
           view.messageBoxView.clearMessage();
           this.$('[data-popover-enabled]').popover('destroy');
