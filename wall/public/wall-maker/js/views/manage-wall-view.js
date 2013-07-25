@@ -9,7 +9,7 @@ define([ 'underscore',
          'views/auto-save-textbox',
          'views/message-box-view',
          'text!templates/manage-wall-screen.html' ],
-function(_, Backbone, webL10n, BaseView, AutoSaveTextBox, MessageBoxView,
+function(_, Backbone, webL10n, BaseView, AutoSaveTextboxView, MessageBoxView,
          template) {
   return BaseView.extend({
     tagName: 'div',
@@ -22,7 +22,7 @@ function(_, Backbone, webL10n, BaseView, AutoSaveTextBox, MessageBoxView,
 
       // Create subviews
       var wall = this.model;
-      this.autoSaveNameView = new AutoSaveTextBox();
+      this.autoSaveNameView = new AutoSaveTextboxView();
       this.autoSaveNameView.on("save",
         function(textbox, saver) {
           wall.save({ name: textbox.value }, { patch: true, wait: true })
