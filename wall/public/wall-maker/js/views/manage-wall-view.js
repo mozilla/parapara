@@ -6,7 +6,7 @@ define([ 'underscore',
          'backbone',
          'webL10n',
          'views/base-view',
-         'views/auto-save-textbox',
+         'views/auto-save-textbox-view',
          'views/message-box-view',
          'text!templates/manage-wall-screen.html' ],
 function(_, Backbone, webL10n, BaseView, AutoSaveTextboxView, MessageBoxView,
@@ -17,25 +17,22 @@ function(_, Backbone, webL10n, BaseView, AutoSaveTextboxView, MessageBoxView,
     attributes: { 'hidden': 'hidden' },
     id: 'screen-manage',
     initialize: function() {
-      // XXX Trigger async refresh of wall data
       // XXX Trigger async load of characters
 
       // Create subviews
       var wall = this.model;
-      this.autoSaveNameView = new AutoSaveTextboxView();
-      this.autoSaveNameView.on("save",
-        function(textbox, saver) {
-          wall.save({ name: textbox.value }, { patch: true, wait: true })
-          .then(function(wall) { saver.showSaveSuccess(wall.name); })
-          .fail(function() { saver.showSaveError(); });
-        });
+      this.autoSaveNameView =
+        new AutoSaveTextboxView( { model: this.model, field: 'name' } );
       this.messageBoxView = new MessageBoxView();
 
       // Register for changes
       var view = this;
       this.listenTo(this.model, "change", function() {
-        // view.render();
+        // XXX Update design etc.
       });
+
+      // Trigger async refresh of wall data
+      this.model.fetch();
 
       // Common error handling
       this.listenTo(this.model, "error",
@@ -67,10 +64,31 @@ function(_, Backbone, webL10n, BaseView, AutoSaveTextboxView, MessageBoxView,
         });
     },
     render: function() {
+      // One of the biggest problems with using a string-base templating
+      // approach is that re-rendering clobbers form state.
+      //
+      // That means if we blindly call render we'll cause what the user is
+      // typing (but which has yet to be saved) to be lost, videos to restart,
+      // text selection to disappear etc.
+      //
+      // The best solution is to use a DOM-based templating system like Web
+      // Components, Angular, or possible transparency or distal or something of
+      // the sort.
+      //
+      // For now what we do is:
+      // 1. Only call render once on this view
+      // 2. Pass the model to subviews and make them responsible for watching
+      //    for changes and doing minimal updates.
+      // 3. Moving any complex logic out of the underscore templates and putting
+      //    them in the views (so we don't end up duplicating it--or more
+      //    likely, forgetting it--when we do the minimal update).
+      //
+      // Some subviews which don't have such state associated with them may
+      // implement minimal updates by just re-rendering but that's up to them.
       this.renderTemplate(template, { wall: this.model.toJSON() });
 
       // Render subviews
-      this.renderSubview('#manage-name-wrapper', this.autoSaveNameView);
+      this.renderSubview('#manage-name', this.autoSaveNameView);
       this.renderSubview('.alert', this.messageBoxView);
 
       return this;
