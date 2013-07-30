@@ -393,6 +393,7 @@ hr {
   font-size: 1em;
   padding: 3px 5px;
   border-width: 1px;
+  margin-bottom: 4px;
 }
 .urlList .controls {
   display: inline-block;
@@ -440,7 +441,7 @@ hr {
     flex-wrap: wrap;
   }
   .urlList li label {
-    padding-top: 8px;
+    padding-top: 0.7em;
     min-width: auto;
     flex: 0 0 4.5em;
   }

@@ -16,34 +16,7 @@
         <ul class="urlList">
           <li>
             <label data-l10n-id="wall-url"></label>
-            <span class="urlDetails">
-              <!--
-              <span class="highlighted-url">
-                <a id="wallUrl" href="<%- wall.wallUrl %>"><%=
-                  decodeURIComponent(wall.wallUrl) %></a>
-                <%
-    var splitPoint = wall.wallUrl.lastIndexOf('/') + 1;
-    var basePath = wall.wallUrl.slice(0, splitPoint);
-    var wallPath = decodeURIComponent(wall.wallUrl.slice(splitPoint));
-                %>
-                <span id="wallUrlEdit" hidden>
-                  <span id="wallUrlBase"><%- basePath %></span>
-                  <input type="text" id="wallPath" value="<%- wallPath %>"
-                    size="<%= Math.max(wallPath.length, 10) %>">
-                </span>
-              </span>
-              <span id="wallUrlViewControls" class="controls">
-                <button
-                  type="button" class="icon editUrl" id="editWallUrl" 
-                  title="" data-l10n-id="edit-wall-url"></button>
-              </span>
-              <span id="wallUrlSaveControls" class="controls">
-                <button type="button" class="btn btn-mini btn-primary"
-                  id="saveWallUrl" data-l10n-id="save"></button>
-                <button type="button" class="btn btn-mini"
-                  id="cancelSaveWallUrl" data-l10n-id="cancel"></button>
-              </span>
-            -->
+            <span class="urlDetails" id="manage-wallUrl">
             </span>
           </li>
           <li>

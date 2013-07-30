@@ -8,10 +8,11 @@ define([ 'underscore',
          'webL10n',
          'views/base-view',
          'views/auto-save-textbox-view',
+         'views/pathly-editable-url-view',
          'views/message-box-view',
          'text!templates/manage-wall-screen.html' ],
 function(_, Backbone, soma, webL10n,
-         BaseView, AutoSaveTextboxView, MessageBoxView,
+         BaseView, AutoSaveTextboxView, PathlyEditableUrlView, MessageBoxView,
          templateString) {
 
   return BaseView.extend({
@@ -25,6 +26,11 @@ function(_, Backbone, soma, webL10n,
       // Create subviews
       this.autoSaveNameView =
         new AutoSaveTextboxView( { model: this.model, field: 'name' } );
+      this.wallUrlView =
+        new PathlyEditableUrlView( { model: this.model,
+                                     field: 'wallUrl',
+                                     saveField: 'urlPath',
+                                     formFieldId: 'manage-urlPath' } );
       this.messageBoxView = new MessageBoxView();
 
       // Export common functions
@@ -60,6 +66,7 @@ function(_, Backbone, soma, webL10n,
 
       // Render subviews
       this.renderSubview('#manage-name', this.autoSaveNameView);
+      this.renderSubview('#manage-wallUrl', this.wallUrlView);
       this.renderSubview('.alert', this.messageBoxView);
 
       // Localization
@@ -138,7 +145,8 @@ function(_, Backbone, soma, webL10n,
       // Field-specific pop-ups
       } else {
         var message = webL10n.get(messageKey);
-        $(field).popover({ placement: 'right', animation: true,
+        var placement = $(field).attr('data-placement') || 'right';
+        $(field).popover({ placement: placement, animation: true,
                            content: message, trigger: 'focus' })
                 .popover('show')
                 .attr('data-popover-enabled', 'data-popover-enabled');
