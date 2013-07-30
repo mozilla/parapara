@@ -1,5 +1,5 @@
 <nav aria-role="navigation">
-  <a href="<%= appRoot %>/" class="btn btn-primary input-medium left arrow"
+  <a data-href="{{appRoot}}/" class="btn btn-primary input-medium left arrow"
     data-l10n-id="return"></a>
   <div class="alert"></div>
 </nav>
@@ -8,15 +8,15 @@
   <form name="manageWall">
     <section id="wall-summary">
       <div id="wall-thumbnail">
-        <img src="<%- wall.thumbnail %>">
+        <img data-src="{{wall.thumbnail}}" src="">
       </div>
       <div>
-        <input type="text"
-          id="manage-name" name="name" value="<%- wall.name %>">
+        <input type="text" id="manage-name" name="name" value="{{wall.name}}">
         <ul class="urlList">
           <li>
             <label data-l10n-id="wall-url"></label>
             <span class="urlDetails">
+              <!--
               <span class="highlighted-url">
                 <a id="wallUrl" href="<%- wall.wallUrl %>"><%=
                   decodeURIComponent(wall.wallUrl) %></a>
@@ -42,21 +42,22 @@
                 <button type="button" class="btn btn-mini"
                   id="cancelSaveWallUrl" data-l10n-id="cancel"></button>
               </span>
+            -->
             </span>
           </li>
           <li>
             <label data-l10n-id="editor-url"></label>
             <span class="urlDetails">
               <span class="highlighted-url">
-                <a id="editorUrl" href="<%- wall.editorUrl %>"><%=
-                  decodeURIComponent(wall.editorUrl) %></a>
+                <a id="editorUrl" data-href="{{wall.editorUrl}}"
+                  >{{decodeURIComponent(wall.editorUrl)}}</a>
               </span>
-              <span id="shortEditorUrlBlock">
+              <span id="shortEditorUrlBlock"
+                data-hide="{{wall.shortEditorUrl}}">
                 or&nbsp;
                 <span class="highlighted-url">
-                  <a id="shortEditorUrl"></a>
-                  <a id="shortEditorUrl" href="<%- wall.editorUrlShort %>"><%=
-                    decodeURIComponent(wall.editorUrlShort) %></a>
+                  <a id="shortEditorUrl" data-href="{{wall.editorUrlShort}}"
+                    >{{decodeURIComponent(wall.editorUrlShort)}}</a>
                 </span>
                 <button type="button" class="icon qrCode"
                   id="showEditorUrlQrCode"
@@ -83,7 +84,7 @@
           <div class="wallStatus">
             <span class="currentWallStatus"></span>
             <div class="spinnerContainer">
-              <img src="<%= appRoot %>/img/spinner.gif" class="spinner">
+              <img data-src="{{appRoot}}/img/spinner.gif" class="spinner">
             </div>
             <div class="latestSession">
               <label>最新のセッション</label>
@@ -121,19 +122,17 @@
             <dt>ギャラリーに表示</dt>
             <dd class="alongside">
               <label>
-                <input type="radio" name="manage-galleryDisplay" value="1"
-                  checked>On
+                <input type="radio" name="galleryDisplay" value="1" checked>On
               </label>
               <label>
-                <input type="radio" name="manage-galleryDisplay" value="0">
-                Off
+                <input type="radio" name="galleryDisplay" value="0">Off
               </label>
               <div class="fieldExplain">ギャラリーの説明</div>
             </dd>
             <dt><label class="optional"
-              for="create-eventDescr">イベントの説明</label></dt>
+              for="manage-eventDescr">イベントの説明</label></dt>
             <dd>
-              <textarea name="eventDescr" class="eventDescr"
+              <textarea name="manage-eventDescr" class="eventDescr"
                 id="manage-eventDescr"></textarea>
             </dd>
           </dl>

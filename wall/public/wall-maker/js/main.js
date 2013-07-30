@@ -15,6 +15,7 @@ require.config({
     bootstrap: 'bootstrap.min',
     jquery: 'jquery-2.0.2.min',
     underscore: 'underscore-min',
+    soma: 'soma-template-min',
     webL10n: 'l10n'
   },
   shim: {
@@ -27,6 +28,9 @@ require.config({
     },
     'underscore': {
       exports: '_'
+    },
+    'soma': {
+      exports: 'soma'
     },
     'webL10n': {
       exports: 'document.webL10n'
