@@ -13,7 +13,7 @@ function(_, Backbone, webL10n, templateString) {
       this.editing = false;
 
       // Register for changes
-      this.listenTo(this.model, "change", this.update);
+      this.listenTo(this.model, "change", this.change);
 
       // Add some convenience accessors
       Object.defineProperty(this, "textbox",
@@ -72,8 +72,11 @@ function(_, Backbone, webL10n, templateString) {
       // Localization
       webL10n.translate(this.el);
     },
-    // XXX For changes to the model check if the url changed and only then
-    // re-render
+    change: function(model) {
+      if (this.options.field in model.changed) {
+        this.update();
+      }
+    },
     update: function() {
       this.template.render();
     },
