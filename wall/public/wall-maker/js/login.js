@@ -116,8 +116,10 @@ define(["underscore",
         doLogout();
       };
 
-      var onmatch = email ? doInitialLogin : doInitialLogout;
-      var onready = email ? undefined : doInitialLogout;
+      // If we have an email we will login below so don't do anything in that
+      // case.
+      var onmatch,
+          onready = onmatch = email ? undefined : doInitialLogout;
 
       // Start watching
       watching = true;
@@ -128,6 +130,24 @@ define(["underscore",
         onmatch: onmatch,
         onready: onready
       });
+
+      // For this particular application if OUR server thinks we are logged in
+      // (i.e. we have an email address) then don't bother waiting for Persona
+      // to get back to us, just proceed as usual.
+      //
+      // IF we're logged out at the persona level we'll be updated in due course
+      // and there's not likely to be any major data leak for this given
+      // application.
+      //
+      // If this behaviour proves undesirable we can revert to a more strict
+      // check where we wait for verification from Persona by simply dropping
+      // the following call and setting onmatch to
+      //
+      //    onmatch = email ? doInitialLogin : doInitialLogout
+      //
+      if (email) {
+        doInitialLogin();
+      }
     }
 
     // Verify an assertion and if it's ok, finish logging in
