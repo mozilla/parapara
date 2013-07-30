@@ -31,9 +31,7 @@ function(_, Backbone, soma, webL10n,
       // (This should be moved to BaseView if we switch over to soma
       // templates everywhere)
       soma.template.helpers({
-        decodeURIComponent: decodeURIComponent,
-        min: Math.min,
-        max: Math.max
+        decodeURIComponent: decodeURIComponent
       });
 
       // Common handling of requests
@@ -52,6 +50,11 @@ function(_, Backbone, soma, webL10n,
       var template = soma.template.create(this.el);
       template.scope.appRoot = Backbone.View.appRoot;
       template.scope.wall = this.model.toJSON();
+      // We want to define this in the template but soma templates are a bit too
+      // limited for this--and too limited to even do as a 'maxLength' helper
+      // function since all arguments are passed as strings
+      Object.defineProperty(template.scope, "wallNameFieldSize",
+        { get: function() { return Math.max(20, this.wall.name.length+3); } });
       template.render();
       this.template = template;
 

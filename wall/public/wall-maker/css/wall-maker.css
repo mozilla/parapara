@@ -351,6 +351,7 @@ hr {
  */
 #manage-name {
   height: auto; /* Bootstrap's fixed height obscures the IME underline */
+  width: auto; /* Allow manual sizing of field */
   font-weight: bold;
   color: #362D10;
   background: none;
