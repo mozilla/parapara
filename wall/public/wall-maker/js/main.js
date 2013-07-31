@@ -16,7 +16,7 @@ require.config({
     jquery: 'jquery-2.0.2.min',
     underscore: 'underscore-min',
     soma: 'soma-template-min',
-    qrcode: '../../wall-maker/js/qrcode',
+    qrcode: 'qrcode',
     webL10n: 'l10n'
   },
   shim: {
