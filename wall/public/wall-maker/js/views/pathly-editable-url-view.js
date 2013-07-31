@@ -57,7 +57,8 @@ function(_, Backbone, webL10n, templateString) {
                         return this.fullPath.slice(this._splitPoint);
                     } },
         "editablePathFieldSize": { get: function() {
-                        return Math.max(this.editablePath.length, 10);
+                        return Math.max(
+                          decodeURIComponent(this.editablePath).length, 10);
                     } },
         "editing": { get: function() { return view.editing; } }
         });

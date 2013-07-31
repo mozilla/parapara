@@ -126,6 +126,7 @@ function ($, _, Backbone, Bootstrap,
 
     router.on("route:manageWall",
       function(wallId, tab) {
+        wallId = wallId ? parseInt(wallId) : null;
         // Load wall
         if (!userScreens.manageWallView ||
             userScreens.manageWallView.model.id !== wallId) {
@@ -201,7 +202,6 @@ function ($, _, Backbone, Bootstrap,
           Backbone.history.loadUrl();
         })
         .fail(function() {
-          console.log("fail");
           walls = undefined;
           designs = undefined;
           fixedViews.errorScreenMessage.setMessage('load-error',

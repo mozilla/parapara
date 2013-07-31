@@ -5,13 +5,14 @@
 define([ 'underscore',
          'backbone',
          'soma',
+         'qrcode',
          'webL10n',
          'views/base-view',
          'views/auto-save-textbox-view',
          'views/pathly-editable-url-view',
          'views/message-box-view',
          'text!templates/manage-wall-screen.html' ],
-function(_, Backbone, soma, webL10n,
+function(_, Backbone, soma, QRCode, webL10n,
          BaseView, AutoSaveTextboxView, PathlyEditableUrlView, MessageBoxView,
          templateString) {
 
@@ -20,6 +21,9 @@ function(_, Backbone, soma, webL10n,
     className: 'screen',
     attributes: { 'hidden': 'hidden' },
     id: 'screen-manage',
+    events: {
+      "click #showEditorUrlQrCode": "showEditorUrlQrCode"
+    },
     initialize: function() {
       // XXX Trigger async load of characters
 
@@ -52,15 +56,18 @@ function(_, Backbone, soma, webL10n,
       // Load template string into DOM
       this.$el.html(templateString);
 
-      // Set up template and run
+      // Set up template
       var template = soma.template.create(this.el);
       template.scope.appRoot = Backbone.View.appRoot;
       template.scope.wall = this.model.toJSON();
+
       // We want to define this in the template but soma templates are a bit too
       // limited for this--and too limited to even do as a 'maxLength' helper
       // function since all arguments are passed as strings
       Object.defineProperty(template.scope, "wallNameFieldSize",
         { get: function() { return Math.max(20, this.wall.name.length+3); } });
+
+      // Run and store template
       template.render();
       this.template = template;
 
@@ -151,6 +158,24 @@ function(_, Backbone, soma, webL10n,
                 .popover('show')
                 .attr('data-popover-enabled', 'data-popover-enabled');
       }
+    },
+    showEditorUrlQrCode: function(evt) {
+      // Prepare QR code
+      var qr = new QRCode(0, QRCode.QRErrorCorrectLevel.M);
+      qr.addData(this.model.get("editorUrlShort"));
+      qr.make();
+      var imageData = qr.getImage(8 /*cell size*/);
+
+      // Update modal contents
+      var modal    = $(evt.currentTarget.dataset['target']);
+      var image    = modal[0].querySelector('img');
+      image.src    = imageData.data;
+      image.width  = imageData.width;
+      image.height = imageData.height;
+      image.alt    = this.model.get("editorUrlShort");
+
+      // Show
+      modal.modal();
     }
   });
 });

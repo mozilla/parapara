@@ -66,7 +66,7 @@ define(["backbone"], function(Backbone) {
       evt.preventDefault ? evt.preventDefault() : evt.returnValue = false;
 
       // Strip the base path
-      var href = evt.currentTarget.getAttribute('href');
+      var href = evt.currentTarget.pathname + evt.currentTarget.hash
       href = href.indexOf(basePath) == 0
            ? href.substr(basePath.length)
            : href;

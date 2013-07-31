@@ -9,16 +9,42 @@ function($, _, Backbone, Login, LoginView) {
   var WallmakerRouter = Backbone.Router.extend({
     routes: {
       'new': 'new',
-      'wall/:wallid(#*tab)': 'manageWall',
+      'wall/:wallid(#:tab)': 'manageWall',
       'wall/:wallid/session/:sessionid': 'manageSession',
       '*actions': 'home'
     }
   });
 
+  // Update the router's regexp management to allow a named segment to
+  // terminate with a hash
+  var toReplace  = /\(\[\^\\\/\]\+\)/g;
+  WallmakerRouter.prototype._routeToRegExp = function(route) {
+    // We want to replace "([^\/]+)" with "([^\/#]+)"
+    var regex = Backbone.Router.prototype._routeToRegExp(route);
+    var newRegex = regex.source.replace(toReplace, "([^\\/#]+)");
+    return new RegExp(newRegex);
+  };
+
   var initialize = function(login) {
 
     // Set up router
     var router = new WallmakerRouter();
+
+    // Override fragment handling--we want to support BOTH paths and hashes.
+    //
+    // This means this app won't work properly with browsers that don't support
+    // HTML's pushState API but that's ok.
+    var trailingSlash = /\/$/;
+    Backbone.history.getFragment = function(fragment, forcePushState) {
+      if (fragment == null) {
+        var hash = this.getHash();
+        fragment = this.location.pathname
+                 + (hash.length ? '#' + hash : '');
+        var root = this.root.replace(trailingSlash, '');
+        if (!fragment.indexOf(root)) fragment = fragment.substr(root.length);
+      }
+      return Backbone.History.prototype.getFragment(fragment, forcePushState);
+    };
 
     // We don't want to use hashes as a fallback since we use the hash
     // component to represent parts within a resource

@@ -76,13 +76,4 @@
     </select>
   </form>
 </footer>
-<div class="overlay" hidden>
-  <div class="container">
-    <div class="content" id="qrCode">
-      <img>
-      <div class="link"></div>
-      <button type="button">OK</button>
-    </div>
-  <div>
-</div>
 </body>

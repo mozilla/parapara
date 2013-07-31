@@ -11,11 +11,12 @@ require.config({
     templates: '../../wall-maker/templates',
     views: '../../wall-maker/js/views',
     // Shims
-    backbone: 'backbone-min',
+    backbone: 'backbone',
     bootstrap: 'bootstrap.min',
     jquery: 'jquery-2.0.2.min',
     underscore: 'underscore-min',
     soma: 'soma-template-min',
+    qrcode: '../../wall-maker/js/qrcode',
     webL10n: 'l10n'
   },
   shim: {
@@ -31,6 +32,9 @@ require.config({
     },
     'soma': {
       exports: 'soma'
+    },
+    'qrcode': {
+      exports: 'QRCode'
     },
     'webL10n': {
       exports: 'document.webL10n'

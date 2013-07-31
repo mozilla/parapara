@@ -3,7 +3,8 @@
     >{{decodeURIComponent(fullPath)}}</a>
   <span data-show="{{editing}}" class="editable-path-wrapper">
     <span>{{basePath}}</span>
-    <input type="text" class="editable-path" value="{{editablePath}}"
+    <input type="text" class="editable-path"
+      value="{{decodeURIComponent(editablePath)}}"
       size="{{editablePathFieldSize}}" data-placement="top">
   </span>
 </span>

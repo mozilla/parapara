@@ -27,19 +27,32 @@
                   >{{decodeURIComponent(wall.editorUrl)}}</a>
               </span>
               <span id="shortEditorUrlBlock"
-                data-hide="{{wall.shortEditorUrl}}">
+                data-show="{{wall.editorUrlShort}}">
                 or&nbsp;
                 <span class="highlighted-url">
-                  <a id="shortEditorUrl" data-href="{{wall.editorUrlShort}}"
+                  <a data-href="{{wall.editorUrlShort}}"
                     >{{decodeURIComponent(wall.editorUrlShort)}}</a>
                 </span>
-                <button type="button" class="icon qrCode"
-                  id="showEditorUrlQrCode"
-                  title="Show 2D barcode for this URL">QR</button>
+                <a class="btn icon qrCode" href="#"
+                  id="showEditorUrlQrCode" data-target="#qr-modal"
+                  data-l10n-id="editor-url-qr-code"></a>
               </span>
             </span>
           </li>
         </ul>
+      </div>
+      <!-- QR Code modal -->
+      <div class="modal hide fade" id="qr-modal">
+        <div class="modal-body">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <img class="qr-code">
+          <a data-href="{{wall.editorUrlShort}}" target="_blank"
+            >{{decodeURIComponent(wall.editorUrlShort)}}</a>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-dismiss="modal"
+            data-l10n-id="ok"></a>
+        </div>
       </div>
     </section>
     <hr>
