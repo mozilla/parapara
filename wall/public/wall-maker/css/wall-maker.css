@@ -439,16 +439,18 @@ hr {
 }
 
 /*
- * Tab pages
+ * Tabs
  */
+/* Tab menu */
 menu[aria-role=tablist] {
-  margin: 0;
   float: left;
-  width: 150px;
+  width: 151px;
   display: block;
   padding-left: 0; /* Override UA stylesheet for menus */
+  margin: 0;
   margin-top: 0.5em; /* Sit below tab page's border rounding */
 }
+/* All tabs */
 menu[aria-role=tablist] a {
   background: #dec881;
   color: white;
@@ -459,21 +461,61 @@ menu[aria-role=tablist] a {
   margin-left: 1.5em; /* Push non-selected tabs in from left */
   border-radius: 0.5em 0 0 0.5em; /* Round only the left side */
 }
+/* Active tab and tag page */
+menu[aria-role=tablist] a[aria-selected=true],
+section[aria-role=tabpanel] {
+  background: lemonchiffon;
+  border: 1px solid rgb(221, 221, 102);
+  box-shadow: 0 1px 0 0 rgba(0, 0, 0, 0.055);
+}
+/* Active tab */
 menu[aria-role=tablist] a[aria-selected=true] {
   color: black;
   font-weight: bold;
   margin-left: 0; /* Selected tab sticks out further */
   outline: none; /* Remove focus rect from tab */
+  border-right: none;
+  position: relative; /* This is just to get z-index to work */
+  z-index: 1;
 }
-menu[aria-role=tablist] a[aria-selected=true],
-section[aria-role=tabpanel] {
-  background: #fcf6e1;
-}
+/* Tab pages */
 section[aria-role=tabpanel] {
   padding: 0.25em 1em; /* Bring controls in from sides */
   border-radius: 0.6em;
   margin-left: 150px; /* Match width of vertical tabs */
   min-height: 16em; /* Match height of vertical tab stack */
+}
+/* Horizontal mode */
+@media (max-width: 850px) {
+  /* Tab menu */
+  menu[aria-role=tablist] {
+    float: none;
+    width: auto;
+    margin-top: 0;
+    margin-left: 0.5em; /* Sit inside border rounding of tab panel */
+  }
+  /* All tabs */
+  menu[aria-role=tablist] a {
+    display: inline-block;
+    padding: 0.6em 0.8em;
+    margin: 0 0.3em; /* Horizontal space between tabs */
+    border-radius: 0.5em 0.5em 0 0; /* Round only top side */
+  }
+  /* Active tab and tag page */
+  menu[aria-role=tablist] a[aria-selected=true],
+  section[aria-role=tabpanel] {
+    box-shadow: 1px 0 0 0 rgba(0, 0, 0, 0.055);
+  }
+  /* Active tab */
+  menu[aria-role=tablist] a[aria-selected=true] {
+    border-bottom: none;
+  }
+  /* Tab pages */
+  section[aria-role=tabpanel] {
+    margin-top: -1px; /* Overlap with tabs */
+    margin-left: 0;
+    min-height: inherit;
+  }
 }
 
 /*
