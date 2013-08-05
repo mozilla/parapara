@@ -61,6 +61,13 @@ function(_, Backbone, soma, QRCode, webL10n,
       this.listenTo(this.model, "error", this.error);
       this.listenTo(this.model, "request", this.request);
 
+      // Some parts of the form (notably the duration label) do their
+      // localization inside functions called from the template so when the
+      // language switches we should re-render.
+      $(window).on("localized", null, function() {
+        this.template.render();
+      }.bind(this));
+
       // Trigger async refresh of wall data
       this.model.fetch();
     },
