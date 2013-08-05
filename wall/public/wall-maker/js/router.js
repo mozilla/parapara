@@ -9,8 +9,8 @@ function($, _, Backbone, Login, LoginView) {
   var WallmakerRouter = Backbone.Router.extend({
     routes: {
       'new': 'new',
-      'wall/:wallid(#:tab)': 'manageWall',
-      'wall/:wallid/session/:sessionid': 'manageSession',
+      'walls/:wallid(/:section)': 'manageWall',
+      'walls/:wallid/:section(/:subsection)': 'manageWall',
       '*actions': 'home'
     }
   });

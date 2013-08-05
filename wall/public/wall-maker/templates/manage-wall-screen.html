@@ -56,18 +56,18 @@
       </div>
     </section>
     <hr>
-    <div id="wall-details">
+    <div id="wall-details" aria-multiselectable="false">
       <menu type="toolbar" aria-role="tablist">
-        <a href="#session" aria-role="tab"
-          aria-controls="manage-session"
+        <a href="{{appRoot}}/walls/{{wall.wallId}}/sessions"
+          aria-role="tab"
+          aria-controls="manage-sessions"
           aria-selected="true">セッション</a><a
-          href="#design" aria-role="tab"
-          aria-controls="manage-design">デザイン</a><a
-          href="#characters" aria-role="tab"
-          aria-controls="manage-characters">キャラクター</a>
+          href="{{appRoot}}/walls/{{wall.wallId}}/design"
+          aria-role="tab"
+          aria-controls="manage-design">デザイン</a>
       </menu>
       <div class="tab-pages">
-        <section id="manage-session" aria-role="tabpanel">
+        <section id="manage-sessions" aria-role="tabpanel">
           <div class="wallStatus">
             <span class="currentWallStatus"></span>
             <div class="spinnerContainer">
@@ -93,7 +93,7 @@
             </p>
           </div>
         </section>
-        <section id="manage-design" aria-role="tabpanel" hidden>
+        <section id="manage-design" aria-role="tabpanel" aria-hidden="true">
           <div class="designSelection withIcon"></div>
           <div id="durationControls" class="withIcon">
             <label class="inline">一周期間 (秒）</label>
@@ -103,30 +103,6 @@
             <button type="button" class="small"
               id="reset-duration">Reset</button>
           </div>
-        </section>
-        <section id="manage-gallery" aria-role="tabpanel" hidden>
-          <dl>
-            <dt>ギャラリーに表示</dt>
-            <dd class="alongside">
-              <label>
-                <input type="radio" name="galleryDisplay" value="1" checked>On
-              </label>
-              <label>
-                <input type="radio" name="galleryDisplay" value="0">Off
-              </label>
-              <div class="fieldExplain">ギャラリーの説明</div>
-            </dd>
-            <dt><label class="optional"
-              for="manage-eventDescr">イベントの説明</label></dt>
-            <dd>
-              <textarea name="manage-eventDescr" class="eventDescr"
-                id="manage-eventDescr"></textarea>
-            </dd>
-          </dl>
-        </section>
-        <section id="manage-characters" aria-role="tabpanel" hidden>
-          <h3>セッション１</h3>
-          <h3>セッション２</h3>
         </section>
       </div>
     </div>

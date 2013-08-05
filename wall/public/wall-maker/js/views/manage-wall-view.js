@@ -81,6 +81,22 @@ function(_, Backbone, soma, QRCode, webL10n,
 
       return this;
     },
+    showSection: function(section, subsection) {
+      // Set default tab is none is provided
+      section = section || "sessions";
+
+      // Update tabs
+      this.$("a[aria-role=tab]").attr("aria-selected", "false");
+      var selectedTab =
+        $("a[aria-role=tab][aria-controls=manage-" + section + "]") ||
+        $("a[aria-role=tab][aria-controls=manage-sessions]");
+      selectedTab.attr("aria-selected", "true");
+
+      // Update panels
+      this.$("section[aria-role=tabpanel]").attr("aria-hidden", "true");
+      selectedPanel = this.$("#" + selectedTab.attr("aria-controls"));
+      selectedPanel.removeAttr("aria-hidden");
+    },
     request: function(wall, xhr, options) {
       // Clear pop-ups when we go to save changes
       this.messageBoxView.clearMessage();

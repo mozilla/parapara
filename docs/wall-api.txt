@@ -26,11 +26,14 @@ Public-facing content:
 Wall maker:
 -----------
 
-/wall-maker - home screen - wall summary [wall auth reqd]
-/wall-maker/wall/new - shows management screen for wall [wall auth reqd]
-/wall-maker/wall/<wall-id> - shows management screen for wall [wall auth reqd]
-/wall-maker/wall/<wall-id>/session/<session-id> - show characters for given
-                                                   session [wall auth reqd]
+[ wall auth reqd for all the following ]
+/wall-maker - home screen - wall summary
+/wall-maker/walls/new - shows management screen for wall
+/wall-maker/walls/<wall-id> - shows management screen for wall
+/wall-maker/walls/<wall-id>/sessions - landing page for sessions
+/wall-maker/walls/<wall-id>/design - wall design management
+/wall-maker/walls/<wall-id>/sessions/<session-id> - show characters for given
+                                                    session
 
 JSON API:
 ---------

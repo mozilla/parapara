@@ -485,6 +485,9 @@ section[aria-role=tabpanel] {
   margin-left: 150px; /* Match width of vertical tabs */
   min-height: 16em; /* Match height of vertical tab stack */
 }
+section[aria-role=tabpanel][aria-hidden=true] {
+  display: none;
+}
 /* Horizontal mode */
 @media (max-width: 850px) {
   /* Tab menu */

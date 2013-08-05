@@ -64,7 +64,7 @@ function(_, Backbone, webL10n, BaseView, DesignSelectionView, MessageBoxView,
         { wait: true,
           at: 0,
           success: function(wall) {
-            Backbone.history.navigate('/wall/' + wall.get('wallId'),
+            Backbone.history.navigate('/walls/' + wall.get('wallId'),
                                       { trigger: true });
             view.form.reset();
           },

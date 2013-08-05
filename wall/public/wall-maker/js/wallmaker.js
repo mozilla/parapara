@@ -125,7 +125,8 @@ function ($, _, Backbone, Bootstrap,
       });
 
     router.on("route:manageWall",
-      function(wallId, tab) {
+      function(wallId, section, subsection) {
+        // Sanitize input
         wallId = wallId ? parseInt(wallId) : null;
         // Load wall
         if (!userScreens.manageWallView ||
@@ -149,7 +150,8 @@ function ($, _, Backbone, Bootstrap,
           $('#page').append(userScreens.manageWallView.el);
           toggleScreen(userScreens.manageWallView.render().$el);
         }
-        // XXX Switch tab
+        // Switch to section
+        userScreens.manageWallView.showSection(section, subsection);
       });
 
     // Link watching
