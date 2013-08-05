@@ -869,6 +869,10 @@
 					if (this.parent && this.parent.html) {
 						this.value = this.parent.element.innerHTML = this.interpolation.render();
 					}
+					else if (this.parent &&
+                   typeof this.parent.element.textContent !== "undefined") {
+            this.value = this.parent.element.textContent = this.interpolation.render();
+          }
 					else {
 						this.value = this.element.nodeValue = this.interpolation.render();
 					}
@@ -926,7 +930,7 @@
 			}
 			// normal attribute
 			function renderAttribute(name, value, node) {
-				if (name === 'value' && node.element[value] !== undefined) {
+				if (name === 'value' && node.element['value'] !== undefined) {
 					element.value = value;
 				}
 				else if (ie === 7 && name === 'class') {
