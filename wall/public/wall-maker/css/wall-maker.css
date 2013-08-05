@@ -619,20 +619,18 @@ section[aria-role=tabpanel][aria-hidden=true] {
 /*
  * Design screen
  */
-#manage-design .designSelection {
+#manage-design {
   text-align: center;
+  padding-top: 1.2em;
 }
 #durationControls {
-  text-align: center;
-  padding: 1.2em 0;
+  margin-top: 1.2em;
 }
-#durationControls input[type=range] {
-  margin-bottom: -5px;
+#durationControls input[type=range],
+#duration-units {
+  margin-right: 1.2em;
 }
-#durationControls #reset-duration {
-  margin-left: 1.2em;
-}
-#durationControls #duration-units {
+#duration-units {
   display: inline-block;
   min-width: 7em;
   text-align: left;
