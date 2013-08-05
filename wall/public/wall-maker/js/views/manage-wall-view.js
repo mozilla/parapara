@@ -9,12 +9,13 @@ define([ 'underscore',
          'webL10n',
          'views/base-view',
          'views/auto-save-textbox-view',
+         'views/design-selection-view',
          'views/pathly-editable-url-view',
          'views/message-box-view',
          'text!templates/manage-wall-screen.html' ],
 function(_, Backbone, soma, QRCode, webL10n,
-         BaseView, AutoSaveTextboxView, PathlyEditableUrlView, MessageBoxView,
-         templateString) {
+         BaseView, AutoSaveTextboxView, DesignSelectionView,
+         PathlyEditableUrlView, MessageBoxView, templateString) {
 
   return BaseView.extend({
     tagName: 'div',
@@ -22,12 +23,14 @@ function(_, Backbone, soma, QRCode, webL10n,
     attributes: { 'hidden': 'hidden' },
     id: 'screen-manage',
     events: {
-      "click #showEditorUrlQrCode": "showEditorUrlQrCode"
+      "click #showEditorUrlQrCode": "showEditorUrlQrCode",
+      "change .designSelection": "setDesign"
     },
     initialize: function() {
       // XXX Trigger async load of characters
 
       // Create subviews
+      this.messageBoxView = new MessageBoxView();
       this.autoSaveNameView =
         new AutoSaveTextboxView( { model: this.model, field: 'name' } );
       this.wallUrlView =
@@ -35,7 +38,8 @@ function(_, Backbone, soma, QRCode, webL10n,
                                      field: 'wallUrl',
                                      saveField: 'urlPath',
                                      formFieldId: 'manage-urlPath' } );
-      this.messageBoxView = new MessageBoxView();
+      this.designSelectionView =
+        new DesignSelectionView({ collection: this.options.designs });
 
       // Export common functions
       // (This should be moved to BaseView if we switch over to soma
@@ -74,7 +78,11 @@ function(_, Backbone, soma, QRCode, webL10n,
       // Render subviews
       this.renderSubview('#manage-name', this.autoSaveNameView);
       this.renderSubview('#manage-wallUrl', this.wallUrlView);
+      this.renderSubview('.designSelection', this.designSelectionView);
       this.renderSubview('.alert', this.messageBoxView);
+
+      // Set initial state of design selection
+      this.$('.designSelection')[0].value = this.model.get("designId");
 
       // Localization
       webL10n.translate(this.el);
@@ -143,6 +151,11 @@ function(_, Backbone, soma, QRCode, webL10n,
 
       // Refresh
       this.template.render();
+
+      // Updates to the design selection are handled separately
+      if ("designId" in wall.changed) {
+        this.$('.designSelection')[0].value = wall.changed.designId;
+      }
     },
     error: function(wall, resp, xhr) {
       if (resp['responseJSON'] === undefined) {
@@ -192,6 +205,17 @@ function(_, Backbone, soma, QRCode, webL10n,
 
       // Show
       modal.modal();
+    },
+    setDesign: function(evt) {
+      // Set sending state
+      var selection = this.$('.designSelection')[0];
+      selection.classList.add('sending');
+
+      // Save
+      var prevValue = evt.prevValue;
+      this.model.save({ designId: selection.value }, { patch: true })
+          .fail(function() { selection.value = prevValue; })
+          .always(function() { selection.classList.remove('sending') });
     }
   });
 });

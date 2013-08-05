@@ -55,6 +55,20 @@ function(_, Backbone, BaseView, template) {
           }
         }
       });
+
+      // Re-trigger annotated event with the previous value
+      if (evt) {
+        var changeEvent = jQuery.Event("change",
+          _.defaults({ value: this.el.value,
+                       prevValue: this.prevValue,
+                       target: this.el,
+                       currentTarget: this.el }, evt));
+        evt.stopPropagation();
+        this.$el.trigger(changeEvent);
+      }
+
+      // Update previous value
+      this.prevValue = this.el.value;
     }
   });
 });

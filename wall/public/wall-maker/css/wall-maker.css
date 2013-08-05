@@ -563,27 +563,8 @@ section[aria-role=tabpanel][aria-hidden=true] {
   margin-right: 0.5em;
   font-weight: bold;
 }
-#screen-manage form dt {
-  font-weight: bold;
-  margin: 20px 2px 8px;
-}
-#screen-manage form dd {
-  margin-left: 0;
-}
 #screen-manage .error input {
   background: rgb(255,200,200);
-}
-
-/*
- * Event info management screen
- */
-.eventLocation {
-  width: 90%;
-  max-width: 20em;
-}
-.eventDescr {
-  width: 90%;
-  height: 4.5em;
 }
 
 /*
@@ -638,6 +619,9 @@ section[aria-role=tabpanel][aria-hidden=true] {
 /*
  * Design screen
  */
+#manage-design .designSelection {
+  text-align: center;
+}
 #durationControls {
   text-align: center;
   padding: 1.2em 0;
