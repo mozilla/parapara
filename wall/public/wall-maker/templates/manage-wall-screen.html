@@ -96,12 +96,14 @@
         <section id="manage-design" aria-role="tabpanel" aria-hidden="true">
           <div class="designSelection withIcon"></div>
           <div id="durationControls" class="withIcon">
-            <label class="inline">一周期間 (秒）</label>
-            <input type="range" min=10 max=1200 value=240 step=10
-              id="duration">
-            <span id="duration-units">3h30m</span>
-            <button type="button" class="small"
-              id="reset-duration">Reset</button>
+            <label data-l10n-id="wall-duration-label"></label>
+            <input type="range" min=10 max=1200
+              value="{{getDuration(wall.duration, wall.defaultDuration)}}"
+              step=10 id="duration">
+            <span id="duration-units"
+              >{{getDurationLabel(wall.duration, wall.defaultDuration)}}</span>
+            <button type="button" class="btn btn-small"
+              id="reset-duration" data-l10n-id="reset"></button>
           </div>
         </section>
       </div>

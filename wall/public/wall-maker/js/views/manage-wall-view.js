@@ -10,12 +10,14 @@ define([ 'underscore',
          'views/base-view',
          'views/auto-save-textbox-view',
          'views/design-selection-view',
+         'views/input-observer',
          'views/pathly-editable-url-view',
          'views/message-box-view',
          'text!templates/manage-wall-screen.html' ],
 function(_, Backbone, soma, QRCode, webL10n,
          BaseView, AutoSaveTextboxView, DesignSelectionView,
-         PathlyEditableUrlView, MessageBoxView, templateString) {
+         InputObserver, PathlyEditableUrlView, MessageBoxView,
+         templateString) {
 
   return BaseView.extend({
     tagName: 'div',
@@ -24,7 +26,8 @@ function(_, Backbone, soma, QRCode, webL10n,
     id: 'screen-manage',
     events: {
       "click #showEditorUrlQrCode": "showEditorUrlQrCode",
-      "change .designSelection": "setDesign"
+      "change .designSelection": "saveDesign",
+      "click #reset-duration": "resetDuration"
     },
     initialize: function() {
       // XXX Trigger async load of characters
@@ -40,6 +43,11 @@ function(_, Backbone, soma, QRCode, webL10n,
                                      formFieldId: 'manage-urlPath' } );
       this.designSelectionView =
         new DesignSelectionView({ collection: this.options.designs });
+
+      // Watch the design slider
+      this.designObserver =
+        new InputObserver(this.onDurationChange.bind(this),
+                          this.onDurationSave.bind(this));
 
       // Export common functions
       // (This should be moved to BaseView if we switch over to soma
@@ -70,6 +78,8 @@ function(_, Backbone, soma, QRCode, webL10n,
       // function since all arguments are passed as strings
       Object.defineProperty(template.scope, "wallNameFieldSize",
         { get: function() { return Math.max(20, this.wall.name.length+3); } });
+      template.scope.getDuration      = getDuration;
+      template.scope.getDurationLabel = getDurationLabel;
 
       // Run and store template
       template.render();
@@ -83,6 +93,9 @@ function(_, Backbone, soma, QRCode, webL10n,
 
       // Set initial state of design selection
       this.$('.designSelection')[0].value = this.model.get("designId");
+
+      // Watch the design slider
+      this.designObserver.observeElement(this.$('#duration')[0]);
 
       // Localization
       webL10n.translate(this.el);
@@ -206,7 +219,7 @@ function(_, Backbone, soma, QRCode, webL10n,
       // Show
       modal.modal();
     },
-    setDesign: function(evt) {
+    saveDesign: function(evt) {
       // Set sending state
       var selection = this.$('.designSelection')[0];
       selection.classList.add('sending');
@@ -216,6 +229,54 @@ function(_, Backbone, soma, QRCode, webL10n,
       this.model.save({ designId: selection.value }, { patch: true })
           .fail(function() { selection.value = prevValue; })
           .always(function() { selection.classList.remove('sending') });
+    },
+    onDurationChange: function() {
+      this.$("#duration-units").text(
+        getDurationLabel(parseInt(this.$("#duration").val()) * 1000));
+    },
+    onDurationSave: function(element) {
+      this.saveDuration(parseInt(this.$('#duration').val()) * 1000);
+    },
+    saveDuration: function(duration) {
+      // Set sending state
+      var block = this.$('#durationControls')[0];
+      block.classList.add('sending');
+
+      // Save
+      this.model.save({ duration: duration }, { patch: true })
+          .always(function() { block.classList.remove('sending') });
+    },
+    resetDuration: function() {
+      this.saveDuration(null);
     }
   });
+
+  function getDuration(duration, defaultDuration) {
+    return (!duration ? defaultDuration : duration) / 1000;
+  }
+
+  function getDurationLabel(duration, defaultDuration) {
+    var str =
+      getDurationString(getDuration(duration, defaultDuration));
+    if (!duration)
+      str += ' ' + webL10n.get('duration-default');
+    return str;
+  }
+
+  function getDurationString(duration) {
+    var hours   = Math.floor(duration / (60 * 60));
+    var minutes = Math.floor(duration / 60) % 60;
+    var seconds = duration % 60;
+    var pad = function(num) { return ('0' + num).substr(-2); }
+    if (hours) {
+      var str = webL10n.get('duration-hms',
+        { hours: hours, minutes: pad(minutes), seconds: pad(seconds) });
+    } else if (minutes) {
+      var str = webL10n.get('duration-ms',
+        { minutes: minutes, seconds: pad(seconds) });
+    } else {
+      var str = webL10n.get('duration-s', { seconds: seconds });
+    }
+    return str;
+  }
 });

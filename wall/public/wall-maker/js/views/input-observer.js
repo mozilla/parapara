@@ -90,7 +90,7 @@ function () {
       timeoutId = window.setTimeout(onTimeout, TIMEOUT);
     };
 
-    function clearTimeout {
+    function clearTimeout() {
       if (timeoutId) {
         window.clearTimeout(timeoutId);
       }
@@ -106,4 +106,4 @@ function () {
       observer.resetStoredValue();
     };
   };
-);
+});
