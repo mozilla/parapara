@@ -148,9 +148,11 @@ function ($, _, Backbone, Bootstrap,
           userScreens.manageWallView =
             new ManageWallView({ model: wall, designs: designs });
           $('#page').append(userScreens.manageWallView.el);
+          toggleScreen(userScreens.manageWallView.render().$el);
+        } else {
+          // Just make sure screen is showing
+          toggleScreen(userScreens.manageWallView.$el);
         }
-        // Make sure page is showing
-        toggleScreen(userScreens.manageWallView.render().$el);
         // Switch to section
         userScreens.manageWallView.showSection(section, subsection);
       });
