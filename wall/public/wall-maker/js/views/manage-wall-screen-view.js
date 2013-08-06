@@ -4,21 +4,20 @@
 
 define([ 'underscore',
          'backbone',
-         'soma',
          'qrcode',
          'webL10n',
          'utils/input-observer',
-         'views/base-view',
+         'views/soma-view',
          'views/auto-save-textbox-view',
          'views/design-selection-view',
          'views/pathly-editable-url-view',
          'views/message-box-view',
          'text!templates/manage-wall-screen.html' ],
-function(_, Backbone, soma, QRCode, webL10n, InputObserver,
-         BaseView, AutoSaveTextboxView, DesignSelectionView,
+function(_, Backbone, QRCode, webL10n, InputObserver,
+         SomaView, AutoSaveTextboxView, DesignSelectionView,
          PathlyEditableUrlView, MessageBoxView, templateString) {
 
-  return BaseView.extend({
+  return SomaView.extend({
     tagName: 'div',
     className: 'screen',
     attributes: { 'hidden': 'hidden' },
@@ -48,13 +47,6 @@ function(_, Backbone, soma, QRCode, webL10n, InputObserver,
         new InputObserver(this.onDurationChange.bind(this),
                           this.onDurationSave.bind(this));
 
-      // Export common functions
-      // (This should be moved to BaseView if we switch over to soma
-      // templates everywhere)
-      soma.template.helpers({
-        decodeURIComponent: decodeURIComponent
-      });
-
       // Common handling of requests
       this.listenTo(this.model, "change", this.change);
       this.listenTo(this.model, "error", this.error);
@@ -74,25 +66,22 @@ function(_, Backbone, soma, QRCode, webL10n, InputObserver,
       this.model.fetch();
     },
     render: function() {
-      // Load template string into DOM
-      this.$el.html(templateString);
-
-      // Set up template
-      var template = soma.template.create(this.el);
-      template.scope.appRoot = Backbone.View.appRoot;
-      template.scope.wall = this.model.toJSON();
+      // Set up template data
+      var data = {
+        wall: this.model.toJSON(),
+        getDuration: getDuration,
+        getDurationLabel: getDurationLabel,
+      };
 
       // We want to define this in the template but soma templates are a bit too
       // limited for this--and too limited to even do as a 'maxLength' helper
       // function since all arguments are passed as strings
-      Object.defineProperty(template.scope, "wallNameFieldSize",
-        { get: function() { return Math.max(20, this.wall.name.length+3); } });
-      template.scope.getDuration      = getDuration;
-      template.scope.getDurationLabel = getDurationLabel;
+      Object.defineProperty(data, "wallNameFieldSize",
+        { get: function() { return Math.max(20, this.wall.name.length+3); },
+          enumerable: true });
 
-      // Run and store template
-      template.render();
-      this.template = template;
+      // Render template
+      this.renderTemplate(templateString, data);
 
       // Render subviews
       this.renderSubview('#manage-name', this.autoSaveNameView);
@@ -105,9 +94,6 @@ function(_, Backbone, soma, QRCode, webL10n, InputObserver,
 
       // Watch the design slider
       this.designObserver.observeElement(this.$('#manage-duration')[0]);
-
-      // Localization
-      webL10n.translate(this.el);
 
       return this;
     },
