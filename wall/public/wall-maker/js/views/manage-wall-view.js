@@ -243,8 +243,11 @@ function(_, Backbone, soma, QRCode, webL10n,
           .always(function() { selection.classList.remove('sending') });
     },
     onDurationChange: function() {
-      this.$("#duration-units").text(
-        getDurationLabel(parseInt(this.$("#manage-duration").val())));
+      var span = this.template.getNode(this.$("#duration-units")[0]);
+      this.template.scope.wall.duration =
+        parseInt(this.$("#manage-duration").val());
+      span.update();
+      span.render();
     },
     onDurationSave: function(element) {
       this.saveDuration(parseInt(this.$('#manage-duration').val()));
