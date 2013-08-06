@@ -7,7 +7,7 @@ define([ 'underscore',
          'webL10n',
          'views/soma-view',
          'text!templates/pathly-editable-url.html' ],
-function(_, Backbone, webL10n, templateString) {
+function(_, Backbone, webL10n, SomaView, templateString) {
   return SomaView.extend({
     initialize: function() {
       // Initial state
