@@ -5,9 +5,10 @@
 define([ 'underscore',
          'backbone',
          'webL10n',
+         'views/soma-view',
          'text!templates/pathly-editable-url.html' ],
 function(_, Backbone, webL10n, templateString) {
-  return Backbone.View.extend({
+  return SomaView.extend({
     initialize: function() {
       // Initial state
       this.editing = false;
@@ -33,45 +34,42 @@ function(_, Backbone, webL10n, templateString) {
       }
     },
     render: function() {
-      // Generate instance of template
-      this.$el.html(templateString);
-
-      // Fill in scope with extra values
-      var template = soma.template.create(this.el);
-      template.scope.appRoot = Backbone.View.appRoot;
+      // Set up template data
+      var data = {};
 
       // Define dynamic field values
       var view  = this;
       var model = this.model;
-      Object.defineProperties(template.scope, {
-        "fullPath": { get: function() {
-                        return model.get(view.options.field);
-                    } },
-        "_splitPoint": { get: function() {
-                      return this.fullPath.lastIndexOf('/') + 1;
-                    } },
-        "basePath": { get: function() {
-                        return this.fullPath.slice(0, this._splitPoint);
-                    } },
-        "editablePath": { get: function() {
-                        return this.fullPath.slice(this._splitPoint);
-                    } },
-        "editablePathFieldSize": { get: function() {
-                        return Math.max(
-                          decodeURIComponent(this.editablePath).length, 10);
-                    } },
-        "editing": { get: function() { return view.editing; } }
+      Object.defineProperties(data, {
+        "fullPath":
+          { get: function() { return model.get(view.options.field); },
+            enumerable: true },
+        "_splitPoint":
+          { get: function() { return this.fullPath.lastIndexOf('/') + 1; },
+            enumerable: true },
+        "basePath":
+          { get: function() { return this.fullPath.slice(0, this._splitPoint);},
+            enumerable: true },
+        "editablePath":
+          { get: function() { return this.fullPath.slice(this._splitPoint); },
+            enumerable: true },
+        "editablePathFieldSize":
+          { get: function() {
+              return Math.max(decodeURIComponent(this.editablePath).length, 10);
+            },
+            enumerable: true },
+        "editing":
+          { get: function() { return view.editing; },
+            enumerable: true }
         });
-      template.render();
-      this.template = template;
+
+      // Render template
+      this.renderTemplate(templateString, data);
 
       // Set form field ID
       if (this.options.formFieldId) {
         this.textbox.id = this.options.formFieldId;
       }
-
-      // Localization
-      webL10n.translate(this.el);
     },
     change: function(model) {
       if (this.options.field in model.changed) {
