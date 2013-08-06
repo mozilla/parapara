@@ -15,12 +15,7 @@ function(_, Backbone, webL10n) {
         _.template(template,
                    _.extend(data, { appRoot: Backbone.View.appRoot })
       ));
-      // If the localization has already loaded then re-run it now that we've
-      // modified the DOM. Otherwise, this will be done for us when localization
-      // runs.
-      if (webL10n.readyState == 'complete') {
-        webL10n.translate(this.el);
-      }
+      webL10n.translate(this.el);
       return this;
     },
     // Utility method to render a subview whilst retaining event bindings

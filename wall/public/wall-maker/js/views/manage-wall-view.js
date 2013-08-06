@@ -108,9 +108,7 @@ function(_, Backbone, soma, QRCode, webL10n,
       this.designObserver.observeElement(this.$('#manage-duration')[0]);
 
       // Localization
-      if (webL10n.readyState == 'complete') {
-        webL10n.translate(this.el);
-      }
+      webL10n.translate(this.el);
 
       return this;
     },
