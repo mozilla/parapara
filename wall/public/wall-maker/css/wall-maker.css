@@ -579,8 +579,27 @@ button span.plus {
   vertical-align: bottom;
   margin-right: 3px;
 }
-#manage-sessions .start-session {
-  background: green;
+#manage-sessions .accordion {
+  margin: 0.5em 0;
+}
+#manage-sessions .accordion-group,
+#manage-sessions .accordion-heading,
+#manage-sessions .accordion-inner {
+  border-radius: 10px;
+  background: #fff;
+  background: -moz-linear-gradient(top,  #ffffff 0%, #f7f7f7 100%);
+}
+#manage-sessions .accordion-group {
+  box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.1);
+}
+#manage-sessions .accordion-heading a {
+  color: black;
+  font-weight: bold;
+  outline: none;
+  text-decoration: none;
+}
+#manage-sessions .accordion-heading a:hover {
+  text-decoration: none;
 }
 
 /*
