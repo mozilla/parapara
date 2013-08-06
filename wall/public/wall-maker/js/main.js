@@ -9,6 +9,7 @@ require.config({
     collections: '../../wall-maker/js/collections',
     models: '../../wall-maker/js/models',
     templates: '../../wall-maker/templates',
+    utils: '../../wall-maker/js/utils',
     views: '../../wall-maker/js/views',
     // Shims
     backbone: 'backbone',

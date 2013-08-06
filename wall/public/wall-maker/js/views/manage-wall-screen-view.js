@@ -7,17 +7,16 @@ define([ 'underscore',
          'soma',
          'qrcode',
          'webL10n',
+         'utils/input-observer',
          'views/base-view',
          'views/auto-save-textbox-view',
          'views/design-selection-view',
-         'views/input-observer',
          'views/pathly-editable-url-view',
          'views/message-box-view',
          'text!templates/manage-wall-screen.html' ],
-function(_, Backbone, soma, QRCode, webL10n,
+function(_, Backbone, soma, QRCode, webL10n, InputObserver,
          BaseView, AutoSaveTextboxView, DesignSelectionView,
-         InputObserver, PathlyEditableUrlView, MessageBoxView,
-         templateString) {
+         PathlyEditableUrlView, MessageBoxView, templateString) {
 
   return BaseView.extend({
     tagName: 'div',

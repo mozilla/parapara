@@ -4,7 +4,7 @@
 
 define([ 'underscore',
          'backbone',
-         'views/textbox-observer' ],
+         'utils/textbox-observer' ],
 function(_, Backbone, TextBoxObserver) {
   return Backbone.View.extend({
     initialize: function() {
