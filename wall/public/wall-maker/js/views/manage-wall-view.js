@@ -105,7 +105,7 @@ function(_, Backbone, soma, QRCode, webL10n,
       this.$('.designSelection')[0].value = this.model.get("designId");
 
       // Watch the design slider
-      this.designObserver.observeElement(this.$('#duration')[0]);
+      this.designObserver.observeElement(this.$('#manage-duration')[0]);
 
       // Localization
       webL10n.translate(this.el);
@@ -242,10 +242,10 @@ function(_, Backbone, soma, QRCode, webL10n,
     },
     onDurationChange: function() {
       this.$("#duration-units").text(
-        getDurationLabel(parseInt(this.$("#duration").val()) * 1000));
+        getDurationLabel(parseInt(this.$("#manage-duration").val())));
     },
     onDurationSave: function(element) {
-      this.saveDuration(parseInt(this.$('#duration').val()) * 1000);
+      this.saveDuration(parseInt(this.$('#manage-duration').val()));
     },
     saveDuration: function(duration) {
       // Set sending state
@@ -262,7 +262,7 @@ function(_, Backbone, soma, QRCode, webL10n,
   });
 
   function getDuration(duration, defaultDuration) {
-    return (!duration ? defaultDuration : duration) / 1000;
+    return !duration ? defaultDuration : duration;
   }
 
   function getDurationLabel(duration, defaultDuration) {
@@ -274,9 +274,10 @@ function(_, Backbone, soma, QRCode, webL10n,
   }
 
   function getDurationString(duration) {
-    var hours   = Math.floor(duration / (60 * 60));
-    var minutes = Math.floor(duration / 60) % 60;
-    var seconds = duration % 60;
+    var durationSeconds = duration / 1000;
+    var hours   = Math.floor(durationSeconds / (60 * 60));
+    var minutes = Math.floor(durationSeconds / 60) % 60;
+    var seconds = durationSeconds % 60;
     var pad = function(num) { return ('0' + num).substr(-2); }
     if (hours) {
       var str = webL10n.get('duration-hms',

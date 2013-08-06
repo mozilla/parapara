@@ -97,9 +97,9 @@
           <div class="designSelection withIcon"></div>
           <div id="durationControls" class="withIcon">
             <label data-l10n-id="wall-duration-label"></label>
-            <input type="range" min=10 max=1200
+            <input type="range" min=10000 max=1200000
               value="{{getDuration(wall.duration, wall.defaultDuration)}}"
-              step=10 id="duration">
+              step=10000 id="manage-duration" name="duration">
             <span id="duration-units"
               >{{getDurationLabel(wall.duration, wall.defaultDuration)}}</span>
             <button type="button" class="btn btn-small"
