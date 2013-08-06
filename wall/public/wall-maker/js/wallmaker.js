@@ -128,6 +128,7 @@ function ($, _, Backbone, Bootstrap,
       function(wallId, section, subsection) {
         // Sanitize input
         wallId = wallId ? parseInt(wallId) : null;
+
         // Load wall
         if (!userScreens.manageWallView ||
             userScreens.manageWallView.model.id !== wallId) {
@@ -149,10 +150,14 @@ function ($, _, Backbone, Bootstrap,
             new ManageWallView({ model: wall, designs: designs });
           $('#page').append(userScreens.manageWallView.el);
           toggleScreen(userScreens.manageWallView.render().$el);
-        } else {
-          // Just make sure screen is showing
+        } else if (userScreens.manageWallView.$el.attr('hidden')) {
+          // We already have a view for the requested wall but we're not
+          // currently showing it.
+          // Refresh its data and show it.
+          userScreens.manageWallView.refreshData();
           toggleScreen(userScreens.manageWallView.$el);
         }
+
         // Switch to section
         userScreens.manageWallView.showSection(section, subsection);
       });

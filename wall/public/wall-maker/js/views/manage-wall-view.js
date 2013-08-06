@@ -69,6 +69,9 @@ function(_, Backbone, soma, QRCode, webL10n,
       }.bind(this));
 
       // Trigger async refresh of wall data
+      this.refreshData();
+    },
+    refreshData: function() {
       this.model.fetch();
     },
     render: function() {
