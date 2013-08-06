@@ -16,7 +16,7 @@ define([ 'jquery',
          'views/language-selection-view',
          'views/login-status-view',
          'views/login-screen-view',
-         'views/manage-wall-view',
+         'views/manage-wall-screen-view',
          'views/message-box-view',
          'views/new-wall-screen-view' ],
 function ($, _, Backbone, Bootstrap,
@@ -30,7 +30,7 @@ function ($, _, Backbone, Bootstrap,
           LanguageSelectionView,
           LoginStatusView,
           LoginScreenView,
-          ManageWallView,
+          ManageWallScreenView,
           MessageBoxView,
           NewWallScreenView) {
 
@@ -55,7 +55,7 @@ function ($, _, Backbone, Bootstrap,
     var userScreens =
       { homeScreen: null,
         newWallScreen: null,
-        manageWallView: null };
+        manageWallScreen: null };
 
     // Login management
     var login = new Login({ sessionName: 'WMSESSID',
@@ -130,12 +130,12 @@ function ($, _, Backbone, Bootstrap,
         wallId = wallId ? parseInt(wallId) : null;
 
         // Load wall
-        if (!userScreens.manageWallView ||
-            userScreens.manageWallView.model.id !== wallId) {
+        if (!userScreens.manageWallScreen ||
+            userScreens.manageWallScreen.model.id !== wallId) {
           // Remove any old views
-          if (userScreens.manageWallView) {
-            userScreens.manageWallView.remove();
-            userScreens.manageWallView = null;
+          if (userScreens.manageWallScreen) {
+            userScreens.manageWallScreen.remove();
+            userScreens.manageWallScreen = null;
           }
           // Fetch wall
           var wall = walls.get(wallId);
@@ -146,20 +146,20 @@ function ($, _, Backbone, Bootstrap,
             return;
           }
           // Create and render screen
-          userScreens.manageWallView =
-            new ManageWallView({ model: wall, designs: designs });
-          $('#page').append(userScreens.manageWallView.el);
-          toggleScreen(userScreens.manageWallView.render().$el);
-        } else if (userScreens.manageWallView.$el.attr('hidden')) {
+          userScreens.manageWallScreen =
+            new ManageWallScreenView({ model: wall, designs: designs });
+          $('#page').append(userScreens.manageWallScreen.el);
+          toggleScreen(userScreens.manageWallScreen.render().$el);
+        } else if (userScreens.manageWallScreen.$el.attr('hidden')) {
           // We already have a view for the requested wall but we're not
           // currently showing it.
           // Refresh its data and show it.
-          userScreens.manageWallView.refreshData();
-          toggleScreen(userScreens.manageWallView.$el);
+          userScreens.manageWallScreen.refreshData();
+          toggleScreen(userScreens.manageWallScreen.$el);
         }
 
         // Switch to section
-        userScreens.manageWallView.showSection(section, subsection);
+        userScreens.manageWallScreen.showSection(section, subsection);
       });
 
     // Link watching
