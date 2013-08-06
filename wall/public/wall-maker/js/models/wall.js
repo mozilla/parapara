@@ -7,6 +7,20 @@ define([ 'jquery',
          'backbone' ],
 function($, _, Backbone) {
   return Backbone.Model.extend({
-    idAttribute: 'wallId'
+    idAttribute: 'wallId',
+    fetchSessionsAndCharacters: function() {
+      if (!this.sessions) {
+        this.sessions = new (Backbone.Collection.extend({
+          url: '/api/walls/' + this.get(this.idAttribute) + '/characters'
+        }));
+      }
+      return this.sessions.fetch();
+    },
+    startSession: function() {
+      // XXX Make XHR request
+    },
+    endSession: function() {
+      // XXX Make XHR request
+    }
   });
 });

@@ -1,0 +1,29 @@
+<div class="sessionButtons">
+  <button type="button" class="btn btn-small btn-success start-session"
+    ><span class="plus">+</span>
+     <span data-l10n-id="new-session"></span></button>
+</div>
+<div data-hide="{{sessionsLoaded()}}">
+  <img data-src="{{appRoot}}/img/spinner.gif" class="spinner">
+</div>
+<div class="accordion" id="session-accordion" data-show="{{sessionsLoaded()}}">
+  <div class="accordion-group" data-repeat="session in sessions()">
+    <div class="accordion-heading">
+      <a class="accordion-toggle" data-toggle="collapse"
+        data-parent="#session-accordion"
+        data-href="{{appRoot}}/walls/{{wall.wallId}}/sessions/{{session.sessionId}}"
+        >Session {{session.sessionId}}</a>
+      <!-- XXX Use data-href for ID ref and href to actual URL -->
+      <!-- XXX Localize -->
+      <!-- XXX Add time -->
+      <!-- XXX Add running tag -->
+      <button type="button" class="btn btn-small end-session"
+        data-show="{{session.isRunning}}">セッションを終了する</button>
+    </div>
+    <div id="session-{{session.sessionId}}" class="accordion-body collapse in">
+      <div class="accordion-inner">
+        Session info
+      </div>
+    </div>
+  </div>
+</div>

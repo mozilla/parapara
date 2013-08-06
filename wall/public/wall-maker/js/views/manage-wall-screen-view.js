@@ -10,12 +10,14 @@ define([ 'underscore',
          'views/auto-save-textbox-view',
          'views/design-selection-view',
          'views/duration-slider-view',
-         'views/pathly-editable-url-view',
+         'views/manage-sessions-view',
          'views/message-box-view',
+         'views/pathly-editable-url-view',
          'text!templates/manage-wall-screen.html' ],
 function(_, Backbone, QRCode, webL10n,
          SomaView, AutoSaveTextboxView, DesignSelectionView, DurationSliderView,
-         PathlyEditableUrlView, MessageBoxView, templateString) {
+         ManageSessionsView, MessageBoxView, PathlyEditableUrlView,
+         templateString) {
 
   return SomaView.extend({
     tagName: 'div',
@@ -27,8 +29,6 @@ function(_, Backbone, QRCode, webL10n,
       "change .designSelection": "saveDesign"
     },
     initialize: function() {
-      // XXX Trigger async load of characters
-
       // Create subviews
       this.messageBoxView = new MessageBoxView();
       this.autoSaveNameView =
@@ -43,6 +43,7 @@ function(_, Backbone, QRCode, webL10n,
       this.durationSliderView =
         new DurationSliderView( { model: this.model,
                                   formFieldId: 'manage-duration' } );
+      this.manageSessionView = new ManageSessionsView( { model: this.model } );
 
       // Common handling of requests
       this.listenTo(this.model, "change", this.change);
@@ -76,6 +77,7 @@ function(_, Backbone, QRCode, webL10n,
       this.renderSubview('.durationControls .duration-slider',
                          this.durationSliderView);
       this.renderSubview('.alert', this.messageBoxView);
+      this.renderSubview('#manage-sessions', this.manageSessionView);
 
       // Set initial state of design selection
       this.$('.designSelection')[0].value = this.model.get("designId");

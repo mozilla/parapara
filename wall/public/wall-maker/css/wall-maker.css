@@ -480,7 +480,7 @@ menu[aria-role=tablist] a[aria-selected=true] {
 }
 /* Tab pages */
 section[aria-role=tabpanel] {
-  padding: 0.25em 1em; /* Bring controls in from sides */
+  padding: 1em; /* Bring controls in from sides */
   border-radius: 0.6em;
   margin-left: 150px; /* Match width of vertical tabs */
   min-height: 16em; /* Match height of vertical tab stack */
@@ -570,50 +570,17 @@ section[aria-role=tabpanel][aria-hidden=true] {
 /*
  * Session management screen
  */
-#manage-session button {
-  margin: 0.5em 0.2em;
+#manage-sessions .sessionButtons {
+  text-align: right;
 }
-#manage-session .running .currentWallStatus,
-#manage-session .running .latestSessionTime {
-  color: green;
-}
-#manage-session .finished .currentWallStatus,
-#manage-session .finished .latestSessionTime {
-  color: red;
-}
-#manage-session > div {
-  text-align: center;
-  margin: 1.2em auto;
-}
-#manage-session .currentWallStatus {
-  font-size: 2.2em;
-  margin-top: 0.8em;
-  margin-bottom: 0.2em;
-}
-#manage-session .latestSession {
-  font-size: 0.9em;
-  margin: 0.5em 0;
-}
-#manage-session .latestSessionTime {
+button span.plus {
   font-weight: bold;
+  font-size: 18px;
+  vertical-align: bottom;
+  margin-right: 3px;
 }
-#manage-session .spinner {
-  visibility: hidden;
-}
-#manage-session {
-  position: relative;
-}
-#manage-session .spinnerContainer {
-  position: absolute;
-  width: 100%;
-  left: 0;
-  top: 0;
-}
-#manage-session .updating * {
-  color: lightgrey !important;
-}
-#manage-session .updating .spinner {
-  visibility: visible;
+#manage-sessions .start-session {
+  background: green;
 }
 
 /*
@@ -621,7 +588,6 @@ section[aria-role=tabpanel][aria-hidden=true] {
  */
 #manage-design {
   text-align: center;
-  padding-top: 1.2em;
 }
 #manage-design .durationControls {
   margin-top: 1.2em;
