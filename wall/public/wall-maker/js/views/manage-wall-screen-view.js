@@ -6,15 +6,15 @@ define([ 'underscore',
          'backbone',
          'qrcode',
          'webL10n',
-         'utils/input-observer',
          'views/soma-view',
          'views/auto-save-textbox-view',
          'views/design-selection-view',
+         'views/duration-slider-view',
          'views/pathly-editable-url-view',
          'views/message-box-view',
          'text!templates/manage-wall-screen.html' ],
-function(_, Backbone, QRCode, webL10n, InputObserver,
-         SomaView, AutoSaveTextboxView, DesignSelectionView,
+function(_, Backbone, QRCode, webL10n,
+         SomaView, AutoSaveTextboxView, DesignSelectionView, DurationSliderView,
          PathlyEditableUrlView, MessageBoxView, templateString) {
 
   return SomaView.extend({
@@ -24,8 +24,7 @@ function(_, Backbone, QRCode, webL10n, InputObserver,
     id: 'screen-manage',
     events: {
       "click #showEditorUrlQrCode": "showEditorUrlQrCode",
-      "change .designSelection": "saveDesign",
-      "click #reset-duration": "resetDuration"
+      "change .designSelection": "saveDesign"
     },
     initialize: function() {
       // XXX Trigger async load of characters
@@ -40,24 +39,15 @@ function(_, Backbone, QRCode, webL10n, InputObserver,
                                      saveField: 'urlPath',
                                      formFieldId: 'manage-urlPath' } );
       this.designSelectionView =
-        new DesignSelectionView({ collection: this.options.designs });
-
-      // Watch the design slider
-      this.designObserver =
-        new InputObserver(this.onDurationChange.bind(this),
-                          this.onDurationSave.bind(this));
+        new DesignSelectionView( { collection: this.options.designs } );
+      this.durationSliderView =
+        new DurationSliderView( { model: this.model,
+                                  formFieldId: 'manage-duration' } );
 
       // Common handling of requests
       this.listenTo(this.model, "change", this.change);
       this.listenTo(this.model, "error", this.error);
       this.listenTo(this.model, "request", this.request);
-
-      // Some parts of the form (notably the duration label) do their
-      // localization inside functions called from the template so when the
-      // language switches we should re-render.
-      $(window).on("localized", null, function() {
-        this.template.render();
-      }.bind(this));
 
       // Trigger async refresh of wall data
       this.refreshData();
@@ -67,11 +57,7 @@ function(_, Backbone, QRCode, webL10n, InputObserver,
     },
     render: function() {
       // Set up template data
-      var data = {
-        wall: this.model.toJSON(),
-        getDuration: getDuration,
-        getDurationLabel: getDurationLabel,
-      };
+      var data = { wall: this.model.toJSON() };
 
       // We want to define this in the template but soma templates are a bit too
       // limited for this--and too limited to even do as a 'maxLength' helper
@@ -87,13 +73,12 @@ function(_, Backbone, QRCode, webL10n, InputObserver,
       this.renderSubview('#manage-name', this.autoSaveNameView);
       this.renderSubview('#manage-wallUrl', this.wallUrlView);
       this.renderSubview('.designSelection', this.designSelectionView);
+      this.renderSubview('.durationControls .duration-slider',
+                         this.durationSliderView);
       this.renderSubview('.alert', this.messageBoxView);
 
       // Set initial state of design selection
       this.$('.designSelection')[0].value = this.model.get("designId");
-
-      // Watch the design slider
-      this.designObserver.observeElement(this.$('#manage-duration')[0]);
 
       return this;
     },
@@ -224,58 +209,6 @@ function(_, Backbone, QRCode, webL10n, InputObserver,
       this.model.save({ designId: selection.value }, { patch: true })
           .fail(function() { selection.value = prevValue; })
           .always(function() { selection.classList.remove('sending') });
-    },
-    onDurationChange: function() {
-      var span = this.template.getNode(this.$("#duration-units")[0]);
-      this.template.scope.wall.duration =
-        parseInt(this.$("#manage-duration").val());
-      span.update();
-      span.render();
-    },
-    onDurationSave: function(element) {
-      this.saveDuration(parseInt(this.$('#manage-duration').val()));
-    },
-    saveDuration: function(duration) {
-      // Set sending state
-      var block = this.$('#durationControls')[0];
-      block.classList.add('sending');
-
-      // Save
-      this.model.save({ duration: duration }, { patch: true })
-          .always(function() { block.classList.remove('sending') });
-    },
-    resetDuration: function() {
-      this.saveDuration(null);
     }
   });
-
-  function getDuration(duration, defaultDuration) {
-    return !duration ? defaultDuration : duration;
-  }
-
-  function getDurationLabel(duration, defaultDuration) {
-    var str =
-      getDurationString(getDuration(duration, defaultDuration));
-    if (!duration)
-      str += ' ' + webL10n.get('duration-default');
-    return str;
-  }
-
-  function getDurationString(duration) {
-    var durationSeconds = duration / 1000;
-    var hours   = Math.floor(durationSeconds / (60 * 60));
-    var minutes = Math.floor(durationSeconds / 60) % 60;
-    var seconds = durationSeconds % 60;
-    var pad = function(num) { return ('0' + num).substr(-2); }
-    if (hours) {
-      var str = webL10n.get('duration-hms',
-        { hours: hours, minutes: pad(minutes), seconds: pad(seconds) });
-    } else if (minutes) {
-      var str = webL10n.get('duration-ms',
-        { minutes: minutes, seconds: pad(seconds) });
-    } else {
-      var str = webL10n.get('duration-s', { seconds: seconds });
-    }
-    return str;
-  }
 });

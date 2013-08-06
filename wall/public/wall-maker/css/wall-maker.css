@@ -623,14 +623,14 @@ section[aria-role=tabpanel][aria-hidden=true] {
   text-align: center;
   padding-top: 1.2em;
 }
-#durationControls {
+#manage-design .durationControls {
   margin-top: 1.2em;
 }
-#durationControls input[type=range],
-#duration-units {
+#manage-design .durationControls input[type=range],
+#manage-design .durationControls .duration-label {
   margin-right: 1.2em;
 }
-#duration-units {
+.duration-label {
   display: inline-block;
   min-width: 7em;
   text-align: left;

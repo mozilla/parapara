@@ -16,8 +16,7 @@
         <ul class="urlList">
           <li>
             <label data-l10n-id="wall-url"></label>
-            <span class="urlDetails" id="manage-wallUrl">
-            </span>
+            <span class="urlDetails" id="manage-wallUrl"></span>
           </li>
           <li>
             <label data-l10n-id="editor-url"></label>
@@ -95,15 +94,9 @@
         </section>
         <section id="manage-design" aria-role="tabpanel" aria-hidden="true">
           <div class="designSelection withIcon"></div>
-          <div id="durationControls" class="withIcon">
+          <div class="durationControls">
             <label data-l10n-id="wall-duration-label"></label>
-            <input type="range" min=10000 max=1200000
-              value="{{getDuration(wall.duration, wall.defaultDuration)}}"
-              step=10000 id="manage-duration" name="duration">
-            <span id="duration-units"
-              >{{getDurationLabel(wall.duration, wall.defaultDuration)}}</span>
-            <button type="button" class="btn btn-small"
-              id="reset-duration" data-l10n-id="reset"></button>
+            <div class="duration-slider withIcon"></div>
           </div>
         </section>
       </div>
