@@ -869,10 +869,6 @@
 					if (this.parent && this.parent.html) {
 						this.value = this.parent.element.innerHTML = this.interpolation.render();
 					}
-					else if (this.parent &&
-                   typeof this.parent.element.textContent !== "undefined") {
-            this.value = this.parent.element.textContent = this.interpolation.render();
-          }
 					else {
 						this.value = this.element.nodeValue = this.interpolation.render();
 					}
