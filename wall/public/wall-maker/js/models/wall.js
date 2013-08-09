@@ -4,22 +4,36 @@
 
 define([ 'jquery',
          'underscore',
-         'backbone' ],
-function($, _, Backbone) {
+         'backbone',
+         'collections/Sessions' ],
+function($, _, Backbone, Sessions) {
   return Backbone.Model.extend({
     idAttribute: 'wallId',
-    fetchSessionsAndCharacters: function() {
-      if (!this.sessions) {
-        this.sessions = new (Backbone.Collection.extend({
-          url: '/api/walls/' + this.get(this.idAttribute) + '/characters'
-        }));
-      }
-      return this.sessions.fetch();
+
+    initialize: function() {
+      // Flag to indicate if we have fetched the characters but there were none
+      // or if we simply haven't tried yet
+      this.charactersLoaded = false,
+
+      // Define the sessions property so users can register for events on it but
+      // don't fetch it until necessary (i.e. someone calls fetchCharacters).
+      this.sessions =
+        new Sessions(null, { wallId: this.get(this.idAttribute) });
     },
+
+    fetchCharacters: function() {
+      var self = this;
+      return this.sessions.fetch(
+             { success: function() { self.charactersLoaded = true; } });
+    },
+
     startSession: function() {
+      // XXX Make sure sessions have been fetched first
       // XXX Make XHR request
     },
+
     endSession: function() {
+      // XXX Make sure sessions have been fetched first
       // XXX Make XHR request
     }
   });

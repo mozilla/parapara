@@ -3,10 +3,11 @@
     ><span class="plus">+</span>
      <span data-l10n-id="new-session"></span></button>
 </div>
-<div data-hide="{{sessionsLoaded()}}">
+<div data-hide="{{charactersLoaded()}}">
   <img data-src="{{appRoot}}/img/spinner.gif" class="spinner">
 </div>
-<div class="accordion" id="session-accordion" data-show="{{sessionsLoaded()}}">
+<div class="accordion" id="session-accordion"
+  data-show="{{charactersLoaded()}}">
   <div class="accordion-group" data-repeat="session in sessions()">
     <div class="accordion-heading">
       <a class="accordion-toggle" data-toggle="collapse"
@@ -17,12 +18,13 @@
       <!-- XXX Use data-href for ID ref and href to actual URL -->
       <!-- XXX Localize -->
       <!-- XXX Add time -->
-      <!-- XXX Add running tag -->
-      <button type="button" class="btn btn-small end-session"
-        data-show="{{session.isRunning}}">セッションを終了する</button>
+      <span class="label label-success"
+            data-show="{{session.running}}"">running</span>
     </div>
     <div id="session-{{session.sessionId}}" class="accordion-body collapse in">
       <div class="accordion-inner">
+        <button type="button" class="btn btn-small end-session"
+          data-show="{{session.running}}">セッションを終了する</button>
         Session info
       </div>
     </div>

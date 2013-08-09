@@ -601,6 +601,7 @@ button span.plus {
   font-weight: bold;
   outline: none;
   text-decoration: none;
+  display: inline-block;
 }
 #manage-sessions .accordion-heading a:hover {
   text-decoration: none;

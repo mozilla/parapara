@@ -55,6 +55,7 @@ function(_, Backbone, QRCode, webL10n,
     },
     refreshData: function() {
       this.model.fetch();
+      this.model.fetchCharacters();
     },
     render: function() {
       // Set up template data

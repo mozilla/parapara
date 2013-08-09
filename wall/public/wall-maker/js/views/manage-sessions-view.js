@@ -11,44 +11,45 @@ function(_, Backbone, webL10n, SomaView, templateString) {
 
   return SomaView.extend({
     initialize: function() {
-      // Initial state
-      this.sessionsLoaded = false;
-
-      // Trigger async load of sessions
-      var self = this;
-      console.log(this.model);
-      this.model.fetchSessionsAndCharacters()
-      .then(function() {
-        self.sessionsLoaded = true;
-        self.update();
-      });
+      // Register for updates to the list of characters
+      this.listenTo(this.model.sessions, "sync", this.update);
     },
 
     render: function() {
-      // Set up template data
-      var self = this;
-      var data =
-      {
-        wall: this.model.toJSON(),
-        sessions: function() {
-          return self.sessionsLoaded ? self.model.sessions.toJSON() : [];
-        },
-        sessionsLoaded: function() { return self.sessionsLoaded; }
-      };
-
-      // XXX Set a value depending on whether the characters have loaded or not
-      // that will determine if we show the spinner or the accordion
-
       // Render template
-      this.renderTemplate(templateString, data);
+      this.renderTemplate(templateString, this.getData());
 
       return this;
     },
 
     update: function() {
       if (this.template) {
+        _.extend(this.template.scope, this.getData());
         this.template.render();
       }
+    },
+
+    getData: function() {
+      var data = {
+        charactersLoaded: this.model.charactersLoaded,
+        wall: this.model.toJSON(),
+        sessions: []
+      };
+
+      if (this.model.charactersLoaded) {
+        data.sessions =
+          _.chain(this.model.sessions.toJSON())
+           // Annotate every sessions object with 'running' property
+           .map(function(session) {
+                  session.running = session.end === null;
+                  return session;
+                })
+           // Reverse the list of sessions so newer ones appear first
+           .reverse()
+           .value();
+        ;
+      }
+      return data;
     },
   });
 });

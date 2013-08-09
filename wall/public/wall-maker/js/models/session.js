@@ -4,11 +4,9 @@
 
 define([ 'jquery',
          'underscore',
-         'backbone',
-         'models/wall' ],
-function($, _, Backbone, Wall) {
-  return Backbone.Collection.extend({
-    model: Wall,
-    url: '/api/walls'
+         'backbone' ],
+function($, _, Backbone) {
+  return Backbone.Model.extend({
+    idAttribute: 'sessionId'
   });
 });
