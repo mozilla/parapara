@@ -43,7 +43,8 @@ function(_, Backbone, QRCode, webL10n,
       this.durationSliderView =
         new DurationSliderView( { model: this.model,
                                   formFieldId: 'manage-duration' } );
-      this.manageSessionView = new ManageSessionsView( { model: this.model } );
+      this.manageSessionView = new ManageSessionsView(
+        { model: this.model, messageBoxView: this.messageBoxView } );
 
       // Common handling of requests
       this.listenTo(this.model, "change", this.change);

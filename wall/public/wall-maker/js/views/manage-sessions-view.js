@@ -11,17 +11,32 @@ function(_, Backbone, webL10n, SomaView, templateString) {
 
   return SomaView.extend({
     initialize: function() {
+      // Alias message box view
+      this.messageBoxView = this.options.messageBoxView;
+
       // Register for updates to the list of characters
       this.listenTo(this.model.sessions, "sync", this.render);
+      this.listenTo(this.model.sessions, "error", this.error);
+      this.listenTo(this.model.sessions, "request", this.request);
 
       // Manage currently selected session
       this._selectedSessionId = null;
+      Object.defineProperty(this, "latestSessionId",
+        { get: function() {
+            return this.model.get("latestSession")
+                 ? this.model.get("latestSession").sessionId
+                 : null;
+          }
+        });
       Object.defineProperty(this, "selectedSessionId",
         { get: function() {
-            return this._selectedSessionId ||
-                   this.model.get("latestSession").sessionId; }
-        }
-      );
+            return this._selectedSessionId || this.latestSessionId;
+          }
+        });
+    },
+
+    events: {
+      "click #new-session": "startSession",
     },
 
     render: function() {
@@ -35,7 +50,7 @@ function(_, Backbone, webL10n, SomaView, templateString) {
       }
 
       // Select session
-      [ this.selectedSessionId, this.model.get("latestSession").sessionId ]
+      [ this.selectedSessionId, this.latestSessionId ]
         .every(function(candidateId) {
           var elem = $('#session-' + candidateId);
           elem.collapse('show');
@@ -73,6 +88,40 @@ function(_, Backbone, webL10n, SomaView, templateString) {
 
     showSubsection: function(subsection) {
       this._selectedSessionId = parseInt(subsection);
+    },
+
+    startSession: function() {
+      this.disableSessionControls();
+
+      var view = this;
+      this.model.startSession({
+        success: function(session) {
+          view._selectedSessionId = session.id;
+        },
+        complete: function() { view.enableSessionControls(); },
+      });
+    },
+
+    disableSessionControls: function() {
+      this.$("#new-session, .end-session").attr('disabled', 'disabled');
+    },
+
+    enableSessionControls: function() {
+      this.$("#new-session, .end-session").removeAttr('disabled');
+    },
+
+    error: function(sessions, resp, xhr) {
+      if (resp['responseJSON'] === undefined) {
+        console.log("Unexpected error");
+        console.log(arguments);
+        return;
+      }
+      this.messageBoxView.setMessage(resp.responseJSON.error_key,
+        { keyPrefix: "session-save-failed", dismiss: true });
+    },
+
+    request: function(sessions, xhr, options) {
+      this.messageBoxView.clearMessage();
     },
   });
 
