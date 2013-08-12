@@ -606,6 +606,11 @@ button span.plus {
 #manage-sessions .accordion-heading a:hover {
   text-decoration: none;
 }
+#manage-sessions .session-time {
+  color: grey;
+  font-size: 0.75em;
+  margin-left: 0.5em;
+}
 
 /*
  * Design screen

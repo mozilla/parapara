@@ -16,10 +16,19 @@
         data-href="{{appRoot}}/walls/{{wall.wallId}}/sessions/{{session.sessionId}}"
         data-l10n-id="session-title"
         data-l10n-args='{ "sessionId": "{{session.sessionId}}" }'></a>
-      <!-- XXX Add time -->
       <span class="label label-success"
         data-show="{{session.running}}"
         data-l10n-id="session-running"></span>
+      <span class="session-time" data-l10n-id="{{session.timeRangeL10nId}}"
+        data-l10n-args='{ "startTimestamp": "{{session.start}}",
+                          "startTime": "{{session.startTime}}",
+                          "startDate": "{{session.startDate}}",
+                          "startDatetime": "{{session.startDatetime}}",
+                          "endTimestamp": "{{session.end}}",
+                          "endTime": "{{session.endTime}}",
+                          "endDate": "{{session.endDate}}",
+                          "endDatetime": "{{session.endDatetime}}" }'></span>
+      </span>
     </div>
     <div id="session-{{session.sessionId}}" class="accordion-body collapse in">
       <div class="accordion-inner">
