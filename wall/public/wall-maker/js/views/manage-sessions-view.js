@@ -22,6 +22,7 @@ function(_, Backbone, webL10n, SomaView, templateString) {
       } else {
         _.extend(this.template.scope, this.getData());
         this.template.render();
+        webL10n.translate(this.el);
       }
 
       return this;

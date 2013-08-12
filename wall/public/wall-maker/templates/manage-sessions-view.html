@@ -14,12 +14,12 @@
         data-parent="#session-accordion"
         data-target="#session-{{session.sessionId}}"
         data-href="{{appRoot}}/walls/{{wall.wallId}}/sessions/{{session.sessionId}}"
-        >Session {{session.sessionId}}</a>
-      <!-- XXX Use data-href for ID ref and href to actual URL -->
-      <!-- XXX Localize -->
+        data-l10n-id="session-title"
+        data-l10n-args='{ "sessionId": "{{session.sessionId}}" }'></a>
       <!-- XXX Add time -->
       <span class="label label-success"
-            data-show="{{session.running}}"">running</span>
+        data-show="{{session.running}}"
+        data-l10n-id="session-running"></span>
     </div>
     <div id="session-{{session.sessionId}}" class="accordion-body collapse in">
       <div class="accordion-inner">
