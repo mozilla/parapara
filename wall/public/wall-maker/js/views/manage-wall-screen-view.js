@@ -100,6 +100,11 @@ function(_, Backbone, QRCode, webL10n,
       this.$("section[aria-role=tabpanel]").attr("aria-hidden", "true");
       selectedPanel = this.$("#" + selectedTab.attr("aria-controls"));
       selectedPanel.removeAttr("aria-hidden");
+
+      // Select subsection
+      if (section == "sessions") {
+        this.manageSessionView.showSubsection(subsection);
+      }
     },
     request: function(wall, xhr, options) {
       // Clear pop-ups when we go to save changes

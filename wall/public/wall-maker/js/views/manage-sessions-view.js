@@ -13,6 +13,15 @@ function(_, Backbone, webL10n, SomaView, templateString) {
     initialize: function() {
       // Register for updates to the list of characters
       this.listenTo(this.model.sessions, "sync", this.render);
+
+      // Manage currently selected session
+      this._selectedSessionId = null;
+      Object.defineProperty(this, "selectedSessionId",
+        { get: function() {
+            return this._selectedSessionId ||
+                   this.model.get("latestSession").sessionId; }
+        }
+      );
     },
 
     render: function() {
@@ -24,6 +33,15 @@ function(_, Backbone, webL10n, SomaView, templateString) {
         this.template.render();
         webL10n.translate(this.el);
       }
+
+      // Select session
+      [ this.selectedSessionId, this.model.get("latestSession").sessionId ]
+        .every(function(candidateId) {
+          var elem = $('#session-' + candidateId);
+          elem.collapse('show');
+          // If the item was NOT found, continue
+          return elem.length == 0;
+        });
 
       return this;
     },
@@ -51,6 +69,10 @@ function(_, Backbone, webL10n, SomaView, templateString) {
         ;
       }
       return data;
+    },
+
+    showSubsection: function(subsection) {
+      this._selectedSessionId = parseInt(subsection);
     },
   });
 

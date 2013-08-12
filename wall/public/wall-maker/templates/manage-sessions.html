@@ -30,7 +30,8 @@
                           "endDatetime": "{{session.endDatetime}}" }'></span>
       </span>
     </div>
-    <div id="session-{{session.sessionId}}" class="accordion-body collapse in">
+    <div id="session-{{session.sessionId}}" class="accordion-body collapse"
+      data-parent="#session-accordion">
       <div class="accordion-inner">
         <button type="button" class="btn btn-small end-session"
           data-show="{{session.running}}" data-l10n-id="end-session"></button>
