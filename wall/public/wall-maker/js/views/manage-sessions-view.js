@@ -6,7 +6,7 @@ define([ 'underscore',
          'backbone',
          'webL10n',
          'views/soma-view',
-         'text!templates/manage-sessions-view.html' ],
+         'text!templates/manage-sessions.html' ],
 function(_, Backbone, webL10n, SomaView, templateString) {
 
   return SomaView.extend({
