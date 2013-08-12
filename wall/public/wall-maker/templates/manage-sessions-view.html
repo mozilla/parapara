@@ -3,11 +3,11 @@
     ><span class="plus">+</span>
      <span data-l10n-id="new-session"></span></button>
 </div>
-<div data-hide="{{charactersLoaded()}}">
+<div data-hide="{{sessionsLoaded}}">
   <img data-src="{{appRoot}}/img/spinner.gif" class="spinner">
 </div>
 <div class="accordion" id="session-accordion"
-  data-show="{{charactersLoaded()}}">
+  data-show="{{sessionsLoaded}}">
   <div class="accordion-group" data-repeat="session in sessions()">
     <div class="accordion-heading">
       <a class="accordion-toggle" data-toggle="collapse"

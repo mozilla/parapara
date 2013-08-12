@@ -11,9 +11,9 @@ function($, _, Backbone, Sessions) {
     idAttribute: 'wallId',
 
     initialize: function() {
-      // Flag to indicate if we have fetched the characters but there were none
-      // or if we simply haven't tried yet
-      this.charactersLoaded = false,
+      // Flag to indicate if we have fetched the sessions so we can distinguish
+      // between having zero sessions or simply not having fetched them
+      this.sessionsLoaded = false,
 
       // Define the sessions property so users can register for events on it but
       // don't fetch it until necessary (i.e. someone calls fetchCharacters).
@@ -24,7 +24,7 @@ function($, _, Backbone, Sessions) {
     fetchCharacters: function() {
       var self = this;
       return this.sessions.fetch(
-             { success: function() { self.charactersLoaded = true; } });
+             { success: function() { self.sessionsLoaded = true; } });
     },
 
     startSession: function() {

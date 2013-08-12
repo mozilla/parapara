@@ -29,12 +29,12 @@ function(_, Backbone, webL10n, SomaView, templateString) {
 
     getData: function() {
       var data = {
-        charactersLoaded: this.model.charactersLoaded,
+        sessionsLoaded: this.model.sessionsLoaded,
         wall: this.model.toJSON(),
         sessions: []
       };
 
-      if (this.model.charactersLoaded) {
+      if (this.model.sessionsLoaded) {
         data.sessions =
           _.chain(this.model.sessions.toJSON())
            // Annotate every sessions object with 'running' property
