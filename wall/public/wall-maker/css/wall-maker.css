@@ -598,13 +598,15 @@ button span.plus {
 }
 #manage-sessions .accordion-heading a {
   color: black;
-  font-weight: bold;
   outline: none;
   text-decoration: none;
-  display: inline-block;
+  display: block;
 }
 #manage-sessions .accordion-heading a:hover {
   text-decoration: none;
+}
+#manage-sessions .accordion-heading a .session-title {
+  font-weight: bold;
 }
 #manage-sessions .session-time {
   color: grey;
