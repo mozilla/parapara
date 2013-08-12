@@ -12,21 +12,19 @@ function(_, Backbone, webL10n, SomaView, templateString) {
   return SomaView.extend({
     initialize: function() {
       // Register for updates to the list of characters
-      this.listenTo(this.model.sessions, "sync", this.update);
+      this.listenTo(this.model.sessions, "sync", this.render);
     },
 
     render: function() {
       // Render template
-      this.renderTemplate(templateString, this.getData());
-
-      return this;
-    },
-
-    update: function() {
-      if (this.template) {
+      if (!this.template) {
+        this.renderTemplate(templateString, this.getData());
+      } else {
         _.extend(this.template.scope, this.getData());
         this.template.render();
       }
+
+      return this;
     },
 
     getData: function() {
