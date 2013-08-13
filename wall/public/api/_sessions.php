@@ -42,7 +42,11 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
     // Get latest session ID for clients who wish to prevent parallel changes
     $data = getRequestData();
-    $latestSessionId = toIntOrNull(@$data['latestSessionId']);
+    $latestSessionId = @$data['latestSessionId'];
+    $latestSessionId = isset($latestSessionId)
+      ? is_null($latestSessionId) ? null : intval($latestSessionId)
+      : "Not set";
+    error_log(print_r($latestSessionId, true));
 
     // Create new session
     $madeChange = $wall->startSession($latestSessionId, $currentdatetime);

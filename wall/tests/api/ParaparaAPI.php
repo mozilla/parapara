@@ -174,9 +174,12 @@ class ParaparaAPI {
    *
    * ---------------------------------------------------------------------*/
 
-  function startSession($wallId, $latestSessionId) {
+  function startSession($wallId, $latestSessionId = "Not set") {
     // Prepare payload
-    $payload['latestSessionId'] = $latestSessionId;
+    $payload = array();
+    if ($latestSessionId != "Not set") {
+      $payload['latestSessionId'] = $latestSessionId;
+    }
 
     // Make request
     global $config;

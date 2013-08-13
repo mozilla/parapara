@@ -386,9 +386,8 @@ class Wall {
     return $result;
   }
 
-  public function startSession($latestSessionId, $datetime = null) {
+  public function startSession($latestSessionId = "Not set", $datetime = null) {
     // Sanitize input
-    $latestSessionId = toIntOrNull($latestSessionId);
     if ($datetime === null)
       $datetime = gmdate("Y-m-d H:i:s");
 
@@ -401,7 +400,8 @@ class Wall {
     $latestSession = $this->latestSession;
 
     // Is the passed-in session ID correct?
-    if (toIntOrNull($latestSession['sessionId']) !== $latestSessionId) {
+    if ($latestSessionId != "Not set" &&
+        toIntOrNull($latestSession['sessionId']) !== $latestSessionId) {
       return false;
     }
 
@@ -487,7 +487,7 @@ class Wall {
     return true;
   }
 
-  public function getSessions($includeCharacters) {
+  public function getSessions($includeCharacters = null) {
     // Just as we currently disallow access to wall info via the API to 
     // strangers we do the same for session information.
     //
