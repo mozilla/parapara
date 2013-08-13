@@ -37,7 +37,9 @@ function(_, Backbone, webL10n, SomaView, templateString) {
     },
 
     events: {
-      "click #new-session": "startSession"
+      "click #new-session": "startSession",
+      "click .end-session": "endSession",
+      "click .restart-session": "restartSession"
     },
 
     render: function() {
@@ -139,16 +141,16 @@ function(_, Backbone, webL10n, SomaView, templateString) {
 
     endSession: function() {
       this.disableSessionControls();
-      this.model.endSession({
-        complete: function() { view.enableSessionControls(); },
-      });
+      this.model.endSession(
+        { complete: this.enableSessionControls.bind(this) }
+      );
     },
 
     restartSession: function() {
       this.disableSessionControls();
-      this.model.restartSession({
-        complete: function() { view.enableSessionControls(); },
-      });
+      this.model.restartSession(
+        { complete: this.enableSessionControls.bind(this) }
+      );
     },
 
     disableSessionControls: function() {

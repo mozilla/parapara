@@ -7,6 +7,22 @@ define([ 'jquery',
          'backbone' ],
 function($, _, Backbone) {
   return Backbone.Model.extend({
-    idAttribute: 'sessionId'
+    idAttribute: 'sessionId',
+
+    initialize: function(attributes, options) {
+      // Initialize URL
+      this.updateUrl(options);
+      // If we haven't got an ID yet we will have to update it when the model is
+      // changed
+      this.listenTo(this, "change", this.updateUrl);
+    },
+
+    updateUrl: function(options) {
+      var wallId = this.collection.wallId;
+      if (!wallId)
+        throw "No wall Id for session";
+      if (this.id)
+        this.url = '/api/walls/' + wallId + '/sessions/' + this.id;
+    }
   });
 });

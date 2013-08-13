@@ -96,12 +96,38 @@ function($, _, Backbone, Sessions) {
       }
     },
 
-    endSession: function() {
-      // XXX Make sure sessions have been fetched first
-      // XXX Make XHR request
+    endSession: function(options) {
+      if (!this.sessionsLoaded)
+        return;
+
+      // Get latest session
+      if (!this.get("latestSession")) {
+        console.log("No session to end");
+        return;
+      }
+      var latestSession =
+        this.sessions.get(this.get("latestSession").sessionId);
+
+      // Wrap error to take care of parallel changes.
+      this.wrapError(options);
+
+      // Wrap success so we make sure our latestSession gets updated
+      var success = options.success;
+      var self = this;
+      options.success = function(model, resp, options) {
+        // Update latest session
+        self.attributes.latestSession = _.clone(model.attributes);
+
+        // Call original callback
+        if (success) success(model, resp, options);
+      };
+
+      return latestSession.save({ end: true },
+                                _.extend({ wait: true }, options));
     },
 
     restartSession: function(options) {
+      // XXX
     },
 
     wrapError: function(options) {
