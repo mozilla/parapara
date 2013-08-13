@@ -67,6 +67,10 @@ function(_, Backbone, webL10n, SomaView, templateString) {
     getData: function() {
       var data = {
         sessionsLoaded: this.model.sessionsLoaded,
+        haveSessions: this.model.sessionsLoaded &&
+                      this.model.sessions.length > 0,
+        noSessions: this.model.sessionsLoaded &&
+                    this.model.sessions.length == 0,
         wall: this.model.toJSON(),
         sessions: []
       };

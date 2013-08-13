@@ -6,8 +6,7 @@
 <div data-hide="{{sessionsLoaded}}">
   <img data-src="{{appRoot}}/img/spinner.gif" class="spinner">
 </div>
-<div class="accordion" id="session-accordion"
-  data-show="{{sessionsLoaded}}">
+<div class="accordion" id="session-accordion" data-show="{{haveSessions}}">
   <div class="accordion-group" data-repeat="session in sessions()">
     <div class="accordion-heading">
       <a class="accordion-toggle" data-toggle="collapse"
@@ -43,4 +42,6 @@
       </div>
     </div>
   </div>
+</div>
+<div data-show="{{noSessions}}" class="no-sessions" data-l10n-id="no-sessions">
 </div>
