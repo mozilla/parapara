@@ -108,10 +108,10 @@ class SessionsTestCase extends APITestCase {
   function testStartNew() {
     // Create wall
     $wall = $this->api->createWall('Test wall', $this->testDesignId);
-    $sessionId = $wall['latestSession']['sessionId'];
+    $latestSessionId = $wall['latestSession']['sessionId'];
 
     // Start new session
-    $response = $this->api->startSession($wall['wallId'], $sessionId);
+    $response = $this->api->startSession($wall['wallId'], $latestSessionId);
 
     // Check we got the times and status
     $this->assertTrue(!array_key_exists('error_key', $response),
@@ -121,7 +121,7 @@ class SessionsTestCase extends APITestCase {
                       "Session does not appear to be open");
 
     // Check the IDs differ
-    $this->assertEqual(@$response['sessionId'], $sessionId+1,
+    $this->assertEqual(@$response['sessionId'], $latestSessionId+1,
                        "Got unexpected session ID: %s");
 
     // Check previous session is closed
@@ -137,7 +137,7 @@ class SessionsTestCase extends APITestCase {
 
     // Logout and check it fails
     $this->api->logout();
-    $response = $this->api->startSession($wall['wallId'], $sessionId);
+    $response = $this->api->startSession($wall['wallId'], $latestSessionId);
     $this->assertTrue(array_key_exists('error_key', $response) &&
                       $response['error_key'] == 'logged-out',
                       "Started new session whilst logged out.");
@@ -146,13 +146,13 @@ class SessionsTestCase extends APITestCase {
   function testParallelStartNew() {
     // Create wall
     $wall = $this->api->createWall('Test wall', $this->testDesignId);
-    $sessionId = $wall['latestSession']['sessionId'];
+    $latestSessionId = $wall['latestSession']['sessionId'];
 
     // Start new session
-    $responseA = $this->api->startSession($wall['wallId'], $sessionId);
+    $responseA = $this->api->startSession($wall['wallId'], $latestSessionId);
 
     // And do it again but with the OLD sessionId
-    $responseB = $this->api->startSession($wall['wallId'], $sessionId);
+    $responseB = $this->api->startSession($wall['wallId'], $latestSessionId);
     $this->assertTrue(array_key_exists('error_key', $responseB) &&
                       $responseB['error_key'] == 'parallel-change',
                       "No error about parallel change when starting with old "
@@ -171,11 +171,11 @@ class SessionsTestCase extends APITestCase {
   function testStartSomeoneElsesWall() {
     // Create wall as test user
     $wall = $this->api->createWall('Test wall', $this->testDesignId);
-    $sessionId = $wall['latestSession']['sessionId'];
+    $latestSessionId = $wall['latestSession']['sessionId'];
 
     // Switch user
     $this->api->login('abc@abc.org');
-    $response = $this->api->startSession($wall['wallId'], $sessionId);
+    $response = $this->api->startSession($wall['wallId'], $latestSessionId);
     $this->assertEqual(@$response['error_key'], 'no-auth');
   }
 

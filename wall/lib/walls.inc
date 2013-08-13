@@ -386,9 +386,9 @@ class Wall {
     return $result;
   }
 
-  public function startSession($currentSessionId, $datetime = null) {
+  public function startSession($latestSessionId, $datetime = null) {
     // Sanitize input
-    $currentSessionId = toIntOrNull($currentSessionId);
+    $latestSessionId = toIntOrNull($latestSessionId);
     if ($datetime === null)
       $datetime = gmdate("Y-m-d H:i:s");
 
@@ -401,13 +401,13 @@ class Wall {
     $latestSession = $this->latestSession;
 
     // Is the passed-in session ID correct?
-    if (toIntOrNull($latestSession['sessionId']) !== $currentSessionId) {
+    if (toIntOrNull($latestSession['sessionId']) !== $latestSessionId) {
       return false;
     }
 
     // Close the latest session if it's open
     if (@$latestSession['end'] === null) {
-      $this->endSession($currentSessionId, $datetime);
+      $this->endSession($latestSessionId, $datetime);
     }
 
     // Get sessionId for next session

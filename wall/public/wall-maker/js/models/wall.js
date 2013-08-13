@@ -78,7 +78,7 @@ function($, _, Backbone, Sessions) {
                             : null;
         return self.sessions.create({ },
           _.extend({
-            attrs: { sessionId: latestSessionId },
+            attrs: { latestSessionId: latestSessionId },
             wait: true,
             url: '/api/walls/' + self.id + '/sessions'
           }, options));

@@ -22,24 +22,30 @@ if ($wall === null)
   bailWithError('not-found');
 $sessionId = toIntOrNull(@$_REQUEST['sessionId']);
 
-// If there is no sessionId, look for it in the request data
-if (!$sessionId) {
-  $data = getRequestData();
-  $sessionId = toIntOrNull(@$data['sessionId']);
-}
-
 // Prepare change timestamp
 $currentdatetime = gmdate("Y-m-d H:i:s");
 
 // Determine action
 switch ($_SERVER['REQUEST_METHOD']) {
   case 'GET':
+    // We currently don't support getting a specific session
+    if ($sessionId)
+      bailWithError('bad-request');
+
     $result = $wall->getSessions();
     break;
 
   case 'POST':
+    // You can't create a specific session
+    if ($sessionId)
+      bailWithError('bad-request');
+
+    // Get latest session ID for clients who wish to prevent parallel changes
+    $data = getRequestData();
+    $latestSessionId = toIntOrNull(@$data['latestSessionId']);
+
     // Create new session
-    $madeChange = $wall->startSession($sessionId, $currentdatetime);
+    $madeChange = $wall->startSession($latestSessionId, $currentdatetime);
     break;
 
   case 'PUT':
