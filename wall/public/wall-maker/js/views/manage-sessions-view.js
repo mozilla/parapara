@@ -162,12 +162,10 @@ function(_, Backbone, webL10n, SomaView, templateString) {
     },
 
     error: function(sessions, resp, xhr) {
-      if (resp['responseJSON'] === undefined) {
-        console.log("Unexpected error");
-        console.log(arguments);
-        return;
-      }
-      this.messageBoxView.setMessage(resp.responseJSON.error_key,
+      var key = resp['responseJSON'] !== undefined
+              ? resp.responseJSON.error_key
+              : resp.statusText;
+      this.messageBoxView.setMessage(key,
         { keyPrefix: "session-save-failed", dismiss: true });
     },
 
