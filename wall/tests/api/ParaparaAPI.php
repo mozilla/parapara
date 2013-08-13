@@ -191,7 +191,14 @@ class ParaparaAPI {
     global $config;
     $url = $config['test']['wall_server'] .
       "api/walls/$wallId/sessions/$sessionId";
-    return $this->putJson($url, null);
+    return $this->putJson($url, array('end' => true));
+  }
+
+  function restartSession($wallId, $sessionId) {
+    global $config;
+    $url = $config['test']['wall_server'] .
+      "api/walls/$wallId/sessions/$sessionId";
+    return $this->putJson($url, array('end' => null));
   }
 
   function getSessions($wallId) {

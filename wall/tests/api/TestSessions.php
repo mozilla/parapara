@@ -181,6 +181,80 @@ class SessionsTestCase extends APITestCase {
                        "Got unexpected session ID: %s");
   }
 
+  function testRestartSession() {
+    $wall = $this->api->createWall('Test wall', $this->testDesignId);
+    $sessionId = $wall['latestSession']['sessionId'];
+
+    // End and restart session
+    $this->api->endSession($wall['wallId'], $sessionId);
+    $response = $this->api->restartSession($wall['wallId'], $sessionId);
+
+    // Check we got the times and status
+    $this->assertTrue(!@array_key_exists('error_key', $response),
+                      "Failed to end session: " . @$response['error_key']);
+    $this->assertTrue($this->isOpenSession($response),
+                      "Session does not appear to be open");
+
+    // Double-check ID
+    $this->assertEqual(@$response['sessionId'], $sessionId,
+                       "Got different session IDs: %s");
+  }
+
+  function testRestartSessionWhileLoggedOut() {
+    // Create wall and session
+    $wall = $this->api->createWall('Test wall', $this->testDesignId);
+    $sessionId = $wall['latestSession']['sessionId'];
+
+    // Logout and check it fails
+    $this->api->logout();
+    $response = $this->api->restartSession(@$wall['wallId'], $sessionId);
+    $this->assertTrue(@$response['error_key'] == 'logged-out',
+                      "Closed session whilst logged out.");
+  }
+
+  function testRestartNotLatestSession() {
+    $wall = $this->api->createWall('Test wall', $this->testDesignId);
+    $sessionId = $wall['latestSession']['sessionId'];
+
+    // Create a new session and restart old session
+    $this->api->startSession($wall['wallId']);
+    $response = $this->api->restartSession($wall['wallId'], $sessionId);
+
+    // Check we got an error
+    $this->assertTrue(array_key_exists('error_key', $response) &&
+                      $response['error_key'] == 'parallel-change',
+                      "No error about parallel change when restarting old"
+                      . " session");
+  }
+
+  function testRestartAlreadyOpenSession() {
+    $wall = $this->api->createWall('Test wall', $this->testDesignId);
+    $sessionId = $wall['latestSession']['sessionId'];
+
+    // Restart current session
+    $response = $this->api->restartSession($wall['wallId'], $sessionId);
+
+    // Check we got an error
+    $this->assertTrue(array_key_exists('error_key', $response) &&
+                      $response['error_key'] == 'parallel-change',
+                      "No error about parallel change when restarting open"
+                      . " session");
+  }
+
+  function testRestartBadSession() {
+    $wall = $this->api->createWall('Test wall', $this->testDesignId);
+    $sessionId = $wall['latestSession']['sessionId'];
+
+    // Restart invalid session
+    $response = $this->api->restartSession($wall['wallId'], $sessionId + 1);
+
+    // Check we got an error
+    $this->assertTrue(array_key_exists('error_key', $response) &&
+                      $response['error_key'] == 'parallel-change',
+                      "No error about parallel change when restarting invalid"
+                      . " session");
+  }
+
   function testStartSomeoneElsesWall() {
     // Create wall as test user
     $wall = $this->api->createWall('Test wall', $this->testDesignId);

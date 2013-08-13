@@ -517,6 +517,7 @@ class Wall {
     // Update latest session
     $this->fields['latestSession']['end'] = null;
     $this->fields['status'] = 'running';
+
     return true;
   }
 

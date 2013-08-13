@@ -54,8 +54,16 @@ switch ($_SERVER['REQUEST_METHOD']) {
   case 'PUT':
     if (!$sessionId)
       bailWithError('bad-request');
-    // Update session... in other words, close it
-    $madeChange = $wall->endSession($currentdatetime, $sessionId);
+
+    // Check if we are ending the session of re-opening it
+    $data = getRequestData();
+    $close = !!@$data['end'];
+
+    // Make the change
+    $madeChange = $close
+                ? $wall->endSession($currentdatetime, $sessionId)
+                : $wall->restartSession($sessionId);
+
     break;
 
   case 'DELETE':
