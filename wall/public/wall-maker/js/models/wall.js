@@ -46,6 +46,10 @@ function($, _, Backbone, Sessions) {
           collection.trigger('error', model, resp, options);
         };
 
+        // And wrap error again to take care of parallel changes.
+        // It's like a russian doll or a game of pass-the-parcel.
+        self.wrapError(options);
+
         // Wrap success
         //
         // Before returning we should make sure the model is update-to-date.
@@ -96,6 +100,34 @@ function($, _, Backbone, Sessions) {
     endSession: function() {
       // XXX Make sure sessions have been fetched first
       // XXX Make XHR request
+    },
+
+    restartSession: function(options) {
+    },
+
+    wrapError: function(options) {
+      // Introduce special handling for parallel changes
+      //
+      // If there is a parallel change we try to automatically refresh the
+      // session data before completing error handling.
+      var error = options.error;
+      var self  = this;
+      options.error = function(model, resp, options) {
+        if (resp.responseJSON &&
+            resp.responseJSON.error_key == 'parallel-change') {
+          self.fetchCharacters()
+            .done(function() {
+                resp.responseJSON.error_key = 'parallel-change-refreshed';
+                if (error) error(model, resp, options);
+              })
+            .error(function() {
+                resp.responseJSON.error_key = 'parallel-change-refresh-failed';
+                if (error) error(model, resp, options);
+              });
+        } else {
+          if (error) error(model, resp, options);
+        }
+      };
     }
   });
 });

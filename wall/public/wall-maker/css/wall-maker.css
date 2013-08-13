@@ -573,7 +573,7 @@ section[aria-role=tabpanel][aria-hidden=true] {
 #manage-sessions .sessionButtons {
   text-align: right;
 }
-button span.plus {
+button span.icon {
   font-weight: bold;
   font-size: 18px;
   vertical-align: bottom;

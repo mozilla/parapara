@@ -159,22 +159,40 @@ function ($, _, Backbone, Bootstrap,
         }
 
         // Switch to section
-        userScreens.manageWallScreen.showSection(section, subsection);
+        if (subsection) {
+          userScreens.manageWallScreen.showSection(section, subsection);
+        }
+
+        // Watch for changes to the session and update the URL accordingly
+        userScreens.manageWallScreen.on('changed-session', function(sessionId) {
+          var newUrl = 'walls/' + wallId + '/sessions'
+                     + (sessionId ? '/' + sessionId : '');
+          router.navigate(newUrl, { replace: true });
+        });
       });
 
     // Link watching
     var linkWatcher = new LinkWatcher(WallMaker.rootUrl);
+    var sessionPage = /^walls\/\d+\/sessions/;
     linkWatcher.on("navigate", function(href) {
-      switch (href) {
-        // XXX This should eventually disappear
-        case 'login':
-          fixedViews.loginScreen.clearError();
-          login.login();
-          break;
+      // If we navigate from one session page to another then we should not add
+      // a new entry to the history
+      var sessionPageMatch = sessionPage.exec(href);
+      if (sessionPageMatch !== null &&
+          Backbone.history.getFragment().indexOf(sessionPageMatch[0]) == 0) {
+        router.navigate(href, { replace: true, trigger: true });
+      } else {
+        switch (href) {
+          // XXX This should eventually disappear
+          case 'login':
+            fixedViews.loginScreen.clearError();
+            login.login();
+            break;
 
-        default:
-          Backbone.history.navigate(href, { trigger: true });
-          break;
+          default:
+            router.navigate(href, { trigger: true });
+            break;
+        }
       }
     });
 

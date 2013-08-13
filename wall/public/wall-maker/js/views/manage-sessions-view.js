@@ -15,11 +15,12 @@ function(_, Backbone, webL10n, SomaView, templateString) {
       this.messageBoxView = this.options.messageBoxView;
 
       // Register for updates to the list of characters
-      this.listenTo(this.model.sessions, "sync", this.render);
+      this.listenTo(this.model.sessions, "sync", this.sync);
       this.listenTo(this.model.sessions, "error", this.error);
       this.listenTo(this.model.sessions, "request", this.request);
 
       // Manage currently selected session
+      // A value of null for _selectedSessionId means "Use the latest session"
       this._selectedSessionId = null;
       Object.defineProperty(this, "latestSessionId",
         { get: function() {
@@ -36,7 +37,7 @@ function(_, Backbone, webL10n, SomaView, templateString) {
     },
 
     events: {
-      "click #new-session": "startSession",
+      "click #new-session": "startSession"
     },
 
     render: function() {
@@ -71,9 +72,11 @@ function(_, Backbone, webL10n, SomaView, templateString) {
       if (this.model.sessionsLoaded) {
         data.sessions =
           _.chain(this.model.sessions.toJSON())
-           // Annotate every sessions object with 'running' property
+           // Annotate every sessions object with 'running' and 'canrestart'
+           // (set to false here and upated below) properties
            .map(function(session) {
                   session.running = session.end === null;
+                  session.canrestart = false;
                   return session;
                 })
            // Fill in date properties
@@ -82,12 +85,40 @@ function(_, Backbone, webL10n, SomaView, templateString) {
            .reverse()
            .value();
         ;
+        // Set 'canrestart' only on latest session
+        if (data.sessions.length && !data.sessions[0].running) {
+          data.sessions[0].canrestart = true;
+        }
       }
       return data;
     },
 
+    sync: function() {
+      // Detect if the session we are currently pointing to still exists, and,
+      // if not update
+      if (this.model.sessionsLoaded &&
+          this._selectedSession &&
+          !this.model.sessions.get(this._selectedSession)) {
+        // XXX Test this
+        this.changeSelectedSession(null);
+      }
+
+      this.render();
+    },
+
     showSubsection: function(subsection) {
       this._selectedSessionId = parseInt(subsection);
+    },
+
+    // Generally the selected session is changed by clicking a URL or navigating
+    // and we get told from the outside about it (via showSubsection).
+    //
+    // However, for some changes such as creating a new session, deleting
+    // a session, or doing a sync that results in some sessions disappearing we
+    // change the selected session from within and tell anyone who cares.
+    changeSelectedSession: function(newSessionId) {
+      this._selectedSessionId = newSessionId;
+      this.trigger('changed-session', newSessionId);
     },
 
     startSession: function() {
@@ -96,18 +127,38 @@ function(_, Backbone, webL10n, SomaView, templateString) {
       var view = this;
       this.model.startSession({
         success: function(session) {
-          view._selectedSessionId = session.id;
+          // If we are currently bound to a specific session then update to the
+          // newly created event
+          if (view._selectedSessionId !== null) {
+            view.changeSelectedSession(session.id);
+          }
         },
         complete: function() { view.enableSessionControls(); },
       });
     },
 
+    endSession: function() {
+      this.disableSessionControls();
+      this.model.endSession({
+        complete: function() { view.enableSessionControls(); },
+      });
+    },
+
+    restartSession: function() {
+      this.disableSessionControls();
+      this.model.restartSession({
+        complete: function() { view.enableSessionControls(); },
+      });
+    },
+
     disableSessionControls: function() {
-      this.$("#new-session, .end-session").attr('disabled', 'disabled');
+      this.$("#new-session, .end-session .restart-session")
+        .attr('disabled', 'disabled');
     },
 
     enableSessionControls: function() {
-      this.$("#new-session, .end-session").removeAttr('disabled');
+      this.$("#new-session, .end-session .restart-session")
+        .removeAttr('disabled');
     },
 
     error: function(sessions, resp, xhr) {
@@ -122,7 +173,7 @@ function(_, Backbone, webL10n, SomaView, templateString) {
 
     request: function(sessions, xhr, options) {
       this.messageBoxView.clearMessage();
-    },
+    }
   });
 
   function localizeSessionDates(session) {

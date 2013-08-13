@@ -46,6 +46,9 @@ function(_, Backbone, QRCode, webL10n,
       this.manageSessionView = new ManageSessionsView(
         { model: this.model, messageBoxView: this.messageBoxView } );
 
+      // Re-dispatch events from certain subviews
+      this.manageSessionView.on('all', this.onSubviewEvent, this);
+
       // Common handling of requests
       this.listenTo(this.model, "change", this.change);
       this.listenTo(this.model, "error", this.error);
@@ -54,10 +57,12 @@ function(_, Backbone, QRCode, webL10n,
       // Trigger async refresh of wall data
       this.refreshData();
     },
+
     refreshData: function() {
       this.model.fetch();
       this.model.fetchCharacters();
     },
+
     render: function() {
       // Set up template data
       var data = { wall: this.model.toJSON() };
@@ -86,6 +91,7 @@ function(_, Backbone, QRCode, webL10n,
 
       return this;
     },
+
     showSection: function(section, subsection) {
       // Set default tab is none is provided
       section = section || "sessions";
@@ -107,6 +113,7 @@ function(_, Backbone, QRCode, webL10n,
         this.manageSessionView.showSubsection(subsection);
       }
     },
+
     request: function(wall, xhr, options) {
       // Clear pop-ups when we go to save changes
       this.messageBoxView.clearMessage();
@@ -128,6 +135,7 @@ function(_, Backbone, QRCode, webL10n,
                );
       }
     },
+
     change: function(wall, options) {
       // Fill out template scope with latest wall fields
       var templateWall = this.template.scope.wall;
@@ -159,6 +167,7 @@ function(_, Backbone, QRCode, webL10n,
         this.$('.designSelection')[0].value = wall.changed.designId;
       }
     },
+
     error: function(wall, resp, xhr) {
       if (resp['responseJSON'] === undefined) {
         console.log("Unexpected error");
@@ -190,6 +199,7 @@ function(_, Backbone, QRCode, webL10n,
                 .attr('data-popover-enabled', 'data-popover-enabled');
       }
     },
+
     showEditorUrlQrCode: function(evt) {
       // Prepare QR code
       var qr = new QRCode(0, QRCode.QRErrorCorrectLevel.M);
@@ -208,6 +218,7 @@ function(_, Backbone, QRCode, webL10n,
       // Show
       modal.modal();
     },
+
     saveDesign: function(evt) {
       // Set sending state
       var selection = this.$('.designSelection')[0];
@@ -218,6 +229,10 @@ function(_, Backbone, QRCode, webL10n,
       this.model.save({ designId: selection.value }, { patch: true })
           .fail(function() { selection.value = prevValue; })
           .always(function() { selection.classList.remove('sending') });
+    },
+
+    onSubviewEvent: function() {
+      this.trigger.apply(this, arguments);
     }
   });
 });

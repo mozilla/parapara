@@ -1,6 +1,6 @@
 <div class="sessionButtons">
   <button type="button" class="btn btn-small btn-success start-session"
-    id="new-session"><span class="plus">+</span>
+    id="new-session"><span class="icon">+</span>
      <span data-l10n-id="new-session"></span></button>
 </div>
 <div data-hide="{{sessionsLoaded}}">
@@ -34,8 +34,12 @@
     <div id="session-{{session.sessionId}}" class="accordion-body collapse"
       data-parent="#session-accordion">
       <div class="accordion-inner">
+        <button type="button" class="btn btn-small restart-session"
+          data-show="{{session.canrestart}}"><span class="icon">▶</span>
+           <span data-l10n-id="restart-session"></span></button>
         <button type="button" class="btn btn-small end-session"
-          data-show="{{session.running}}" data-l10n-id="end-session"></button>
+          data-show="{{session.running}}"><span class="icon">◼</span>
+           <span data-l10n-id="end-session"></span></button>
       </div>
     </div>
   </div>
