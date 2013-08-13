@@ -407,7 +407,7 @@ class Wall {
 
     // Close the latest session if it's open
     if (@$latestSession['end'] === null) {
-      $this->endSession($latestSessionId, $datetime);
+      $this->endSession($latestSession['sessionId'], $datetime);
     }
 
     // Get sessionId for next session
@@ -532,6 +532,75 @@ class Wall {
     }
 
     return $result;
+  }
+
+  public function deleteSession($sessionId,
+    $characterDeleteMode = CharacterDeleteMode::DeleteAll)
+  {
+    // Check authorization
+    if (!$this->canAdminister())
+      throw new KeyedException('no-auth');
+
+    // Sanity checking
+    $sessionId = toIntOrNull($sessionId);
+    if (!$sessionId || $sessionId < 1)
+      throw new KeyedException('bad-request', "Bad session ID");
+
+    // Check it is a valid session ID for this wall
+    $conn =& getDbConnection();
+    $row =& $conn->queryRow(
+        "SELECT sessionId FROM sessions "
+        . ' WHERE sessionId=' . $conn->quote($sessionId, 'integer')
+        . ' AND wallId=' . $conn->quote($this->wallId, 'integer')
+        . " LIMIT 1");
+    checkDbResult($row);
+    if (!$row)
+      throw new KeyedException('not-found');
+
+    // Check if the session we are about to delete is the latest session.
+    // If it is the latest then we will have to have to update some state when 
+    // done.
+    $isLatest = $this->latestSession &&
+                $this->latestSession['sessionId'] == $sessionId;
+
+
+    // Delete characters associated with this session from DB and from 
+    // filesystem depending on the characterDeleteMode parameter
+    Characters::deleteBySession($this->wallId, $sessionId,
+                                $characterDeleteMode);
+
+    // Delete session
+    $query = 'DELETE FROM sessions'
+      . ' WHERE sessionId=' . $conn->quote($sessionId, 'integer')
+      . ' AND wallId=' . $conn->quote($this->wallId, 'integer');
+    $res =& $conn->exec($query);
+    checkDbResult($res);
+
+    // Update latest session state
+    if ($isLatest) {
+      // The second-last session, if any, must be a closed session
+      $this->fields['status'] = 'finished';
+
+      // Fetch the new latest session
+      $row =& $conn->queryRow(
+        'SELECT sessionId, beginDate as start, endDate as end FROM sessions'
+        . ' WHERE wallId = ' . $conn->quote($this->wallId, 'integer')
+        . ' ORDER BY sessionId DESC LIMIT 1');
+      checkDbResult($row);
+
+      // Update the latest session parameter
+      if ($row) {
+        $session['sessionId'] = intval($row['sessionid']);
+        $session['start'] = $row['start'];
+        $session['end'] = $row['end'];
+        $this->fields['latestSession'] = $session;
+      } else {
+        $this->fields['latestSession'] = null;
+      }
+    }
+    $conn->disconnect();
+
+    return true;
   }
 
   /* Returns a real number in the range [0,1) indicating the fractional progress
@@ -844,10 +913,7 @@ class Walls {
         "SELECT * FROM $table WHERE BINARY $field = "
         . $conn->quote($value, $type)
         . " LIMIT 1");
-    if (PEAR::isError($res)) {
-      error_log($res->getMessage() . ', ' . $res->getDebugInfo());
-      throw new KeyedException('db-error');
-    }
+    checkDbResult($res);
     $exists = $res->numRows() > 0;
     $res->free();
     return $exists;

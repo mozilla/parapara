@@ -93,6 +93,157 @@ class TestWalls extends ParaparaUnitTestCase {
     $walls = Walls::getAllForUser("test@test.org");
     $this->assertEqual(count($walls), 0);
   }
+
+  function testDeleteSession() {
+    // Check initial state
+    $summary = $this->testWall->getSessions();
+    $this->assertIdentical(count($summary), 1);
+    $this->assertIdentical($this->testWall->status, "running");
+
+    // Delete session
+    $latestSessionId = $this->testWall->latestSession['sessionId'];
+    $rv = $this->testWall->deleteSession($latestSessionId);
+    $this->assertIdentical($rv, true);
+
+    // Check state is updated
+    $summary = $this->testWall->getSessions();
+    $this->assertIdentical(count($summary), 0);
+    $this->assertIdentical($this->testWall->status, "finished");
+    $this->assertIdentical($this->testWall->latestSession, null);
+  }
+
+  function testDeleteSessionWithPreviousSession() {
+    // Check initial state
+    $this->testWall->startSession();
+    $summary = $this->testWall->getSessions();
+    $this->assertIdentical(count($summary), 2);
+    $this->assertIdentical($this->testWall->status, "running");
+    $this->assertIdentical($this->testWall->latestSession['sessionId'], 2);
+    $this->assertIdentical($this->testWall->latestSession['end'], null);
+
+    // Delete session
+    $latestSessionId = $this->testWall->latestSession['sessionId'];
+    $rv = $this->testWall->deleteSession($latestSessionId);
+    $this->assertIdentical($rv, true);
+
+    // Check state is updated
+    $summary = $this->testWall->getSessions();
+    $this->assertIdentical(count($summary), 1);
+    $this->assertIdentical($this->testWall->status, "finished");
+    $this->assertNotEqual($this->testWall->latestSession['sessionId'], null);
+    $this->assertIdentical($this->testWall->latestSession['sessionId'], 1);
+    $this->assertNotEqual($this->testWall->latestSession['end'], null);
+  }
+
+  function testDeleteSessionBadId() {
+    // Check initial state
+    $summary = $this->testWall->getSessions();
+    $this->assertIdentical(count($summary), 1);
+
+    // Try deleting session
+    try {
+      $this->testWall->deleteSession(
+        $this->testWall->latestSession['sessionId'] + 1);
+      $this->fail("Failed to throw exception with bad session ID");
+    } catch (KeyedException $e) {
+      $this->assertEqual($e->getKey(), "not-found");
+      // Check nothing changed
+      // XXX Check no characters were deleted
+      $this->assertIdentical(count($summary), 1);
+    }
+  }
+
+  function testDeleteNotLatestSession() {
+    // Create extra session
+    $firstSessionId = $this->testWall->latestSession['sessionId'];
+    $this->testWall->startSession();
+
+    // Delete session
+    $rv = $this->testWall->deleteSession($firstSessionId);
+    $this->assertIdentical($rv, true);
+
+    // Check state is not updated
+    $summary = $this->testWall->getSessions();
+    $this->assertIdentical(count($summary), 1);
+    $this->assertIdentical($this->testWall->status, "running");
+    $this->assertNotEqual($this->testWall->latestSession, null);
+  }
+
+  function testDeleteSessionAndCharacters() {
+    // Set up characters
+    $session = $this->testWall->latestSession;
+    $fields  = $this->testCharacterFields;
+    $char    = $this->createCharacter($fields);
+
+    // Check initial state
+    $charFile = Character::getFileForId($char->charId);
+    $this->assertTrue(file_exists($charFile), "No SVG at $charFile");
+
+    // Delete
+    $rv = $this->testWall->deleteSession($session['sessionId']);
+    $this->assertIdentical($rv, true);
+
+    // Check for characters
+    $this->assertFalse(file_exists($charFile),
+                       "SVG still remains at $charFile");
+  }
+
+  function testDeleteSessionButNotCharacters() {
+    // Set up characters
+    $session = $this->testWall->latestSession;
+    $fields  = $this->testCharacterFields;
+    $char    = $this->createCharacter($fields);
+
+    // Check initial state
+    $charFile = Character::getFileForId($char->charId);
+    $this->assertTrue(file_exists($charFile), "No SVG at $charFile");
+
+    // Delete record only
+    $rv = $this->testWall->deleteSession($session['sessionId'],
+                                         CharacterDeleteMode::DeleteRecordOnly);
+    $this->assertIdentical($rv, true);
+
+    // Check for characters
+    $this->assertTrue(file_exists($charFile),
+                       "SVG still remains at $charFile");
+
+    // Tidy up
+    @unlink($charFile);
+  }
+
+  function testFailedDelete() {
+    // Set up characters
+    $session = $this->testWall->latestSession;
+    $fields  = $this->testCharacterFields;
+    $char    = $this->createCharacter($fields);
+
+    // Check initial state
+    $charFile = Character::getFileForId($char->charId);
+    $this->assertTrue(file_exists($charFile), "No SVG at $charFile");
+
+    // Lock character file
+    $fp = fopen($charFile, "rw+");
+    flock($fp, LOCK_EX);
+
+    // Delete
+    try {
+      $this->testWall->deleteSession($session['sessionId']);
+      $this->fail("Failed to throw exception when deleting session with"
+                  . " locked character file");
+    } catch (KeyedException $e) {
+      $this->assertEqual($e->getKey(), 'server-error',
+        "Unexpected exception key when deleting locked file");
+    }
+
+    // Check status hasn't changed
+    $summary = $this->testWall->getSessions();
+    $this->assertIdentical(count($summary), 1);
+    $this->assertIdentical($this->testWall->status, "running");
+
+    // Unlock file so it can be cleaned up
+    flock($fp, LOCK_UN);
+    fclose($fp);
+  }
 }
 
 ?>
