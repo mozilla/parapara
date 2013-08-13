@@ -188,7 +188,6 @@ class ParaparaAPI {
   }
 
   function endSession($wallId, $sessionId) {
-    // Make request
     global $config;
     $url = $config['test']['wall_server'] .
       "api/walls/$wallId/sessions/$sessionId";
@@ -196,10 +195,22 @@ class ParaparaAPI {
   }
 
   function getSessions($wallId) {
-    // Make request
     global $config;
     $url = $config['test']['wall_server'] . "api/walls/$wallId/sessions";
     return $this->getJson($url);
+  }
+
+  function deleteSession($wallId, $sessionId, $keepCharacters = null) {
+    // Prepare payload
+    $payload = null;
+    if ($keepCharacters == "Keep character files") {
+      $payload = array('keepCharacters' => true);
+    }
+
+    global $config;
+    $url = $config['test']['wall_server'] .
+      "api/walls/$wallId/sessions/$sessionId";
+    return $this->deleteJson($url, $payload);
   }
 
   /* ----------------------------------------------------------------------
@@ -251,6 +262,15 @@ class ParaparaAPI {
     // Remove from list of createdCharacters
     while (($pos = array_search($charId, $this->createdCharacters)) !== FALSE) {
       array_splice($this->createdCharacters, $pos, 1);
+    }
+  }
+
+  function removeCharacterFile($charId) {
+    $svgfilename = Character::getFileForId($charId);
+    if (file_exists($svgfilename)) {
+      if (@unlink($svgfilename) === FALSE) {
+        throw new Exception("Failed to delete file");
+      }
     }
   }
   
@@ -389,6 +409,10 @@ class ParaparaAPI {
 
   protected function putJson($url, $parameters) {
     return $this->makeJsonRequest($url, "PUT", $parameters);
+  }
+
+  protected function deleteJson($url, $parameters) {
+    return $this->makeJsonRequest($url, "DELETE", $parameters);
   }
 
   protected function makeJsonRequest($url, $method, $parameters = null) {

@@ -237,6 +237,86 @@ class SessionsTestCase extends APITestCase {
                       "Session does not appear to be open");
   }
 
+  function testDeleteSession() {
+    $wall = $this->api->createWall('Wall 1', $this->testDesignId);
+    $result = $this->api->deleteSession($wall['wallId'],
+                                        $wall['latestSession']['sessionId']);
+   
+    // Should have no sessions
+    $sessions = $this->api->getSessions($wall['wallId']);
+    $this->assertTrue(is_array($sessions) && count($sessions) === 0,
+      'Failed to delete session: ' . print_r($sessions, true));
+
+    // Check updated latest session and status
+    $this->assertIdentical(@$result['status'], "finished");
+    $this->assertTrue(array_key_exists("latestSession", $result) &&
+                      $result['latestSession'] === null,
+                      "Updated latest session should be null");
+  }
+
+  function testDeleteSessionWithPreviousSession() {
+    $wall = $this->api->createWall('Wall 1', $this->testDesignId);
+    $response = $this->api->startSession($wall['wallId']);
+    $this->assertTrue($response);
+    $result = $this->api->deleteSession($wall['wallId'], 2);
+   
+    // Should have one session
+    $sessions = $this->api->getSessions($wall['wallId']);
+    $this->assertEqual(count($sessions), 1);
+
+    // Check updated latest session and status
+    $this->assertIdentical(@$result['status'], "finished");
+    $this->assertTrue(array_key_exists("latestSession", $result) &&
+                      $result['latestSession'] !== null,
+                      "Updated latest session should not be null");
+  }
+
+  function testDeleteSessionBadId() {
+    $wall = $this->api->createWall('Wall 1', $this->testDesignId);
+    $result = $this->api->deleteSession($wall['wallId'],
+                                        $wall['latestSession']['sessionId']+1);
+    $this->assertEqual(@$result['error_key'], 'not-found');
+  }
+
+  function testDeleteNotLatestSession() {
+    $wall = $this->api->createWall('Wall 1', $this->testDesignId);
+    $response = $this->api->startSession($wall['wallId']);
+    $this->assertTrue($response);
+    $result = $this->api->deleteSession($wall['wallId'], 1);
+   
+    // Should have one session
+    $sessions = $this->api->getSessions($wall['wallId']);
+    $this->assertEqual(count($sessions), 1);
+
+    // Check updated latest session and status
+    $this->assertIdentical(@$result['status'], "running");
+    $this->assertIdentical(@$result['latestSession']['sessionId'], 2);
+  }
+
+  function testDeleteSessionAndCharacters() {
+    $wall = $this->api->createWall('Wall 1', $this->testDesignId);
+    $char = $this->api->createCharacter($wall['wallId']);
+    $result = $this->api->deleteSession($wall['wallId'],
+                                        $wall['latestSession']['sessionId']);
+
+    // Check character can't be read
+    $this->assertIdentical(@file_get_contents($char['rawUrl']), FALSE);
+  }
+
+  function testDeleteSessionButNotCharacters() {
+    $wall = $this->api->createWall('Wall 1', $this->testDesignId);
+    $char = $this->api->createCharacter($wall['wallId']);
+    $result = $this->api->deleteSession($wall['wallId'],
+                                        $wall['latestSession']['sessionId'],
+                                        "Keep character files");
+
+    // Check character can be read
+    $this->assertNotEqual(@file_get_contents($char['rawUrl']), FALSE);
+
+    // Clean up
+    $this->api->removeCharacterFile($char['charId']);
+  }
+
   function isOpenSession($session) {
     return $this->checkSession($session, true);
   }

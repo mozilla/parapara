@@ -46,7 +46,6 @@ switch ($_SERVER['REQUEST_METHOD']) {
     $latestSessionId = isset($latestSessionId)
       ? is_null($latestSessionId) ? null : intval($latestSessionId)
       : "Not set";
-    error_log(print_r($latestSessionId, true));
 
     // Create new session
     $madeChange = $wall->startSession($latestSessionId, $currentdatetime);
@@ -57,6 +56,26 @@ switch ($_SERVER['REQUEST_METHOD']) {
       bailWithError('bad-request');
     // Update session... in other words, close it
     $madeChange = $wall->endSession($sessionId, $currentdatetime);
+    break;
+
+  case 'DELETE':
+    if (!$sessionId)
+      bailWithError('bad-request');
+
+    // Check for flags
+    $data = getRequestData();
+    $deleteMode = $data && @$data['keepCharacters']
+                ? CharacterDeleteMode::DeleteRecordOnly
+                : CharacterDeleteMode::DeleteAll;
+
+    // Delete
+    $wall->deleteSession($sessionId, $deleteMode);
+
+    // Prepare changed fields as a result
+    $result = array(
+      'status' => $wall->status,
+      'latestSession' => $wall->latestSession
+    );
     break;
 }
 

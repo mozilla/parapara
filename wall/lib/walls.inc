@@ -585,7 +585,7 @@ class Wall {
       $row =& $conn->queryRow(
         'SELECT sessionId, beginDate as start, endDate as end FROM sessions'
         . ' WHERE wallId = ' . $conn->quote($this->wallId, 'integer')
-        . ' ORDER BY sessionId DESC LIMIT 1');
+        . ' ORDER BY sessionId DESC LIMIT 1', null, MDB2_FETCHMODE_ASSOC);
       checkDbResult($row);
 
       // Update the latest session parameter
