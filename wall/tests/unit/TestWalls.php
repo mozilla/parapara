@@ -36,11 +36,11 @@ class TestWalls extends ParaparaUnitTestCase {
     $charB = $this->createCharacter($fields);
 
     // Session 2
-    $this->testWall->startSession($session1['sessionId']);
+    $this->testWall->startSession();
     $session2 = $this->testWall->latestSession;
 
     // Session 3
-    $this->testWall->startSession($session2['sessionId']);
+    $this->testWall->startSession();
     $session3 = $this->testWall->latestSession;
     $fields['title'] = 'Character C';
     $charC = $this->createCharacter($fields);
@@ -243,6 +243,38 @@ class TestWalls extends ParaparaUnitTestCase {
     // Unlock file so it can be cleaned up
     flock($fp, LOCK_UN);
     fclose($fp);
+  }
+
+  function testRestartSession() {
+    // Check initial state
+    $this->testWall->endSession();
+    $this->assertIdentical($this->testWall->status, "finished");
+    $this->assertNotEqual($this->testWall->latestSession['end'], null);
+    $originalStart = $this->testWall->latestSession['start'];
+
+    // Re-open session
+    $rv = $this->testWall->restartSession();
+    $this->assertIdentical($rv, true);
+    $this->assertIdentical($this->testWall->status, "running");
+    $this->assertIdentical($this->testWall->latestSession['end'], null);
+    $this->assertIdentical($this->testWall->latestSession['start'],
+                           $originalStart);
+  }
+
+  function testRestartNotLatestSession() {
+    $this->testWall->startSession();
+    $rv = $this->testWall->restartSession(1);
+    $this->assertIdentical($rv, false);
+  }
+
+  function testRestartAlreadyOpenSession() {
+    $rv = $this->testWall->restartSession(1);
+    $this->assertIdentical($rv, false);
+  }
+
+  function testRestartBadSession() {
+    $rv = $this->testWall->restartSession(2);
+    $this->assertIdentical($rv, false);
   }
 }
 

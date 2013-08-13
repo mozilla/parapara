@@ -37,7 +37,7 @@ abstract class ParaparaUnitTestCase extends ParaparaTestCase {
 
     // Test wall
     $this->testWall = Walls::create("Test wall", $designId, "test@test.org");
-    $this->testWall->startSession(null, gmdate("Y-m-d H:i:s"));
+    $this->testWall->startSession();
 
     // Test character
     if ($testCharacter != "Don't create test character") {

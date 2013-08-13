@@ -50,8 +50,7 @@ class TestCharacters extends ParaparaUnitTestCase {
   }
 
   function testNoSession() {
-    $this->testWall->endSession($this->testWall->latestSession['sessionId'],
-                                gmdate("Y-m-d H:i:s"));
+    $this->testWall->endSession();
     try {
       $char = $this->createCharacter();
       $this->fail("Failed to throw exception with no active session");
@@ -346,13 +345,13 @@ class TestCharacters extends ParaparaUnitTestCase {
     $charAB = $this->createCharacter();
 
     // Add characters to a second session
-    $this->testWall->startSession($sessionA);
+    $this->testWall->startSession();
     $sessionB = $this->testWall->latestSession['sessionId'];
     $charBA = $this->createCharacter();
 
     // Add a third empty session
     // (These don't appear in the output)
-    $this->testWall->startSession($sessionB);
+    $this->testWall->startSession();
     $sessionC = $this->testWall->latestSession['sessionId'];
 
     // Check new state
@@ -480,7 +479,7 @@ class TestCharacters extends ParaparaUnitTestCase {
     $charAB = $this->createCharacter();
 
     // Start a new session and add characters
-    $this->testWall->startSession($sessionA);
+    $this->testWall->startSession();
     $sessionB = $this->testWall->latestSession['sessionId'];
     $charBA = $this->createCharacter();
 
@@ -623,7 +622,6 @@ class TestCharacters extends ParaparaUnitTestCase {
 
   function testDeleteByWall() {
     $wallId = $this->testWall->wallId;
-    $sessionA = $this->testWall->latestSession['sessionId'];
 
     // Check initial state
     $result = Characters::deleteByWall($wallId);
@@ -634,7 +632,7 @@ class TestCharacters extends ParaparaUnitTestCase {
     $this->createCharacter();
 
     // Start a new session and add characters
-    $this->testWall->startSession($sessionA);
+    $this->testWall->startSession();
     $this->createCharacter();
 
     // Delete characters

@@ -48,14 +48,14 @@ switch ($_SERVER['REQUEST_METHOD']) {
       : "Not set";
 
     // Create new session
-    $madeChange = $wall->startSession($latestSessionId, $currentdatetime);
+    $madeChange = $wall->startSession($currentdatetime, $latestSessionId);
     break;
 
   case 'PUT':
     if (!$sessionId)
       bailWithError('bad-request');
     // Update session... in other words, close it
-    $madeChange = $wall->endSession($sessionId, $currentdatetime);
+    $madeChange = $wall->endSession($currentdatetime, $sessionId);
     break;
 
   case 'DELETE':

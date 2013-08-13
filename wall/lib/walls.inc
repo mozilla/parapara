@@ -386,7 +386,7 @@ class Wall {
     return $result;
   }
 
-  public function startSession($latestSessionId = "Not set", $datetime = null) {
+  public function startSession($datetime = null, $latestSessionId = "Not set") {
     // Sanitize input
     if ($datetime === null)
       $datetime = gmdate("Y-m-d H:i:s");
@@ -407,7 +407,7 @@ class Wall {
 
     // Close the latest session if it's open
     if (@$latestSession['end'] === null) {
-      $this->endSession($latestSession['sessionId'], $datetime);
+      $this->endSession($datetime, $latestSession['sessionId']);
     }
 
     // Get sessionId for next session
@@ -431,10 +431,7 @@ class Wall {
       . ',' . $conn->quote($datetime, 'timestamp')
       . ')';
     $res =& $conn->exec($query);
-    if (PEAR::isError($res)) {
-      error_log($res->getMessage() . ', ' . $res->getDebugInfo());
-      throw new KeyedException('db-error');
-    }
+    checkDbResult($res);
 
     // Update latest session
     $this->fields['latestSession']['sessionId'] = $newSessionId;
@@ -447,9 +444,10 @@ class Wall {
     return true;
   }
 
-  public function endSession($currentSessionId, $datetime) {
+  public function endSession($datetime = null, $latestSessionId = "Not set") {
     // Sanitize input
-    $currentSessionId = toIntOrNull($currentSessionId);
+    if ($datetime === null)
+      $datetime = gmdate("Y-m-d H:i:s");
 
     // Check authorisation
     if (!$this->canAdminister()) {
@@ -459,24 +457,24 @@ class Wall {
     // Check that:
     // (a) there is actually a session to close
     // (b) the session is not already closed
-    // (c) the passed-in session ID matches the latest session
     $latestSession = $this->latestSession;
-    if ($latestSession === null ||
-        $latestSession['end'] !== null ||
-        $latestSession['sessionId'] !== $currentSessionId)
+    if ($latestSession === null || $latestSession['end'] !== null)
       return false;
+
+    // Check the passed-in session ID, if any, matches the latest session
+    if ($latestSessionId != "Not set" &&
+        $latestSession['sessionId'] !== $latestSessionId)
+      return false;
+    $latestSessionId = $latestSession['sessionId'];
 
     // End session
     $conn =& getDbConnection();
     $query = 'UPDATE sessions'
       . ' SET endDate=' . $conn->quote($datetime, 'timestamp')
-      . ' WHERE sessionId=' . $conn->quote($currentSessionId, 'integer')
+      . ' WHERE sessionId=' . $conn->quote($latestSessionId, 'integer')
       . ' AND wallId=' . $conn->quote($this->wallId, 'integer');
     $res =& $conn->exec($query);
-    if (PEAR::isError($res)) {
-      error_log($res->getMessage() . ', ' . $res->getDebugInfo());
-      throw new KeyedException('db-error');
-    }
+    checkDbResult($res);
     $conn->disconnect();
 
     // Update latest session
@@ -484,6 +482,41 @@ class Wall {
     $this->fields['status'] = 'finished';
 
     // Return true since we made a change
+    return true;
+  }
+
+  public function restartSession($latestSessionId = "Not set") {
+    // Check authorisation
+    if (!$this->canAdminister()) {
+      throw new KeyedException('no-auth');
+    }
+
+    // Check that:
+    // (a) there is actually a session to close
+    // (b) the session is not already open
+    $latestSession = $this->latestSession;
+    if ($latestSession === null || $latestSession['end'] === null)
+      return false;
+
+    // Check the passed-in session ID, if any, matches the latest session
+    if ($latestSessionId != "Not set" &&
+        $latestSession['sessionId'] !== $latestSessionId)
+      return false;
+    $latestSessionId = $latestSession['sessionId'];
+
+    // Re-open session
+    $conn =& getDbConnection();
+    $query = 'UPDATE sessions'
+      . ' SET endDate=NULL'
+      . ' WHERE sessionId=' . $conn->quote($latestSessionId, 'integer')
+      . ' AND wallId=' . $conn->quote($this->wallId, 'integer');
+    $res =& $conn->exec($query);
+    checkDbResult($res);
+    $conn->disconnect();
+
+    // Update latest session
+    $this->fields['latestSession']['end'] = null;
+    $this->fields['status'] = 'running';
     return true;
   }
 

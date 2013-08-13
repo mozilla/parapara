@@ -29,7 +29,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
     // Start session
     $currentdatetime = gmdate("Y-m-d H:i:s");
-    $wall->startSession(null, $currentdatetime);
+    $wall->startSession($currentdatetime, null);
 
     // Prepare result
     $result = $wall->asArray();
