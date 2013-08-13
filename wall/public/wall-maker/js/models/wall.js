@@ -90,8 +90,7 @@ function($, _, Backbone, Sessions) {
 
       // Check sessions have been loaded before trying to start new ones
       if (!this.sessionsLoaded) {
-        // XXX Test this codepath
-        return this.fetchCharacters.then(doStart);
+        return this.fetchCharacters().then(doStart);
       } else {
         return doStart();
       }
