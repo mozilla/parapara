@@ -97,12 +97,20 @@ function($, _, Backbone, Sessions) {
     },
 
     endSession: function(options) {
+      this._modifySession({ end: true }, options);
+    },
+
+    restartSession: function(options) {
+      this._modifySession({ end: null }, options);
+    },
+
+    _modifySession: function(attr, options) {
       if (!this.sessionsLoaded)
         return;
 
       // Get latest session
       if (!this.get("latestSession")) {
-        console.log("No session to end");
+        console.log("No session to end/restart");
         return;
       }
       var latestSession =
@@ -122,12 +130,8 @@ function($, _, Backbone, Sessions) {
         if (success) success(model, resp, options);
       };
 
-      return latestSession.save({ end: true },
-                                _.extend({ wait: true }, options));
-    },
-
-    restartSession: function(options) {
-      // XXX
+      // Save changes
+      return latestSession.save(attr, _.extend({ wait: true }, options));
     },
 
     wrapError: function(options) {
