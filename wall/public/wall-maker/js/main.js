@@ -18,7 +18,7 @@ require.config({
     bootstrap: 'bootstrap.min',
     jquery: 'jquery-2.0.2.min',
     underscore: 'underscore-min',
-    soma: 'soma-template',
+    soma: 'soma-template-min',
     qrcode: 'qrcode',
     webL10n: 'l10n'
   },
