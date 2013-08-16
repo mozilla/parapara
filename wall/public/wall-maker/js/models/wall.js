@@ -5,7 +5,7 @@
 define([ 'jquery',
          'underscore',
          'backbone',
-         'collections/Sessions' ],
+         'collections/sessions' ],
 function($, _, Backbone, Sessions) {
   return Backbone.Model.extend({
     idAttribute: 'wallId',
