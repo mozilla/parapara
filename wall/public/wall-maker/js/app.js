@@ -161,7 +161,7 @@ function ($, _, Backbone, Bootstrap,
         }
 
         // Switch to section
-        if (subsection) {
+        if (section) {
           userScreens.manageWallScreen.showSection(section, subsection);
         }
 
