@@ -359,6 +359,7 @@ hr {
   margin-bottom: 4px;
 }
 .urlList .icon {
+  display: inline-block;
   margin: 0 0.3em;
   padding: 0;
   background: none no-repeat;
