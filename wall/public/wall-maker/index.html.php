@@ -24,8 +24,11 @@
     var WallMaker = WallMaker || {};
     WallMaker.rootUrl = '<?php echo $wallMakerRoot ?>';
   </script>
+  <script src="<?php echo $wallMakerRoot ?>/js/wallmaker.js"></script>
+  <!--
   <script data-main="<?php echo $wallMakerRoot ?>/js/main.js"
     src="/js/lib/require.js"></script>
+  -->
   <meta name="viewport" content="width=580, initial-scale=1.0">
 </head>
 <body>

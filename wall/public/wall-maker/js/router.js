@@ -3,8 +3,8 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([ 'jquery', 'underscore', 'backbone',
-          'wallmaker/login',
-          'views/login-status-view' ],
+         'wallmaker/login',
+         'views/login-status-view' ],
 function($, _, Backbone, Login, LoginView) {
   var WallmakerRouter = Backbone.Router.extend({
     routes: {

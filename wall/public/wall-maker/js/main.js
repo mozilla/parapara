@@ -5,14 +5,16 @@
 require.config({
   baseUrl: '/js/lib',
   paths: {
+    // Aliases
     wallmaker: '../../wall-maker/js',
     collections: '../../wall-maker/js/collections',
     models: '../../wall-maker/js/models',
     templates: '../../wall-maker/templates',
     utils: '../../wall-maker/js/utils',
     views: '../../wall-maker/js/views',
+
     // Shims
-    backbone: 'backbone',
+    backbone: 'backbone-min',
     bootstrap: 'bootstrap.min',
     jquery: 'jquery-2.0.2.min',
     underscore: 'underscore-min',
@@ -25,24 +27,14 @@ require.config({
       deps: ['underscore', 'jquery', 'json2'],
       exports: 'Backbone'
     },
-    'bootstrap': {
-      deps: ['jquery']
-    },
-    'underscore': {
-      exports: '_'
-    },
-    'soma': {
-      exports: 'soma'
-    },
-    'qrcode': {
-      exports: 'QRCode'
-    },
-    'webL10n': {
-      exports: 'document.webL10n'
-    }
+    'bootstrap': { deps: ['jquery'] },
+    'underscore': { exports: '_' },
+    'soma': { exports: 'soma' },
+    'qrcode': { exports: 'QRCode' },
+    'webL10n': { exports: 'document.webL10n' }
   }
 });
 
-require(['wallmaker/wallmaker'], function (wallmaker) {
-  wallmaker.initialize();
+require(['wallmaker/app'], function (app) {
+  app.initialize();
 });
