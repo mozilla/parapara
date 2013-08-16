@@ -169,25 +169,22 @@ function(_, Backbone, QRCode, webL10n,
     },
 
     error: function(wall, resp, xhr) {
-      if (resp['responseJSON'] === undefined) {
-        console.log("Unexpected error");
-        console.log(arguments);
-        return;
-      }
       // Determine which errors to show in the common error field and which ones
       // to try and make a field-specific pop-up for.
-      var error = resp.responseJSON.error_key;
+      var key = resp['responseJSON'] !== undefined
+              ? resp.responseJSON.error_key
+              : resp.statusText;
       var commonError =
         [ 'bad-request', 'readonly-field', 'no-auth', 'server-error',
-          'database-error', 'timeout' ].indexOf(error) != -1;
+          'database-error', 'timeout' ].indexOf(key) != -1;
       var fieldName  = _.keys(xhr.attrs)[0];
       var field      = document.getElementById('manage-' + fieldName);
-      var messageKey = 'wall-save-failed-' + error;
+      var messageKey = 'wall-save-failed-' + key;
       var specificErrorExists = !!webL10n.getData()[messageKey];
 
       // Generic errors
       if (commonError || !field || !specificErrorExists) {
-        this.messageBoxView.setMessage(resp.responseJSON.error_key,
+        this.messageBoxView.setMessage(key,
           { keyPrefix: "wall-save-failed", dismiss: true });
       // Field-specific pop-ups
       } else {
