@@ -39,6 +39,8 @@ function ($, _, Backbone, Bootstrap,
 
   var initialize = function() {
 
+    var self = this;
+
     // Collections
     var walls;
 
@@ -58,25 +60,25 @@ function ($, _, Backbone, Bootstrap,
         manageWallScreen: null };
 
     // Login management
-    var login = new Login({ sessionName: 'WMSESSID',
-                            siteName: 'Parapara Animation' });
-    login.on("login", function(email) {
+    this.login = new Login({ sessionName: 'WMSESSID',
+                             siteName: 'Parapara Animation' });
+    this.login.on("login", function(email) {
       fixedViews.loginStatus.loggedIn(email);
       loadCurrentPage();
     });
 
-    login.on("loginerror", function(error, detail) {
+    this.login.on("loginerror", function(error, detail) {
       fixedViews.loginScreen.setError(error);
       toggleScreen(fixedViews.loginScreen.$el);
     });
 
-    login.on("loginverify", function() {
+    this.login.on("loginverify", function() {
       // This is called when the Persona window has closed and it is up to us to
       // verify the assertion. So we show a loading window while we wait.
       toggleScreen($('#screen-loading'));
     });
 
-    login.on("logout", function() {
+    this.login.on("logout", function() {
       if (Backbone.history.started) {
         Backbone.history.stop();
       }
@@ -99,7 +101,7 @@ function ($, _, Backbone, Bootstrap,
     });
 
     fixedViews.loginStatus.on("logout", function() {
-      login.logout();
+      self.login.logout();
     });
 
     // Set up router
@@ -182,17 +184,7 @@ function ($, _, Backbone, Bootstrap,
           Backbone.history.getFragment().indexOf(sessionPageMatch[0]) == 0) {
         router.navigate(href, { replace: true, trigger: true });
       } else {
-        switch (href) {
-          // XXX This should eventually disappear
-          case 'login':
-            fixedViews.loginScreen.clearError();
-            login.login();
-            break;
-
-          default:
-            router.navigate(href, { trigger: true });
-            break;
-        }
+        router.navigate(href, { trigger: true });
       }
     });
 
@@ -201,7 +193,7 @@ function ($, _, Backbone, Bootstrap,
     //  - automatically log us out when the error code is 'logged-out'
     //  - automatically serialize objects as JSON (and adjusts content-type)
     //    for any data that hasn't been automatically converted to a string
-    NormalizeXHR(Backbone.$, login);
+    NormalizeXHR(Backbone.$, this.login);
     Backbone.$.ajaxSetup(
       { checkForErrors: true,
         autoLogout: true,
@@ -215,7 +207,7 @@ function ($, _, Backbone, Bootstrap,
     );
 
     // Restore previous login state
-    login.initialize();
+    this.login.initialize();
 
     // Load the current page and any resources needed
     function loadCurrentPage() {
@@ -246,7 +238,6 @@ function ($, _, Backbone, Bootstrap,
       $('div.screen').attr('hidden', 'hidden');
       targetScreen.removeAttr('hidden');
     };
-
   };
 
   return { initialize: initialize };

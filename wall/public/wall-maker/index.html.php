@@ -60,8 +60,7 @@
     <div class="callout loginExplain">
       <p data-l10n-id="persona-explanation"></p>
       <div class="loginButtonLarge">
-        <a href="<?php echo $wallMakerRoot ?>/login"
-          class="persona-button orange"><span
+        <a href="#" class="persona-button orange" id="sign-in"><span
           data-l10n-id="sign-in">Sign in</span></a>
       </div>
     </div>
