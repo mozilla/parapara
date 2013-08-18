@@ -52,14 +52,8 @@ function(_, Backbone, webL10n, SomaView, templateString) {
         webL10n.translate(this.el);
       }
 
-      // Select session
-      [ this.selectedSessionId, this.latestSessionId ]
-        .every(function(candidateId) {
-          var elem = $('#session-' + candidateId);
-          elem.collapse('show');
-          // If the item was NOT found, continue
-          return elem.length == 0;
-        });
+      // Make sure the right accordion is visible
+      this.expandSubsection();
 
       return this;
     },
@@ -114,6 +108,27 @@ function(_, Backbone, webL10n, SomaView, templateString) {
 
     showSubsection: function(subsection) {
       this._selectedSessionId = parseInt(subsection);
+      this.expandSubsection();
+    },
+
+    expandSubsection: function() {
+      // We don't bother expanding the session area if this is not visible.
+      // This is because it uses a transition and if the content is in
+      // a display:none subtree the transition won't run and bootstrap will get
+      // confused.
+      if (!this.$el.is(':visible'))
+        return;
+
+      // Select session based on the first matching session ID
+      [ this.selectedSessionId, this.latestSessionId ]
+        .every(function(candidateId) {
+          var elem = $('#session-' + candidateId);
+          if (elem.is(':visible')) {
+            elem.collapse('show');
+          }
+          // If the item was NOT found, continue
+          return elem.length == 0;
+        });
     },
 
     // Generally the selected session is changed by clicking a URL or navigating
