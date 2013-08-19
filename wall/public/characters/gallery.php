@@ -23,9 +23,11 @@ if ($id < 1 || !@file_exists($id . '.svg')) {
   $xpath = new DOMXPath($doc);
   $xpath->registerNamespace('svg', 'http://www.w3.org/2000/svg');
   $titleNodes = $xpath->query('svg:title');
-  $title = $titleNodes ? $titleNodes->item(0)->textContent : null;
+  $title = $titleNodes && $titlesNodes->item(0)
+         ? $titleNodes->item(0)->textContent : null;
   $descNodes = $xpath->query('svg:desc');
-  $desc = $descNodes ? $descNodes->item(0)->textContent : null;
+  $desc = $descNodes && $descNodes->item(0)
+        ? $descNodes->item(0)->textContent : null;
 
   // Try to get the event details
   try {
