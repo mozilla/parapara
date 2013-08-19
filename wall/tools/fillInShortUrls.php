@@ -15,6 +15,14 @@ require_once("../lib/characters.inc");
 //
 // To run, just use php -f fillInShortUrls.php
 
+// Set up environment to mimick server
+global $config;
+$url = parse_url($config['editor']['upload_server']);
+$_SERVER['SCRIPT_FILENAME'] = '../public/';
+$_SERVER['SCRIPT_NAME'] = '';
+$_SERVER['HTTPS'] = !!($url['scheme'] == 'https');
+$_SERVER['SERVER_NAME'] = $url['host'];
+$_SERVER['SERVER_PORT'] = isset($url['port']) ? $url['port'] : 80;
 
 $field = 'galleryUrlShort';
 $conn =& getDbConnection();
@@ -47,8 +55,8 @@ while ($row = $res->fetchRow()) {
   $query = 'UPDATE characters SET '
          . ' galleryUrlShort = ' . $conn->quote($shortUrl, 'text')
          . ' WHERE charId = ' . $conn->quote($row['charid'], 'integer');
-  $res =& $conn->exec($query);
-  checkDbResult($res);
+  $updateRes =& $conn->exec($query);
+  checkDbResult($updateRes);
   print "saved.\n";
 }
 
