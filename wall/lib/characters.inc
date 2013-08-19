@@ -28,7 +28,7 @@ class Character {
 
   public function __get($name) {
     // Check if the field is set
-    if (!isset($this->$name)) {
+    if (!$this->__isset($name)) {
       return null;
     }
 
@@ -125,7 +125,7 @@ class Character {
 
   public function __set($name, $value) {
     // Check if we recognize the field
-    if (!isset($this->$name))
+    if (!$this->__isset($name))
       throw new KeyedException('unknown-field');
 
     // Sanitize values
