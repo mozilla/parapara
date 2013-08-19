@@ -195,10 +195,7 @@ class Character {
       . implode(', ', $assignments)
       . ' WHERE charId = ' . $conn->quote($this->charId, 'integer');
     $res =& $conn->exec($query);
-    if (PEAR::isError($res)) {
-      error_log($res->getMessage() . ', ' . $res->getDebugInfo());
-      throw new KeyedException('db-error');
-    }
+    checkDbResult($res);
     $conn->disconnect();
 
     // Reset dirty fields
