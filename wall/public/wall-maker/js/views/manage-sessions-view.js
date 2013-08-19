@@ -34,6 +34,10 @@ function(_, Backbone, webL10n, SomaView, templateString) {
             return this._selectedSessionId || this.latestSessionId;
           }
         });
+
+      // Re-render on localize (there are one or two strings we set by code)
+      var self = this;
+      $(window).on("localized", null, function() { self.render(); });
     },
 
     events: {
@@ -77,6 +81,8 @@ function(_, Backbone, webL10n, SomaView, templateString) {
            .map(function(session) {
                   session.running = session.end === null;
                   session.canrestart = false;
+                  session.characters =
+                    _.map(session.characters, prepareCharacter);
                   return session;
                 })
            // Fill in date properties
@@ -90,6 +96,24 @@ function(_, Backbone, webL10n, SomaView, templateString) {
           data.sessions[0].canrestart = true;
         }
       }
+
+      function prepareCharacter(character) {
+        // I was getting some surprising (cross-browser) results where changes
+        // to character here would persist across calls (despite the data for
+        // character being produced by _.clone. As a result, changes to the
+        // locale were not reflect in the result (since we'd detect that
+        // character.title had been filled in---it was filled in with "No
+        // name...").
+        //
+        // I didn't have time to trace down exactly how that came about but for
+        // now as a workaround we simply clone the character first.
+        // character here would 
+        var result = _.clone(character);
+        result.title = result.title ||
+                       webL10n.get('no-name-id', { id: character.charId });
+        return result;
+      }
+
       return data;
     },
 

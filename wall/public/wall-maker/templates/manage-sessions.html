@@ -7,7 +7,7 @@
   <img data-src="{{appRoot}}/img/spinner.gif" class="spinner">
 </div>
 <div class="accordion" id="session-accordion" data-show="{{haveSessions}}">
-  <div class="accordion-group" data-repeat="session in sessions()">
+  <div class="accordion-group" data-repeat="session in sessions">
     <div class="accordion-heading">
       <a class="accordion-toggle" data-toggle="collapse"
         data-parent="#session-accordion"
@@ -27,7 +27,6 @@
                             "endTime": "{{session.endTime}}",
                             "endDate": "{{session.endDate}}",
                             "endDatetime": "{{session.endDatetime}}" }'></span>
-        </span>
       </a>
     </div>
     <div id="session-{{session.sessionId}}" class="accordion-body collapse"
@@ -39,6 +38,14 @@
         <button type="button" class="btn btn-small end-session"
           data-show="{{session.running}}"><span class="icon">◼</span>
            <span data-l10n-id="end-session"></span></button>
+        <ul class="thumbnails">
+          <li class="span2" data-repeat="character in session.characters">
+            <a
+              data-href="{{appRoot}}/walls/{{wall.wallId}}/sessions/{{session.sessionId}}/characters/{{character.charId}}"
+              title="{{character.title}}"><div class="thumbnail"><img><div
+                class="character-label">{{character.title}}</div></div></a>
+          </li>
+        </ul>
       </div>
     </div>
   </div>

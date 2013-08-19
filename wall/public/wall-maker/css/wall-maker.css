@@ -619,6 +619,24 @@ button span.icon {
   margin-top: 4em;
   margin-bottom: 4em;
 }
+#manage-sessions ul {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+#manage-sessions .thumbnail {
+  display: inline-block;
+  padding: 4px;
+  border-radius: 8px;
+  vertical-align: middle;
+}
+#manage-sessions .character-label {
+  display: block;
+  margin-top: 5px;
+  text-align: center;
+  font-weight: bold;
+  color: black;
+  font-size: 0.8em;
+}
 
 /*
  * Design screen
