@@ -219,9 +219,11 @@ class Character {
   }
 
   public function asArray() {
-    $keys = array_merge(array_keys($this->fields),
-                        self::$virtualFields,
-                        self::$readOnlyFields);
+    $keys = array_unique(
+              array_merge(array_keys($this->fields),
+                          self::$virtualFields,
+                          self::$readOnlyFields,
+                          array('galleryUrlShort')));
 
     // Fields we don't want to export
     $keysToDrop = array('wall');
