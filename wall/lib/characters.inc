@@ -27,11 +27,6 @@ class Character {
   }
 
   public function __get($name) {
-    // Check if the field is set
-    if (!isset($this->$name)) {
-      return null;
-    }
-
     // Regular fields
     if (array_key_exists($name, $this->fields)) {
       return $this->fields[$name];
