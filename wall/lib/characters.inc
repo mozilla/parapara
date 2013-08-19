@@ -13,13 +13,11 @@ require_once("characters.email.inc");
 class Character {
   private $_charId          = null;
   private $_wall            = null;
-  private $_galleryUrlShort = null;
   private $fields           = null;
   private $dirtyFields      = array();
 
   static private $virtualFields =
-    array('rawUrl','galleryUrl', 'galleryUrlShort',
-          'emailUrl', 'previewUrl', 'wall');
+    array('rawUrl','galleryUrl', 'emailUrl', 'previewUrl', 'wall');
 
   static private $readOnlyFields = array('charId');
 
@@ -50,10 +48,6 @@ class Character {
       case 'galleryUrl':
         return Character::getGalleryUrl($this->_charId);
 
-      case 'galleryUrlShort':
-        // isset above will fill in _galleryUrlShort if possible
-        return $this->_galleryUrlShort;
-
       case 'previewUrl':
         return Character::getPreviewUrl($this->_charId);
 
@@ -82,11 +76,6 @@ class Character {
         return true;
 
       case 'galleryUrlShort':
-        if (!$this->_galleryUrlShort) {
-          $this->_galleryUrlShort =
-            Character::getShortGalleryUrl($this->_charId);
-        }
-        return $this->_galleryUrlShort != null;
 
       case 'emailUrl':
         return CharacterEmailer::isEmailEnabled();
@@ -98,7 +87,55 @@ class Character {
         return $this->_wall !== null;
     }
 
+    // Semi-virtual fields
+    if ($name == 'galleryUrlShort') {
+      return $this->attemptToFillInShortUrl();
+    }
+
     return false;
+  }
+
+  // This method is called when we don't have a saved shortened url for the 
+  // character.
+  //
+  // Typically we save a shortened URL when creating a character but that might 
+  // not always be the case for older characters, or if the URL shortening 
+  // service was unavailable, or if we change the URL scheme and blow away all 
+  // the shortened-URL fields.
+  //
+  // In those cases we attempt to create a short URL and if we succeed we save 
+  // the result to the database. Note that this is not just a 'nice to have'. 
+  // When we fetch a batch of characters we return all their fields. If we look 
+  // up the shortening service for each character every time we fetch the batch 
+  // it would be incredibly slow.
+  //
+  // It's a bit weird because we can end up doing a 'write' during 
+  // a 'read' operation so we have to take care not to end up in a loop.
+  private function attemptToFillInShortUrl() {
+    if (isset($this->fields['galleryUrlShort'])) {
+      error_log("Calling attemptToFillInShortUrl when there already is one!");
+      return true;
+    }
+
+    // Try to get a short URL
+    $shortUrl = Character::getShortGalleryUrl($this->_charId);
+    if (!$shortUrl)
+      return false;
+
+    // We don't simply set $this->galleryUrlShort here since that calls 
+    // __isset which in turn calls this method.
+    $this->fields['galleryUrlShort'] = $shortUrl;
+    array_push($this->dirtyFields, 'galleryUrlShort');
+
+    // Cache the result in the database
+    //
+    // Calling 'save' is safe despite the fact that it will also result in 
+    // a call to __isset. That is because by the time it is called, 
+    // fields['galleryUrlShort'] will be filled in so we won't reach this part 
+    // again.
+    $this->save();
+
+    return true;
   }
 
   public function __set($name, $value) {
@@ -192,9 +229,6 @@ class Character {
 
     // Fields we don't want to export
     $keysToDrop = array('wall');
-    if (!isset($this->galleryUrlShort)) {
-      $keysToDrop[] = 'galleryUrlShort';
-    }
     
     $result = array();
     foreach ($keys as $key) {
@@ -225,6 +259,9 @@ class Character {
   }
 
   public static function getGalleryUrl($charId) {
+    // NOTE: When changing this it is necessary to blow away all the stored 
+    // short gallery URLs since they will point to the old value for this 
+    // property.
     return fileToUrl(self::getCharactersFilePath()) . '/' . $charId;
   }
 
@@ -360,8 +397,14 @@ class Characters {
     // Commit transaction
     $conn->commit();
 
+    // Store shortened URL for future reference
+    $char = self::getById($charId, $email);
+    if ($char->galleryUrlShort) {
+      $char->save();
+    }
+
     // Return char
-    return self::getById($charId, $email);
+    return $char;
   }
 
   public static function getById($charId, $email = null) {
@@ -400,6 +443,7 @@ class Characters {
                      'groundoffset' => 'groundOffset',
                      'width',
                      'height',
+                     'galleryshorturl' => 'galleryUrlShort',
                      'createdate' => 'createDate',
                      'active' => 'active');
     foreach ($mapping as $dbKey => $mdKey) {
@@ -419,6 +463,12 @@ class Characters {
     $data['groundOffset'] = floatval($data['groundOffset']);
     $data['width']        = floatval($data['width']);
     $data['height']       = floatval($data['height']);
+
+    // Clear the shortened URL field if it is not set so we can try to fill it 
+    // in later
+    if ($data['galleryUrlShort'] === null) {
+      unset($data['galleryUrlShort']);
+    }
 
     // Create character
     return new Character(intval($row['charid']), $data);

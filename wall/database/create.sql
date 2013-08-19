@@ -61,6 +61,7 @@ CREATE TABLE `characters` (
   `groundOffset` decimal(4,3) DEFAULT '0.000' COMMENT '0.000 - 1.000',
   `width` float DEFAULT NULL COMMENT 'Bounding box width',
   `height` float DEFAULT NULL COMMENT 'Bounding box height',
+  `galleryShortUrl` varchar(40) DEFAULT NULL COMMENT 'Shortened URL for the gallery display of this character',
   `createDate` datetime NOT NULL COMMENT 'Creation datetime in UTC',
   `active` tinyint(1) NOT NULL DEFAULT '1' COMMENT 'Indicates if the character should show on the wall',
   PRIMARY KEY (`charId`),
