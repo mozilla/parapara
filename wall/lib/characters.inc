@@ -101,11 +101,11 @@ class Character {
   // service was unavailable, or if we change the URL scheme and blow away all 
   // the shortened-URL fields.
   //
-  // In those cases we attempt to create a short URL. If we succeed, we save the
-  // result to the database. Note that this is not just a 'nice to have'. 
-  // When we fetch a batch of characters we return all their fields. If we look 
-  // up the shortening service for each character every time we fetch the batch 
-  // it would be incredibly slow.
+  // In those cases we attempt to create a short URL. If we succeed, we don't 
+  // save it immediately but just mark the field as dirty.
+  //
+  // If we really need to do a mass update of fields, there is a script for that
+  // (see ../tools/fillInShortUrls.php).
   private function attemptToFillInShortUrl() {
     if (isset($this->fields['galleryUrlShort'])) {
       error_log("Calling attemptToFillInShortUrl when there already is one!");
@@ -117,22 +117,9 @@ class Character {
     if (!$shortUrl)
       return false;
 
-    // We don't simply set $this->galleryUrlShort here since that will attempt 
-    // to call __isset but PHP doesn't call magic methods recursively.
+    // Update the fields and mark this field as needing to be saved
     $this->fields['galleryUrlShort'] = $shortUrl;
-
-    // Save to database
-    //
-    // We don't re-use save() because that will clobber dirtyFields and also 
-    // expects to be able to call __get recursively which might not work in some
-    // contexts where this is called
-    $conn =& getDbConnection();
-    $query = 'UPDATE characters SET '
-      . ' galleryUrlShort = ' . $conn->quote($shortUrl, 'text')
-      . ' WHERE charId = ' . $conn->quote($this->charId, 'integer');
-    $res =& $conn->exec($query);
-    checkDbResult($res);
-    $conn->disconnect();
+    array_push($this->dirtyFields, 'galleryUrlShort');
 
     return true;
   }
@@ -219,11 +206,9 @@ class Character {
   }
 
   public function asArray() {
-    $keys = array_unique(
-              array_merge(array_keys($this->fields),
-                          self::$virtualFields,
-                          self::$readOnlyFields,
-                          array('galleryUrlShort')));
+    $keys = array_merge(array_keys($this->fields),
+                        self::$virtualFields,
+                        self::$readOnlyFields);
 
     // Fields we don't want to export
     $keysToDrop = array('wall');
