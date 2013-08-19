@@ -75,8 +75,6 @@ class Character {
       case 'previewUrl':
         return true;
 
-      case 'galleryUrlShort':
-
       case 'emailUrl':
         return CharacterEmailer::isEmailEnabled();
 
@@ -103,14 +101,9 @@ class Character {
   // service was unavailable, or if we change the URL scheme and blow away all 
   // the shortened-URL fields.
   //
-  // In those cases we attempt to create a short URL and if we succeed we save 
-  // the result to the database. Note that this is not just a 'nice to have'. 
-  // When we fetch a batch of characters we return all their fields. If we look 
-  // up the shortening service for each character every time we fetch the batch 
-  // it would be incredibly slow.
-  //
-  // It's a bit weird because we can end up doing a 'write' during 
-  // a 'read' operation so we have to take care not to end up in a loop.
+  // In those cases we attempt to create a short URL. We don't save it here 
+  // because otherwise we end up getting in knots because PHP doesn't allow 
+  // calling magic methods recursively.
   private function attemptToFillInShortUrl() {
     if (isset($this->fields['galleryUrlShort'])) {
       error_log("Calling attemptToFillInShortUrl when there already is one!");
@@ -122,18 +115,10 @@ class Character {
     if (!$shortUrl)
       return false;
 
-    // We don't simply set $this->galleryUrlShort here since that calls 
-    // __isset which in turn calls this method.
+    // We don't simply set $this->galleryUrlShort here since that will attempt 
+    // to call __isset but PHP doesn't call magic methods recursively.
     $this->fields['galleryUrlShort'] = $shortUrl;
     array_push($this->dirtyFields, 'galleryUrlShort');
-
-    // Cache the result in the database
-    //
-    // Calling 'save' is safe despite the fact that it will also result in 
-    // a call to __isset. That is because by the time it is called, 
-    // fields['galleryUrlShort'] will be filled in so we won't reach this part 
-    // again.
-    $this->save();
 
     return true;
   }
@@ -443,7 +428,7 @@ class Characters {
                      'groundoffset' => 'groundOffset',
                      'width',
                      'height',
-                     'galleryshorturl' => 'galleryUrlShort',
+                     'galleryurlshort' => 'galleryUrlShort',
                      'createdate' => 'createDate',
                      'active' => 'active');
     foreach ($mapping as $dbKey => $mdKey) {
