@@ -110,7 +110,7 @@ function(_, Backbone, webL10n, SomaView, templateString) {
         // character here would 
         var result = _.clone(character);
         result.title = result.title ||
-                       webL10n.get('no-name-id', { id: character.charId });
+                       webL10n.get('untitled-id', { id: character.charId });
         return result;
       }
 
