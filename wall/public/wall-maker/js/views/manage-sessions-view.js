@@ -136,19 +136,19 @@ function(_, Backbone, webL10n, SomaView, ManageCharacterView, templateString) {
       this.model.fetchCharacters();
     },
 
-    showSession: function(session, character) {
+    showSession: function(session, characterId) {
       // Expand appropriate session
       this._selectedSessionId = parseInt(session);
       this.expandSubsection();
 
       // If a character is specified, generate the appropriate view
-      if (character) {
+      if (characterId) {
         var self = this;
         this.model.sessionsPromise.done(function (sessions) {
           // Look up character
           var session, character;
           if (!(session = sessions.get(self.selectedSessionId)) ||
-              !(character = session.characters.get(parseInt(character)))) {
+              !(character = session.characters.get(parseInt(characterId)))) {
             self.messageBoxView.setMessage("character-not-found",
               { dismiss: true });
             return;
