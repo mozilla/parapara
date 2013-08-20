@@ -574,6 +574,9 @@ section[aria-role=tabpanel][aria-hidden=true] {
 #manage-sessions .sessionButtons {
   text-align: right;
 }
+#manage-sessions button.refresh img {
+  height: 13px;
+}
 button span.icon {
   font-weight: bold;
   font-size: 18px;

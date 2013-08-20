@@ -41,6 +41,7 @@ function(_, Backbone, webL10n, SomaView, templateString) {
     },
 
     events: {
+      "click .refresh": "refresh",
       "click #new-session": "startSession",
       "click .end-session": "endSession",
       "click .restart-session": "restartSession"
@@ -128,6 +129,10 @@ function(_, Backbone, webL10n, SomaView, templateString) {
       }
 
       this.render();
+    },
+
+    refresh: function() {
+      this.model.fetchCharacters();
     },
 
     showSubsection: function(subsection) {
