@@ -42,7 +42,8 @@
           <li class="span2" data-repeat="character in session.characters">
             <a
               data-href="{{appRoot}}/walls/{{wall.wallId}}/sessions/{{session.sessionId}}/characters/{{character.charId}}"
-              title="{{character.title}}"><div class="thumbnail"><img><div
+              title="{{character.title}}"><div class="thumbnail"><img
+                data-src="{{character.previewUrl}}"><div
                 class="character-label">{{character.title}}</div></div></a>
           </li>
         </ul>

@@ -256,7 +256,7 @@ class Character {
 
   public static function getPreviewUrl($charId) {
     return fileToUrl(self::getCharactersFilePath()) . '/' . $charId
-      . '/preview';
+      . '/preview.svg';
   }
 
   public static function getEmailUrl($charId) {
