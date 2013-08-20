@@ -259,6 +259,10 @@ class Character {
       . '/preview.svg';
   }
 
+  public static function getPreviewFile($charId) {
+    return self::getCharactersFilePath() . '/' . $charId . '/preview.svg';
+  }
+
   public static function getEmailUrl($charId) {
     return getCurrentServer() . '/api/characters/' . $charId . '/email';
   }
@@ -560,11 +564,32 @@ class Characters {
     // Delete corresponding SVG file
     if ($deleteMode === CharacterDeleteMode::DeleteAll) {
       $svgfilename = Character::getFileForId($charId);
+      $svgFolder = dirname($svgfilename);
       if (file_exists($svgfilename)) {
         if (@unlink($svgfilename) === FALSE) {
           $conn->rollback();
           error_log("Failed to delete file: $svgfilename");
           throw new KeyedException('server-error', "Failed to delete file");
+        }
+      }
+      // Delete preview file if it exists
+      $preview = Character::getPreviewFile($charId);
+      if (file_exists($preview)) {
+        if (@unlink($preview) === FALSE) {
+          // We don't rollback in this case partly because it's not a big deal 
+          // if we can't clear up the previews---that could could handled by 
+          // a cron job if necessary---and partly because it would be quite 
+          // complicated to also restore the SVG file in that case.
+          error_log("Failed to delete preview file: $preview");
+        } else {
+          // Delete preview folder too
+          $previewFolder = dirname($preview);
+          if ($previewFolder !== $svgFolder &&
+              @rmdir($previewFolder) === FALSE) {
+            // If the preview folder was not empty rmdir will fail.
+            // That's fine but log it just in case its unexpected.
+            error_log("Failed to remove preview folder: $previewFolder");
+          }
         }
       }
     }
