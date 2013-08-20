@@ -145,19 +145,27 @@ function(_, Backbone, webL10n, SomaView, ManageCharacterView, templateString) {
       if (character) {
         var self = this;
         this.model.sessionsPromise.done(function (sessions) {
+          // Look up character
+          var session, character;
+          if (!(session = sessions.get(self.selectedSessionId)) ||
+              !(character = session.characters.get(parseInt(character)))) {
+            self.messageBoxView.setMessage("character-not-found",
+              { dismiss: true });
+            return;
+          }
+
+          // Create new character view
           self.characterView =
-            new ManageCharacterView(
-              {
-                model: sessions.get(self.selectedSessionId)
-                       .characters.get(parseInt(character))
-              });
+            new ManageCharacterView( { model: character });
+
           // When the modal is hidden, trigger changed-session
           // This will ensure the URL gets updated to no longer reflect the
           // character ID
           self.characterView.on('hidden', function() {
             self.trigger('changed-session', self.selectedSessionId);
           });
-          // Render the character
+
+          // Render the character view
           self.$el.append(self.characterView.render().el);
         });
       }
