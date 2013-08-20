@@ -39,7 +39,7 @@
           data-show="{{session.running}}"><span class="icon">◼</span>
            <span data-l10n-id="end-session"></span></button>
         <ul class="thumbnails">
-          <li class="span2" data-repeat="character in session.characters">
+          <li data-repeat="character in session.characters">
             <a
               data-href="{{appRoot}}/walls/{{wall.wallId}}/sessions/{{session.sessionId}}/characters/{{character.charId}}"
               title="{{character.title}}"><div class="thumbnail"><img

@@ -622,12 +622,27 @@ button span.icon {
 #manage-sessions ul {
   margin-top: 10px;
   margin-bottom: 10px;
+  /* This is to override bootstrap's setting of -30px at large screen sizes */
+  margin-left: -20px;
 }
 #manage-sessions .thumbnail {
   display: inline-block;
   padding: 4px;
   border-radius: 8px;
   vertical-align: middle;
+}
+#manage-sessions .thumbnail img {
+  width: 70px;
+  height: 70px;
+  background: #eee;
+  border-radius: 8px;
+  padding: 2px;
+}
+#manage-sessions .thumbnails > li {
+  /* This is specifically to override the bootstrap rule that turns this off at
+   * certain screen sizes */
+  float: left;
+  margin-left: 20px;
 }
 #manage-sessions .character-label {
   display: block;
