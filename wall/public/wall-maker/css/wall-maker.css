@@ -622,7 +622,7 @@ button span.icon {
   margin-top: 4em;
   margin-bottom: 4em;
 }
-#manage-sessions ul {
+#manage-sessions .accordion ul {
   margin-top: 10px;
   margin-bottom: 10px;
   /* This is to override bootstrap's setting of -30px at large screen sizes */
