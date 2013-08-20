@@ -4,25 +4,19 @@
 
 define([ 'jquery',
          'underscore',
-         'backbone' ],
-function($, _, Backbone) {
+         'backbone',
+         'collections/characters' ],
+function($, _, Backbone, Characters) {
   return Backbone.Model.extend({
     idAttribute: 'sessionId',
+    initialize: function(attributes) {
+      this.urlRoot = '/api/walls/' + this.collection.wallId + '/sessions/';
 
-    initialize: function(attributes, options) {
-      // Initialize URL
-      this.updateUrl(options);
-      // If we haven't got an ID yet we will have to update it when the model is
-      // changed
-      this.listenTo(this, "change", this.updateUrl);
-    },
-
-    updateUrl: function(options) {
-      var wallId = this.collection.wallId;
-      if (!wallId)
-        throw "No wall Id for session";
-      if (this.id)
-        this.url = '/api/walls/' + wallId + '/sessions/' + this.id;
+      // Transform characters attribute into a collection
+      this.characters = new Characters(this.get("characters"));
+      this.listenTo(this, "change", function() {
+        this.characters.models = this.get("characters");
+      });
     }
   });
 });

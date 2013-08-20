@@ -6,8 +6,9 @@ define([ 'underscore',
          'backbone',
          'webL10n',
          'views/soma-view',
+         'views/manage-character-view',
          'text!templates/manage-sessions.html' ],
-function(_, Backbone, webL10n, SomaView, templateString) {
+function(_, Backbone, webL10n, SomaView, ManageCharacterView, templateString) {
 
   return SomaView.extend({
     initialize: function() {
@@ -135,9 +136,31 @@ function(_, Backbone, webL10n, SomaView, templateString) {
       this.model.fetchCharacters();
     },
 
-    showSubsection: function(subsection) {
-      this._selectedSessionId = parseInt(subsection);
+    showSession: function(session, character) {
+      // Expand appropriate session
+      this._selectedSessionId = parseInt(session);
       this.expandSubsection();
+
+      // If a character is specified, generate the appropriate view
+      if (character) {
+        var self = this;
+        this.model.sessionsPromise.done(function (sessions) {
+          self.characterView =
+            new ManageCharacterView(
+              {
+                model: sessions.get(self.selectedSessionId)
+                       .characters.get(parseInt(character))
+              });
+          // When the modal is hidden, trigger changed-session
+          // This will ensure the URL gets updated to no longer reflect the
+          // character ID
+          self.characterView.on('hidden', function() {
+            self.trigger('changed-session', self.selectedSessionId);
+          });
+          // Render the character
+          self.$el.append(self.characterView.render().el);
+        });
+      }
     },
 
     expandSubsection: function() {
@@ -161,7 +184,7 @@ function(_, Backbone, webL10n, SomaView, templateString) {
     },
 
     // Generally the selected session is changed by clicking a URL or navigating
-    // and we get told from the outside about it (via showSubsection).
+    // and we get told from the outside about it (via showSession).
     //
     // However, for some changes such as creating a new session, deleting
     // a session, or doing a sync that results in some sessions disappearing we

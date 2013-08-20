@@ -127,16 +127,16 @@ function ($, _, Backbone, Bootstrap,
       });
 
     router.on("route:manageWall",
-      function(wallId, section, subsection) {
+      function(wallId) {
         // Sanitize input
         wallId = wallId ? parseInt(wallId) : null;
+        var wallScreen = userScreens.manageWallScreen;
 
         // Load wall
-        if (!userScreens.manageWallScreen ||
-            userScreens.manageWallScreen.model.id !== wallId) {
+        if (!wallScreen || wallScreen.model.id !== wallId) {
           // Remove any old views
-          if (userScreens.manageWallScreen) {
-            userScreens.manageWallScreen.remove();
+          if (wallScreen) {
+            wallScreen.remove();
             userScreens.manageWallScreen = null;
           }
           // Fetch wall
@@ -148,25 +148,24 @@ function ($, _, Backbone, Bootstrap,
             return;
           }
           // Create and render screen
-          userScreens.manageWallScreen =
+          wallScreen = userScreens.manageWallScreen =
             new ManageWallScreenView({ model: wall, designs: designs });
-          $('#page').append(userScreens.manageWallScreen.el);
-          toggleScreen(userScreens.manageWallScreen.render().$el);
+          $('#page').append(wallScreen.el);
+          toggleScreen(wallScreen.render().$el);
         } else if (userScreens.manageWallScreen.$el.attr('hidden')) {
           // We already have a view for the requested wall but we're not
           // currently showing it.
           // Refresh its data and show it.
-          userScreens.manageWallScreen.refreshData();
-          toggleScreen(userScreens.manageWallScreen.$el);
+          wallScreen.refreshData();
+          toggleScreen(wallScreen.$el);
         }
 
         // Switch to section
-        if (section) {
-          userScreens.manageWallScreen.showSection(section, subsection);
-        }
+        wallScreen.showSection.apply(wallScreen,
+          Array.prototype.slice.call(arguments, 1));
 
         // Watch for changes to the session and update the URL accordingly
-        userScreens.manageWallScreen.on('changed-session', function(sessionId) {
+        wallScreen.on('changed-session', function(sessionId) {
           var newUrl = 'walls/' + wallId + '/sessions'
                      + (sessionId ? '/' + sessionId : '');
           router.navigate(newUrl, { replace: true });

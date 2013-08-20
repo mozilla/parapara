@@ -13,25 +13,38 @@ function($, _, Backbone, Sessions) {
     initialize: function() {
       // Flag to indicate if we have fetched the sessions so we can distinguish
       // between having zero sessions or simply not having fetched them
-      this.sessionsLoaded = false,
+      this.sessionsLoaded = false;
+
+      // Deferred object for session-loading status
+      this._sessionsDefer = $.Deferred();
+      this.sessionsPromise = this._sessionsDefer.promise();
 
       // Define the sessions property so users can register for events on it but
       // don't fetch it until necessary (i.e. someone calls fetchCharacters).
-      this.sessions =
-        new Sessions(null, { wallId: this.get(this.idAttribute) });
+      this.sessions = new Sessions(null, { wallId: this.id });
     },
 
     fetchCharacters: function() {
       var self = this;
       return this.sessions.fetch(
-             { success: function() { self.sessionsLoaded = true; } });
+           { success: function() {
+               if (self._sessionsDefer.state() == "pending") {
+                 self._sessionsDefer.resolve(self.sessions);
+               }
+               self.sessionsLoaded = true;
+             }
+           });
     },
 
     startSession: function(options) {
+      // If sessions have not been loaded, do that first
+      if (!this.sessionsLoaded) {
+        this.fetchCharacters();
+      }
+
       // Set up function to start the session
       var self = this;
-      var collection = this.sessions;
-      var doStart = function() {
+      this.sessionsPromise.done(function(sessions) {
         // Wrap error function
         //
         // This is because we set wait: true and that means that if there is an
@@ -43,7 +56,7 @@ function($, _, Backbone, Sessions) {
         var error = options.error;
         options.error = function(model, resp, options) {
           if (error) error(model, resp, options);
-          collection.trigger('error', model, resp, options);
+          sessions.trigger('error', model, resp, options);
         };
 
         // And wrap error again to take care of parallel changes.
@@ -86,14 +99,7 @@ function($, _, Backbone, Sessions) {
             wait: true,
             url: '/api/walls/' + self.id + '/sessions'
           }, options));
-      };
-
-      // Check sessions have been loaded before trying to start new ones
-      if (!this.sessionsLoaded) {
-        return this.fetchCharacters().then(doStart);
-      } else {
-        return doStart();
-      }
+      });
     },
 
     endSession: function(options) {

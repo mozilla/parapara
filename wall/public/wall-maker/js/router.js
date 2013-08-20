@@ -11,6 +11,7 @@ function($, _, Backbone, Login, LoginView) {
       'new': 'new',
       'walls/:wallid(/:section)': 'manageWall',
       'walls/:wallid/:section(/:subsection)': 'manageWall',
+      'walls/:wallid/:section/:subsection/characters/:character': 'manageWall',
       '*actions': 'home'
     }
   });

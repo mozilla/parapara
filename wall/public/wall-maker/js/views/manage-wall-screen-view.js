@@ -92,7 +92,7 @@ function(_, Backbone, QRCode, webL10n,
       return this;
     },
 
-    showSection: function(section, subsection) {
+    showSection: function(section) {
       // Set default tab is none is provided
       section = section || "sessions";
 
@@ -109,8 +109,9 @@ function(_, Backbone, QRCode, webL10n,
       selectedPanel.removeAttr("aria-hidden");
 
       // Select subsection
-      if (section == "sessions") {
-        this.manageSessionView.showSubsection(subsection);
+      if (section == "sessions" && arguments.length > 1) {
+        this.manageSessionView.showSession.apply(this.manageSessionView,
+          Array.prototype.slice.call(arguments, 1));
       }
     },
 
