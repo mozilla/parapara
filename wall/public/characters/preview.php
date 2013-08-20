@@ -4,6 +4,9 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. 
  */
 
+require_once("../../lib/parapara.inc");
+require_once('characters.file.inc');
+
 header('Content-Type: image/svg+xml; charset=UTF-8');
 
 // Check for a valid ID
@@ -13,45 +16,26 @@ if ($id < 1 || !@file_exists($id . '.svg')) {
   exit;
 }
 
-// Load the SVG
-$doc = new DOMDocument();
-$doc->load($id . '.svg');
-
-// Get the frames
-$xpath = new DOMXPath($doc);
-$xpath->registerNamespace('svg', 'http://www.w3.org/2000/svg');
-$frames = $xpath->query('/svg:svg/svg:g');
-if ($frames === FALSE) {
+// Get static SVG contents
+$animated = file_get_contents($id . '.svg');
+$static = CharacterFile::getStaticCharacter($animated);
+if (!$static) {
   echo file_get_contents("sad-face.svg");
   exit;
 }
 
-// Process the animation and:
-//
-// - remove all but the first frame
-// - remove visibility attribute from the first frame
-// - remove animations from the first frame
-$firstFrame = true;
-foreach($frames as $frame) {
-  if ($firstFrame) {
-    $firstFrame = false;
-
-    // Remove visibility setting
-    $frame->removeAttribute('visibility');
-
-    // Remove animation
-    $animations = $xpath->query('svg:set|svg:animate', $frame);
-    if ($animations) {
-      foreach($animations as $animation) {
-        $animation->parentNode->removeChild($animation);
-      }
-    }
-  } else {
-    $frame->parentNode->removeChild($frame);
+// Save file
+$out = $id . '/preview.svg';
+if (!file_exists($out)) {
+  if (!file_exists($id)) {
+    mkdir($id);
+  }
+  if (is_writeable($id)) {
+    file_put_contents($out, $static);
   }
 }
 
-// Export
-echo $doc->saveXML();
+// Output
+echo $static;
 
 ?>
