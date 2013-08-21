@@ -674,3 +674,28 @@ button span.icon {
   min-width: 7em;
   text-align: left;
 }
+
+/*
+ * Character screen
+ */
+#manage-character .modal-body {
+  text-align: center;
+  max-height: none;
+}
+#manage-character img {
+  margin: 1em;
+}
+#manage-character .url {
+  display: inline-block;
+  color: #999;
+  font-size: 0.8em;
+  background: #eee;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 3px 8px;
+  margin-top: 5px;
+  margin-bottom: 3px;
+}
+#manage-character .modal-footer {
+  text-align: center;
+}

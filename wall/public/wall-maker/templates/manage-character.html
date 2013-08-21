@@ -1,18 +1,15 @@
-<div class="modal hide fade" id="character-modal">
+<div class="modal hide fade" id="manage-character">
   <div class="modal-body">
     <button type="button" class="close" data-dismiss="modal"
       aria-hidden="true">&times;</button>
     <img data-src="{{character.rawUrl}}" class="character">
     <!-- Hide button -->
     <!-- Delete button -->
-    <ul>
-      <li><label data-l10n-id="gallery-url"></label>
-          <a data-href="{{character.galleryUrl}}">{{character.galleryUrl}}</a>
-          <span data-show="{{character.galleryUrlShort}}">
-          or <a
-            data-href="{{character.galleryUrlShort}}">{{character.galleryUrlShort}}</a></span>
-      <li><label data-l10n-id="svg-url"><a data-href="{{character.rawUrl}}">{{character.rawUrl}}</a>
-    </ul>
+    <a data-href="{{character.galleryUrl}}"
+      class="url">{{character.galleryUrl}}</a>
+    <span data-show="{{character.galleryUrlShort}}">
+      or <a data-href="{{character.galleryUrlShort}}"
+      class="url">{{character.galleryUrlShort}}</a></span>
   </div>
   <div class="modal-footer">
     <button type="button" class="btn btn-primary" data-dismiss="modal"
