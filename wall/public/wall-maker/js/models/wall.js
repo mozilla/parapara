@@ -21,7 +21,7 @@ function($, _, Backbone, Sessions) {
 
       // Define the sessions property so users can register for events on it but
       // don't fetch it until necessary (i.e. someone calls fetchCharacters).
-      this.sessions = new Sessions(null, { wallId: this.id });
+      this.sessions = new Sessions(null, { wall: this });
     },
 
     fetchCharacters: function() {

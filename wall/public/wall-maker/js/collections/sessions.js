@@ -10,8 +10,10 @@ function($, _, Backbone, Session) {
   return Backbone.Collection.extend({
     model: Session,
     initialize: function(models, options) {
-      this.url = '/api/walls/' + options.wallId + '/characters';
-      this.wallId = options.wallId;
+      this.wall = options.wall;
+    },
+    url: function() {
+      return this.wall.url() + '/characters';
     }
   });
 });
