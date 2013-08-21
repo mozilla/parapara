@@ -1,5 +1,6 @@
 Options       ExecCGI +FollowSymLinks Includes -MultiViews
+DirectorySlash Off
 RewriteEngine on
-RewriteRule ^(\d+)$ gallery.php?id=$1
+RewriteRule ^(\d+)$ gallery.php?id=$1 [L]
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^(\d+)/preview.svg$ preview.php?id=$1
