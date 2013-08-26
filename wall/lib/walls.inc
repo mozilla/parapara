@@ -11,6 +11,7 @@ require_once("UriUtils.inc");
 require_once("designs.inc");
 require_once("users.inc");
 require_once("utils.inc");
+require_once("login.inc");
 require_once("characters.inc");
 
 // When updating this, be sure to update login-controller.js as well
@@ -89,7 +90,6 @@ class Wall {
   private $_design  = null;
   private $fields   = null;
   private $sessions = null;
-  private $email    = null;
   private $dirtyFields = array();
 
   static private $hiddenFields   = array('passcode');
@@ -99,9 +99,8 @@ class Wall {
                                          'defaultDuration');
   static private $readOnlyFields = array('wallId', 'editorUrlShort');
 
-  public function __construct($wallId, $email, $fields) {
+  public function __construct($wallId, $fields) {
     $this->_wallId  = $wallId;
-    $this->email    = trim($email);
     $this->fields   = $fields;
   }
 
@@ -728,9 +727,10 @@ class Wall {
   }
 
   public function isOwner() {
-    if (!isset($this->email) || $this->ownerEmail === null)
+    $userEmail = getUserEmailSilently();
+    if (!$userEmail || $this->ownerEmail === null)
       return false;
-    return $this->email == $this->ownerEmail;
+    return $userEmail == $this->ownerEmail;
   }
 
   private function getDesign() {
@@ -742,12 +742,12 @@ class Wall {
 }
 
 class Walls {
-  public static function create($name, $designId, $email) {
+  public static function create($name, $designId) {
     // Get connection
     $conn =& getDbConnection();
 
     // Validate owner email
-    $email = trim($email);
+    $email = getUserEmailSilently();
     if (!strlen($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
       error_log("Bad or missing email when creating wall");
       throw new KeyedException('bad-email', 'Bad email for user');
@@ -809,18 +809,18 @@ class Walls {
     // (We could just create the Wall object from the information we have on 
     // hand but it's just simpler to re-use the getById look up code and saves 
     // us from bugs where we set things in one place and not the other)
-    return self::getById($wallId, $email);
+    return self::getById($wallId);
   }
 
-  public static function getById($wallId, $email = null) {
-    return self::getWall($wallId, null, $email);
+  public static function getById($wallId) {
+    return self::getWall($wallId, null);
   }
 
-  public static function getByPath($wallPath, $email = null) {
-    return self::getWall(null, $wallPath, $email);
+  public static function getByPath($wallPath) {
+    return self::getWall(null, $wallPath);
   }
 
-  protected static function getWall($wallId, $wallPath, $email) {
+  protected static function getWall($wallId, $wallPath) {
     // Prepare query
     $conn =& getDbConnection();
     $query =
@@ -856,7 +856,7 @@ class Walls {
     if ($row === null)
       return null;
 
-    return self::dbRowToWall($row, $email);
+    return self::dbRowToWall($row);
   }
 
   public static function getAllForUser($email) {
@@ -890,15 +890,15 @@ class Walls {
     $result = array();
     $conn->setFetchMode(MDB2_FETCHMODE_ASSOC);
     while ($row = $res->fetchRow()) {
-      array_push($result, self::dbRowToWall($row, $email));
+      array_push($result, self::dbRowToWall($row));
     }
 
     return $result;
   }
 
-  private static function dbRowToWall($row, $email) {
+  private static function dbRowToWall($row) {
     // Check auth
-    $hasAccess = $email == $row['owneremail'];
+    $hasAccess = getUserEmailSilently() == $row['owneremail'];
 
     // Get wall ID
     $wallId = intval($row['wallid']);
@@ -930,7 +930,7 @@ class Walls {
     $fields["duration"]        = toIntOrNull($row['duration']);
     $fields["defaultDuration"] = toIntOrNull($row['defaultduration']);
 
-    return new Wall($wallId, $email, $fields);
+    return new Wall($wallId, $fields);
   }
 
   public static function isNameUnique($name) {

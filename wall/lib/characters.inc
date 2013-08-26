@@ -125,6 +125,10 @@ class Character {
   }
 
   public function __set($name, $value) {
+    // Check authorisation
+    if (!$this->canAdminister())
+      throw new KeyedException('no-auth');
+
     // Check if we recognize the field
     if (!$this->__isset($name))
       throw new KeyedException('unknown-field');
@@ -160,6 +164,10 @@ class Character {
   }
 
   public function save() {
+    // Don't check for authorization here. That is done in __set.
+    // This allows non-logged in users to query galleryUrlShort and then save 
+    // which will cause the short URL to be cached.
+
     // Check there is something to save
     if (count($this->dirtyFields) === 0)
       return array();
@@ -220,6 +228,10 @@ class Character {
       }
     }
     return $result;
+  }
+
+  private function canAdminister() {
+    return $this->wall->canAdminister();
   }
 
   public static function getCharactersPath() {
@@ -300,11 +312,11 @@ abstract class CharacterDeleteMode {
 }
 
 class Characters {
-  public static function create($svg, $fields, $wallId, $email = null) {
+  public static function create($svg, $fields, $wallId) {
     global $config;
 
     // Get wall
-    $wall = Walls::getById($wallId, $email);
+    $wall = Walls::getById($wallId);
     if ($wall === null) {
       error_log("Wall $wallId not found when adding character");
       throw new KeyedException('not-found', 'Wall not found');
@@ -385,7 +397,7 @@ class Characters {
     $conn->commit();
 
     // Store shortened URL for future reference
-    $char = self::getById($charId, $email);
+    $char = self::getById($charId);
     if ($char->galleryUrlShort) {
       $char->save();
     }
@@ -394,7 +406,7 @@ class Characters {
     return $char;
   }
 
-  public static function getById($charId, $email = null) {
+  public static function getById($charId) {
     // Prepare parameters
     $charId = intval($charId);
     if ($charId < 1)

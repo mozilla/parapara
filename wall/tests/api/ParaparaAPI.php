@@ -303,6 +303,13 @@ class ParaparaAPI {
     return $this->getJson($url);
   }
 
+  function updateCharacter($charId, $payload) {
+    global $config;
+    $url = $config['test']['wall_server'] . 'api/characters/' . $charId;
+    return $this->putJson($url, $payload);
+  }
+
+
   /* ----------------------------------------------------------------------
    *
    * Design handling

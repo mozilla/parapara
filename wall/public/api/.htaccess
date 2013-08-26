@@ -23,6 +23,7 @@ Options -Indexes
   # Character upload/management
   RewriteRule ^walls/([0-9]+)/characters$ _characters.php?wallId=$1 [L]
   RewriteRule ^walls/byname/([^.\/?]+)/characters$ _characters.php?wallName=$1 [L]
+  RewriteRule ^characters/([0-9]+)$ _characters.php?charId=$1 [L]
   # Character email
   RewriteRule ^characters/([0-9]+)/email$ _character_email.php?charId=$1 [L]
   # Characters by session

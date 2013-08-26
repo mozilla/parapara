@@ -9,7 +9,11 @@ function getUserEmail() {
     session_name(WALLMAKER_SESSION_NAME);
     session_start();
   }
-  return isset($_SESSION['email']) ? $_SESSION['email'] : null;
+  return getUserEmailSilently();
+}
+
+function getUserEmailSilently() {
+  return isset($_SESSION['email']) ? trim($_SESSION['email']) : null;
 }
 
 function getAndRequireUserEmail() {

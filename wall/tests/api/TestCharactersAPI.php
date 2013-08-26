@@ -103,5 +103,63 @@ class TestCharactersAPI extends APITestCase {
     $this->assertEqual(count($result[2]['characters']), 1);
     $this->assertIdentical($charC, $result[2]['characters'][0]);
   }
+
+  function testUpdateCharacter() {
+    // Create wall
+    $this->api->login();
+    $wall = $this->api->createWall('Test wall', $this->testDesignId);
+
+    // Create character
+    $char = $this->api->createCharacter($wall['wallId']);
+
+    // Set read-only
+    $result =
+      $this->api->updateCharacter($char['charId'], array('charId' => 25));
+    $this->assertEqual(@$result['error_key'], 'readonly-field');
+
+    // Set bad ID
+    $result =
+      $this->api->updateCharacter($char['charId']+1, array('active' => FALSE));
+    $this->assertEqual(@$result['error_key'], 'character-not-found');
+
+    // Set nothing
+    $result = $this->api->updateCharacter($char['charId'], array());
+    $this->assertSame(count($result), 0);
+
+    // Test authorisation
+    $this->api->logout();
+    $result =
+      $this->api->updateCharacter($char['charId'], array('active' => FALSE));
+    $this->assertEqual(@$result['error_key'], 'logged-out');
+
+    // No authorisation
+    $this->api->login('abc@abc.org');
+    $result =
+      $this->api->updateCharacter($char['charId'], array('active' => FALSE));
+    $this->assertEqual(@$result['error_key'], 'no-auth');
+    $this->api->logout();
+  }
+
+  function testHideCharacter() {
+    // Create wall
+    $this->api->login();
+    $wall = $this->api->createWall('Test wall', $this->testDesignId);
+
+    // Create character
+    $char = $this->api->createCharacter($wall['wallId']);
+
+    // Check active state
+    $this->assertTrue(@$char['active'], "Character not active initially");
+
+    // Update active state
+    $result =
+      $this->api->updateCharacter($char['charId'], array('active' => FALSE));
+    $this->assertFalse(@$result['active']);
+
+    // Set same
+    $result =
+      $this->api->updateCharacter($char['charId'], array('active' => FALSE));
+    $this->assertSame(count($result), 0);
+  }
 }
 ?>

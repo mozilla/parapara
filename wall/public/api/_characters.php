@@ -25,15 +25,15 @@ header('Content-Type: application/json; charset=UTF-8');
 
 // Get wall
 $wall = getRequestedWall(getUserEmail());
-if (!$wall || $wall == "Not specified") {
-  bailWithError('no-wall');
-}
 
 // Parse input
 $data = getRequestData();
 
 switch ($_SERVER['REQUEST_METHOD']) {
   case 'POST':
+    if (!$wall || $wall == "Not specified") {
+      bailWithError('no-wall');
+    }
     $fields = $data["metadata"];
     $svg    = $data["svg"];
     $char   = Characters::create($svg, $fields, $wall->wallId);
@@ -46,6 +46,9 @@ switch ($_SERVER['REQUEST_METHOD']) {
     break;
 
   case 'GET':
+    if (!$wall || $wall == "Not specified") {
+      bailWithError('no-wall');
+    }
     $sessionId = array_key_exists('sessionId', $_REQUEST)
                ? intval($_REQUEST['sessionId']) : null;
     $flatten = create_function('$char', 'return $char->asArray();');
@@ -58,6 +61,29 @@ switch ($_SERVER['REQUEST_METHOD']) {
         $session['characters'] = array_map($flatten, $session['characters']);
       }
     }
+    break;
+
+  case 'PUT':
+  case 'PATCH':
+    // Check we are logged in
+    $email = getAndRequireUserEmail();
+
+    // Fetch character
+    if (!array_key_exists('charId', $_REQUEST))
+      bailWithError('no-character');
+    $char = Characters::getById(intval($_REQUEST['charId']), $email);
+    if ($char === null)
+      bailWithError('character-not-found');
+
+    // Update fields
+    if (!is_array($data))
+      bailWithError('bad-request');
+    foreach ($data as $key => $value) {
+      $char->$key = $value;
+    }
+
+    // Store result
+    $result = $char->save();
     break;
 
   default:

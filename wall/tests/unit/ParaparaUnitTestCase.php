@@ -32,11 +32,14 @@ abstract class ParaparaUnitTestCase extends ParaparaTestCase {
   function setUp($testCharacter = "create") {
     parent::setUp();
 
+    // Login
+    $_SESSION['email'] = "test@test.org";
+
     // Test design
     list($designId) = $this->api->addDesign("test", array("test.jpg"));
 
     // Test wall
-    $this->testWall = Walls::create("Test wall", $designId, "test@test.org");
+    $this->testWall = Walls::create("Test wall", $designId);
     $this->testWall->startSession();
 
     // Test character
@@ -60,13 +63,15 @@ abstract class ParaparaUnitTestCase extends ParaparaTestCase {
     // Clean up other resources
     $this->api->cleanUp();
 
+    // Logout
+    unset($_SESSION['email']);
+
     parent::tearDown();
   }
 
   // Utility wrapper that calls Characters::create and tracks the character so 
   // it will be deleted automatically on tear-down
-  function createCharacter($fields = NOT_SET, $wallId = NOT_SET,
-                           $svg = NOT_SET)
+  function createCharacter($fields = NOT_SET, $wallId = NOT_SET, $svg = NOT_SET)
   {
     // Fill in default parameters
     if ($fields === NOT_SET)
