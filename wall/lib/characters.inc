@@ -560,7 +560,7 @@ class Characters {
     // Check for permission
     $char = self::getById($charId);
     if (!$char)
-      throw new KeyedException('character-not-found');
+      return null;
     if (!$char->canAdminister())
       throw new KeyedException('no-auth');
     $char = null;

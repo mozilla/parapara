@@ -98,10 +98,6 @@ class CreateWallTestCase extends APITestCase {
   }
 
   function testEmail() {
-    // Test the ownerEmail returned is set to the email we passed in
-    $wall = $this->api->createWall('Test wall 1', $this->testDesignId);
-    $this->assertEqual(@$wall['ownerEmail'], $this->api->userEmail);
-
     // Try a bad email
     $this->api->logout();
     $this->api->login('abc');

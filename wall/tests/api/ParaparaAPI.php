@@ -276,7 +276,9 @@ class ParaparaAPI {
     $result = $this->deleteJson($url, null);
 
     // Remove from list of createdCharacters
-    if (is_array($result) && !array_key_exists('error_key', $result)) {
+    if (is_array($result) &&
+        (!array_key_exists('error_key', $result) ||
+         $result['error_key'] == 'character-not-found')) {
       while (
         ($pos = array_search($charId, $this->createdCharacters)) !== FALSE) {
         array_splice($this->createdCharacters, $pos, 1);
