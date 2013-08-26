@@ -9,39 +9,25 @@ define([ 'jquery',
 function($, _, Backbone, Characters) {
   return Backbone.Model.extend({
     idAttribute: 'sessionId',
-    initialize: function(attributes) {
-      // This is quite crazy, but basically we have two API endpoints
+    initialize: function() {
+      // Sessions has some funny URL handling where it uses a different API for
+      // fetching to saving. Unfortunately, backbone doesn't allow you to just
+      // override the URL so simply--if you do, it will end up applying that URL
+      // to the models if fetches as well (it just blindly sets options
+      // everywhere).
       //
-      //  /api/walls/<wall-id>/sessions
-      //    Returns all the sessions only. This is where we POST to create
-      //    a session
-      //  Likewise, /api/walls/<wall-id>/sessions/<session-id> is where we PUT
-      //    to update sessions
-      //
-      // However, in the wall we actually use
-      //
-      //  /api/walls/<wall-id>/characters
-      //
-      // As the API end point for fetching the Sessions collection. Because this
-      // allows us to fetch all the characters at the same time.
-      //
-      // When we go to create a session we pass in /api/walls/<wall-id>/sessions
-      // as the 'url'. If we leave it like that we end up with a hard-coded
-      // url that doesn't include the session ID so here we overwrite that to
-      // restore the real URL.
-      //
-      // XXX Fix this
-      this.urlRoot = '/api/walls/' + this.collection.wall.id + '/sessions';
-      this.url = this._url;
+      // So at this point, this.url may actually point to the API
+      // endpoint for the collection so we need to manuallly restore it.
+      this.url = function() {
+        return _.result(this.collection, 'url') +
+               (this.isNew() ? "" : "/" + this.id);
+      }
 
       // Transform characters attribute into a collection
       this.characters = new Characters(this.get("characters"));
       this.listenTo(this, "change", function() {
         this.characters.models = this.get("characters");
       });
-    },
-    _url: function() {
-      return this.urlRoot + '/' + this.id;
     }
   });
 });

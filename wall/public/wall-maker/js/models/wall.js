@@ -96,8 +96,7 @@ function($, _, Backbone, Sessions) {
         return self.sessions.create({ },
           _.extend({
             attrs: { latestSessionId: latestSessionId },
-            wait: true,
-            url: '/api/walls/' + self.id + '/sessions'
+            wait: true
           }, options));
       });
     },

@@ -13,7 +13,15 @@ function($, _, Backbone, Session) {
       this.wall = options.wall;
     },
     url: function() {
-      return this.wall.url() + '/characters';
+      return _.result(this.wall, 'url') + '/sessions';
+    },
+    sync: function(method, model, options) {
+      // When reading we use a different API endpoint which fetches the
+      // characters as well as the sessions
+      if (method == 'read') {
+        options.url = _.result(this.wall, 'url') + '/characters';
+      }
+      Backbone.sync.call(this, method, model, options);
     }
   });
 });
