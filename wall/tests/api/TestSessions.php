@@ -391,6 +391,22 @@ class SessionsTestCase extends APITestCase {
     $this->api->removeCharacterFile($char['charId']);
   }
 
+  function testDeleteSessionNotLoggedIn() {
+    $wall = $this->api->createWall('Wall 1', $this->testDesignId);
+    $this->api->logout();
+    $result = $this->api->deleteSession($wall['wallId'],
+                                        $wall['latestSession']['sessionId']);
+    $this->assertSame(@$result['error_key'],  'logged-out');
+  }
+
+  function testDeleteSessionNoAuth() {
+    $wall = $this->api->createWall('Wall 1', $this->testDesignId);
+    $this->api->login('abc@abc.org');
+    $result = $this->api->deleteSession($wall['wallId'],
+                                        $wall['latestSession']['sessionId']);
+    $this->assertSame(@$result['error_key'],  'no-auth');
+  }
+
   function isOpenSession($session) {
     return $this->checkSession($session, true);
   }
