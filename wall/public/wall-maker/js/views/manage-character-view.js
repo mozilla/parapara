@@ -18,7 +18,7 @@ function(_, Backbone, webL10n, SomaView, templateString) {
     },
 
     render: function() {
-      var data = { character: this.model.toJSON() };
+      var data = { character: this.model.toJSON(), metadata: this.metadata() };
       if (!this.template) {
         this.renderTemplate(templateString, data);
         // Echo 'hidden' events so the containing view can update the URL
@@ -36,5 +36,16 @@ function(_, Backbone, webL10n, SomaView, templateString) {
 
       return this;
     },
+
+    metadata: function() {
+      var title  = this.model.get("title");
+      var author = this.model.get("author");
+      if (!title && !author)
+        return null;
+
+      var id = title && author
+             ? "title-and-author" : (title ? "title-only" : "author-only");
+      return { id: id, title: title, author: author };
+    }
   })
 });
