@@ -7,8 +7,12 @@
       data-l10n-args='{ "title": "{{metadata.title}}",
                         "author": "{{metadata.author}}" }'></span>
     <img data-src="{{character.rawUrl}}" class="character">
-    <!-- Hide button -->
-    <!-- Delete button -->
+    <div class="action-buttons">
+      <button type="button" data-l10n-id="hide-character"
+        class="hide-character"><img src="{{appRoot}}/img/hide.svg"></button>
+      <button type="button" data-l10n-id="delete-character" class="delete"><img
+        src="{{appRoot}}/img/delete.svg"></button>
+    </div>
     <a data-href="{{character.galleryUrl}}"
       class="url">{{character.galleryUrl}}</a>
     <span data-show="{{character.galleryUrlShort}}">
@@ -17,6 +21,6 @@
   </div>
   <div class="modal-footer">
     <button type="button" class="btn btn-primary" data-dismiss="modal"
-      data-l10n-id="ok"></a>
+      data-l10n-id="ok"></button>
   </div>
 </div>

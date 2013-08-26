@@ -702,3 +702,17 @@ button span.icon {
 #manage-character .modal-footer {
   text-align: center;
 }
+#manage-character .action-buttons {
+  position: relative;
+  margin-top: -100px;
+}
+#manage-character .action-buttons button {
+  background: none;
+  width: 120px;
+  opacity: 0.3;
+  z-index: 1;
+}
+#manage-character .action-buttons button:hover {
+  opacity: 1;
+  pointer-events: all;
+}
