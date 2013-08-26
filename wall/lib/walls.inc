@@ -700,7 +700,7 @@ class Wall {
 
     // Make lowercase, and
     // convert whitespace and URL-like characters to -
-    $path = strtr(strtolower($path), " \t/:.", '-----');
+    $path = strtr(strtolower($path), " \t/:.?=&+", '---------');
 
     return $path;
   }

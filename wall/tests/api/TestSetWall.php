@@ -136,6 +136,11 @@ class SetWallTestCase extends APITestCase {
        array('urlPath' => '../abcd'));
     $this->assertPattern("/\/---abcd$/", @$result['wallUrl']);
 
+    // Bad URL -- other bad stuff
+    $result = $this->api->updateWall($this->testWallId,
+       array('urlPath' => 'Test? a=b c&d 2+3'));
+    $this->assertPattern("/\/test--a-b-c-d-2-3$/", @$result['wallUrl']);
+
     // Empty URL
     $result = $this->api->updateWall($this->testWallId, array('urlPath' => ''));
     $this->assertEqual(@$result['error_key'], 'bad-path');

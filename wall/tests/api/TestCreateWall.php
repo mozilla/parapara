@@ -89,6 +89,12 @@ class CreateWallTestCase extends APITestCase {
     // Test editor URL
     $wall = $this->api->createWall('Test wall 2', $this->testDesignId);
     $this->assertTrue(!empty($wall['editorUrl']), 'No editor URL found');
+
+    // Test special characters
+    $wall = $this->api->createWall('Test? a=b c&d e..f g/h 2+3',
+                                   $this->testDesignId);
+    $this->assertEqual($this->getWallPath(@$wall['wallUrl']),
+      'test--a-b-c-d-e--f-g-h-2-3');
   }
 
   function testEmail() {
