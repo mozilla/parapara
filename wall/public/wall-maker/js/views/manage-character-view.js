@@ -41,7 +41,7 @@ function(_, Backbone, webL10n, SomaView, templateString) {
       var title  = this.model.get("title");
       var author = this.model.get("author");
       if (!title && !author)
-        return null;
+        return { id: "" };
 
       var id = title && author
              ? "title-and-author" : (title ? "title-only" : "author-only");
