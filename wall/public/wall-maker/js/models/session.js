@@ -26,7 +26,7 @@ function($, _, Backbone, Characters) {
       // Transform characters attribute into a collection
       this.characters = new Characters(this.get("characters"));
       this.listenTo(this, "change", function() {
-        this.characters.models = this.get("characters");
+        this.characters.set(this.get("characters"));
       });
     }
   });
