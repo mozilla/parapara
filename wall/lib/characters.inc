@@ -230,7 +230,7 @@ class Character {
     return $result;
   }
 
-  private function canAdminister() {
+  public function canAdminister() {
     return $this->wall->canAdminister();
   }
 
@@ -556,6 +556,14 @@ class Characters {
     $charId = intval($charId);
     if ($charId < 1)
       throw new KeyedException('bad-request', "Bad character ID");
+
+    // Check for permission
+    $char = self::getById($charId);
+    if (!$char)
+      throw new KeyedException('character-not-found');
+    if (!$char->canAdminister())
+      throw new KeyedException('no-auth');
+    $char = null;
 
     // Start transaction
     $conn =& getDbConnection();

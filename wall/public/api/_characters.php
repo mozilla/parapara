@@ -71,7 +71,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
     // Fetch character
     if (!array_key_exists('charId', $_REQUEST))
       bailWithError('no-character');
-    $char = Characters::getById(intval($_REQUEST['charId']), $email);
+    $char = Characters::getById(intval($_REQUEST['charId']));
     if ($char === null)
       bailWithError('character-not-found');
 
@@ -84,6 +84,21 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
     // Store result
     $result = $char->save();
+    break;
+
+  case 'DELETE':
+    // Check we are logged in
+    $email = getAndRequireUserEmail();
+
+    // Check a character is specified
+    if (!array_key_exists('charId', $_REQUEST))
+      bailWithError('no-character');
+
+    // Delete
+    if (!Characters::deleteById(intval($_REQUEST['charId'])))
+      bailWithError('character-not-found');
+
+    $result = array();
     break;
 
   default:

@@ -161,5 +161,55 @@ class TestCharactersAPI extends APITestCase {
       $this->api->updateCharacter($char['charId'], array('active' => FALSE));
     $this->assertSame(count($result), 0);
   }
+
+  function testDeleteCharacter() {
+    // Create wall
+    $this->api->login();
+    $wall = $this->api->createWall('Test wall', $this->testDesignId);
+
+    // Create character
+    $char = $this->api->createCharacter($wall['wallId']);
+    $sessions = $this->api->getCharactersByWall($wall['wallId']);
+    $this->assertSame(count($sessions[0]['characters']), 1);
+
+    // Delete character
+    $result = $this->api->removeCharacter($char['charId']);
+    $this->assertTrue(is_array($result) && count($result) === 0,
+      "Unexpected result deleting character: " . @$result['error_key']);
+
+    // Try fetching
+    $sessions = $this->api->getCharactersByWall($wall['wallId']);
+    $this->assertSame(count($sessions[0]['characters']), 0);
+
+    // Try fetching raw URLs
+    $this->assertFalse(@file_get_contents($char['galleryUrl']));
+    $this->assertFalse(@file_get_contents($char['rawUrl']));
+
+    // Try deleting again
+    $result = $this->api->removeCharacter($char['charId']);
+    $this->assertEqual(@$result['error_key'], 'character-not-found');
+  }
+
+  function testDeleteCharacterPermissions() {
+    // Create wall
+    $this->api->login();
+    $wall = $this->api->createWall('Test wall', $this->testDesignId);
+
+    // Create character
+    $char = $this->api->createCharacter($wall['wallId']);
+
+    // Logout and delete
+    $this->api->logout();
+    $result = $this->api->removeCharacter($char['charId']);
+    $this->assertEqual(@$result['error_key'], 'logged-out');
+
+    // Try as another user
+    $this->api->login('abc@abc.org');
+    $result = $this->api->removeCharacter($char['charId']);
+    $this->assertEqual(@$result['error_key'], 'no-auth');
+
+    // Finish up
+    $this->api->logout();
+  }
 }
 ?>

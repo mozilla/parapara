@@ -370,7 +370,7 @@ class Wall {
                   'eventDescr',
                   'wallUrl', 'editorUrl', 'editorUrlShort',
                   'duration', 'defaultDuration',
-                  'ownerEmail', 'passcodeLen',
+                  'passcodeLen',
                   'designId',
                   'thumbnail',
                   'status', 'latestSession');
@@ -903,16 +903,12 @@ class Walls {
     // Get wall ID
     $wallId = intval($row['wallid']);
 
-    // Public information
+    // Basic information
     $fields["name"]           = $row['eventname'];
     $fields["designId"]       = toIntOrNull($row['designid']);
     $fields["urlPath"]        = $row['urlpath'];
     $fields["editorUrlShort"] = $row['editorshorturl'];
-
-    // Privileged information
-    if ($hasAccess) {
-      $fields["ownerEmail"] = $row['owneremail'];
-    }
+    $fields["ownerEmail"] = $row['owneremail'];
 
     // Session information
     if ($row['sessionid']) {

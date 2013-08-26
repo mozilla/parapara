@@ -39,6 +39,13 @@ class ParaparaAPI {
    * This is provided so that test code can easily clean up after each test run.
    */
   function cleanUp() {
+    // We need to be logged in in order to delete stuff but make sure we're 
+    // logged in as the default user. We assume anything created under another 
+    // user account will be cleaned up manually.
+    if ($this->sessionId) {
+      $this->logout();
+    }
+    $this->login();
     // Characters
     while (count($this->createdCharacters)) {
       $this->removeCharacter($this->createdCharacters[0]);
@@ -263,13 +270,20 @@ class ParaparaAPI {
   }
 
   function removeCharacter($charId) {
-    // XXX Switch over to using API when it is done
-    Characters::deleteById($charId);
+    // Delete
+    global $config;
+    $url = $config['test']['wall_server'] .  "api/characters/$charId";
+    $result = $this->deleteJson($url, null);
 
     // Remove from list of createdCharacters
-    while (($pos = array_search($charId, $this->createdCharacters)) !== FALSE) {
-      array_splice($this->createdCharacters, $pos, 1);
+    if (is_array($result) && !array_key_exists('error_key', $result)) {
+      while (
+        ($pos = array_search($charId, $this->createdCharacters)) !== FALSE) {
+        array_splice($this->createdCharacters, $pos, 1);
+      }
     }
+
+    return $result;
   }
 
   function removeCharacterFile($charId) {
@@ -308,7 +322,6 @@ class ParaparaAPI {
     $url = $config['test']['wall_server'] . 'api/characters/' . $charId;
     return $this->putJson($url, $payload);
   }
-
 
   /* ----------------------------------------------------------------------
    *
