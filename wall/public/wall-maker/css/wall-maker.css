@@ -680,10 +680,13 @@ button span.icon {
  */
 #manage-character .modal-body {
   text-align: center;
-  max-height: none;
+  max-height: 70vh;
+  overflow-y: auto;
 }
 #manage-character img {
   margin: 1em;
+  width: 80%;
+  max-height: 50vh;
 }
 #manage-character .url {
   display: inline-block;
