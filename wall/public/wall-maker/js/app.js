@@ -158,6 +158,11 @@ function ($, _, Backbone, Bootstrap,
           // Refresh its data and show it.
           wallScreen.refreshData();
           toggleScreen(wallScreen.$el);
+        } else {
+          // Currently we never navigate modal to modal so its safe to clear
+          // this across the board.
+          // (In the above branches toggleScreen does this.)
+          clearModals();
         }
 
         // Switch to section
@@ -234,9 +239,15 @@ function ($, _, Backbone, Bootstrap,
 
     // Generic screen navigation function
     function toggleScreen(targetScreen) {
+      clearModals();
       $('div.screen').attr('hidden', 'hidden');
       targetScreen.removeAttr('hidden');
     };
+
+    // Stop showing any modal dialogs
+    function clearModals() {
+      $("div.modal").modal("hide");
+    }
   };
 
   return { initialize: initialize };
