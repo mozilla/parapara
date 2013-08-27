@@ -54,31 +54,42 @@ function(_, Backbone, webL10n, SomaView, MessageBoxView, templateString) {
     },
 
     events: {
-      "click .hide-character": "hideCharacter"
+      "click .hide-character": "hideCharacter",
+      "click .show-character": "showCharacter"
     },
 
     hideCharacter: function() {
+      this.hideOrShowCharacter("hide");
+    },
+
+    showCharacter: function() {
+      this.hideOrShowCharacter("show");
+    },
+
+    hideOrShowCharacter: function(which) {
       // Clear error messages
       this.messageBoxView.clearMessage();
 
       // Replace button with spinner
-      var buttonImage = $('.hide-character img');
+      var buttonImage = which == "hide"
+                       ? $('.hide-character img') : $('.show-character img');
       var originalUrl = buttonImage.attr('src');
       $(buttonImage).attr('src', Backbone.View.appRoot + '/img/loading.svg');
 
       // Send request
       var view = this;
-      this.model.save({ active: false }, { patch: true })
+      var active = which != "hide";
+      var keyPrefix = which == "hide"
+                    ? "hide-character-failed" : "show-character-failed";
+      this.model.save({ active: active }, { patch: true, silent: true })
           .then(function() {
             view.$('.modal').modal('hide');
           })
           .fail(function(resp) {
             view.messageBoxView.setMessage(resp,
-              { keyPrefix: "hide-character-failed", dismiss: true });
+              { keyPrefix: keyPrefix, dismiss: true });
           })
           .always(function() { buttonImage.attr('src', originalUrl); });
-
-      // XXX Unhide
     }
   })
 });

@@ -11,7 +11,11 @@
     <img data-src="{{character.rawUrl}}" class="character">
     <div class="action-buttons">
       <button type="button" data-l10n-id="hide-character"
-        class="hide-character"><img src="{{appRoot}}/img/hide.svg"></button>
+        data-show="{{character.active}}" class="hide-character"><img
+        src="{{appRoot}}/img/hide.svg"></button>
+      <button type="button" data-l10n-id="show-character"
+        data-hide="{{character.active}}" class="show-character"><img
+        src="{{appRoot}}/img/show.svg"></button>
       <button type="button" data-l10n-id="delete-character"
         class="delete-character"><img src="{{appRoot}}/img/delete.svg"></button>
     </div>
