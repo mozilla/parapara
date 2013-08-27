@@ -233,10 +233,7 @@ function(_, Backbone, webL10n, SomaView, ManageCharacterView, templateString) {
     },
 
     error: function(sessions, resp, xhr) {
-      var key = resp['responseJSON'] !== undefined
-              ? resp.responseJSON.error_key
-              : resp.statusText;
-      this.messageBoxView.setMessage(key,
+      this.messageBoxView.setMessage(resp,
         { keyPrefix: "session-save-failed", dismiss: true });
     },
 
