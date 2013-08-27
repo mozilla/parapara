@@ -671,7 +671,7 @@ button span.icon {
   display: block;
   margin-top: -70px;
 }
-#manage-sessions button.delete-character {
+#manage-sessions .thumbnails button.delete-character {
   background: none;
   padding: 0;
   border: 0;
@@ -681,12 +681,12 @@ button span.icon {
   margin-top: -9px;
   vertical-align: top;
 }
-#manage-sessions button.delete-character img {
+#manage-sessions .thumbnails button.delete-character img {
   width: 20px;
   height: 20px;
   opacity: 0.3;
 }
-#manage-sessions button.delete-character:hover img {
+#manage-sessions .thumbnails button.delete-character:hover img {
   opacity: 1;
 }
 
