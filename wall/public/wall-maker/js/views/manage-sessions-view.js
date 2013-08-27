@@ -46,7 +46,7 @@ function(_, Backbone, webL10n, SomaView, ManageCharacterView, templateString) {
       "click #new-session": "startSession",
       "click .end-session": "endSession",
       "click .restart-session": "restartSession",
-      "click .delete-character": "confirmDelete"
+      "click .thumbnails .delete-character": "onConfirmDelete"
     },
 
     render: function() {
@@ -147,7 +147,7 @@ function(_, Backbone, webL10n, SomaView, ManageCharacterView, templateString) {
 
           // Create new character view
           self.characterView =
-            new ManageCharacterView( { model: character });
+            new ManageCharacterView( { model: character, parentView: self });
 
           // When the modal is hidden, trigger changed-session
           // This will ensure the URL gets updated to no longer reflect the
@@ -242,9 +242,12 @@ function(_, Backbone, webL10n, SomaView, ManageCharacterView, templateString) {
       this.messageBoxView.clearMessage();
     },
 
-    confirmDelete: function(evt) {
+    onConfirmDelete: function(evt) {
+      this.confirmDelete(parseInt(evt.target.getAttribute("data-char-id")));
+    },
+
+    confirmDelete: function(deleteId) {
       // Set up dialog with character ID to delete
-      var deleteId = parseInt(evt.target.getAttribute("data-char-id"));
       var confirmDialog = this.$('#confirm-delete-character-modal');
       $('input[name=deleteId]', confirmDialog).val(deleteId);
 

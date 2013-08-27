@@ -55,7 +55,8 @@ function(_, Backbone, webL10n, SomaView, MessageBoxView, templateString) {
 
     events: {
       "click .hide-character": "hideCharacter",
-      "click .show-character": "showCharacter"
+      "click .show-character": "showCharacter",
+      "click .delete-character": "deleteCharacter"
     },
 
     hideCharacter: function() {
@@ -90,6 +91,11 @@ function(_, Backbone, webL10n, SomaView, MessageBoxView, templateString) {
               { keyPrefix: keyPrefix, dismiss: true });
           })
           .always(function() { buttonImage.attr('src', originalUrl); });
+    },
+
+    deleteCharacter: function() {
+      this.$('.modal').modal('hide');
+      this.options.parentView.confirmDelete(this.model.id);
     }
   })
 });
