@@ -46,7 +46,7 @@ function(_, Backbone, webL10n, SomaView, ManageCharacterView, templateString) {
       "click #new-session": "startSession",
       "click .end-session": "endSession",
       "click .restart-session": "restartSession",
-      "click .delete-character": "deleteCharacter"
+      "click .delete-character": "confirmDelete"
     },
 
     render: function() {
@@ -242,8 +242,17 @@ function(_, Backbone, webL10n, SomaView, ManageCharacterView, templateString) {
       this.messageBoxView.clearMessage();
     },
 
+    confirmDelete: function(evt) {
+      // Set up dialog with character ID to delete
+      var deleteId = parseInt(evt.target.getAttribute("data-char-id"));
+      var confirmDialog = this.$('#confirm-delete-character-modal');
+      $('input[name=deleteId]', confirmDialog).val(deleteId);
+
+      // Show confirm dialog
+      confirmDialog.modal();
+    },
+
     deleteCharacter: function() {
-      this.$('#confirm-delete-character-modal').modal();
     }
   });
 
