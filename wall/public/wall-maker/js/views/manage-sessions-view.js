@@ -45,7 +45,8 @@ function(_, Backbone, webL10n, SomaView, ManageCharacterView, templateString) {
       "click .refresh": "refresh",
       "click #new-session": "startSession",
       "click .end-session": "endSession",
-      "click .restart-session": "restartSession"
+      "click .restart-session": "restartSession",
+      "click .delete-character": "deleteCharacter"
     },
 
     render: function() {
@@ -239,6 +240,10 @@ function(_, Backbone, webL10n, SomaView, ManageCharacterView, templateString) {
 
     request: function(sessions, xhr, options) {
       this.messageBoxView.clearMessage();
+    },
+
+    deleteCharacter: function() {
+      this.$('#confirm-delete-character-modal').modal();
     }
   });
 
