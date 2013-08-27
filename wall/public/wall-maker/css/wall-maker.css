@@ -721,11 +721,12 @@ button span.icon {
 }
 #manage-character .action-buttons {
   position: relative;
-  margin-top: -100px;
+  margin-top: -20%;
 }
 #manage-character .action-buttons button {
   background: none;
   width: 120px;
+  max-width: 30%;
   opacity: 0.3;
   z-index: 1;
   pointer-events: all;
