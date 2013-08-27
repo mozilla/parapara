@@ -25,9 +25,16 @@ function($, _, Backbone, Characters) {
 
       // Transform characters attribute into a collection
       this.characters = new Characters(this.get("characters"));
-      this.listenTo(this, "change", function() {
+      this.listenTo(this, "sync", function() {
         this.characters.set(this.get("characters"));
       });
+
+      // Bubble events from characters collection
+      this.characters.on('all', function(event) {
+        // Copy (probably updated) characters collection to attribute
+        this.attributes.characters = this.characters.models;
+        this.trigger.apply(this, arguments);
+      }, this);
     }
   });
 });

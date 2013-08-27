@@ -151,7 +151,7 @@ div.alert {
   width: 80%;
   text-shadow: none;
   text-align: center;
-  margin: 1em auto;
+  margin: 1em 10%;
   border-radius: 15px;
   /* Make message divs expand in-place */
   transition-property: height, margin, padding;
@@ -293,6 +293,7 @@ hr {
 #screen-manage .alert {
   position: fixed;
   top: 10px;
+  left: 0px;
   box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1)
 }
 #wall-summary > div {
@@ -641,6 +642,9 @@ button span.icon {
   border-radius: 8px;
   padding: 2px;
 }
+#manage-sessions .thumbnail.inactive img {
+  opacity: 0.3;
+}
 #manage-sessions .thumbnails > li {
   /* This is specifically to override the bootstrap rule that turns this off at
    * certain screen sizes */
@@ -655,6 +659,19 @@ button span.icon {
   color: black;
   font-size: 0.8em;
 }
+#manage-sessions .inactive .character-label {
+  color: grey;
+}
+#manage-sessions .thumbnail .hide-overlay {
+  display: none;
+  padding: 0;
+}
+#manage-sessions .thumbnail.inactive .hide-overlay {
+  opacity: 0.3;
+  display: block;
+  margin-top: -70px;
+}
+
 
 /*
  * Design screen
@@ -711,8 +728,8 @@ button span.icon {
   width: 120px;
   opacity: 0.3;
   z-index: 1;
+  pointer-events: all;
 }
 #manage-character .action-buttons button:hover {
   opacity: 1;
-  pointer-events: all;
 }

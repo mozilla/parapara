@@ -45,8 +45,11 @@
           <li data-repeat="character in session.characters">
             <a
               data-href="{{appRoot}}/walls/{{wall.wallId}}/sessions/{{session.sessionId}}/characters/{{character.charId}}"
-              title="{{character.title}}"><div class="thumbnail"><img
-                data-src="{{character.previewUrl}}"><div
+              title="{{character.title}}"><div
+                class="thumbnail {{character.classes}}"><img
+                data-src="{{character.previewUrl}}"><img
+                data-src="{{appRoot}}/img/hide-overlay.svg"
+                class="hide-overlay"><div
                 class="character-label">{{character.title}}</div></div></a>
           </li>
         </ul>

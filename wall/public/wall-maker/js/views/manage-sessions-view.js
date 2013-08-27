@@ -77,42 +77,32 @@ function(_, Backbone, webL10n, SomaView, ManageCharacterView, templateString) {
 
       if (this.model.sessionsLoaded) {
         data.sessions =
-          _.chain(this.model.sessions.toJSON())
-           // Annotate every sessions object with 'running' and 'canrestart'
-           // (set to false here and upated below) properties
-           .map(function(session) {
-                  session.running = session.end === null;
-                  session.canrestart = false;
-                  session.characters =
-                    _.map(session.characters, prepareCharacter);
-                  return session;
-                })
-           // Fill in date properties
-           .map(localizeSessionDates)
-           // Reverse the list of sessions so newer ones appear first
-           .reverse()
+          _.chain(this.model.sessions.models)
+           .map(prepareSession)
+           .reverse() // Reverse the list of sessions so newer ones appear first
            .value();
-        ;
-        // Set 'canrestart' only on latest session
+        // Update 'canrestart' on latest session
         if (data.sessions.length && !data.sessions[0].running) {
           data.sessions[0].canrestart = true;
         }
       }
 
+      function prepareSession(session) {
+        var result = session.toJSON();
+        result.running = result.end === null;
+        // We set all sessions as not being able to restart and then we update
+        // the latest session later
+        result.canrestart = false;
+        result.characters = session.characters.map(prepareCharacter);
+
+        return localizeSessionDates(result);
+      }
+
       function prepareCharacter(character) {
-        // I was getting some surprising (cross-browser) results where changes
-        // to character here would persist across calls (despite the data for
-        // character being produced by _.clone. As a result, changes to the
-        // locale were not reflect in the result (since we'd detect that
-        // character.title had been filled in---it was filled in with "No
-        // name...").
-        //
-        // I didn't have time to trace down exactly how that came about but for
-        // now as a workaround we simply clone the character first.
-        // character here would 
-        var result = _.clone(character);
+        var result = character.toJSON();
         result.title = result.title ||
-                       webL10n.get('untitled-id', { id: character.charId });
+                       webL10n.get('untitled-id', { id: result.charId });
+        result.classes = result.active ? "" : "inactive";
         return result;
       }
 

@@ -1,17 +1,19 @@
 <div class="modal hide fade" id="manage-character">
-  <div class="modal-body">
+  <div class="modal-header">
     <button type="button" class="close" data-dismiss="modal"
       aria-hidden="true">&times;</button>
-    <span class="label" data-show="{{metadata.id}}"
-      data-l10n-id="{{metadata.id}}"
-      data-l10n-args='{ "title": "{{metadata.title}}",
-                        "author": "{{metadata.author}}" }'></span>
+    <h3 data-l10n-id="{{metadata.id}}"
+        data-l10n-args='{ "title": "{{metadata.title}}",
+                          "author": "{{metadata.author}}" }'>&nbsp;</h3>
+  </div>
+  <div class="modal-body">
+    <div class="alert"></div>
     <img data-src="{{character.rawUrl}}" class="character">
     <div class="action-buttons">
       <button type="button" data-l10n-id="hide-character"
         class="hide-character"><img src="{{appRoot}}/img/hide.svg"></button>
-      <button type="button" data-l10n-id="delete-character" class="delete"><img
-        src="{{appRoot}}/img/delete.svg"></button>
+      <button type="button" data-l10n-id="delete-character"
+        class="delete-character"><img src="{{appRoot}}/img/delete.svg"></button>
     </div>
     <a data-href="{{character.galleryUrl}}"
       class="url">{{character.galleryUrl}}</a>

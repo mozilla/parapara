@@ -6,11 +6,15 @@ define([ 'underscore',
          'backbone',
          'webL10n',
          'views/soma-view',
+         'views/message-box-view',
          'text!templates/manage-character.html' ],
-function(_, Backbone, webL10n, SomaView, templateString) {
+function(_, Backbone, webL10n, SomaView, MessageBoxView, templateString) {
 
   return SomaView.extend({
     initialize: function() {
+      // Create subviews
+      this.messageBoxView = new MessageBoxView();
+
       // Register for changes to the model
       // (Although unlikely, this may happen if there was a pending async
       //  update in progress when the modal dialog was popped up.)
@@ -27,6 +31,7 @@ function(_, Backbone, webL10n, SomaView, templateString) {
         this.$('.modal').on('hidden', function() {
           self.trigger('hidden');
         });
+        this.renderSubview('.alert', this.messageBoxView);
       } else {
         _.extend(this.template.scope, data);
         this.template.render();
@@ -46,6 +51,34 @@ function(_, Backbone, webL10n, SomaView, templateString) {
       var id = title && author
              ? "title-and-author" : (title ? "title-only" : "author-only");
       return { id: id, title: title, author: author };
+    },
+
+    events: {
+      "click .hide-character": "hideCharacter"
+    },
+
+    hideCharacter: function() {
+      // Clear error messages
+      this.messageBoxView.clearMessage();
+
+      // Replace button with spinner
+      var buttonImage = $('.hide-character img');
+      var originalUrl = buttonImage.attr('src');
+      $(buttonImage).attr('src', Backbone.View.appRoot + '/img/loading.svg');
+
+      // Send request
+      var view = this;
+      this.model.save({ active: false }, { patch: true })
+          .then(function() {
+            view.$('.modal').modal('hide');
+          })
+          .fail(function(resp) {
+            view.messageBoxView.setMessage(resp,
+              { keyPrefix: "hide-character-failed", dismiss: true });
+          })
+          .always(function() { buttonImage.attr('src', originalUrl); });
+
+      // XXX Unhide
     }
   })
 });

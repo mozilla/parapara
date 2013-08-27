@@ -59,6 +59,13 @@ function(_, Backbone, webL10n, BaseView, template) {
       return this;
     },
     setMessage: function(messageKey, options) {
+      // Check if message key is actually an XHR request object of some sort and
+      // look up the appropriate member
+      if (messageKey && messageKey['responseJSON'] !== undefined)
+        messageKey = messageKey.responseJSON.error_key;
+      if (messageKey && messageKey['statusText'] !== undefined)
+        messageKey = messageKey.statusText;
+
       this.messageKey = messageKey;
       this.messageOptions =
         _.defaults(options || {},
