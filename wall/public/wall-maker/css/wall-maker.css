@@ -671,6 +671,24 @@ button span.icon {
   display: block;
   margin-top: -70px;
 }
+#manage-sessions button.delete-character {
+  background: none;
+  padding: 0;
+  border: 0;
+  margin: 0;
+  margin-left: -15px;
+  margin-right: -7px;
+  margin-top: -9px;
+  vertical-align: top;
+}
+#manage-sessions button.delete-character img {
+  width: 20px;
+  height: 20px;
+  opacity: 0.3;
+}
+#manage-sessions button.delete-character:hover img {
+  opacity: 1;
+}
 
 
 /*
