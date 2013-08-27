@@ -46,7 +46,8 @@ function(_, Backbone, webL10n, SomaView, ManageCharacterView, templateString) {
       "click #new-session": "startSession",
       "click .end-session": "endSession",
       "click .restart-session": "restartSession",
-      "click .thumbnails .delete-character": "onConfirmDelete"
+      "click .thumbnails .delete-character": "onConfirmDelete",
+      "click #confirm-delete-character-modal button.delete": "deleteCharacter"
     },
 
     render: function() {
@@ -243,19 +244,44 @@ function(_, Backbone, webL10n, SomaView, ManageCharacterView, templateString) {
     },
 
     onConfirmDelete: function(evt) {
-      this.confirmDelete(parseInt(evt.target.getAttribute("data-char-id")));
+      this.confirmDelete(
+        parseInt(evt.target.getAttribute("data-session-id")),
+        parseInt(evt.target.getAttribute("data-char-id")));
     },
 
-    confirmDelete: function(deleteId) {
+    confirmDelete: function(sessionId, charId) {
       // Set up dialog with character ID to delete
       var confirmDialog = this.$('#confirm-delete-character-modal');
-      $('input[name=deleteId]', confirmDialog).val(deleteId);
+      $('input[name=sessionId]', confirmDialog).val(sessionId);
+      $('input[name=charId]', confirmDialog).val(charId);
 
       // Show confirm dialog
       confirmDialog.modal();
     },
 
     deleteCharacter: function() {
+      // Get dialog
+      var confirmDialog = this.$('#confirm-delete-character-modal');
+
+      // Disable form controls
+      var formControls = $('button', confirmDialog);
+      formControls.attr('disabled', 'disabled');
+
+      // Delete character -- how to get the character? Need a session right?
+      var sessionId = parseInt($('input[name=sessionId]', confirmDialog).val());
+      var charId    = parseInt($('input[name=charId]', confirmDialog).val());
+      var session   = this.model.sessions.get(sessionId);
+      var character = session.characters.get(charId);
+      character.destroy()
+        .then(function() {
+          confirmDialog.modal('hide');
+        })
+        .fail(function() {
+          // XXX Show error
+        })
+        .always(function() {
+          formControls.removeAttr('disabled');
+        });
     }
   });
 

@@ -53,7 +53,8 @@
                 class="character-label">{{character.title}}</div></div></a>
             <button type="button" class="delete-character"
               data-l10n-id="delete-character"
-              data-char-id="{{character.charId}}"><img
+              data-char-id="{{character.charId}}"
+              data-session-id="{{session.sessionId}}"><img
               data-src="{{appRoot}}/img/delete-red.svg"></button>
           </li>
         </ul>
@@ -69,7 +70,8 @@
     <p data-l10n-id="confirm-delete-character"></p>
   </div>
   <div class="modal-footer">
-    <input type="hidden" name="deleteId">
+    <input type="hidden" name="sessionId">
+    <input type="hidden" name="charId">
     <button type="button" class="btn btn-danger delete"
       data-l10n-id="delete"></a>
     <button type="button" class="btn" data-dismiss="modal"

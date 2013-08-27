@@ -95,7 +95,8 @@ function(_, Backbone, webL10n, SomaView, MessageBoxView, templateString) {
 
     deleteCharacter: function() {
       this.$('.modal').modal('hide');
-      this.options.parentView.confirmDelete(this.model.id);
+      this.options.parentView.confirmDelete(this.model.get("sessionId"),
+                                            this.model.id);
     }
   })
 });
