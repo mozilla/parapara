@@ -16,7 +16,9 @@ function(_, Backbone, webL10n, SomaView, ManageCharacterView, templateString) {
       this.messageBoxView = this.options.messageBoxView;
 
       // Register for updates to the list of characters
-      this.listenTo(this.model.sessions, "sync", this.sync);
+      this.listenTo(this.model.sessions, "add remove reset",
+                    this.updateSelection);
+      this.listenTo(this.model.sessions, "sync change", this.render);
       this.listenTo(this.model.sessions, "error", this.error);
       this.listenTo(this.model.sessions, "request", this.request);
 
@@ -111,7 +113,7 @@ function(_, Backbone, webL10n, SomaView, ManageCharacterView, templateString) {
       return data;
     },
 
-    sync: function() {
+    updateSelection: function() {
       // Detect if the session we are currently pointing to still exists, and,
       // if not update
       if (this.model.sessionsLoaded &&
@@ -119,9 +121,8 @@ function(_, Backbone, webL10n, SomaView, ManageCharacterView, templateString) {
           !this.model.sessions.get(this._selectedSession)) {
         // XXX Test this
         this.changeSelectedSession(null);
+        this.render();
       }
-
-      this.render();
     },
 
     refresh: function() {
@@ -154,11 +155,12 @@ function(_, Backbone, webL10n, SomaView, ManageCharacterView, templateString) {
           // This will ensure the URL gets updated to no longer reflect the
           // character ID
           self.characterView.on('hidden', function() {
+            self.characterView.remove();
             self.trigger('changed-session', self.selectedSessionId);
           });
 
-          // Render the character view
-          self.$el.append(self.characterView.render().el);
+          // Render and show the character view
+          self.$el.append(self.characterView.show().el);
         });
       }
     },

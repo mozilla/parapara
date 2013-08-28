@@ -25,16 +25,21 @@ function($, _, Backbone, Characters) {
 
       // Transform characters attribute into a collection
       this.characters = new Characters(this.get("characters"));
-      this.listenTo(this, "change", function() {
-        this.characters.set(this.get("characters"));
+      this.listenTo(this, "change:characters", function() {
+        this.characters.set(this.get("characters"), { silent: true });
       });
 
-      // Bubble events from characters collection
-      this.characters.on('all', function(event) {
-        // Copy (probably updated) characters collection to attribute
-        this.attributes.characters = this.characters.models;
-        this.trigger.apply(this, arguments);
-      }, this);
+      // Bubble change-like events from characters collection
+      this.listenTo(this.characters, "add remove reset sort destroy change",
+        function() {
+          // Keep attributes in sync
+          this.attributes.characters = this.characters.models;
+          // Fire 'change'
+          var args = Array.prototype.slice.call(arguments);
+          args.unshift('change');
+          this.trigger.apply(this, args);
+        }
+      );
     }
   });
 });

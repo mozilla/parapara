@@ -37,8 +37,13 @@ function(_, Backbone, webL10n, SomaView, MessageBoxView, templateString) {
         this.template.render();
         webL10n.translate(this.el);
       }
-      this.$('.modal').modal();
 
+      return this;
+    },
+
+    show: function() {
+      this.render();
+      this.$('.modal').modal();
       return this;
     },
 
@@ -82,7 +87,7 @@ function(_, Backbone, webL10n, SomaView, MessageBoxView, templateString) {
       var active = which != "hide";
       var keyPrefix = which == "hide"
                     ? "hide-character-failed" : "show-character-failed";
-      this.model.save({ active: active }, { patch: true, silent: true })
+      this.model.save({ active: active }, { patch: true })
           .then(function() {
             view.$('.modal').modal('hide');
           })
