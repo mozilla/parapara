@@ -269,17 +269,34 @@ function(_, Backbone, webL10n, SomaView, ManageCharacterView, templateString) {
       var formControls = $('button', confirmDialog);
       formControls.attr('disabled', 'disabled');
 
-      // Delete character -- how to get the character? Need a session right?
+      // Clear any existing error message
+      this.messageBoxView.clearMessage();
+
+      // Get character to delete
       var sessionId = parseInt($('input[name=sessionId]', confirmDialog).val());
       var charId    = parseInt($('input[name=charId]', confirmDialog).val());
       var session   = this.model.sessions.get(sessionId);
       var character = session.characters.get(charId);
-      character.destroy()
+
+      // Delete
+      var view = this;
+      character.destroy({ wait: true })
         .then(function() {
           confirmDialog.modal('hide');
         })
-        .fail(function() {
-          // XXX Show error
+        .fail(function(resp) {
+          // This is pretty horrible, but currently the message box will display
+          // behind the modal background and you won't notice it.
+          //
+          // Ideally we should either make it display on top or do something
+          // different in this case such adding a line of text to the confirm
+          // dialog.
+          //
+          // As a temporary measure we just hide the dialog and re-use the
+          // existing message box view.
+          confirmDialog.modal('hide');
+          view.messageBoxView.setMessage(resp,
+            { keyPrefix: "delete-character-failed", dismiss: true });
         })
         .always(function() {
           formControls.removeAttr('disabled');
