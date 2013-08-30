@@ -129,7 +129,7 @@ header .heading:after {
   background-position: top right;
 }
 header {
-  overflow: auto;
+  overflow: hidden;
 }
 @media (max-width: 400px) {
   header h1 {
