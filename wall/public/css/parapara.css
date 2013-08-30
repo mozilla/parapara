@@ -51,12 +51,12 @@ header .heading {
   margin: 0.4em 0 0;
   padding: 0 0.3em 0em;
   height: 100px;
-  position: relative;
 }
 header h1 {
   display: inline-block;
-  position: absolute;
-  bottom: 0;
+  vertical-align: text-bottom;
+  line-height: 100px;
+  margin-bottom: -40px;
 }
 h1, h2, h3, h4, h5, h6 {
   color: #362d10;

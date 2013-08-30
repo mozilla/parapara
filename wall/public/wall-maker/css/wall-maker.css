@@ -118,10 +118,32 @@ button.small, a.button.small {
 /*
  * Header bar
  */
-header .heading {
+header .heading:after {
+  content: "\00A0";
+  display: inline-block;
+  width: 341px;
+  height: 100px;
+  float: right;
   background-image: url('../img/header-wall-maker.png');
   background-repeat: no-repeat;
   background-position: top right;
+}
+header {
+  overflow: auto;
+}
+@media (max-width: 400px) {
+  header h1 {
+    font-size: 30px;
+    line-height: 50px;
+    margin-bottom: -10px;
+  }
+  header .heading {
+    height: 50px;
+  }
+  header .heading:after {
+    height: 50px;
+    background-size: 50%;
+  }
 }
 #loginStatus {
   display: inline-block;
