@@ -304,8 +304,10 @@ hr {
 /*
  * Management screen layout
  */
-#wall-details, #wall-summary {
-  margin: 0.3em 1.5em;
+@media (min-width: 370px) {
+  #wall-details, #wall-summary {
+    margin: 0.3em 1.5em;
+  }
 }
 #wall-details .callout {
   background: lemonchiffon;
@@ -444,7 +446,6 @@ hr {
     .urlList li label {
       text-align: left;
       flex-basis: 1.5em;
-      margin-top: 0.5em;
     }
   }
 }
