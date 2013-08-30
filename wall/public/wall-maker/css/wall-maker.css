@@ -147,6 +147,7 @@ header {
 }
 #loginStatus {
   display: inline-block;
+  padding-top: 0.5em;
   font-size: 13px;
 }
 

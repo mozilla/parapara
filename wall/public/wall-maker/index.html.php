@@ -39,10 +39,9 @@
   <div class="header-contents">
     <!-- Login status and Mozilla tab -->
     <nav>
-      <div id="loginStatus">
-      </div>
       <a href="http://www.mozilla.org" class="mozilla-tab"><img 
         src="/img/tab.png"></a>
+      <div id="loginStatus"></div>
     </nav>
     <!-- Title part -->
     <div class="heading">
