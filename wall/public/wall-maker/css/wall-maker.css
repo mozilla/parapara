@@ -688,6 +688,7 @@ button span.icon {
   outline: none;
   text-decoration: none;
   display: block;
+  margin-right: 25px; /* Make room for the close button on the right */
 }
 #manage-sessions .accordion-heading a:hover {
   text-decoration: none;
