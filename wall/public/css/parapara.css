@@ -93,7 +93,7 @@ footer select option {
 .btn {
   border-radius: 12px;
 }
-.btn:not(.btn-mini):not(.btn-small) {
+.btn:not(.btn-mini):not(.btn-small):not(.btn-media) {
   font-size: 20px;
   padding-top: 0.5em;
   padding-bottom: 0.5em;

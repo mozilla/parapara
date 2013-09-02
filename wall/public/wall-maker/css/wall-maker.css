@@ -116,6 +116,62 @@ button.small, a.button.small {
 }
 
 /*
+ * Media buttons
+ */
+.btn-media {
+  padding: 8px 10px;
+  font-size: 12px;
+  max-width: 90px;
+  margin: 5px;
+  
+  text-align: center;
+  vertical-align: middle;
+  white-space: normal;
+}
+.btn-media img {
+  width: 70px;
+  height: 70px;
+  margin-bottom: 14px;
+}
+.btn-media .btn-title {
+  display: block;
+  font-weight: bold;
+}
+@media (min-width: 600px) {
+  .btn-media {
+    padding: 15px 20px;
+    font-size: 15px;
+    max-width: 180px;
+    margin: 12px;
+  }
+  .btn-media img {
+    width: 150px;
+    height: 150px;
+  }
+}
+div.choose-your-own-adventure {
+  text-align: center;
+}
+/* This interesting mess only turns on flex-box when its available and then
+ * turns it off at small sizes if multiline flexbox is not available. */
+@supports (display: flex) {
+  div.choose-your-own-adventure {
+    flex-flow: row wrap;
+    justify-content: center;
+  }
+  @supports (flex-wrap: wrap) {
+    div.choose-your-own-adventure {
+      display: flex;
+    }
+  }
+  @media (min-width: 310px) {
+    div.choose-your-own-adventure {
+      display: flex;
+    }
+  }
+}
+
+/*
  * Header bar
  */
 header .heading:after {

@@ -48,7 +48,8 @@ function(_, Backbone, webL10n, SomaView, ManageCharacterView, templateString) {
       "click #new-session": "startSession",
       "click .end-session": "endSession",
       "click .restart-session": "restartSession",
-      "click .thumbnails .delete-character": "onConfirmDelete",
+      "click .delete-session": "confirmDeleteSession",
+      "click .thumbnails .delete-character": "onConfirmDeleteCharacter",
       "click #confirm-delete-character-modal button.delete": "deleteCharacter"
     },
 
@@ -245,13 +246,23 @@ function(_, Backbone, webL10n, SomaView, ManageCharacterView, templateString) {
       this.messageBoxView.clearMessage();
     },
 
-    onConfirmDelete: function(evt) {
-      this.confirmDelete(
+    confirmDeleteSession: function(evt) {
+      // Set up dialog with session ID to delete
+      var sessionId = parseInt(evt.target.getAttribute("data-session-id"));
+      var confirmDialog = this.$('#confirm-delete-session-modal');
+      $('input[name=sessionId]', confirmDialog).val(sessionId);
+
+      // Show confirm dialog
+      confirmDialog.modal();
+    },
+
+    onConfirmDeleteCharacter: function(evt) {
+      this.confirmDeleteCharacter(
         parseInt(evt.target.getAttribute("data-session-id")),
         parseInt(evt.target.getAttribute("data-char-id")));
     },
 
-    confirmDelete: function(sessionId, charId) {
+    confirmDeleteCharacter: function(sessionId, charId) {
       // Set up dialog with character ID to delete
       var confirmDialog = this.$('#confirm-delete-character-modal');
       $('input[name=sessionId]', confirmDialog).val(sessionId);
