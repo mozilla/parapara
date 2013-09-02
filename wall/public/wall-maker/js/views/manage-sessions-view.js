@@ -252,7 +252,8 @@ function(_, Backbone, webL10n, SomaView, ManageCharacterView, templateString) {
 
     confirmDeleteSession: function(evt) {
       // Set up dialog with session ID to delete
-      var sessionId = parseInt(evt.target.getAttribute("data-session-id"));
+      var sessionId =
+        parseInt(evt.currentTarget.getAttribute("data-session-id"));
       var confirmDialog = this.$('#confirm-delete-session-modal');
       $('input[name=sessionId]', confirmDialog).val(sessionId);
 
@@ -286,8 +287,8 @@ function(_, Backbone, webL10n, SomaView, ManageCharacterView, templateString) {
 
     onConfirmDeleteCharacter: function(evt) {
       this.confirmDeleteCharacter(
-        parseInt(evt.target.getAttribute("data-session-id")),
-        parseInt(evt.target.getAttribute("data-char-id")));
+        parseInt(evt.currentTarget.getAttribute("data-session-id")),
+        parseInt(evt.currentTarget.getAttribute("data-char-id")));
     },
 
     confirmDeleteCharacter: function(sessionId, charId) {
