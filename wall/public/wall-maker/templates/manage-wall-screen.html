@@ -10,7 +10,7 @@
       <div id="wall-thumbnail">
         <img data-src="{{wall.thumbnail}}" src="">
       </div>
-      <div>
+      <div id="wall-summary-details">
         <input type="text" id="manage-name" name="name" value="{{wall.name}}"
           size="{{wallNameFieldSize}}">
         <ul class="urlList">
@@ -39,6 +39,8 @@
             </span>
           </li>
         </ul>
+        <button type="button" class="close border delete-wall"
+          data-l10n-id="delete-wall"><span class="icon">&times;</span></button>
       </div>
       <!-- QR Code modal -->
       <div class="modal hide fade" id="qr-modal">

@@ -172,6 +172,17 @@ div.choose-your-own-adventure {
 }
 
 /*
+ * Slightly more noticeable close button
+ */
+button.close.border {
+  padding-left: 7px;
+  padding-right: 7px;
+}
+button.close.border:hover, button.close.border:active {
+  background: #aaa;
+}
+
+/*
  * Header bar
  */
 header .heading:after {
@@ -505,6 +516,14 @@ hr {
     }
   }
 }
+#wall-summary-details {
+  position: relative;
+}
+button.delete-wall {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+}
 
 /*
  * QR Code modal
@@ -696,16 +715,10 @@ button span.icon {
 #manage-sessions .accordion-heading a .session-title {
   font-weight: bold;
 }
-#manage-sessions .accordion-heading .delete-session {
+button.delete-session {
   position: absolute;
   top: 6px;
   right: 8px;
-}
-.delete-session {
-  opacity: 0.5;
-}
-.delete-session:hover, .delete-session:focus {
-  opacity: 1;
 }
 #manage-sessions .session-time {
   color: grey;
