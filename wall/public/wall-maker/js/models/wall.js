@@ -22,6 +22,15 @@ function($, _, Backbone, Sessions) {
       // Define the sessions property so users can register for events on it but
       // don't fetch it until necessary (i.e. someone calls fetchCharacters).
       this.sessions = new Sessions(null, { wall: this });
+
+      // Define a calculated property, 'latestSession'
+      Object.defineProperty(this, "latestSession",
+        { get: function() {
+            return this.sessionsLoaded && this.sessions.length
+                 ? this.sessions.at(this.sessions.length - 1)
+                 : null;
+          }
+        });
     },
 
     fetchCharacters: function() {
@@ -61,7 +70,7 @@ function($, _, Backbone, Sessions) {
 
         // And wrap error again to take care of parallel changes.
         // It's like a russian doll or a game of pass-the-parcel.
-        self.wrapError(options);
+        self._wrapError(options);
 
         // Wrap success
         //
@@ -75,23 +84,20 @@ function($, _, Backbone, Sessions) {
         var success = options.success;
         options.success = function(model, resp, options) {
           // Close previous session
-          var previousSession = self.get("latestSession")
-            ? self.sessions.get(self.get("latestSession").sessionId)
+          var previousSession = self.latestSession
+            ? self.sessions.get(self.latestSession.sessionId)
             : null;
           if (previousSession) {
             previousSession.attributes.end = model.get("start");
           }
-
-          // Update latest session
-          self.attributes.latestSession = _.clone(model.attributes);
 
           // Call original callback
           if (success) success(model, resp, options);
         };
 
         // Send request
-        var latestSessionId = self.get("latestSession")
-                            ? self.get("latestSession").sessionId
+        var latestSessionId = self.latestSession
+                            ? self.latestSession.sessionId
                             : null;
         return self.sessions.create({ },
           _.extend({
@@ -109,37 +115,57 @@ function($, _, Backbone, Sessions) {
       this._modifySession({ end: null }, options);
     },
 
+    deleteSession: function(sessionId, keepCharacters) {
+      // Get session
+
+      // Make request
+      options = {
+        wait: true,
+        // Backbone won't let us specify attributes on a delete request so we
+        // have to do it ourself:
+        contentType: 'application/json',
+        data: JSON.stringify({ keepCharacters: !includeCharacters })
+      };
+      session.destroy(options)
+        .then(function() {
+          confirmDialog.modal('hide');
+        })
+        .fail(function(resp) {
+          confirmDialog.modal('hide');
+          view.messageBoxView.setMessage(resp,
+            { keyPrefix: "delete-session-failed", dismiss: true });
+        })
+        .always(function() {
+          formControls.removeAttr('disabled');
+        });
+    },
+
     _modifySession: function(attr, options) {
       if (!this.sessionsLoaded)
         return;
 
       // Get latest session
-      if (!this.get("latestSession")) {
+      if (!this.latestSession) {
         console.log("No session to end/restart");
         return;
       }
-      var latestSession =
-        this.sessions.get(this.get("latestSession").sessionId);
 
       // Wrap error to take care of parallel changes.
-      this.wrapError(options);
+      this._wrapError(options);
 
       // Wrap success so we make sure our latestSession gets updated
       var success = options.success;
       var self = this;
       options.success = function(model, resp, options) {
-        // Update latest session
-        self.attributes.latestSession = _.clone(model.attributes);
-
         // Call original callback
         if (success) success(model, resp, options);
       };
 
       // Save changes
-      return latestSession.save(attr, _.extend({ wait: true }, options));
+      return this.latestSession.save(attr, _.extend({ wait: true }, options));
     },
 
-    wrapError: function(options) {
+    _wrapError: function(options) {
       // Introduce special handling for parallel changes
       //
       // If there is a parallel change we try to automatically refresh the

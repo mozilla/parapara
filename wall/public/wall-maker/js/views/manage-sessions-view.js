@@ -18,7 +18,7 @@ function(_, Backbone, webL10n, SomaView, ManageCharacterView, templateString) {
       // Register for updates to the list of characters
       this.listenTo(this.model.sessions, "add remove reset",
                     this.updateSelection);
-      this.listenTo(this.model.sessions, "sync change", this.render);
+      this.listenTo(this.model.sessions, "sync change destroy", this.render);
       this.listenTo(this.model.sessions, "error", this.error);
       this.listenTo(this.model.sessions, "request", this.request);
 
@@ -49,6 +49,10 @@ function(_, Backbone, webL10n, SomaView, ManageCharacterView, templateString) {
       "click .end-session": "endSession",
       "click .restart-session": "restartSession",
       "click .delete-session": "confirmDeleteSession",
+      "click #confirm-delete-session-modal .delete-session-and-characters":
+        "deleteSessionAndCharacters",
+      "click #confirm-delete-session-modal .delete-session-only":
+        "deleteSession",
       "click .thumbnails .delete-character": "onConfirmDeleteCharacter",
       "click #confirm-delete-character-modal button.delete": "deleteCharacter"
     },
@@ -256,6 +260,30 @@ function(_, Backbone, webL10n, SomaView, ManageCharacterView, templateString) {
       confirmDialog.modal();
     },
 
+    deleteSessionAndCharacters: function(evt) {
+      this.deleteSession(evt, false /* keepCharacters */);
+    },
+
+    deleteSession: function(evt, keepCharacters /* = true */) {
+      keepCharacters = typeof keepCharacters === "undefined"
+                     ? true : !!keepCharacters;
+
+      var model = this.model;
+      this.executeConfirmDialog(
+        this.$('#confirm-delete-session-modal'),
+        function(dialog) {
+          // Get session to delete
+          var sessionId = parseInt($('input[name=sessionId]', dialog).val());
+          var session   = model.sessions.get(sessionId);
+
+          // Destroy it
+          return session.destroy(
+            { wait: true, keepCharacters: keepCharacters });
+        },
+        "delete-session-failed"
+      );
+    },
+
     onConfirmDeleteCharacter: function(evt) {
       this.confirmDeleteCharacter(
         parseInt(evt.target.getAttribute("data-session-id")),
@@ -273,9 +301,34 @@ function(_, Backbone, webL10n, SomaView, ManageCharacterView, templateString) {
     },
 
     deleteCharacter: function() {
-      // Get dialog
-      var confirmDialog = this.$('#confirm-delete-character-modal');
+      var model = this.model;
+      this.executeConfirmDialog(
+        this.$('#confirm-delete-character-modal'),
+        function(dialog) {
+          // Look up character
+          var sessionId = parseInt($('input[name=sessionId]', dialog).val());
+          var charId    = parseInt($('input[name=charId]', dialog).val());
+          var session   = model.sessions.get(sessionId);
+          var character = session.characters.get(charId);
 
+          // Destroy it
+          return character.destroy({ wait: true });
+        },
+        "delete-character-failed"
+      );
+    },
+
+    // Common modal dialog-handling
+    //
+    // Takes:
+    //  - confirmDialog - the dialog to close
+    //  - action - a callback that takes the dialog and performs some request
+    //             that returns a Promise
+    //  - errorMessageKeyPrefix - the key to use as a prefix when looking up
+    //                            error strings
+    //
+    executeConfirmDialog: function(confirmDialog, action,
+                                   errorMessageKeyPrefix) {
       // Disable form controls
       var formControls = $('button', confirmDialog);
       formControls.attr('disabled', 'disabled');
@@ -283,15 +336,9 @@ function(_, Backbone, webL10n, SomaView, ManageCharacterView, templateString) {
       // Clear any existing error message
       this.messageBoxView.clearMessage();
 
-      // Get character to delete
-      var sessionId = parseInt($('input[name=sessionId]', confirmDialog).val());
-      var charId    = parseInt($('input[name=charId]', confirmDialog).val());
-      var session   = this.model.sessions.get(sessionId);
-      var character = session.characters.get(charId);
-
-      // Delete
+      // Perform action
       var view = this;
-      character.destroy({ wait: true })
+      action(confirmDialog)
         .then(function() {
           confirmDialog.modal('hide');
         })
@@ -307,7 +354,7 @@ function(_, Backbone, webL10n, SomaView, ManageCharacterView, templateString) {
           // existing message box view.
           confirmDialog.modal('hide');
           view.messageBoxView.setMessage(resp,
-            { keyPrefix: "delete-character-failed", dismiss: true });
+            { keyPrefix: errorMessageKeyPrefix, dismiss: true });
         })
         .always(function() {
           formControls.removeAttr('disabled');

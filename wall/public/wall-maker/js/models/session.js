@@ -40,6 +40,21 @@ function($, _, Backbone, Characters) {
           this.trigger.apply(this, args);
         }
       );
+    },
+
+    // Override destroy to provide special handling for the keepCharacters
+    // option
+    destroy: function(options) {
+      // Backbone won't let us specify attributes on a delete request so we
+      // have to do it ourself:
+      if (typeof options['keepCharacters'] !== "undefined") {
+        options =
+          _.extend(options,
+            { contentType: 'application/json',
+              data: JSON.stringify({ keepCharacters: !!options.keepCharacters })
+            });
+      }
+      return Backbone.Model.prototype.destroy.call(this, options);
     }
   });
 });
