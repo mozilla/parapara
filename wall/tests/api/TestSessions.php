@@ -349,7 +349,7 @@ class SessionsTestCase extends APITestCase {
     $wall = $this->api->createWall('Wall 1', $this->testDesignId);
     $result = $this->api->deleteSession($wall['wallId'],
                                         $wall['latestSession']['sessionId']+1);
-    $this->assertEqual(@$result['error_key'], 'not-found');
+    $this->assertEqual(@$result['error_key'], 'session-not-found');
   }
 
   function testDeleteNotLatestSession() {

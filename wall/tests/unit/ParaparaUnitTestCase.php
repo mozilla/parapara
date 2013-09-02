@@ -56,8 +56,7 @@ abstract class ParaparaUnitTestCase extends ParaparaTestCase {
     $this->testCharacter = null;
 
     // Remove test wall
-    // XXX Replace this with a method call once we have it
-    $this->api->removeWall($this->testWall->wallId);
+    $this->testWall->destroy();
     $this->testWall = null;
 
     // Clean up other resources

@@ -25,10 +25,7 @@ function getWallIdFromPath($path) {
       . $conn->quote($path, 'text')
       . ' LIMIT 1',
       'integer');
-  if (PEAR::isError($res)) {
-    error_log($res->getMessage() . ', ' . $res->getDebugInfo());
-    throw new KeyedException('db-error');
-  }
+  checkDbResult($res);
   return $res;
 }
 
@@ -359,6 +356,40 @@ class Wall {
     return $changedFields;
   }
 
+  public function destroy($characterDeleteMode = CharacterDeleteMode::DeleteAll)
+  {
+    // Check authorization
+    if (!$this->canAdminister()) {
+      throw new KeyedException('no-auth');
+    }
+
+    // Delete characters associated with this wall from DB and from 
+    // filesystem depending on the characterDeleteMode parameter
+    Characters::deleteByWall($this->wallId, $characterDeleteMode);
+
+    // Setup transaction in case we succeed in deleting sessions but not the 
+    // wall
+    $conn =& getDbConnection();
+    $trans = $conn->beginTransaction();
+    checkDbResult($trans);
+
+    // Delete sessions
+    $query = 'DELETE FROM sessions'
+           . ' WHERE wallId=' . $conn->quote($this->wallId, 'integer');
+    $res =& $conn->exec($query);
+    checkDbResult($res, $conn);
+
+    // Delete wall
+    $query = 'DELETE FROM walls'
+           . ' WHERE wallId=' . $conn->quote($this->wallId, 'integer');
+    $res =& $conn->exec($query);
+    checkDbResult($res, $conn);
+
+    // Commit transaction
+    $conn->commit();
+    $conn->disconnect();
+  }
+
   public function asArray() {
     // Fields to export if available
     //
@@ -588,7 +619,7 @@ class Wall {
         . " LIMIT 1");
     checkDbResult($row);
     if (!$row)
-      throw new KeyedException('not-found');
+      throw new KeyedException('session-not-found');
 
     // Check if the session we are about to delete is the latest session.
     // If it is the latest then we will have to have to update some state when 

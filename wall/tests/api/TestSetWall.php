@@ -165,7 +165,7 @@ class SetWallTestCase extends APITestCase {
 
   function testNotFound() {
     $result = $this->api->updateWall(500, array('name' => 'ABCD'));
-    $this->assertTrue(@$result['error_key'] == 'not-found',
+    $this->assertTrue(@$result['error_key'] == 'wall-not-found',
                       "Found non-existent wall");
   }
 

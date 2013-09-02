@@ -39,7 +39,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
     switch ($wall) {
       case null:
         // Wall not found
-        bailWithError('not-found');
+        bailWithError('wall-not-found');
 
       case "Not specified":
         // Return all walls
@@ -75,7 +75,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
     if ($wall === "Not specified")
       bailWithError('bad-request');
     if ($wall === null)
-      bailWithError('not-found');
+      bailWithError('wall-not-found');
 
     // Update fields
     if (!is_array($data))
@@ -86,6 +86,20 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
     // Store result
     $result = $wall->save();
+    break;
+
+  case 'DELETE':
+    if ($wall === "Not specified")
+      bailWithError('bad-request');
+    if ($wall === null)
+      bailWithError('wall-not-found');
+
+    $deleteMode = $data && @$data['keepCharacters']
+                ? CharacterDeleteMode::DeleteRecordOnly
+                : CharacterDeleteMode::DeleteAll;
+    $wall->destroy($deleteMode);
+
+    $result = array();
     break;
 
   default:

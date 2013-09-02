@@ -87,9 +87,8 @@ class TestWalls extends ParaparaUnitTestCase {
     $this->assertIdentical(@$walls[0], $wall2);
 
     // Remove both walls
-    // XXX Replace this with a method call once we have it
-    $this->api->removeWall($wall2->wallId);
-    $this->api->removeWall($this->testWall->wallId);
+    $wall2->destroy();
+    $this->testWall->destroy();
     $walls = Walls::getAllForUser("test@test.org");
     $this->assertEqual(count($walls), 0);
   }
@@ -146,7 +145,7 @@ class TestWalls extends ParaparaUnitTestCase {
         $this->testWall->latestSession['sessionId'] + 1);
       $this->fail("Failed to throw exception with bad session ID");
     } catch (KeyedException $e) {
-      $this->assertEqual($e->getKey(), "not-found");
+      $this->assertEqual($e->getKey(), "session-not-found");
       // Check nothing changed
       // XXX Check no characters were deleted
       $this->assertIdentical(count($summary), 1);
@@ -275,6 +274,63 @@ class TestWalls extends ParaparaUnitTestCase {
   function testRestartBadSession() {
     $rv = $this->testWall->restartSession(2);
     $this->assertIdentical($rv, false);
+  }
+
+  function testDeleteWall() {
+    // Delete wall
+    $this->testWall->destroy();
+
+    // Check it has gone
+    $wall = Walls::getById($this->testWall->wallId);
+    $this->assertIdentical($wall, null, "Failed to delete wall: %s");
+  }
+
+  function testDeleteWallAndCharacters() {
+    // Create some characters
+    $session1 = $this->testWall->latestSession;
+    $fields = $this->testCharacterFields;
+    $fields['title'] = 'Character A';
+    $charA = $this->createCharacter($fields);
+
+    // Session 2
+    $this->testWall->startSession();
+    $session2 = $this->testWall->latestSession;
+    $fields['title'] = 'Character B';
+    $charB = $this->createCharacter($fields);
+
+    // Delete
+    $this->testWall->destroy();
+
+    // Check characters are gone
+    $charFile = Character::getFileForId($charA->charId);
+    $this->assertFalse(file_exists($charFile), "SVG still at $charFile");
+    $charFile = Character::getFileForId($charB->charId);
+    $this->assertFalse(file_exists($charFile), "SVG still at $charFile");
+  }
+
+  function testDeleteWallNotCharacters() {
+    // Create some characters
+    $session1 = $this->testWall->latestSession;
+    $fields = $this->testCharacterFields;
+    $fields['title'] = 'Character A';
+    $charA = $this->createCharacter($fields);
+
+    // Session 2
+    $this->testWall->startSession();
+    $session2 = $this->testWall->latestSession;
+    $fields['title'] = 'Character B';
+    $charB = $this->createCharacter($fields);
+
+    // Delete
+    $this->testWall->destroy(CharacterDeleteMode::DeleteRecordOnly);
+
+    // Check characters are still there
+    $charFile = Character::getFileForId($charA->charId);
+    $this->assertTrue(file_exists($charFile), "No SVG at $charFile");
+    @unlink($charFile);
+    $charFile = Character::getFileForId($charB->charId);
+    $this->assertTrue(file_exists($charFile), "No SVG at $charFile");
+    @unlink($charFile);
   }
 }
 

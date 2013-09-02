@@ -319,7 +319,7 @@ class Characters {
     $wall = Walls::getById($wallId);
     if ($wall === null) {
       error_log("Wall $wallId not found when adding character");
-      throw new KeyedException('not-found', 'Wall not found');
+      throw new KeyedException('wall-not-found', 'Wall not found');
     }
 
     // Get latest session

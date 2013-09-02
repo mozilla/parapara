@@ -83,7 +83,7 @@ class GetWallTestCase extends APITestCase {
 
   function testNotFound() {
     $wall = $this->api->getWall(5000);
-    $this->assertEqual(@$wall['error_key'], 'not-found');
+    $this->assertEqual(@$wall['error_key'], 'wall-not-found');
   }
 
   function testSomeoneElsesWall() {

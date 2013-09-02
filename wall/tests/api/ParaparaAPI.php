@@ -131,28 +131,39 @@ class ParaparaAPI {
     return $wall;
   }
 
-  function removeWall($wallId) {
-    // XXX When we have an API for this, allow providing a wall path as 
-    // a parameter too
-
-    // Remove connected sessions
-    $query = 'DELETE FROM sessions WHERE wallId = ' . $wallId;
-    $res =& $this->db->query($query);
-    if (PEAR::isError($res)) {
-      die($res->getMessage() . ', ' . $res->getDebugInfo());
+  function removeWall($wallIdOrPath, $keepCharacters = null) {
+    // Remember wallId so we can remove from the list of created walls
+    if (is_int($wallIdOrPath)) {
+      $wallId = $wallIdOrPath;
+    } else {
+      $wall = $this->getWall($wallIdOrPath);
+      if ($wall) {
+        $wallId = $wall['wallId'];
+      }
     }
 
-    // Remove wall
-    $query = 'DELETE FROM walls WHERE wallId = ' . $wallId;
-    $res =& $this->db->query($query);
-    if (PEAR::isError($res)) {
-      die($res->getMessage() . ', ' . $res->getDebugInfo());
+    // Prepare payload
+    $payload = null;
+    if ($keepCharacters == "Keep character files") {
+      $payload = array('keepCharacters' => true);
     }
+
+    // Make request
+    global $config;
+    $url = $config['test']['wall_server'] .  "api/walls/"
+         . (is_int($wallIdOrPath) ? $wallIdOrPath : "byname/$wallIdOrPath");
+    $result = $this->deleteJson($url, $payload);
 
     // Remove from list of createdWalls
-    while (($pos = array_search($wallId, $this->createdWalls)) !== FALSE) {
-      array_splice($this->createdWalls, $pos, 1);
+    if (is_array($result) && $wallId &&
+        (!array_key_exists('error_key', $result) ||
+         $result['error_key'] == 'wall-not-found')) {
+      while (($pos = array_search($wallId, $this->createdWalls)) !== FALSE) {
+        array_splice($this->createdWalls, $pos, 1);
+      }
     }
+
+    return $result;
   }
 
   function getWalls() {

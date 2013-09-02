@@ -45,7 +45,7 @@ class TestCharacters extends ParaparaUnitTestCase {
       $char = $this->createCharacter($this->testFields, 0);
       $this->fail("Failed to throw exception with bad Wall ID");
     } catch (KeyedException $e) {
-      $this->assertEqual($e->getKey(), "not-found");
+      $this->assertEqual($e->getKey(), "wall-not-found");
     }
   }
 

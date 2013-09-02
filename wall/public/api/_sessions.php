@@ -19,7 +19,7 @@ $wall = getRequestedWall($email);
 if ($wall === "Not specified")
   bailWithError('bad-request');
 if ($wall === null)
-  bailWithError('not-found');
+  bailWithError('wall-not-found');
 $sessionId = toIntOrNull(@$_REQUEST['sessionId']);
 
 // Prepare change timestamp
