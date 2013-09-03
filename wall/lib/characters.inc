@@ -272,7 +272,7 @@ class Character {
   }
 
   public static function getPreviewFile($charId) {
-    return self::getCharactersFilePath() . '/' . $charId . '/preview.svg';
+    return self::getCharactersFilePath() . '/' . $charId . '.preview.svg';
   }
 
   public static function getEmailUrl($charId) {
@@ -601,15 +601,6 @@ class Characters {
           // a cron job if necessary---and partly because it would be quite 
           // complicated to also restore the SVG file in that case.
           error_log("Failed to delete preview file: $preview");
-        } else {
-          // Delete preview folder too
-          $previewFolder = dirname($preview);
-          if ($previewFolder !== $svgFolder &&
-              @rmdir($previewFolder) === FALSE) {
-            // If the preview folder was not empty rmdir will fail.
-            // That's fine but log it just in case its unexpected.
-            error_log("Failed to remove preview folder: $previewFolder");
-          }
         }
       }
     }

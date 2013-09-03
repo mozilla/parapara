@@ -6,6 +6,7 @@
 
 require_once("../../lib/parapara.inc");
 require_once('characters.file.inc');
+require_once('characters.inc');
 
 header('Content-Type: image/svg+xml; charset=UTF-8');
 
@@ -25,14 +26,9 @@ if (!$static) {
 }
 
 // Save file
-$out = $id . '/preview.svg';
-if (!file_exists($out)) {
-  if (!file_exists($id)) {
-    mkdir($id);
-  }
-  if (is_writeable($id)) {
-    file_put_contents($out, $static);
-  }
+$out = Character::getPreviewFile($id);
+if (!file_exists($out) && is_writeable(dirname($out))) {
+  file_put_contents($out, $static);
 }
 
 // Output
