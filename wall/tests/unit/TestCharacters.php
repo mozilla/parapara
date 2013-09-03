@@ -472,29 +472,14 @@ class TestCharacters extends ParaparaUnitTestCase {
                          $this->testWall->wallId);
 
     // Create a cached preview file
-    // 1. Create the folder if necessary
-    $previewFile = Character::getPreviewFile($char->charId);
-    $previewFolder = dirname($previewFile);
-    $svgFile = Character::getFileForId($char->charId);
-    if ($previewFolder !== dirname($svgFile)) {
-      $this->assertTrue(mkdir($previewFolder));
-    }
-
-    // 2. Create the actual file
-    file_put_contents($previewFile, "test");
-    $this->assertTrue(file_exists($previewFile));
+    $this->createPreviewFile($char);
 
     // Delete
     $this->assertTrue(Characters::deleteById($char->charId));
 
     // Check cached preview file is gone
+    $previewFile = Character::getPreviewFile($char->charId);
     $this->assertFalse(file_exists($previewFile), "Preview file not removed");
-
-    // If a separate directory was created, make sure it is gone too
-    if ($previewFolder !== dirname($svgFile)) {
-      $this->assertFalse(file_exists($previewFolder),
-                         "Preview folder not removed");
-    }
   }
 
   function testDeleteBySession() {
@@ -527,6 +512,26 @@ class TestCharacters extends ParaparaUnitTestCase {
     $this->assertIdentical($result, 1);
     $chars = Characters::getBySession($wallId, $sessionB);
     $this->assertIdentical(count($chars), 0);
+  }
+
+  function testDeleteBySessionWithPreviews() {
+    // Get wall and session
+    $wallId = $this->testWall->wallId;
+    $session = $this->testWall->latestSession['sessionId'];
+
+    // Add character to session
+    $char = $this->createCharacter();
+
+    // Create a cached preview file
+    $this->createPreviewFile($char);
+
+    // Delete session characters
+    $result = Characters::deleteBySession($wallId, $session);
+    $this->assertIdentical($result, 1);
+
+    // Check cached preview file is gone
+    $previewFile = Character::getPreviewFile($char->charId);
+    $this->assertFalse(file_exists($previewFile), "Preview file not removed");
   }
 
   function testDeleteBadSession() {
@@ -794,6 +799,12 @@ class TestCharacters extends ParaparaUnitTestCase {
     $this->assertIdentical(@$array['galleryUrl'], $char->galleryUrl);
     // Check some fields are dropped
     $this->assertTrue(!array_key_exists('wall', $array));
+  }
+
+  function createPreviewFile($char) {
+    $previewFile = Character::getPreviewFile($char->charId);
+    file_put_contents($previewFile, "test");
+    $this->assertTrue(file_exists($previewFile));
   }
 }
 

@@ -592,16 +592,15 @@ class Characters {
           throw new KeyedException('server-error', "Failed to delete file");
         }
       }
+
       // Delete preview file if it exists
       $preview = Character::getPreviewFile($charId);
-      if (file_exists($preview)) {
-        if (@unlink($preview) === FALSE) {
-          // We don't rollback in this case partly because it's not a big deal 
-          // if we can't clear up the previews---that could could handled by 
-          // a cron job if necessary---and partly because it would be quite 
-          // complicated to also restore the SVG file in that case.
-          error_log("Failed to delete preview file: $preview");
-        }
+      if (file_exists($preview) && @unlink($preview) === FALSE) {
+        // We don't rollback in this case partly because it's not a big deal 
+        // if we can't clear up the previews---that could could handled by 
+        // a cron job if necessary---and partly because it would be quite 
+        // complicated to also restore the SVG file in that case.
+        error_log("Failed to delete preview file: $preview");
       }
     }
 
@@ -687,6 +686,14 @@ class Characters {
           error_log("Failed to delete file: $filename");
           throw new KeyedException('server-error', "Failed to delete file");
         }
+
+        // Delete the preview file too.
+        //
+        // If this fails we don't care. And if we have a failure later on, 
+        // there's no need to restore these files since they will be 
+        // auto-generated anyway.
+        $preview  = Character::getPreviewFile($charId);
+        @unlink($preview);
       }
       $deleter->commit();
     }
@@ -723,7 +730,7 @@ class BatchFileDeleter {
   }
 
   public function deleteFile($file) {
-    // If there is not file, fail silently
+    // If there is no file, fail silently
     if (!file_exists($file))
       return true;
 
