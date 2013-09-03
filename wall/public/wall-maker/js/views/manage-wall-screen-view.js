@@ -26,6 +26,7 @@ function(_, Backbone, QRCode, webL10n,
     id: 'screen-manage',
     events: {
       "click #showEditorUrlQrCode": "showEditorUrlQrCode",
+      "click .delete-wall": "confirmDeleteWall",
       "change .designSelection": "saveDesign"
     },
     initialize: function() {
@@ -215,6 +216,10 @@ function(_, Backbone, QRCode, webL10n,
 
       // Show
       modal.modal();
+    },
+
+    confirmDeleteWall: function(evt) {
+      this.$('#confirm-delete-wall-modal').modal();
     },
 
     saveDesign: function(evt) {

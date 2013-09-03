@@ -45,7 +45,8 @@
       <!-- QR Code modal -->
       <div class="modal hide fade" id="qr-modal">
         <div class="modal-body">
-          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <button type="button" class="close" data-dismiss="modal"
+            aria-hidden="true">&times;</button>
           <img class="qr-code">
           <a data-href="{{wall.editorUrlShort}}" target="_blank"
             >{{decodeURIComponent(wall.editorUrlShort)}}</a>
@@ -53,6 +54,30 @@
         <div class="modal-footer">
           <button type="button" class="btn btn-primary" data-dismiss="modal"
             data-l10n-id="ok"></a>
+        </div>
+      </div>
+      <!-- Wall deletion modal -->
+      <div class="modal hide fade" id="confirm-delete-wall-modal">
+        <div class="modal-body">
+          <button type="button" class="close" data-dismiss="modal"
+            aria-hidden="true">&times;</button>
+          <div class="choose-your-own-adventure">
+            <button type="button" class="btn btn-media
+              delete-wall-and-characters">
+              <img src="{{appRoot}}/img/wall-and-characters.svg">
+              <p data-l10n-id="delete-wall-and-characters"
+                class="btn-title"></p>
+            </button><button type="button"
+                class="btn btn-media delete-wall-only">
+              <img src="{{appRoot}}/img/wall-only.svg">
+              <p data-l10n-id="delete-wall-only" class="btn-title"></p>
+              <p data-l10n-id="delete-wall-only-descr" class="btn-descr"></p>
+            </button>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn" data-dismiss="modal"
+            data-l10n-id="cancel"></a>
         </div>
       </div>
     </section>
