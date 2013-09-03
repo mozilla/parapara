@@ -81,7 +81,7 @@ $designPath = "/designs/$design/"
       var BEFORE_LOADED_TIME = (new Date()).getTime();
   </script>
   <script xlink:href="/wall/js/utility.js"></script>
-  <script xlink:href="/wall-maker/js/xhr.js"></script>
+  <script xlink:href="/wall/js/xhr.js"></script>
   <script xlink:href="/wall/js/<?php echo $database; ?>"></script>
   <script xlink:href="/designs/<?php echo $design; ?>/main.js"></script>
   <?php require("../designs/$design/wall.svg.inc"); ?>
