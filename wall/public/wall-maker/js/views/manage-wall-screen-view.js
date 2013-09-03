@@ -27,6 +27,8 @@ function(_, Backbone, QRCode, webL10n,
     events: {
       "click #showEditorUrlQrCode": "showEditorUrlQrCode",
       "click .delete-wall": "confirmDeleteWall",
+      "click .delete-wall-and-characters": "deleteWallAndCharacters",
+      "click .delete-wall-only": "deleteWall",
       "change .designSelection": "saveDesign"
     },
     initialize: function() {
@@ -220,6 +222,31 @@ function(_, Backbone, QRCode, webL10n,
 
     confirmDeleteWall: function(evt) {
       this.$('#confirm-delete-wall-modal').modal();
+    },
+
+    deleteWallAndCharacters: function(evt) {
+      this.deleteWall(evt, false /* keepCharacters */);
+    },
+
+    deleteWall: function(evt, keepCharacters /* = true */) {
+      keepCharacters = typeof keepCharacters === "undefined"
+                     ? true : !!keepCharacters;
+
+      var model = this.model;
+      this.executeConfirmDialog(
+        this.$('#confirm-delete-wall-modal'),
+        function(dialog) {
+          return model.destroy(
+            { wait: true,
+              attrs: { keepCharacters: keepCharacters },
+              success: function() {
+                // Return to home screen
+                Backbone.history.navigate('', { trigger: true });
+              }
+            });
+        },
+        "delete-wall-failed"
+      );
     },
 
     saveDesign: function(evt) {

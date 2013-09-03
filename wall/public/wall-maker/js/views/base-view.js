@@ -18,11 +18,62 @@ function(_, Backbone, webL10n) {
       webL10n.translate(this.el);
       return this;
     },
+
     // Utility method to render a subview whilst retaining event bindings
     renderSubview: function (selector, view) {
       // Make sure delegateEvents is called to rebind events on subviews
       // See: http://ianstormtaylor.com/rendering-views-in-backbonejs-isnt-always-simple/
       view.setElement(this.$(selector)).render();
+    },
+
+    // Common modal dialog handling.
+    //
+    // Given a modal dialog it:
+    // - disables form controls in the dialog
+    // - performs some asynchronous action
+    // - shows error messages from the asynchronous action
+    // - closes the dialog
+    // - re-enables the form controls
+    //
+    // Arguments:
+    //  - confirmDialog - the dialog to close
+    //  - action - a callback that takes the dialog and performs some request
+    //             that returns a Promise
+    //  - errorMessageKeyPrefix - the key to use as a prefix when looking up
+    //                            error strings
+    //
+    executeConfirmDialog: function(confirmDialog, action,
+                                   errorMessageKeyPrefix) {
+      // Disable form controls
+      var formControls = $('button', confirmDialog);
+      formControls.attr('disabled', 'disabled');
+
+      // Clear any existing error message
+      this.messageBoxView.clearMessage();
+
+      // Perform action
+      var view = this;
+      action(confirmDialog)
+        .then(function() {
+          confirmDialog.modal('hide');
+        })
+        .fail(function(resp) {
+          // This is pretty horrible, but currently the message box will display
+          // behind the modal background and you won't notice it.
+          //
+          // Ideally we should either make it display on top or do something
+          // different in this case such adding a line of text to the confirm
+          // dialog.
+          //
+          // As a temporary measure we just hide the dialog and re-use the
+          // existing message box view.
+          confirmDialog.modal('hide');
+          view.messageBoxView.setMessage(resp,
+            { keyPrefix: errorMessageKeyPrefix, dismiss: true });
+        })
+        .always(function() {
+          formControls.removeAttr('disabled');
+        });
     }
   });
 });

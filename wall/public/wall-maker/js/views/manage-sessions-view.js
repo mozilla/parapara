@@ -279,7 +279,7 @@ function(_, Backbone, webL10n, SomaView, ManageCharacterView, templateString) {
 
           // Destroy it
           return session.destroy(
-            { wait: true, keepCharacters: keepCharacters });
+            { wait: true, attrs: { keepCharacters: keepCharacters } });
         },
         "delete-session-failed"
       );
@@ -318,49 +318,6 @@ function(_, Backbone, webL10n, SomaView, ManageCharacterView, templateString) {
         "delete-character-failed"
       );
     },
-
-    // Common modal dialog-handling
-    //
-    // Takes:
-    //  - confirmDialog - the dialog to close
-    //  - action - a callback that takes the dialog and performs some request
-    //             that returns a Promise
-    //  - errorMessageKeyPrefix - the key to use as a prefix when looking up
-    //                            error strings
-    //
-    executeConfirmDialog: function(confirmDialog, action,
-                                   errorMessageKeyPrefix) {
-      // Disable form controls
-      var formControls = $('button', confirmDialog);
-      formControls.attr('disabled', 'disabled');
-
-      // Clear any existing error message
-      this.messageBoxView.clearMessage();
-
-      // Perform action
-      var view = this;
-      action(confirmDialog)
-        .then(function() {
-          confirmDialog.modal('hide');
-        })
-        .fail(function(resp) {
-          // This is pretty horrible, but currently the message box will display
-          // behind the modal background and you won't notice it.
-          //
-          // Ideally we should either make it display on top or do something
-          // different in this case such adding a line of text to the confirm
-          // dialog.
-          //
-          // As a temporary measure we just hide the dialog and re-use the
-          // existing message box view.
-          confirmDialog.modal('hide');
-          view.messageBoxView.setMessage(resp,
-            { keyPrefix: errorMessageKeyPrefix, dismiss: true });
-        })
-        .always(function() {
-          formControls.removeAttr('disabled');
-        });
-    }
   });
 
   function localizeSessionDates(session) {

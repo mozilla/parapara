@@ -5,9 +5,10 @@
 define([ 'jquery',
          'underscore',
          'backbone',
-         'collections/sessions' ],
-function($, _, Backbone, Sessions) {
-  return Backbone.Model.extend({
+         'collections/sessions',
+         'models/base-model' ],
+function($, _, Backbone, Sessions, BaseModel) {
+  return BaseModel.extend({
     idAttribute: 'wallId',
 
     initialize: function() {
@@ -113,31 +114,6 @@ function($, _, Backbone, Sessions) {
 
     restartSession: function(options) {
       this._modifySession({ end: null }, options);
-    },
-
-    deleteSession: function(sessionId, keepCharacters) {
-      // Get session
-
-      // Make request
-      options = {
-        wait: true,
-        // Backbone won't let us specify attributes on a delete request so we
-        // have to do it ourself:
-        contentType: 'application/json',
-        data: JSON.stringify({ keepCharacters: !includeCharacters })
-      };
-      session.destroy(options)
-        .then(function() {
-          confirmDialog.modal('hide');
-        })
-        .fail(function(resp) {
-          confirmDialog.modal('hide');
-          view.messageBoxView.setMessage(resp,
-            { keyPrefix: "delete-session-failed", dismiss: true });
-        })
-        .always(function() {
-          formControls.removeAttr('disabled');
-        });
     },
 
     _modifySession: function(attr, options) {
