@@ -30,7 +30,8 @@ function($, _, Backbone, Sessions, BaseModel) {
             return this.sessionsLoaded && this.sessions.length
                  ? this.sessions.at(this.sessions.length - 1)
                  : null;
-          }
+          },
+          enumerable: true
         });
     },
 
@@ -55,6 +56,11 @@ function($, _, Backbone, Sessions, BaseModel) {
       // Set up function to start the session
       var self = this;
       this.sessionsPromise.done(function(sessions) {
+        // Store previous session
+        var previousSession = self.latestSession
+          ? self.sessions.get(self.latestSession.id)
+          : null;
+
         // Wrap error function
         //
         // This is because we set wait: true and that means that if there is an
@@ -85,10 +91,10 @@ function($, _, Backbone, Sessions, BaseModel) {
         var success = options.success;
         options.success = function(model, resp, options) {
           // Close previous session
-          var previousSession = self.latestSession
-            ? self.sessions.get(self.latestSession.sessionId)
-            : null;
           if (previousSession) {
+            // We set the attribute directly to avoid extra change events which,
+            // unfortunately, will get bootstrap's accordion confused since
+            // they'll trigger a re-render before we update the selected session
             previousSession.attributes.end = model.get("start");
           }
 

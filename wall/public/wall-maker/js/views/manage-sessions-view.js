@@ -27,8 +27,8 @@ function(_, Backbone, webL10n, SomaView, ManageCharacterView, templateString) {
       this._selectedSessionId = null;
       Object.defineProperty(this, "latestSessionId",
         { get: function() {
-            return this.model.get("latestSession")
-                 ? this.model.get("latestSession").sessionId
+            return this.model.latestSession
+                 ? this.model.latestSession.id
                  : null;
           }
         });
