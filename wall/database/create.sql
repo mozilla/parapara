@@ -1,4 +1,11 @@
 /* Drop tables in appropriate order to maintain constraints */
+DROP TRIGGER IF EXISTS `characters_after_insert`;
+DROP TRIGGER IF EXISTS `characters_after_update`;
+DROP TRIGGER IF EXISTS `characters_after_delete`;
+DROP TRIGGER IF EXISTS `sessions_after_insert`;
+DROP TRIGGER IF EXISTS `sessions_after_delete`;
+DROP TRIGGER IF EXISTS `walls_after_update`;
+DROP TABLE IF EXISTS `changes`;
 DROP TABLE IF EXISTS `characters`; /* Depends on sessions */
 DROP TABLE IF EXISTS `sessions`; /* Depends on walls */
 DROP TABLE IF EXISTS `walls`; /* Depends on designs and users */
@@ -70,3 +77,75 @@ CREATE TABLE `characters` (
 
 INSERT INTO designs (designId, name, duration) VALUES(1, 'space', 240000);
 INSERT INTO designs (designId, name, duration) VALUES(2, 'wa', 120000);
+
+/* Audit table */
+
+CREATE TABLE `changes` (
+  `changeId` int(15) unsigned NOT NULL AUTO_INCREMENT,
+  `wallId` int(11) unsigned NOT NULL COMMENT 'The wall where the changes occurred',
+  `changeType` enum('add-character', 'remove-character', 'show-character', 'hide-character', 'add-session', 'remove-session', 'change-duration', 'change-design') NOT NULL COMMENT 'The type of change',
+  `contextId` int(11) unsigned DEFAULT NULL COMMENT 'The session or character ID corresponding to the change, if appropriate',
+  `changeTime` datetime NOT NULL COMMENT 'The time when the change occurred in UTC',
+  PRIMARY KEY (`changeId`),
+  KEY `ix_wallId` (`wallId`),
+  FOREIGN KEY fk_wallId (`wallId`) REFERENCES walls(`wallId`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Audit of changes to walls for live streams of events';
+
+/* Audit triggers */
+
+/* add-character */
+CREATE TRIGGER `characters_after_insert` AFTER INSERT ON `characters`
+  FOR EACH ROW
+  INSERT INTO changes (wallId, changeType, contextId, changeTime)
+    VALUES (NEW.wallId, 'add-character', NEW.charId, UTC_TIMESTAMP());
+
+/* remove-character */
+CREATE TRIGGER `characters_after_delete` AFTER DELETE ON `characters`
+  FOR EACH ROW
+  INSERT INTO changes (wallId, changeType, contextId, changeTime)
+    VALUES (OLD.wallId, 'remove-character', OLD.charId, UTC_TIMESTAMP());
+
+/* show-character, hide-character */
+DELIMITER $$
+CREATE TRIGGER `characters_after_update` AFTER UPDATE ON `characters`
+  FOR EACH ROW BEGIN
+    IF NEW.active <> OLD.active THEN
+      IF NEW.active THEN
+        SET @changeType = 'show-character';
+      ELSE
+        SET @changeType = 'hide-character';
+      END IF;
+      INSERT INTO changes (wallId, changeType, contextId, changeTime)
+        VALUES (NEW.wallId, @changeType, NEW.charId, UTC_TIMESTAMP());
+    END IF;
+  END$$
+DELIMITER ;
+
+/* add-session */
+CREATE TRIGGER `sessions_after_insert` AFTER INSERT ON `sessions`
+  FOR EACH ROW
+  INSERT INTO changes (wallId, changeType, contextId, changeTime)
+    VALUES (NEW.wallId, 'add-session', NEW.sessionId, UTC_TIMESTAMP());
+
+/* remove-session */
+CREATE TRIGGER `sessions_after_delete` AFTER DELETE ON `sessions`
+  FOR EACH ROW
+  INSERT INTO changes (wallId, changeType, contextId, changeTime)
+    VALUES (OLD.wallId, 'remove-session', OLD.sessionId, UTC_TIMESTAMP());
+
+/* change-duration, change-design */
+DELIMITER $$
+CREATE TRIGGER `walls_after_update` AFTER UPDATE ON `walls`
+  FOR EACH ROW BEGIN
+    IF NEW.duration <> OLD.duration OR
+       (NEW.duration IS NULL AND OLD.duration IS NOT NULL) OR
+       (OLD.duration IS NULL AND NEW.duration IS NOT NULL) THEN
+      INSERT INTO changes (wallId, changeType, changeTime)
+        VALUES (NEW.wallId, 'change-duration', UTC_TIMESTAMP());
+    END IF;
+    IF NEW.designId <> OLD.designId THEN
+      INSERT INTO changes (wallId, changeType, changeTime)
+        VALUES (NEW.wallId, 'change-design', UTC_TIMESTAMP());
+    END IF;
+  END$$
+DELIMITER ;

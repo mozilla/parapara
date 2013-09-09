@@ -85,7 +85,25 @@ abstract class ParaparaTestCase extends UnitTestCase {
     $contents = preg_replace($comment_patterns, "\n", $contents);
 
     // Split SQL statements
-    $statements = preg_split("/;\s?\n/", $contents);
+    $delim = ';';
+    $statements = array();
+    do {
+      // Split up to DELIMITER using the current delimeter
+      $matches = preg_split("/\bDELIMITER (\S+)\n/", $contents, 2,
+                            PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
+      $statements =
+        array_merge($statements,
+          preg_split("/" . preg_quote($delim) . "\s?\n/",
+                     $matches[0], NULL, PREG_SPLIT_NO_EMPTY));
+
+      // If we have a DELIMETER then update accordingly
+      if (count($matches) == 3) {
+        $delim = $matches[1];
+        $contents = $matches[2];
+      } else {
+        $contents = null;
+      }
+    } while ($contents);
 
     // Normalise whitestpace
     $statements = preg_replace("/\s/", ' ', $statements);
