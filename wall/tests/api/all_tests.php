@@ -6,6 +6,12 @@
 require_once(dirname(__FILE__) . '/../../lib/parapara.inc');
 require_once('simpletest/autorun.php');
 
+// These tests, in combination can take more than the standard 30 seconds
+set_time_limit(0);
+
+// Also, cancelling part way through can leave test files etc. lying around
+ignore_user_abort(true);
+
 class APITestSuite extends TestSuite {
   function APITestSuite() {
     parent::__construct();

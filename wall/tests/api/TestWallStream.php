@@ -22,6 +22,11 @@ class TestWallStream extends APITestCase {
     $this->api->login();
     $this->testWall = $this->api->createWall('Test wall', $this->testDesignId);
     $this->api->logout();
+
+    // This is a long-running test but flushing any output should hopefully stop
+    // the browser from giving up
+    ob_flush();
+    flush();
   }
 
   function tearDown() {
