@@ -20,6 +20,9 @@ if ($wall === null || $wall == "Not specified") {
   exit;
 }
 
+// Allow script to run indefinitely
+set_time_limit(0);
+
 // No last event ID
 { 
   // Start session
@@ -37,20 +40,86 @@ if ($wall === null || $wall == "Not specified") {
       echo "data: " . json_encode($character->asArray()) . "\n\n";
     }
   }
+  $lastEventId = 0;
 }
 //   Otherwise find all events since provided id and just convert them as usual
 //      (Later we can do a digest. e.g. if there is an add/remove_session, skip 
 //       everything character/session-related in between)
 
+$lastSendTime = time();
 ob_flush();
 flush();
 
-// XXX Remove
-exit;
+while (!connection_aborted()) {
+  sleep(1);
 
-while (1) {
-  // XXX Poll database
+  // Poll database for changes
+  $conn =& getDbConnection();
+  $res =& $conn->query(
+      'SELECT changeId, changeType, contextId FROM changes'
+      . ' WHERE wallId = ' . $conn->quote($wall->wallId, 'integer')
+      . ' AND changeId > ' . $conn->quote($lastEventId, 'integer'));
+  if (MDB2::isError($res)) {
+    error_log($res->getMessage() . ', ' . $res->getDebugInfo());
+    $conn->disconnect();
+    break;
+  }
 
+  // Dispatch events
+  $conn->setFetchMode(MDB2_FETCHMODE_ASSOC);
+  while ($row = $res->fetchRow()) {
+    dispatchEventFromChange($row);
+    $lastEventId = $row['changeid'];
+    $lastSendTime = time();
+  }
+  $conn->disconnect();
+
+  // XXX Check that wall still exists and dispatch remove-wall somehow?
+
+  // Send ping comment if there are no changes in 10 seconds
+  if (time() - $lastSendTime >= 10) {
+    echo ":ping\n";
+    $lastSendTime = time();
+  }
+
+  ob_flush();
+  flush();
+}
+
+function getLastEventId() {
+  $conn =& getDbConnection();
+
+  $lastEventId =& $conn->queryOne(
+      'SELECT IFNULL(MAX(changeId), 0) FROM changes LIMIT 1',
+      'integer');
+  checkDbResult($lastEventId);
+  $conn->disconnect();
+
+  return $lastEventId;
+}
+
+// Changes have the following format:
+//  changeid
+//  changetype
+//  contextid
+function dispatchEventFromChange($change) {
+  switch ($change['changetype']) {
+    case 'add-character':
+      // Ignore errors. It may be that the character has been deleted since
+      try {
+        $char = Characters::getById($change['contextid']);
+        if ($char) {
+          echo "id: " . $change['changeid'] . "\n";
+          echo "event: add-character\n";
+          echo "data: " . json_encode($char->asArray()) . "\n\n";
+        }
+      } catch (Exception $e) { /* Ignore */ }
+      break;
+
+    default:
+      error_log("Unrecognized change type: " . $change['changetype']);
+      break;
+  }
   // - add_character
   //   => add-character + look up info
   // - show_character + char id
@@ -67,31 +136,6 @@ while (1) {
   //   => change-duration + duration
   // - change_design
   //   => change-design
-  // (During loop, check that wall still exists? -- possibly check if count of 
-  //  rows returned is less?)
-  //
-  // Update last ID
-  //
-  // Send ping comment if no changes in 2 seconds
-
-  ob_flush();
-  flush();
-  sleep(1);
-
-  echo "event: end\n";
-
-  exit;
-}
-
-function getLastEventId() {
-  $conn =& getDbConnection();
-
-  $lastEventId =& $conn->queryOne(
-      'SELECT IFNULL(MAX(changeId), 0) FROM changes LIMIT 1',
-      'integer');
-  checkDbResult($lastEventId);
-
-  return $lastEventId;
 }
 
 ?>
