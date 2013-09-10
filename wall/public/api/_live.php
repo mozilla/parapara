@@ -62,7 +62,7 @@ while (!connection_aborted()) {
 
   // Update wall session information
   // (This allows us to skip dispatching events for characters that belong to 
-  // a session that is not or no longer the latest.)
+  // a session that is not (or no longer) the latest.)
   if ($res->numRows()) {
     $wall->updateLatestSession();
   }
@@ -148,19 +148,19 @@ function dispatchEventFromChange($change) {
       }
       break;
 
+    case 'change-duration':
+      dispatchChangeDurationEvent($change['changeid'], $wall);
+      break;
+
     default:
       error_log("Unrecognized change type: " . $change['changetype']);
       break;
   }
-  // XXX change_duration
-  //   => change-duration + duration
   // XXX change_design
   //   => change-design
 }
 
 function dispatchAddCharacterEvent($charId, $changeId) {
-  global $wall;
-
   // Ignore errors. It may be that the character has been deleted since
   try {
     $char = Characters::getById($charId);
@@ -218,6 +218,20 @@ function dispatchRemoveWallEventAndExit() {
   ob_flush();
   flush();
   exit;
+}
+
+function dispatchChangeDurationEvent($changeId) {
+  // Update the wall with the new information
+  global $wall;
+  $wall = Walls::getById($wall->wallId);
+  if (!$wall) {
+    dispatchRemoveWallEventAndExit();
+  }
+  $duration = $wall->duration ? $wall->duration : $wall->defaultDuration;
+
+  echo "id: $changeId\n";
+  echo "event: change-duration\n";
+  echo "data: " . $duration . "\n\n";
 }
 
 ?>
