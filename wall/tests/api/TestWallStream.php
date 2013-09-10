@@ -171,6 +171,48 @@ class TestWallStream extends APITestCase {
                       "Last event ID has not increased by the expected amount");
   }
 
+  function testAddCharactersBeforeAndAfterResume() {
+    // Read stream
+    list($stream, $headers) = $this->openStream($this->testWall['wallId']);
+
+    // Should get start-session event
+    $events = $this->readEvents($stream, $lastEventId);
+    $this->assertIdentical(count($events), 1,
+                           "Unexpected number of events: %s");
+    $this->assertIdentical(@$events[0]['event'], "start-session");
+    $initialEventId = $lastEventId;
+
+    // Add a character
+    $charA = $this->api->createCharacter($this->testWall['wallId'],
+      array('title' => 'Character A'));
+
+    // Check the stream
+    $this->assertTrue(!!$this->waitForStream($stream), "No activity on stream");
+    $events = $this->readEvents($stream, $lastEventId);
+    $this->assertIdentical(count($events), 1,
+                           "Unexpected number of events: %s");
+    $this->assertIdentical(@$events[0]['event'], "add-character");
+    $this->assertIdentical($charA, json_decode(@$events[0]['data'], true));
+
+    // Close stream
+    $this->closeStream();
+
+    // Add another character
+    $charB = $this->api->createCharacter($this->testWall['wallId'],
+      array('title' => 'Character B'));
+
+    // Re-open stream
+    list($stream, $headers) =
+      $this->openStream($this->testWall['wallId'], $lastEventId);
+
+    // Check the character data
+    $events = $this->readEvents($stream, $lastEventId);
+    $this->assertIdentical(count($events), 1,
+                           "Unexpected number of events: %s");
+    $this->assertIdentical(@$events[0]['event'], "add-character");
+    $this->assertIdentical($charB, json_decode(@$events[0]['data'], true));
+  }
+
   // XXX show-character (during / resume) => add-character
   // XXX hide-character (during / resume) => remove-character
   // XXX remove-character (during / resume) => remove-character
