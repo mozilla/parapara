@@ -15,7 +15,7 @@ header('Content-Type: application/json; charset=UTF-8');
 $email = getAndRequireUserEmail();
 
 // Prepare common parameters
-$wall = getRequestedWall($email);
+$wall = getRequestedWall();
 
 // Parse input
 $data = getRequestData();

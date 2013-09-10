@@ -41,7 +41,7 @@ function getRequestData() {
 // * the corresponding Wall object if found
 // * null if either a wallId or wallName was specified but it wasn't found
 // * "Not specified" if neither wallId or wallName were specified
-function getRequestedWall($email = null) {
+function getRequestedWall() {
   // Sanitize input
   $wallId = toIntOrNull(@$_REQUEST['wallId']);
   $wallName = !isset($_REQUEST['wallName']) ||
@@ -55,12 +55,12 @@ function getRequestedWall($email = null) {
     return "Not specified";
 
   // Try the ID first since it's faster and easier
-  $wall = Walls::getById($wallId, $email);
+  $wall = Walls::getById($wallId);
   if ($wall)
     return $wall;
 
   // Try the path
-  return Walls::getByPath($wallName, $email);
+  return Walls::getByPath($wallName);
 }
 
 ?>
