@@ -257,6 +257,12 @@ class ParaparaAPI {
   static protected $testSvg = '<svg><circle cx="50" cy="50" r="100"></svg>';
 
   function createCharacter($wallIdOrPath, $fields = null, $svg = null) {
+    // Sanity check
+    if (!$wallIdOrPath) {
+      error_log("Empty wall ID or path passed to createCharacter");
+      return null;
+    }
+
     // Prepare payload
     $payload['metadata'] = self::$testCharacterFields;
     $payload['metadata'] = $fields
