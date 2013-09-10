@@ -132,7 +132,43 @@ class TestWallStream extends APITestCase {
   }
 
   function testAddCharactersAfterResume() {
-    // XXX
+    // Read stream
+    list($stream, $headers) = $this->openStream($this->testWall['wallId']);
+
+    // Should get start-session event
+    $events = $this->readEvents($stream, $lastEventId);
+    $this->assertIdentical(count($events), 1,
+                           "Unexpected number of events: %s");
+    $this->assertIdentical(@$events[0]['event'], "start-session");
+    $initialEventId = $lastEventId;
+
+    // Close stream
+    $this->closeStream();
+
+    // Add some characters
+    $charA = $this->api->createCharacter($this->testWall['wallId'],
+      array('title' => 'Character A'));
+    $charB = $this->api->createCharacter($this->testWall['wallId'],
+      array('title' => 'Character B'));
+
+    // Re-open stream
+    list($stream, $headers) =
+      $this->openStream($this->testWall['wallId'], $lastEventId);
+
+    // Read subsequent events
+    $events = $this->readEvents($stream, $lastEventId);
+    $this->assertIdentical(count($events), 2,
+                           "Unexpected number of events: %s");
+    $this->assertIdentical(@$events[0]['event'], "add-character");
+    $this->assertIdentical(@$events[1]['event'], "add-character");
+
+    // Check the character data
+    $this->assertIdentical($charA, json_decode(@$events[0]['data'], true));
+    $this->assertIdentical($charB, json_decode(@$events[1]['data'], true));
+
+    // Check the event ID has increased
+    $this->assertTrue($lastEventId >= $initialEventId + 2,
+                      "Last event ID has not increased by the expected amount");
   }
 
   // XXX show-character (during / resume) => add-character

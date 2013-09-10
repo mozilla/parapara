@@ -23,8 +23,18 @@ if ($wall === null || $wall == "Not specified") {
 // Allow script to run indefinitely
 set_time_limit(0);
 
-// No last event ID
-{ 
+// Store initial time so we know when we need to send a ping comment
+$lastSendTime = time();
+
+// Check for a last event ID
+if (!array_key_exists('HTTP_LAST_EVENT_ID', $_SERVER) ||
+    !is_numeric($_SERVER['HTTP_LAST_EVENT_ID']) ||
+    ($lastEventId = intval($_SERVER['HTTP_LAST_EVENT_ID'])) < 0) {
+
+  // If no valid last event ID is specified we generate events with details of 
+  // the latest session
+  $lastEventId = getLastEventId();
+
   // Start session
   echo "id: " . getLastEventId() . "\n";
   echo "event: start-session\n\n";
@@ -40,19 +50,16 @@ set_time_limit(0);
       echo "data: " . json_encode($character->asArray()) . "\n\n";
     }
   }
-  $lastEventId = 0;
-}
-//   Otherwise find all events since provided id and just convert them as usual
-//      (Later we can do a digest. e.g. if there is an add/remove_session, skip 
-//       everything character/session-related in between)
 
-$lastSendTime = time();
-ob_flush();
-flush();
+  // Flush output...
+  ob_flush();
+  flush();
+
+  // ... then wait before checking for changes
+  sleep(1);
+}
 
 while (!connection_aborted()) {
-  sleep(1);
-
   // Poll database for changes
   $conn =& getDbConnection();
   $res =& $conn->query(
@@ -82,8 +89,12 @@ while (!connection_aborted()) {
     $lastSendTime = time();
   }
 
+  // Flush buffers
   ob_flush();
   flush();
+
+  // Wait so we don't put too much load on the database
+  sleep(1);
 }
 
 function getLastEventId() {
