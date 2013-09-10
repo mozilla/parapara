@@ -105,23 +105,13 @@ function getLastEventId() {
 function dispatchEventFromChange($change) {
   switch ($change['changetype']) {
     case 'add-character':
-      // Ignore errors. It may be that the character has been deleted since
-      try {
-        $char = Characters::getById($change['contextid']);
-        if ($char) {
-          echo "id: " . $change['changeid'] . "\n";
-          echo "event: add-character\n";
-          echo "data: " . json_encode($char->asArray()) . "\n\n";
-        }
-      } catch (Exception $e) { /* Ignore */ }
+      dispatchAddCharacterEvent($change['contextid'], $change['changeid']);
       break;
 
     default:
       error_log("Unrecognized change type: " . $change['changetype']);
       break;
   }
-  // - add_character
-  //   => add-character + look up info
   // - show_character + char id
   //   => add-character + look up info
   // - hide_character + char id
@@ -136,6 +126,18 @@ function dispatchEventFromChange($change) {
   //   => change-duration + duration
   // - change_design
   //   => change-design
+}
+
+function dispatchAddCharacterEvent($charId, $changeId) {
+  // Ignore errors. It may be that the character has been deleted since
+  try {
+    $char = Characters::getById($charId);
+    if ($char) {
+      echo "id: $changeId\n";
+      echo "event: add-character\n";
+      echo "data: " . json_encode($char->asArray()) . "\n\n";
+    }
+  } catch (Exception $e) { /* Ignore */ }
 }
 
 ?>
