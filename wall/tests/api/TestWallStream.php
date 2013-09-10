@@ -430,7 +430,23 @@ class TestWallStream extends APITestCase {
     $this->assertIdentical(intval($lastEventId), $initialEventId + 2);
   }
 
-  // XXX change-design (during / resume) => change-design
+  function testChangeDesign() {
+    // Read stream
+    list($stream, $headers) = $this->openStream($this->testWall['wallId']);
+    $events = $this->readEvents($stream, $lastEventId);
+    $initialEventId = $lastEventId;
+
+    // Update duration
+    $this->api->login();
+    $this->api->updateWall($this->testWall['wallId'], array('designId' => 1));
+
+    // Read event
+    $events = $this->readEvents($stream, $lastEventId);
+    $this->assertIdentical(count($events), 1,
+                           "Unexpected number of events: %s");
+    $this->assertIdentical(@$events[0]['event'], "change-design");
+    $this->assertIdentical(intval($lastEventId), $initialEventId + 1);
+  }
 
   function testDeletedWall() {
     // XXX

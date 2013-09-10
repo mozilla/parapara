@@ -149,15 +149,17 @@ function dispatchEventFromChange($change) {
       break;
 
     case 'change-duration':
-      dispatchChangeDurationEvent($change['changeid'], $wall);
+      dispatchChangeDurationEvent($change['changeid']);
+      break;
+
+    case 'change-design':
+      dispatchChangeDesignEvent($change['changeid']);
       break;
 
     default:
       error_log("Unrecognized change type: " . $change['changetype']);
       break;
   }
-  // XXX change_design
-  //   => change-design
 }
 
 function dispatchAddCharacterEvent($charId, $changeId) {
@@ -232,6 +234,11 @@ function dispatchChangeDurationEvent($changeId) {
   echo "id: $changeId\n";
   echo "event: change-duration\n";
   echo "data: " . $duration . "\n\n";
+}
+
+function dispatchChangeDesignEvent($changeId) {
+  echo "id: $changeId\n";
+  echo "event: change-design\n\n";
 }
 
 ?>
