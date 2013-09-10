@@ -321,12 +321,8 @@ class TestWallStream extends APITestCase {
     $firstSessionId = $this->testWall['latestSession']['sessionId'];
 
     // Add character
-    // XXX Fix this---store the session ID along with the remove-character 
-    // change
-    /*
     $char = $this->api->createCharacter($this->testWall['wallId'],
       array('title' => 'Character'));
-     */
 
     // Read stream
     list($stream, $headers) = $this->openStream($this->testWall['wallId']);

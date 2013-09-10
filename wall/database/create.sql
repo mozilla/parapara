@@ -84,7 +84,8 @@ CREATE TABLE `changes` (
   `changeId` int(15) unsigned NOT NULL AUTO_INCREMENT,
   `wallId` int(11) unsigned NOT NULL COMMENT 'The wall where the changes occurred',
   `changeType` enum('add-character', 'remove-character', 'show-character', 'hide-character', 'add-session', 'remove-session', 'change-duration', 'change-design') NOT NULL COMMENT 'The type of change',
-  `contextId` int(11) unsigned DEFAULT NULL COMMENT 'The session or character ID corresponding to the change, if appropriate',
+  `sessionId` int(11) unsigned DEFAULT NULL COMMENT 'The session ID corresponding to the change, if appropriate',
+  `contextId` int(11) unsigned DEFAULT NULL COMMENT 'The character ID (or, in future, some other ID) corresponding to the change, if appropriate',
   `changeTime` datetime NOT NULL COMMENT 'The time when the change occurred in UTC',
   PRIMARY KEY (`changeId`),
   KEY `ix_wallId` (`wallId`),
@@ -96,14 +97,16 @@ CREATE TABLE `changes` (
 /* add-character */
 CREATE TRIGGER `characters_after_insert` AFTER INSERT ON `characters`
   FOR EACH ROW
-  INSERT INTO changes (wallId, changeType, contextId, changeTime)
-    VALUES (NEW.wallId, 'add-character', NEW.charId, UTC_TIMESTAMP());
+  INSERT INTO changes (wallId, changeType, sessionId, contextId, changeTime)
+    VALUES (NEW.wallId, 'add-character', NEW.sessionId, NEW.charId,
+            UTC_TIMESTAMP());
 
 /* remove-character */
 CREATE TRIGGER `characters_after_delete` AFTER DELETE ON `characters`
   FOR EACH ROW
-  INSERT INTO changes (wallId, changeType, contextId, changeTime)
-    VALUES (OLD.wallId, 'remove-character', OLD.charId, UTC_TIMESTAMP());
+  INSERT INTO changes (wallId, changeType, sessionId, contextId, changeTime)
+    VALUES (OLD.wallId, 'remove-character', OLD.sessionId, OLD.charId,
+            UTC_TIMESTAMP());
 
 /* show-character, hide-character */
 DELIMITER $$
@@ -115,8 +118,9 @@ CREATE TRIGGER `characters_after_update` AFTER UPDATE ON `characters`
       ELSE
         SET @changeType = 'hide-character';
       END IF;
-      INSERT INTO changes (wallId, changeType, contextId, changeTime)
-        VALUES (NEW.wallId, @changeType, NEW.charId, UTC_TIMESTAMP());
+      INSERT INTO changes (wallId, changeType, sessionId, contextId, changeTime)
+        VALUES (NEW.wallId, @changeType, NEW.sessionId, NEW.charId,
+                UTC_TIMESTAMP());
     END IF;
   END$$
 DELIMITER ;
@@ -124,13 +128,13 @@ DELIMITER ;
 /* add-session */
 CREATE TRIGGER `sessions_after_insert` AFTER INSERT ON `sessions`
   FOR EACH ROW
-  INSERT INTO changes (wallId, changeType, contextId, changeTime)
+  INSERT INTO changes (wallId, changeType, sessionId, changeTime)
     VALUES (NEW.wallId, 'add-session', NEW.sessionId, UTC_TIMESTAMP());
 
 /* remove-session */
 CREATE TRIGGER `sessions_after_delete` AFTER DELETE ON `sessions`
   FOR EACH ROW
-  INSERT INTO changes (wallId, changeType, contextId, changeTime)
+  INSERT INTO changes (wallId, changeType, sessionId, changeTime)
     VALUES (OLD.wallId, 'remove-session', OLD.sessionId, UTC_TIMESTAMP());
 
 /* change-duration, change-design */

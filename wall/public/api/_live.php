@@ -51,7 +51,7 @@ while (!connection_aborted()) {
   // Poll database for changes
   $conn =& getDbConnection();
   $res =& $conn->query(
-      'SELECT changeId, changeType, contextId FROM changes'
+      'SELECT changeId, changeType, sessionId, contextId FROM changes'
       . ' WHERE wallId = ' . $conn->quote($wall->wallId, 'integer')
       . ' AND changeId > ' . $conn->quote($lastEventId, 'integer'));
   if (MDB2::isError($res)) {
@@ -107,19 +107,31 @@ function getLastEventId() {
 // Changes have the following format:
 //  changeid
 //  changetype
+//  sessionid
 //  contextid
 function dispatchEventFromChange($change) {
   global $wall;
 
+  // For character-related events, we skip them if they are from a session that 
+  // is not the latest
+  $sessionIsLatest =
+    $wall->latestSession &&
+    isset($change['sessionid']) &&
+    intval($change['sessionid']) == $wall->latestSession['sessionId'];
+
   switch ($change['changetype']) {
     case 'add-character':
     case 'show-character':
-      maybeDispatchAddCharacterEvent($change['contextid'], $change['changeid']);
+      if ($sessionIsLatest) {
+        dispatchAddCharacterEvent($change['contextid'], $change['changeid']);
+      }
       break;
 
     case 'remove-character':
     case 'hide-character':
-      dispatchRemoveCharacterEvent($change['contextid'], $change['changeid']);
+      if ($sessionIsLatest) {
+        dispatchRemoveCharacterEvent($change['contextid'], $change['changeid']);
+      }
       break;
 
     case 'add-session':
@@ -127,10 +139,10 @@ function dispatchEventFromChange($change) {
       break;
 
     case 'remove-session':
-      // Only send events if the session that was deleted was the latest
+      // Only send events if the session that was deleted was more recent that 
+      // the current session
       if (!$wall->latestSession ||
-          intval($wall->latestSession['sessionId'])
-            < intval($change['contextid'])) {
+          $wall->latestSession['sessionId'] < intval($change['sessionid'])) {
         dispatchStartSessionEvent($change['contextid'], $change['changeid']);
         dispatchAddCharacterEventsForLatestSession($wall);
       }
@@ -140,21 +152,19 @@ function dispatchEventFromChange($change) {
       error_log("Unrecognized change type: " . $change['changetype']);
       break;
   }
-  // - change_duration
+  // XXX change_duration
   //   => change-duration + duration
-  // - change_design
+  // XXX change_design
   //   => change-design
 }
 
-function maybeDispatchAddCharacterEvent($charId, $changeId) {
+function dispatchAddCharacterEvent($charId, $changeId) {
   global $wall;
 
   // Ignore errors. It may be that the character has been deleted since
   try {
-    // Skip events for characters that no longer exist or that don't belong to 
-    // the latest session
     $char = Characters::getById($charId);
-    if (!$char || $char->sessionId !== $wall->latestSession['sessionId'])
+    if (!$char) // Character has since been deleted
       return;
 
     // Dispatch event
