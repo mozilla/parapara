@@ -20,39 +20,33 @@ if ($wall === null || $wall == "Not specified") {
   exit;
 }
 
-// Initialize DB connection
-$conn =& getDbConnection();
-
 // No last event ID
 { 
-  // Get last event ID
-  $lastEventId =& $conn->queryOne(
-      'SELECT IFNULL(MAX(changeId), 0)'
-      . ' FROM changes WHERE wallId = '
-      . $conn->quote($wall->wallId, 'integer')
-      . ' LIMIT 1',
-      'integer');
-  checkDbResult($lastEventId);
-
-  echo "id: $lastEventId\n";
+  // Start session
+  echo "id: " . getLastEventId() . "\n";
   echo "event: start-session\n\n";
+
+  // Get characters for latest session
+  $latestSessionId = $wall->latestSession
+                   ? $wall->latestSession['sessionId']
+                   : null;
+  if ($latestSessionId) {
+    $characters = Characters::getBySession($wall->wallId, $latestSessionId);
+    foreach($characters as $character) {
+      echo "event: add-character\n";
+      echo "data: " . json_encode($character->asArray()) . "\n\n";
+    }
+  }
 }
-ob_flush();
-flush();
-
-exit;
-
-// XXX Check for last event ID
-//   No last event ID
-//      If no last event ID:
-//         -> output ID first
-//         -> add-session + add-character * n
-//      Update last ID
 //   Otherwise find all events since provided id and just convert them as usual
 //      (Later we can do a digest. e.g. if there is an add/remove_session, skip 
 //       everything character/session-related in between)
 
-// XXX Flush
+ob_flush();
+flush();
+
+// XXX Remove
+exit;
 
 while (1) {
   // XXX Poll database
@@ -87,6 +81,17 @@ while (1) {
   echo "event: end\n";
 
   exit;
+}
+
+function getLastEventId() {
+  $conn =& getDbConnection();
+
+  $lastEventId =& $conn->queryOne(
+      'SELECT IFNULL(MAX(changeId), 0) FROM changes LIMIT 1',
+      'integer');
+  checkDbResult($lastEventId);
+
+  return $lastEventId;
 }
 
 ?>

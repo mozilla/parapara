@@ -39,7 +39,7 @@ class TestWallStream extends APITestCase {
     $this->assertIdentical(@$events[0]['event'], "remove-wall");
   }
 
-  function testEmptyWall() {
+  function testNoCharacters() {
     list($stream, $headers) = $this->openStream($this->testWall['wallId']);
 
     // Check headers
@@ -56,8 +56,48 @@ class TestWallStream extends APITestCase {
     $this->assertTrue(intval($lastEventId) > 1);
   }
 
-  function testCharacters() {
+  function testNoSessions() {
   }
+
+  function testInitialCharacters() {
+    // Add some characters
+    $charA = $this->api->createCharacter($this->testWall['wallId'],
+      array('title' => 'Character A'));
+    $charB = $this->api->createCharacter($this->testWall['wallId'],
+      array('title' => 'Character B'));
+
+    // Read stream
+    list($stream, $headers) = $this->openStream($this->testWall['wallId']);
+
+    // Should get start-session event + 2 x add-character events
+    $events = $this->readEvents($stream, $lastEventId);
+    $this->assertIdentical(count($events), 3,
+                           "Unexpected number of events: %s");
+    $this->assertIdentical(@$events[0]['event'], "start-session");
+    $this->assertIdentical(@$events[1]['event'], "add-character");
+    $this->assertIdentical(@$events[2]['event'], "add-character");
+
+    // Check the character data
+    $charAFromStream = json_decode(@$events[1]['data'], true);
+    $this->assertIdentical($charA, json_decode(@$events[1]['data'], true));
+    $this->assertIdentical($charB, json_decode(@$events[2]['data'], true));
+  }
+
+  function testAddCharacters() {
+    // XXX
+  }
+
+  function testAddCharactersAfterResume() {
+    // XXX
+  }
+
+  // XXX show-character (during / resume) => add-character
+  // XXX hide-character (during / resume) => remove-character
+  // XXX remove-character (during / resume) => remove-character
+  // XXX add-session (during / resume) => start-session
+  // XXX remove-session (during / resume) => start-session
+  // XXX change-duration (during / resume) => change-duration
+  // XXX change-design (during / resume) => change-design
 
   function testDeletedWall() {
     // XXX
