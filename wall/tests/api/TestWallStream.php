@@ -114,8 +114,6 @@ class TestWallStream extends APITestCase {
       array('title' => 'Character B'));
 
     // Read subsequent events
-    $this->assertTrue(!!$this->waitForStream($stream),
-                      "No activity on stream");
     $events = $this->readEvents($stream, $lastEventId);
     $this->assertIdentical(count($events), 2,
                            "Unexpected number of events: %s");
@@ -187,7 +185,6 @@ class TestWallStream extends APITestCase {
       array('title' => 'Character A'));
 
     // Check the stream
-    $this->assertTrue(!!$this->waitForStream($stream), "No activity on stream");
     $events = $this->readEvents($stream, $lastEventId);
     $this->assertIdentical(count($events), 1,
                            "Unexpected number of events: %s");
@@ -230,7 +227,6 @@ class TestWallStream extends APITestCase {
     $this->api->updateCharacter($char['charId'], array('active' => false));
 
     // Read event
-    $this->assertTrue(!!$this->waitForStream($stream), "No activity on stream");
     $events = $this->readEvents($stream, $lastEventId);
     $this->assertIdentical(count($events), 1,
                            "Unexpected number of events: %s");
@@ -242,7 +238,6 @@ class TestWallStream extends APITestCase {
     $this->api->updateCharacter($char['charId'], array('active' => true));
 
     // Read event
-    $this->assertTrue(!!$this->waitForStream($stream), "No activity on stream");
     $events = $this->readEvents($stream, $lastEventId);
     $this->assertIdentical(count($events), 1,
                            "Unexpected number of events: %s");
@@ -268,7 +263,6 @@ class TestWallStream extends APITestCase {
     $this->api->removeCharacter($char['charId']);
 
     // Read event
-    $this->assertTrue(!!$this->waitForStream($stream), "No activity on stream");
     $events = $this->readEvents($stream, $lastEventId);
     $this->assertIdentical(count($events), 1,
                            "Unexpected number of events: %s");
@@ -294,7 +288,6 @@ class TestWallStream extends APITestCase {
     $session = $this->api->startSession($this->testWall['wallId']);
 
     // Read event
-    $this->assertTrue(!!$this->waitForStream($stream), "No activity on stream");
     $events = $this->readEvents($stream, $lastEventId);
     $this->assertIdentical(count($events), 1,
                            "Unexpected number of events: %s");
@@ -306,7 +299,6 @@ class TestWallStream extends APITestCase {
 
     // Read events: Should get a start-session event plus an add-character event
     //              for every character in the previous session.
-    $this->assertTrue(!!$this->waitForStream($stream), "No activity on stream");
     $events = $this->readEvents($stream, $lastEventId);
     $this->assertIdentical(count($events), 2,
                            "Unexpected number of events: %s");
@@ -333,7 +325,6 @@ class TestWallStream extends APITestCase {
     $session = $this->api->startSession($this->testWall['wallId']);
 
     // Read event
-    $this->assertTrue(!!$this->waitForStream($stream), "No activity on stream");
     $events = $this->readEvents($stream, $lastEventId);
     $this->assertIdentical(count($events), 1,
                            "Unexpected number of events: %s");
@@ -343,13 +334,9 @@ class TestWallStream extends APITestCase {
     $this->api->deleteSession($this->testWall['wallId'], $firstSessionId);
 
     // Should be no events
-    $this->assertFalse($this->waitForStream($stream),
-                       "Generated events when deleting insignificant event");
-    error_log(print_r($this->readEvents($stream, $lastEventId), true));
+    $this->assertIdentical(count($this->readEvents($stream, $lastEventId)), 0,
+                          "Generated events when deleting insignificant event");
   }
-
-  // XXX change-duration (during / resume) => change-duration
-  // XXX change-design (during / resume) => change-design
 
   function testHideCharacterFromOldSession() {
     // XXX
@@ -358,6 +345,10 @@ class TestWallStream extends APITestCase {
   function testRemoveCharacterFromOldSession() {
     // XXX
   }
+  // XXX Move these up closer to the similar tests when done
+
+  // XXX change-duration (during / resume) => change-duration
+  // XXX change-design (during / resume) => change-design
 
   function testDeletedWall() {
     // XXX
@@ -396,11 +387,7 @@ class TestWallStream extends APITestCase {
     fputs($this->stream, "\r\n");
 
     // Wait for initial response
-    $read = array($this->stream);
-    $write = null;
-    $except = null;
-    $result = stream_select($read, $write, $except, 1);
-    if (!$result) {
+    if (!$this->waitForStream($this->stream)) {
       $this->fail("No response");
       return null;
     }
@@ -452,9 +439,16 @@ class TestWallStream extends APITestCase {
   }
 
   function readEvents($stream, &$lastId) {
+    // See if there is data already in the buffer
     $data = $this->readData($stream);
-    if (!$data)
-      return array();
+    if (!$data) {
+      // If not, wait up to 1 second for it
+      if (!$this->waitForStream($stream))
+        return array();
+
+      // Read again
+      $data = $this->readData($stream);
+    }
 
     // Split on double line break
     $events = preg_split("/(\r\n|\r|\n){2}/", $data);
