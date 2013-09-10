@@ -57,6 +57,20 @@ class TestWallStream extends APITestCase {
   }
 
   function testNoSessions() {
+    // Remove session
+    $this->api->login();
+    $this->api->deleteSession($this->testWall['wallId'],
+      $this->testWall['latestSession']['sessionId']);
+    $this->api->logout();
+
+    // Get stream
+    list($stream, $headers) = $this->openStream($this->testWall['wallId']);
+
+    // Should get one start-session event
+    $events = $this->readEvents($stream, $lastEventId);
+    $this->assertIdentical(count($events), 1,
+                           "Unexpected number of events: %s");
+    $this->assertIdentical(@$events[0]['event'], "start-session");
   }
 
   function testInitialCharacters() {
