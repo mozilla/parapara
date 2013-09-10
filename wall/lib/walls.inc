@@ -910,7 +910,6 @@ class Walls {
 
     // Run query
     $res =& $conn->query($query);
-    $conn->disconnect();
     checkDbResult($res);
 
     // Prepare result
@@ -919,6 +918,7 @@ class Walls {
     while ($row = $res->fetchRow()) {
       array_push($result, self::dbRowToWall($row));
     }
+    $conn->disconnect();
 
     return $result;
   }
