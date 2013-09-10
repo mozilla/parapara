@@ -20,14 +20,27 @@ if ($wall === null || $wall == "Not specified") {
   exit;
 }
 
-echo "event: start-session\n\n";
+// Initialize DB connection
+$conn =& getDbConnection();
+
+// No last event ID
+{ 
+  // Get last event ID
+  $lastEventId =& $conn->queryOne(
+      'SELECT IFNULL(MAX(changeId), 0)'
+      . ' FROM changes WHERE wallId = '
+      . $conn->quote($wall->wallId, 'integer')
+      . ' LIMIT 1',
+      'integer');
+  checkDbResult($lastEventId);
+
+  echo "id: $lastEventId\n";
+  echo "event: start-session\n\n";
+}
 ob_flush();
 flush();
 
 exit;
-
-// XXX Check for wall
-//  ==> remove-wall
 
 // XXX Check for last event ID
 //   No last event ID

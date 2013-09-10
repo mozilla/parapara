@@ -33,7 +33,7 @@ class TestWallStream extends APITestCase {
     list($stream, $headers) = $this->openStream($this->testWall['wallId'] + 1);
 
     // Check for remove-wall event
-    $events = $this->readEvents($stream);
+    $events = $this->readEvents($stream, $lastEventId);
     $this->assertIdentical(count($events), 1,
                            "Unexpected number of events: %s");
     $this->assertIdentical(@$events[0]['event'], "remove-wall");
@@ -49,12 +49,14 @@ class TestWallStream extends APITestCase {
                            "text/event-stream; charset=UTF-8");
 
     // Should get one start-session event
-    $events = $this->readEvents($stream);
+    $events = $this->readEvents($stream, $lastEventId);
     $this->assertIdentical(count($events), 1,
                            "Unexpected number of events: %s");
     $this->assertIdentical(@$events[0]['event'], "start-session");
+    $this->assertTrue(intval($lastEventId) > 1);
+  }
 
-    // XXX Check for ID
+  function testCharacters() {
   }
 
   function testDeletedWall() {
@@ -104,10 +106,9 @@ class TestWallStream extends APITestCase {
     }
 
     // Parse header
-    $headers = $this->readHeaders($this->stream);
+    $headers = $this->readHeaders($this->stream, $lastEventId);
     if (!$headers)
       return null;
-    error_log(print_r($headers, true));
 
     // Check status code
     if (intval($headers['http_code']) !== 200) {
@@ -150,7 +151,7 @@ class TestWallStream extends APITestCase {
     return $headers;
   }
 
-  function readEvents($stream) {
+  function readEvents($stream, &$lastId) {
     $data = $this->readData($stream);
     if (!$data)
       return array();
@@ -164,6 +165,14 @@ class TestWallStream extends APITestCase {
 
     // Parse each event
     $events = array_map("parseEvent", $events);
+
+    // Walk backwards through events to look for any changes to the event ID
+    for ($i = count($events) - 1; $i >= 0; $i--) {
+      if (isset($events[$i]['id'])) {
+        $lastId = $events[$i]['id'];
+        break;
+      }
+    }
 
     return $events;
   }
