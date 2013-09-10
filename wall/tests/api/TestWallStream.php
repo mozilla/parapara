@@ -301,6 +301,28 @@ class TestWallStream extends APITestCase {
     $this->assertIdentical(@intval($events[0]['id']), $initialEventId + 1);
   }
 
+  function testRemoveCharacterFromOldSession() {
+    // Add a character
+    $char = $this->api->createCharacter($this->testWall['wallId'],
+      array('title' => 'Character'));
+
+    // Start new session
+    $this->api->login();
+    $session = $this->api->startSession($this->testWall['wallId']);
+
+    // Read stream
+    list($stream, $headers) = $this->openStream($this->testWall['wallId']);
+    $events = $this->readEvents($stream, $lastEventId);
+
+    // Remove character
+    $this->api->removeCharacter($char['charId']);
+
+    // Check for no events
+    $events = $this->readEvents($stream, $lastEventId);
+    $this->assertIdentical(count($events), 0,
+                           "Unexpected number of events: %s");
+  }
+
   function testAddRemoveSession() {
     // Add character
     $char = $this->api->createCharacter($this->testWall['wallId'],
@@ -338,7 +360,7 @@ class TestWallStream extends APITestCase {
     $this->assertIdentical(json_decode(@$events[1]['data'], true), $char);
   }
 
-  function testRemoveNotLatestSession() {
+  function testRemoveOldSession() {
     // Remember first session
     $firstSessionId = $this->testWall['latestSession']['sessionId'];
 
@@ -367,11 +389,6 @@ class TestWallStream extends APITestCase {
     $this->assertIdentical(count($this->readEvents($stream, $lastEventId)), 0,
                           "Generated events when deleting insignificant event");
   }
-
-  function testRemoveCharacterFromOldSession() {
-    // XXX
-  }
-  // XXX Move these up closer to the similar tests when done
 
   // XXX change-duration (during / resume) => change-duration
   // XXX change-design (during / resume) => change-design
