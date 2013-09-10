@@ -120,6 +120,7 @@ function dispatchEventFromChange($change) {
       dispatchAddCharacterEvent($change['contextid'], $change['changeid']);
       break;
 
+    case 'remove-character':
     case 'hide-character':
       dispatchRemoveCharacterEvent($change['contextid'], $change['changeid']);
       break;
@@ -128,8 +129,6 @@ function dispatchEventFromChange($change) {
       error_log("Unrecognized change type: " . $change['changetype']);
       break;
   }
-  // - remove_character + char id
-  //   => remove-character
   // - add_session + session id
   //   => start-session
   // - remove_session + session id

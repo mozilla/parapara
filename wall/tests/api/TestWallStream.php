@@ -241,7 +241,7 @@ class TestWallStream extends APITestCase {
     // Show character
     $this->api->updateCharacter($char['charId'], array('active' => true));
 
-    // Check the character data
+    // Read event
     $this->assertTrue(!!$this->waitForStream($stream), "No activity on stream");
     $events = $this->readEvents($stream, $lastEventId);
     $this->assertIdentical(count($events), 1,
@@ -251,10 +251,32 @@ class TestWallStream extends APITestCase {
     $this->assertIdentical(@intval($events[0]['id']), $initialEventId + 2);
   }
 
+  function testRemoveCharacter() {
+    // Add a character
+    $char = $this->api->createCharacter($this->testWall['wallId'],
+      array('title' => 'Character'));
 
-  // XXX show-character (during / resume) => add-character
-  // XXX hide-character (during / resume) => remove-character
-  // XXX remove-character (during / resume) => remove-character
+    // Read stream
+    list($stream, $headers) = $this->openStream($this->testWall['wallId']);
+
+    // Get initial events
+    $events = $this->readEvents($stream, $lastEventId);
+    $initialEventId = $lastEventId;
+
+    // Remove character
+    $this->api->login();
+    $this->api->removeCharacter($char['charId']);
+
+    // Read event
+    $this->assertTrue(!!$this->waitForStream($stream), "No activity on stream");
+    $events = $this->readEvents($stream, $lastEventId);
+    $this->assertIdentical(count($events), 1,
+                           "Unexpected number of events: %s");
+    $this->assertIdentical(@$events[0]['event'], "remove-character");
+    $this->assertIdentical(@intval($events[0]['data']), $char['charId']);
+    $this->assertIdentical(@intval($events[0]['id']), $initialEventId + 1);
+  }
+
   // XXX add-session (during / resume) => start-session
   // XXX remove-session (during / resume) => start-session
   // XXX change-duration (during / resume) => change-duration
