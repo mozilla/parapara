@@ -14,10 +14,7 @@ header('Cache-Control: no-cache');
 // Check for wall
 $wall = getRequestedWall();
 if ($wall === null || $wall == "Not specified") {
-  echo "event: remove-wall\n\n";
-  ob_flush();
-  flush();
-  exit;
+  dispatchRemoveWallEventAndExit();
 }
 
 // Allow script to run indefinitely
@@ -39,17 +36,8 @@ if (!array_key_exists('HTTP_LAST_EVENT_ID', $_SERVER) ||
   echo "id: " . getLastEventId() . "\n";
   echo "event: start-session\n\n";
 
-  // Get characters for latest session
-  $latestSessionId = $wall->latestSession
-                   ? $wall->latestSession['sessionId']
-                   : null;
-  if ($latestSessionId) {
-    $characters = Characters::getBySession($wall->wallId, $latestSessionId);
-    foreach($characters as $character) {
-      echo "event: add-character\n";
-      echo "data: " . json_encode($character->asArray()) . "\n\n";
-    }
-  }
+  // Add characters for latest session
+  dispatchAddCharacterEventsForLatestSession($wall);
 
   // Flush output...
   ob_flush();
@@ -70,6 +58,13 @@ while (!connection_aborted()) {
     error_log($res->getMessage() . ', ' . $res->getDebugInfo());
     $conn->disconnect();
     break;
+  }
+
+  // Update wall session information
+  // (This allows us to skip dispatching events for characters that belong to 
+  // a session that is not or no longer the latest.)
+  if ($res->numRows()) {
+    $wall->updateLatestSession();
   }
 
   // Dispatch events
@@ -114,10 +109,12 @@ function getLastEventId() {
 //  changetype
 //  contextid
 function dispatchEventFromChange($change) {
+  global $wall;
+
   switch ($change['changetype']) {
     case 'add-character':
     case 'show-character':
-      dispatchAddCharacterEvent($change['contextid'], $change['changeid']);
+      maybeDispatchAddCharacterEvent($change['contextid'], $change['changeid']);
       break;
 
     case 'remove-character':
@@ -125,36 +122,92 @@ function dispatchEventFromChange($change) {
       dispatchRemoveCharacterEvent($change['contextid'], $change['changeid']);
       break;
 
+    case 'add-session':
+      dispatchStartSessionEvent($change['contextid'], $change['changeid']);
+      break;
+
+    case 'remove-session':
+      // Only send events if the session that was deleted was the latest
+      if (!$wall->latestSession ||
+          intval($wall->latestSession['sessionId'])
+            < intval($change['contextid'])) {
+        dispatchStartSessionEvent($change['contextid'], $change['changeid']);
+        dispatchAddCharacterEventsForLatestSession($wall);
+      }
+      break;
+
     default:
       error_log("Unrecognized change type: " . $change['changetype']);
       break;
   }
-  // - add_session + session id
-  //   => start-session
-  // - remove_session + session id
-  //   => start-session + add-character * n
   // - change_duration
   //   => change-duration + duration
   // - change_design
   //   => change-design
 }
 
-function dispatchAddCharacterEvent($charId, $changeId) {
+function maybeDispatchAddCharacterEvent($charId, $changeId) {
+  global $wall;
+
   // Ignore errors. It may be that the character has been deleted since
   try {
+    // Skip events for characters that no longer exist or that don't belong to 
+    // the latest session
     $char = Characters::getById($charId);
-    if ($char) {
-      echo "id: $changeId\n";
-      echo "event: add-character\n";
-      echo "data: " . json_encode($char->asArray()) . "\n\n";
+    if (!$char || $char->sessionId !== $wall->latestSession['sessionId'])
+      return;
+
+    // Dispatch event
+    echo "id: $changeId\n";
+    echo "event: add-character\n";
+    echo "data: " . json_encode($char->asArray()) . "\n\n";
+  } catch (Exception $e) { /* Ignore */ }
+}
+
+function dispatchAddCharacterEventsForLatestSession($wall) {
+  try {
+    $latestSessionId = $wall->latestSession
+                     ? $wall->latestSession['sessionId']
+                     : null;
+    if ($latestSessionId) {
+      $characters = Characters::getBySession($wall->wallId, $latestSessionId);
+      foreach($characters as $char) {
+        echo "event: add-character\n";
+        echo "data: " . json_encode($char->asArray()) . "\n\n";
+      }
     }
   } catch (Exception $e) { /* Ignore */ }
 }
 
 function dispatchRemoveCharacterEvent($charId, $changeId) {
+  global $wall;
+
+  // Skip events for characters that still exist but don't belong to the latest 
+  // session.
+  //
+  // We'd really like to skip events for characters that have been deleted and 
+  // which don't belong to the latest session but that would require storing the
+  // session ID of deleted characters in the change database.
+  $char = Characters::getById($charId);
+  if ($char && $char->sessionId !== $wall->latestSession['sessionId'])
+    return;
+
   echo "id: $changeId\n";
   echo "event: remove-character\n";
   echo "data: $charId\n\n";
+}
+
+function dispatchStartSessionEvent($sessionId, $changeId) {
+  echo "id: $changeId\n";
+  echo "event: start-session\n";
+  echo "data: $sessionId\n\n";
+}
+
+function dispatchRemoveWallEventAndExit() {
+  echo "event: remove-wall\n\n";
+  ob_flush();
+  flush();
+  exit;
 }
 
 ?>

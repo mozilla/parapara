@@ -92,8 +92,8 @@ class TestWallStream extends APITestCase {
     $this->assertIdentical(@$events[2]['event'], "add-character");
 
     // Check the character data
-    $this->assertIdentical($charA, json_decode(@$events[1]['data'], true));
-    $this->assertIdentical($charB, json_decode(@$events[2]['data'], true));
+    $this->assertIdentical(json_decode(@$events[1]['data'], true), $charA);
+    $this->assertIdentical(json_decode(@$events[2]['data'], true), $charB);
   }
 
   function testAddCharacters() {
@@ -123,8 +123,8 @@ class TestWallStream extends APITestCase {
     $this->assertIdentical(@$events[1]['event'], "add-character");
 
     // Check the character data
-    $this->assertIdentical($charA, json_decode(@$events[0]['data'], true));
-    $this->assertIdentical($charB, json_decode(@$events[1]['data'], true));
+    $this->assertIdentical(json_decode(@$events[0]['data'], true), $charA);
+    $this->assertIdentical(json_decode(@$events[1]['data'], true), $charB);
 
     // Check the event ID has increased
     $this->assertTrue($lastEventId >= $initialEventId + 2,
@@ -163,8 +163,8 @@ class TestWallStream extends APITestCase {
     $this->assertIdentical(@$events[1]['event'], "add-character");
 
     // Check the character data
-    $this->assertIdentical($charA, json_decode(@$events[0]['data'], true));
-    $this->assertIdentical($charB, json_decode(@$events[1]['data'], true));
+    $this->assertIdentical(json_decode(@$events[0]['data'], true), $charA);
+    $this->assertIdentical(json_decode(@$events[1]['data'], true), $charB);
 
     // Check the event ID has increased
     $this->assertTrue($lastEventId >= $initialEventId + 2,
@@ -192,7 +192,7 @@ class TestWallStream extends APITestCase {
     $this->assertIdentical(count($events), 1,
                            "Unexpected number of events: %s");
     $this->assertIdentical(@$events[0]['event'], "add-character");
-    $this->assertIdentical($charA, json_decode(@$events[0]['data'], true));
+    $this->assertIdentical(json_decode(@$events[0]['data'], true), $charA);
 
     // Close stream
     $this->closeStream();
@@ -210,7 +210,7 @@ class TestWallStream extends APITestCase {
     $this->assertIdentical(count($events), 1,
                            "Unexpected number of events: %s");
     $this->assertIdentical(@$events[0]['event'], "add-character");
-    $this->assertIdentical($charB, json_decode(@$events[0]['data'], true));
+    $this->assertIdentical(json_decode(@$events[0]['data'], true), $charB);
   }
 
   function testShowHideCharacters() {
@@ -247,7 +247,7 @@ class TestWallStream extends APITestCase {
     $this->assertIdentical(count($events), 1,
                            "Unexpected number of events: %s");
     $this->assertIdentical(@$events[0]['event'], "add-character");
-    $this->assertIdentical($char, json_decode(@$events[0]['data'], true));
+    $this->assertIdentical(json_decode(@$events[0]['data'], true), $char);
     $this->assertIdentical(@intval($events[0]['id']), $initialEventId + 2);
   }
 
@@ -277,10 +277,91 @@ class TestWallStream extends APITestCase {
     $this->assertIdentical(@intval($events[0]['id']), $initialEventId + 1);
   }
 
-  // XXX add-session (during / resume) => start-session
-  // XXX remove-session (during / resume) => start-session
+  function testAddRemoveSession() {
+    // Add character
+    $char = $this->api->createCharacter($this->testWall['wallId'],
+      array('title' => 'Character'));
+
+    // Read stream
+    list($stream, $headers) = $this->openStream($this->testWall['wallId']);
+
+    // Get initial events
+    $events = $this->readEvents($stream, $lastEventId);
+    $initialEventId = $lastEventId;
+
+    // Start session
+    $this->api->login();
+    $session = $this->api->startSession($this->testWall['wallId']);
+
+    // Read event
+    $this->assertTrue(!!$this->waitForStream($stream), "No activity on stream");
+    $events = $this->readEvents($stream, $lastEventId);
+    $this->assertIdentical(count($events), 1,
+                           "Unexpected number of events: %s");
+    $this->assertIdentical(@$events[0]['event'], "start-session");
+    $this->assertIdentical(@intval($events[0]['id']), $initialEventId + 1);
+
+    // Remove session
+    $this->api->deleteSession($this->testWall['wallId'], $session['sessionId']);
+
+    // Read events: Should get a start-session event plus an add-character event
+    //              for every character in the previous session.
+    $this->assertTrue(!!$this->waitForStream($stream), "No activity on stream");
+    $events = $this->readEvents($stream, $lastEventId);
+    $this->assertIdentical(count($events), 2,
+                           "Unexpected number of events: %s");
+    $this->assertIdentical(@$events[0]['event'], "start-session");
+    $this->assertIdentical(@intval($events[0]['id']), $initialEventId + 2);
+    $this->assertIdentical(@$events[1]['event'], "add-character");
+    $this->assertIdentical(json_decode(@$events[1]['data'], true), $char);
+  }
+
+  function testRemoveNotLatestSession() {
+    // Remember first session
+    $firstSessionId = $this->testWall['latestSession']['sessionId'];
+
+    // Add character
+    // XXX Fix this---store the session ID along with the remove-character 
+    // change
+    /*
+    $char = $this->api->createCharacter($this->testWall['wallId'],
+      array('title' => 'Character'));
+     */
+
+    // Read stream
+    list($stream, $headers) = $this->openStream($this->testWall['wallId']);
+    $events = $this->readEvents($stream, $lastEventId);
+
+    // Start a new session
+    $this->api->login();
+    $session = $this->api->startSession($this->testWall['wallId']);
+
+    // Read event
+    $this->assertTrue(!!$this->waitForStream($stream), "No activity on stream");
+    $events = $this->readEvents($stream, $lastEventId);
+    $this->assertIdentical(count($events), 1,
+                           "Unexpected number of events: %s");
+    $this->assertIdentical(@$events[0]['event'], "start-session");
+
+    // Remove first session
+    $this->api->deleteSession($this->testWall['wallId'], $firstSessionId);
+
+    // Should be no events
+    $this->assertFalse($this->waitForStream($stream),
+                       "Generated events when deleting insignificant event");
+    error_log(print_r($this->readEvents($stream, $lastEventId), true));
+  }
+
   // XXX change-duration (during / resume) => change-duration
   // XXX change-design (during / resume) => change-design
+
+  function testHideCharacterFromOldSession() {
+    // XXX
+  }
+
+  function testRemoveCharacterFromOldSession() {
+    // XXX
+  }
 
   function testDeletedWall() {
     // XXX

@@ -635,32 +635,50 @@ class Wall {
       . ' AND wallId=' . $conn->quote($this->wallId, 'integer');
     $res =& $conn->exec($query);
     checkDbResult($res);
+    $conn->disconnect();
 
     // Update latest session state
     if ($isLatest) {
-      // The second-last session, if any, must be a closed session
-      $this->fields['status'] = 'finished';
-
-      // Fetch the new latest session
-      $row =& $conn->queryRow(
-        'SELECT sessionId, beginDate as start, endDate as end FROM sessions'
-        . ' WHERE wallId = ' . $conn->quote($this->wallId, 'integer')
-        . ' ORDER BY sessionId DESC LIMIT 1', null, MDB2_FETCHMODE_ASSOC);
-      checkDbResult($row);
-
-      // Update the latest session parameter
-      if ($row) {
-        $session['sessionId'] = intval($row['sessionid']);
-        $session['start'] = $row['start'];
-        $session['end'] = $row['end'];
-        $this->fields['latestSession'] = $session;
-      } else {
-        $this->fields['latestSession'] = null;
-      }
+      $this->updateLatestSession();
     }
-    $conn->disconnect();
 
     return true;
+  }
+
+  /* 
+   * Updates the latestSession member.
+   *
+   * Typically this is not needed since any changes made to this object are 
+   * careful to update this state automatically.
+   *
+   * However, for long running processes (such as the live feed) when other 
+   * processes may updating the database simultaneously this offers a cheap way 
+   * to update the session information without refetching the object.
+   */
+  public function updateLatestSession() {
+    // Fetch the latest session
+    $conn =& getDbConnection();
+    $row =& $conn->queryRow(
+      'SELECT sessionId, beginDate as start, endDate as end FROM sessions'
+      . ' WHERE wallId = ' . $conn->quote($this->wallId, 'integer')
+      . ' ORDER BY sessionId DESC LIMIT 1', null, MDB2_FETCHMODE_ASSOC);
+    checkDbResult($row);
+    $conn->disconnect();
+
+    // Update the latest session parameter
+    if ($row) {
+      $session['sessionId'] = intval($row['sessionid']);
+      $session['start'] = $row['start'];
+      $session['end'] = $row['end'];
+      $this->fields['latestSession'] = $session;
+    } else {
+      $this->fields['latestSession'] = null;
+    }
+
+    // Update the status while we're at it
+    $this->fields['status'] =
+      $this->latestSession && !$this->latestSession['end']
+      ? 'running' : 'finished';
   }
 
   /* Returns a real number in the range [0,1) indicating the fractional progress
