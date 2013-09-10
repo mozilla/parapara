@@ -448,11 +448,7 @@ class Wall {
         . ' FROM sessions WHERE wallId = ' . $quotedWallId
         . ' LIMIT 1',
         'integer');
-    if (PEAR::isError($newSessionId)) {
-      error_log($newSessionId->getMessage() . ', '
-                . $newSessionId->getDebugInfo());
-      throw new KeyedException('db-error');
-    }
+    checkDbResult($newSessionId);
 
     // Start a new session
     $query = 'INSERT INTO sessions(wallId, sessionId, beginDate)'
