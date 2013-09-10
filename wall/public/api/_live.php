@@ -116,17 +116,18 @@ function getLastEventId() {
 function dispatchEventFromChange($change) {
   switch ($change['changetype']) {
     case 'add-character':
+    case 'show-character':
       dispatchAddCharacterEvent($change['contextid'], $change['changeid']);
+      break;
+
+    case 'hide-character':
+      dispatchRemoveCharacterEvent($change['contextid'], $change['changeid']);
       break;
 
     default:
       error_log("Unrecognized change type: " . $change['changetype']);
       break;
   }
-  // - show_character + char id
-  //   => add-character + look up info
-  // - hide_character + char id
-  //   => remove-character
   // - remove_character + char id
   //   => remove-character
   // - add_session + session id
@@ -149,6 +150,12 @@ function dispatchAddCharacterEvent($charId, $changeId) {
       echo "data: " . json_encode($char->asArray()) . "\n\n";
     }
   } catch (Exception $e) { /* Ignore */ }
+}
+
+function dispatchRemoveCharacterEvent($charId, $changeId) {
+  echo "id: $changeId\n";
+  echo "event: remove-character\n";
+  echo "data: $charId\n\n";
 }
 
 ?>
