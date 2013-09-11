@@ -24,10 +24,12 @@ class GetWallTestCase extends APITestCase {
     $wallId = $wall['wallId'];
     $this->api->logout();
 
-    // Check it fails if we're logged out
+    // Check when logged out we get a limited view
     $wall = $this->api->getWall($wallId);
-    $this->assertEqual(@$wall['error_key'], 'logged-out',
-                       "Got wall whilst logged out: %s");
+    $this->assertTrue(!array_key_exists('error_key', $wall),
+                      "Failed to get wall");
+    $this->assertTrue(!array_key_exists('latestSession', $wall),
+                      "Got full details of wall even while logged out");
   }
 
   function testGetWall() {
@@ -38,7 +40,7 @@ class GetWallTestCase extends APITestCase {
     // Check it succeeds
     $wall = $this->api->getWall($wallId);
     $this->assertTrue(!array_key_exists('error_key', $wall),
-                      "Failed to get wall even though logged in");
+                      "Failed to get wall");
 
     // Check name
     $this->assertTrue(@$wall['name'] === 'Test wall',
@@ -95,7 +97,8 @@ class GetWallTestCase extends APITestCase {
     // Login as someone else
     $this->api->login('abc@abc.org');
     $wall = $this->api->getWall($wallId);
-    $this->assertEqual(@$wall['error_key'], 'no-auth');
+    $this->assertTrue(!array_key_exists('latestSession', $wall),
+                      "Got full details of someone else's wall");
     $this->api->logout();
   }
 

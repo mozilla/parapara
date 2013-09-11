@@ -421,6 +421,9 @@ class ParaparaAPI {
     }
     // Remove design folder
     if (file_exists($designFolder)) {
+      foreach (glob($designFolder . '/*.*') as $filename) {
+        unlink($filename);
+      }
       if (!rmdir($designFolder)) {
         die("Couldn't remove design folder: $designFolder");
       }

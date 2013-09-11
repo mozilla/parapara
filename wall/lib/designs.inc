@@ -14,6 +14,7 @@ class Design {
   // virtual: thumbnail
   // virtual: video
   // virtual: editorStylesheet
+  // virtual: wall
   private $virtualFields = array();
   private $filePath = null;
 
@@ -39,6 +40,9 @@ class Design {
         break;
       case 'editorStylesheet':
         $result = $this->getEditorStylesheet();
+        break;
+      case 'wall':
+        $result = $this->getWall();
         break;
       default:
         error_log('Unknown property: ' . $name);
@@ -80,6 +84,13 @@ class Design {
         : null;
   }
 
+  protected function getWall() {
+    $file = file_exists($this->filePath . 'wall.html')
+          ? 'wall.html'
+          : (file_exists($this->filePath . 'wall.svg') ? 'wall.svg' : null);
+    return $file ? '/designs/' . $this->name . '/' . $file : null;
+  }
+
   // Return a form suitable for serializing over JSON
   public function asArray() {
     return array(
@@ -88,7 +99,8 @@ class Design {
       'duration'         => $this->duration,
       'thumbnail'        => $this->thumbnail,
       'video'            => $this->video,
-      'editorStylesheet' => $this->editorStylesheet
+      'editorStylesheet' => $this->editorStylesheet,
+      'wall'             => $this->wall
     );
   }
 }

@@ -119,6 +119,28 @@ class GetDesignsTestCase extends APITestCase {
       "Unexpected video file: " . $design['video'][1]);
   }
 
+  function testWall() {
+    // Add SVG file
+    $file = $this->testDesignFolder . 'wall.svg';
+    $handle = fopen($file, 'w');
+    fclose($handle);
+
+    // Test
+    $design = $this->getTestDesign();
+    $this->assertTrue(array_key_exists('wall', $design));
+    $this->assertIdentical(@$design['wall'], '/designs/test/wall.svg');
+
+    // Add HTML file
+    $file = $this->testDesignFolder . 'wall.html';
+    $handle = fopen($file, 'w');
+    fclose($handle);
+
+    // Test
+    $design = $this->getTestDesign();
+    $this->assertTrue(array_key_exists('wall', $design));
+    $this->assertIdentical(@$design['wall'], '/designs/test/wall.html');
+  }
+
   function getTestDesign() {
     $designs = $this->api->getDesigns();
 

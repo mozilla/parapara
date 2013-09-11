@@ -11,8 +11,8 @@ require_once('utils.inc');
 
 header('Content-Type: application/json; charset=UTF-8');
 
-// Check we are logged in
-$email = getAndRequireUserEmail();
+// Get login
+$email = getUserEmail();
 
 // Prepare common parameters
 $wall = getRequestedWall();
@@ -22,6 +22,9 @@ $data = getRequestData();
 
 switch ($_SERVER['REQUEST_METHOD']) {
   case 'POST':
+    if (!$email)
+      bailWithError('logged-out');
+
     // Create wall
     $name     = @$data['name'];
     $designId = @$data['design'];
@@ -42,6 +45,9 @@ switch ($_SERVER['REQUEST_METHOD']) {
         bailWithError('wall-not-found');
 
       case "Not specified":
+        if (!$email)
+          bailWithError('logged-out');
+
         // Return all walls
         $flatten = create_function('$wall', 'return $wall->asArray();');
         $walls = Walls::getAllForUser($email);
@@ -50,28 +56,29 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
       default:
         // Valid wall specified
-
-        // Walls::getById will filter out sensitive information if the supplied 
-        // email address does not have access to administer the wall.
-        //
-        // However, for now we disallow all access if the user doesn't have 
-        // administration rights since a user may want to keep their event 
-        // private from others for various reasons.
-        //
-        // In the future we will probably fine tune this so that walls which are
-        // marked for display in the public gallery can be reached from this API
-        // since we won't be exposing any information via this API that isn't 
-        // available by browsing the gallery.
-        if (!$wall->canAdminister())
-          bailWithError('no-auth');
-
         $result = $wall->asArray();
+
+        // Currently we do a very rough job of filtering out information when 
+        // not logged-in. In future we'll add fine-grained control so that walls
+        // that are not intended for the public gallery listing only expose 
+        // limited information here.
+        if (!$wall->canAdminister()) {
+          // Many of these won't exist, but just to be sure we clear them in 
+          // case we slip up somewhere
+          unset($result['latestSession']);
+          unset($result['status']);
+          unset($result['passcode']);
+          unset($result['passcodeLen']);
+          unset($result['ownerEmail']);
+        }
         break;
     }
     break;
 
   case 'PUT':
   case 'PATCH':
+    if (!$email)
+      bailWithError('logged-out');
     if ($wall === "Not specified")
       bailWithError('bad-request');
     if ($wall === null)
@@ -89,6 +96,8 @@ switch ($_SERVER['REQUEST_METHOD']) {
     break;
 
   case 'DELETE':
+    if (!$email)
+      bailWithError('logged-out');
     if ($wall === "Not specified")
       bailWithError('bad-request');
     if ($wall === null)
