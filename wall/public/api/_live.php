@@ -34,7 +34,8 @@ if (!array_key_exists('HTTP_LAST_EVENT_ID', $_SERVER) ||
 
   // Start session
   echo "id: " . getLastEventId() . "\n";
-  echo "event: start-session\n\n";
+  echo "event: start-session\n";
+  echo "data:\n\n";
 
   // Add characters for latest session
   dispatchAddCharacterEventsForLatestSession($wall);
@@ -84,7 +85,7 @@ while (!connection_aborted()) {
     }
 
     // Otherwise just send a ping comment
-    echo ":ping\n";
+    echo ":ping\n\n";
     $lastSendTime = time();
   }
 
@@ -235,11 +236,13 @@ function dispatchChangeDurationEvent($changeId) {
 
 function dispatchChangeDesignEvent($changeId) {
   echo "id: $changeId\n";
-  echo "event: change-design\n\n";
+  echo "event: change-design\n";
+  echo "data:\n\n";
 }
 
 function dispatchRemoveWallEventAndExit() {
-  echo "event: remove-wall\n\n";
+  echo "event: remove-wall\n";
+  echo "data:\n\n";
   ob_flush();
   flush();
   exit;

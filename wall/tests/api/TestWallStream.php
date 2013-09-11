@@ -558,6 +558,9 @@ class TestWallStream extends APITestCase {
     // Parse each event
     $events = array_map("parseEvent", $events);
 
+    // Remove any null values
+    $events = array_filter($events);
+
     // Walk backwards through events to look for any changes to the event ID
     for ($i = count($events) - 1; $i >= 0; $i--) {
       if (isset($events[$i]['id'])) {
@@ -642,6 +645,10 @@ function parseEvent($event) {
     }
   }
 
+  // HTML says that if the data buffer is an empty string then discard
+  if ($result['data'] === '')
+    return null;
+
   return $result;
 }
 
@@ -660,7 +667,7 @@ function processField($field, $value, &$event) {
       break;
 
     case 'retry':
-      $event['id'] = intval($value);
+      $event['retry'] = intval($value);
       break;
 
     default:
