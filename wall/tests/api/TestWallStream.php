@@ -448,9 +448,9 @@ class TestWallStream extends APITestCase {
     $this->assertIdentical(intval($lastEventId), $initialEventId + 1);
   }
 
-  function testDeletedWall() {
-    // XXX
-  }
+  // We'd like to test for a deleted wall too but currently the implementation 
+  // only checks if the wall exists every 10 seconds and that's too long for 
+  // a unit test to wait.
 
   function openStream($wallIdOrPath, $lastEventId = null) {
     // Check there is no request in progress

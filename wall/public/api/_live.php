@@ -76,10 +76,14 @@ while (!connection_aborted()) {
   }
   $conn->disconnect();
 
-  // XXX Check that wall still exists and dispatch remove-wall somehow?
-
   // Send ping comment if there are no changes in 10 seconds
   if (time() - $lastSendTime >= 10) {
+    // Check if the wall has disappeared
+    if (!Walls::getById($wall->wallId)) {
+      dispatchRemoveWallEventAndExit();
+    }
+
+    // Otherwise just send a ping comment
     echo ":ping\n";
     $lastSendTime = time();
   }
@@ -215,13 +219,6 @@ function dispatchStartSessionEvent($sessionId, $changeId) {
   echo "data: $sessionId\n\n";
 }
 
-function dispatchRemoveWallEventAndExit() {
-  echo "event: remove-wall\n\n";
-  ob_flush();
-  flush();
-  exit;
-}
-
 function dispatchChangeDurationEvent($changeId) {
   // Update the wall with the new information
   global $wall;
@@ -239,6 +236,13 @@ function dispatchChangeDurationEvent($changeId) {
 function dispatchChangeDesignEvent($changeId) {
   echo "id: $changeId\n";
   echo "event: change-design\n\n";
+}
+
+function dispatchRemoveWallEventAndExit() {
+  echo "event: remove-wall\n\n";
+  ob_flush();
+  flush();
+  exit;
 }
 
 ?>
