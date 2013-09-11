@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([ 'jquery' ],
-function ($) {
+define([ 'jquery', 'wall/wall' ],
+function ($, Wall) {
   return function (wallName, view)
   {
     this.initialize = function() {
@@ -64,7 +64,7 @@ function ($) {
           var iframe = $("iframe");
           iframe.attr('src', design.wall);
           iframe[0].addEventListener("load", function() {
-            loadData(wall, design);
+            initWall(wall, design, iframe[0]);
           });
         })
         .fail(function() {
@@ -77,17 +77,31 @@ function ($) {
       $("div.error").text(msg).show();
     }
 
-    function loadData(wall, design) {
-      console.log(wall);
-      console.log(design);
-      // XXX  - require wall source
-      // XXX  - init wall
-      // XXX  - set up fetching of data
-      //        (in future this will involve switching between EventSource and 
-      //        simply calling the API)
-      // XXX in each event handler, call wall.addCharacter etc. and pass in the 
-      //     contentDocument of the iframe as necessary
-      //     (obviously also decode the response as needed)
+    function initWall(wallData, designData, iframe) {
+      // We have a default implementation of a Wall controller but specific
+      // walls can override this by defining an initialize method on the
+      // document to which we pass the default implementation so that they can
+      // selectively override the methods they care about
+      var wall = new Wall(iframe.contentDocument, wallData);
+      if (iframe.contentDocument.initialize) {
+        wall =
+          iframe.contentDocument.initialize(wall, wallData, designData, $) ||
+          wall;
+      }
+
+      // Set up data
+      // XXX Test 'view' and call the appropriate API endpoint
+      var wallStream =
+        new EventSource('/api/walls/byname/' + wallName + '/live');
+      wallStream.onerror = function(e) {
+        console.log("Dropped connection?");
+      };
+
+      wallStream.addEventListener("start-session", wall.startSession);
+      wallStream.addEventListener("add-character", function(e) {
+        wall.addCharacter(JSON.parse(e.data));
+      });
+      // XXX Fill out the rest of the methods
     }
   };
 });

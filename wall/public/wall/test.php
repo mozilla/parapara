@@ -65,25 +65,5 @@
   <body>
     <iframe id="wallFrame"></iframe>
     <div class="error"></div>
-    <script>
-      var wallStream = new EventSource("/api/walls/byname/<?php echo $_REQUEST['wall'] ?>/live");
-      wallStream.onopen = function(e) {
-        console.log("Stream opened");
-      };
-      wallStream.onerror = function(e) {
-        console.log("Stream closed");
-      };
-      wallStream.addEventListener("start-session", genericEventHandler);
-      wallStream.addEventListener("add-character", genericEventHandler);
-      wallStream.addEventListener("remove-character", genericEventHandler);
-      wallStream.addEventListener("change-design", genericEventHandler);
-      wallStream.addEventListener("change-duration", genericEventHandler);
-      wallStream.addEventListener("remove-wall", genericEventHandler);
-
-      function genericEventHandler(e) {
-        console.log(e.type);
-        console.log(e);
-      }
-    </script>
   </body>
 </html>
