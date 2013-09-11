@@ -7,6 +7,6 @@ Options -Indexes
   RewriteBase /
   RewriteRule ^([^/]+)$ /wall/index.php?wall=$1 [L]
   RewriteRule ^([^/]+)/parade$ /wall/index.php?wall=$1&view=parade [L]
-  RewriteRule ^[^/]+/upload$ /api/upload_anim.php [L]
+  RewriteRule ^([^/]+)/test$ /wall/test.php?wall=$1 [L]
 </ifModule>
 php_flag short_open_tag off
