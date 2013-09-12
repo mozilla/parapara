@@ -23,6 +23,12 @@ set_time_limit(0);
 // Store initial time so we know when we need to send a ping comment
 $lastSendTime = time();
 
+// Send an initial sync event
+// (This is useful even on resuming since various factors such as the computer 
+// going to sleep may have caused it to drift from the server.)
+echo "event: sync-progress\n";
+echo "data: " . $wall->getCurrentProgress() . "\n\n";
+
 // Check for a last event ID
 if (!array_key_exists('HTTP_LAST_EVENT_ID', $_SERVER) ||
     !is_numeric($_SERVER['HTTP_LAST_EVENT_ID']) ||

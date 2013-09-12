@@ -53,11 +53,16 @@ class TestWallStream extends APITestCase {
     $this->assertIdentical(@$headers['Content-Type'],
                            "text/event-stream; charset=UTF-8");
 
-    // Should get one start-session event
+    // Should get one sync-progress and one start-session event
     $events = $this->readEvents($stream, $lastEventId);
-    $this->assertIdentical(count($events), 1,
+    $this->assertIdentical(count($events), 2,
                            "Unexpected number of events: %s");
-    $this->assertIdentical(@$events[0]['event'], "start-session");
+    $this->assertIdentical(@$events[0]['event'], "sync-progress");
+    $syncProgress = @$events[0]['data'];
+    $this->assertTrue(floatval($syncProgress) >= 0 &&
+                      floatval($syncProgress) < 1,
+                      "Unexpected sync progress value: " . $syncProgress);
+    $this->assertIdentical(@$events[1]['event'], "start-session");
     $this->assertTrue(intval($lastEventId) > 1);
   }
 
@@ -71,11 +76,12 @@ class TestWallStream extends APITestCase {
     // Get stream
     list($stream, $headers) = $this->openStream($this->testWall['wallId']);
 
-    // Should get one start-session event
+    // Should get one sync-progress and one start-session event
     $events = $this->readEvents($stream, $lastEventId);
-    $this->assertIdentical(count($events), 1,
+    $this->assertIdentical(count($events), 2,
                            "Unexpected number of events: %s");
-    $this->assertIdentical(@$events[0]['event'], "start-session");
+    $this->assertIdentical(@$events[0]['event'], "sync-progress");
+    $this->assertIdentical(@$events[1]['event'], "start-session");
   }
 
   function testInitialCharacters() {
@@ -88,17 +94,18 @@ class TestWallStream extends APITestCase {
     // Read stream
     list($stream, $headers) = $this->openStream($this->testWall['wallId']);
 
-    // Should get start-session event + 2 x add-character events
+    // Should get sync-progress, start-session event, 2 x add-character events
     $events = $this->readEvents($stream, $lastEventId);
-    $this->assertIdentical(count($events), 3,
+    $this->assertIdentical(count($events), 4,
                            "Unexpected number of events: %s");
-    $this->assertIdentical(@$events[0]['event'], "start-session");
-    $this->assertIdentical(@$events[1]['event'], "add-character");
+    $this->assertIdentical(@$events[0]['event'], "sync-progress");
+    $this->assertIdentical(@$events[1]['event'], "start-session");
     $this->assertIdentical(@$events[2]['event'], "add-character");
+    $this->assertIdentical(@$events[3]['event'], "add-character");
 
     // Check the character data
-    $this->assertIdentical(json_decode(@$events[1]['data'], true), $charA);
-    $this->assertIdentical(json_decode(@$events[2]['data'], true), $charB);
+    $this->assertIdentical(json_decode(@$events[2]['data'], true), $charA);
+    $this->assertIdentical(json_decode(@$events[3]['data'], true), $charB);
   }
 
   function testAddCharacters() {
@@ -107,9 +114,10 @@ class TestWallStream extends APITestCase {
 
     // Should get start-session event
     $events = $this->readEvents($stream, $lastEventId);
-    $this->assertIdentical(count($events), 1,
+    $this->assertIdentical(count($events), 2,
                            "Unexpected number of events: %s");
-    $this->assertIdentical(@$events[0]['event'], "start-session");
+    $this->assertIdentical(@$events[0]['event'], "sync-progress");
+    $this->assertIdentical(@$events[1]['event'], "start-session");
     $initialEventId = $lastEventId;
 
     // Add some characters
@@ -140,9 +148,10 @@ class TestWallStream extends APITestCase {
 
     // Should get start-session event
     $events = $this->readEvents($stream, $lastEventId);
-    $this->assertIdentical(count($events), 1,
+    $this->assertIdentical(count($events), 2,
                            "Unexpected number of events: %s");
-    $this->assertIdentical(@$events[0]['event'], "start-session");
+    $this->assertIdentical(@$events[0]['event'], "sync-progress");
+    $this->assertIdentical(@$events[1]['event'], "start-session");
     $initialEventId = $lastEventId;
 
     // Close stream
@@ -160,14 +169,15 @@ class TestWallStream extends APITestCase {
 
     // Read subsequent events
     $events = $this->readEvents($stream, $lastEventId);
-    $this->assertIdentical(count($events), 2,
+    $this->assertIdentical(count($events), 3,
                            "Unexpected number of events: %s");
-    $this->assertIdentical(@$events[0]['event'], "add-character");
+    $this->assertIdentical(@$events[0]['event'], "sync-progress");
     $this->assertIdentical(@$events[1]['event'], "add-character");
+    $this->assertIdentical(@$events[2]['event'], "add-character");
 
     // Check the character data
-    $this->assertIdentical(json_decode(@$events[0]['data'], true), $charA);
-    $this->assertIdentical(json_decode(@$events[1]['data'], true), $charB);
+    $this->assertIdentical(json_decode(@$events[1]['data'], true), $charA);
+    $this->assertIdentical(json_decode(@$events[2]['data'], true), $charB);
 
     // Check the event ID has increased
     $this->assertTrue($lastEventId >= $initialEventId + 2,
@@ -180,9 +190,10 @@ class TestWallStream extends APITestCase {
 
     // Should get start-session event
     $events = $this->readEvents($stream, $lastEventId);
-    $this->assertIdentical(count($events), 1,
+    $this->assertIdentical(count($events), 2,
                            "Unexpected number of events: %s");
-    $this->assertIdentical(@$events[0]['event'], "start-session");
+    $this->assertIdentical(@$events[0]['event'], "sync-progress");
+    $this->assertIdentical(@$events[1]['event'], "start-session");
     $initialEventId = $lastEventId;
 
     // Add a character
@@ -209,10 +220,11 @@ class TestWallStream extends APITestCase {
 
     // Check the character data
     $events = $this->readEvents($stream, $lastEventId);
-    $this->assertIdentical(count($events), 1,
+    $this->assertIdentical(count($events), 2,
                            "Unexpected number of events: %s");
-    $this->assertIdentical(@$events[0]['event'], "add-character");
-    $this->assertIdentical(json_decode(@$events[0]['data'], true), $charB);
+    $this->assertIdentical(@$events[0]['event'], "sync-progress");
+    $this->assertIdentical(@$events[1]['event'], "add-character");
+    $this->assertIdentical(json_decode(@$events[1]['data'], true), $charB);
   }
 
   function testShowHideCharacters() {
@@ -222,8 +234,6 @@ class TestWallStream extends APITestCase {
 
     // Read stream
     list($stream, $headers) = $this->openStream($this->testWall['wallId']);
-
-    // Get initial events
     $events = $this->readEvents($stream, $lastEventId);
     $initialEventId = $lastEventId;
 
