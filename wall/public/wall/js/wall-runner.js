@@ -82,12 +82,12 @@ function ($, Wall) {
       // walls can override this by defining an initialize method on the
       // document to which we pass the default implementation so that they can
       // selectively override the methods they care about
-      var wall = new Wall(iframe.contentDocument, wallData);
       if (iframe.contentDocument.initialize) {
-        wall =
-          iframe.contentDocument.initialize(wall, wallData, designData, $) ||
-          wall;
+        wallProto =
+          iframe.contentDocument.initialize(Wall, wallData, designData, $) ||
+          Wall;
       }
+      var wall = new wallProto(iframe.contentDocument, wallData);
 
       // Set up data
       // XXX Test 'view' and call the appropriate API endpoint

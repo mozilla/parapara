@@ -14,6 +14,29 @@
     <filter id="shadow" x="-5%" width="110%" height="200%">
       <feGaussianBlur in="SourceAlpha" result="blur" stdDeviation="8"/>
     </filter>
+    <foreignObject>
+      <template>
+        <svg>
+          <g class="character" data-tmpl-id="char-{{id}}"
+            data-target="main-layer">
+            <image data-tmpl-id="{{id}}-image" data-tmpl-href="{{uri}}"
+                   data-tmpl-width="{{width}}" data-tmpl-height="{{height}}"/>
+            <use transform="matrix(1 0 0 -0.5 0 0)" filter="url(#shadow)"
+                 data-tmpl-href="#{{id}}-image"/>
+            <animateMotion rotate="auto" repeatCount="indefinite"
+              calcMode="linear" keyPoints="1; 0"
+              data-tmpl-dur="{{charDurStr}}" data-tmpl-begin="{{beginStr}}">
+              <mpath xlink:href="#main-layer-path"/>
+            </animateMotion>
+            <!--
+            <animate attributeName="display" repeatCount="indefinite"
+              values="block; none" keyTimes="0; 0.2"
+              data-tmpl-dur="{{charDurStr}}" data-tmpl-begin="{{beginStr}}"/>
+              -->
+          </g>
+        </svg>
+      </template>
+    </foreignObject>
   </defs>
 
   <image xlink:href="images/back01.jpg" width="2560" height="1024">
