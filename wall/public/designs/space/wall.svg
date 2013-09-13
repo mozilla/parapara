@@ -17,6 +17,22 @@
     <foreignObject>
       <template>
         <svg>
+          <!-- The character template
+
+               The most interesting part is the final display animation. The
+               animations run in a loop at a rate about 6 times faster than the
+               rotation of the planet. This lets us show a different set of
+               characters on each rotation of the faster character loop.
+
+               We achieve this by turning each character on only for its loop.
+               The start of the loop corresponds to the begin time of the
+               character and we figure that about 10% of the time of the planet
+               rotation after that it will be off the stage so we can turn it
+               off.
+
+               (By the way, we don't put this comment in the group below because
+               otherwise it gets cloned as well.)
+            -->
           <g class="character" data-tmpl-id="char-{{id}}"
             data-target="main-layer">
             <image data-tmpl-id="{{id}}-image" data-tmpl-href="{{uri}}"
