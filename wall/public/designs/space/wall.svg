@@ -28,11 +28,9 @@
               data-tmpl-dur="{{charDurStr}}" data-tmpl-begin="{{beginStr}}">
               <mpath xlink:href="#main-layer-path"/>
             </animateMotion>
-            <!--
             <animate attributeName="display" repeatCount="indefinite"
-              values="block; none" keyTimes="0; 0.2"
-              data-tmpl-dur="{{charDurStr}}" data-tmpl-begin="{{beginStr}}"/>
-              -->
+              values="block; none" keyTimes="0; 0.2" calcMode="discrete"
+              data-tmpl-dur="{{planetDurStr}}" data-tmpl-begin="{{beginStr}}"/>
           </g>
         </svg>
       </template>
@@ -66,6 +64,8 @@
     </image>
 
     <g id="main-layer" >
+      <!-- If changing the duration of this, be sure to update js/wall.js
+           (planetDurationMs) as well! -->
       <animateTransform id="time-base" attributeName="transform" type="rotate"
         from="0 1700 1700" to="360 1700 1700" repeatCount="indefinite"
         additive="sum" dur="240s"/>
@@ -88,4 +88,7 @@
         additive="sum" dur="200s"/>
     </image>
   </g>
+
+  <text x="10" y="90" font-size="90" fill="orange" id="progress-debug"
+    display="none">50%</text>
 </svg>

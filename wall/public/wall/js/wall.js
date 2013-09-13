@@ -27,17 +27,12 @@ function ($) {
     },
 
     syncProgress: function(progress) {
-      console.log("syncProgress: " + progress);
-      console.log("getWallProgress: " + this.getWallProgress());
-
       // Calculate the difference between where the wall *currently* is and
       // where it *should* be.
-      var progressDiff = this.getWallProgress() - progress;
-      console.log("progressDiff: " + progressDiff);
+      var progressDiff = this.getClockProgress() - progress;
 
       // Adjust the timeshift
       this.timeShift += progressDiff;
-      console.log("timeShift: " + this.timeShift);
 
       // Apply adjustments
       this.scaleAnimations();
@@ -63,7 +58,6 @@ function ($) {
           wall.scaleAnimations(wall.getAnimations(characterElem));
 
           // Append to document
-          console.log(characterElem.outerHTML);
           if (characterElem.hasAttribute("data-target")) {
             container =
               wall.doc.getElementById(
@@ -101,8 +95,18 @@ function ($) {
     // These are split out and public so that subclasses can selectively
     // override parts as needed
 
+    getClockProgress: function() {
+      var svg = $('svg', this.doc)[0];
+      if (!svg)
+        return 0;
+
+      var progress = svg.getCurrentTime() * 1000 / this.durationMs;
+      return progress ? progress % 1 : 0;
+    },
+
     getWallProgress: function() {
-      return $('svg', this.doc)[0].getCurrentTime() / this.durationMs;
+      var progress = this.getClockProgress() - this.timeShift;
+      return progress >= 1 ? progress - 1 : progress;
     },
 
     scaleAnimations: function(animations) {
@@ -272,6 +276,7 @@ function ($) {
 
       // Get fields to fill in
       var templateFields = this.getTemplateFields(character);
+      console.log(templateFields);
 
       // Walk through subtree and update fields
       var nodeIterator =
@@ -295,9 +300,8 @@ function ($) {
         uri: character.rawUrl,
         dur: this.wallData.defaultDuration,
         durStr: (this.wallData.defaultDuration / 1000) + "s",
-        begin: character.x / 1000 * this.wallData.defaultDuration,
-        beginStr: (character.x / 1000 * this.wallData.defaultDuration / 1000)
-                  + "s"
+        begin: character.x * this.wallData.defaultDuration,
+        beginStr: (character.x * this.wallData.defaultDuration / 1000) + "s"
       };
     },
 
