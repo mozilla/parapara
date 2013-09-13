@@ -442,28 +442,34 @@ class TestWallStream extends APITestCase {
     $this->api->updateWall($this->testWall['wallId'],
                            array('duration' => 1234));
 
-    // Read event
+    // Read events: change-duration, sync-progress
     $events = $this->readEvents($stream, $lastEventId);
-    $this->assertIdentical(count($events), 1,
+    $this->assertIdentical(count($events), 2,
                            "Unexpected number of events: %s");
     $this->assertIdentical(@$events[0]['event'], "change-duration");
     $this->assertIdentical(intval(@$events[0]['data']), 1234);
     $this->assertIdentical(intval($lastEventId), $initialEventId + 1);
+    $this->assertIdentical(@$events[1]['event'], "sync-progress");
+    $syncProgress = @$events[1]['data'];
+    $this->assertTrue(floatval($syncProgress) >= 0 &&
+                      floatval($syncProgress) < 1,
+                      "Unexpected sync progress value: " . $syncProgress);
 
     // Set duration to default
     $this->api->updateWall($this->testWall['wallId'],
                            array('duration' => null));
 
-    // Read event--we should get the actual default duration not null, or zero, 
+    // Read events--we should get the actual default duration not null, or zero,
     // or the previous value
     $events = $this->readEvents($stream, $lastEventId);
-    $this->assertIdentical(count($events), 1,
+    $this->assertIdentical(count($events), 2,
                            "Unexpected number of events: %s");
     $this->assertIdentical(@$events[0]['event'], "change-duration");
     $reportedDuration = intval(@$events[0]['data']);
     $this->assertTrue($reportedDuration > 0 && $reportedDuration != 1234,
                       "Unexpected duration: $reportedDuration");
     $this->assertIdentical(intval($lastEventId), $initialEventId + 2);
+    $this->assertIdentical(@$events[1]['event'], "sync-progress");
   }
 
   function testChangeDesign() {

@@ -26,8 +26,7 @@ $lastSendTime = time();
 // Send an initial sync event
 // (This is useful even on resuming since various factors such as the computer 
 // going to sleep may have caused it to drift from the server.)
-echo "event: sync-progress\n";
-echo "data: " . $wall->getCurrentProgress() . "\n\n";
+dispatchSyncProgressEvent($wall);
 
 // Check for a last event ID
 if (!array_key_exists('HTTP_LAST_EVENT_ID', $_SERVER) ||
@@ -161,6 +160,9 @@ function dispatchEventFromChange($change) {
 
     case 'change-duration':
       dispatchChangeDurationEvent($change['changeid']);
+      // Follow up with a sync-progress event since the position of the wall 
+      // will have changed
+      dispatchSyncProgressEvent($wall);
       break;
 
     case 'change-design':
@@ -171,6 +173,11 @@ function dispatchEventFromChange($change) {
       error_log("Unrecognized change type: " . $change['changetype']);
       break;
   }
+}
+
+function dispatchSyncProgressEvent($wall) {
+  echo "event: sync-progress\n";
+  echo "data: " . $wall->getCurrentProgress() . "\n\n";
 }
 
 function dispatchAddCharacterEvent($charId, $changeId) {
