@@ -75,7 +75,30 @@ function ($) {
     },
 
     removeCharacter: function(charId) {
-      // XXX Fade out
+      // Try to find character
+      var character = this.doc.getElementById("char-" + charId) ||
+                      this.doc.getElementById(charId);
+      if (!character)
+        return;
+
+      // Add a fade out animation
+      var fadeOut = document.createElementNS(this.SVG_NS, "animate");
+      fadeOut.setAttribute("attributeName", "opacity");
+      fadeOut.setAttribute("to", "0");
+      fadeOut.setAttribute("dur", "0.5s");
+      fadeOut.setAttribute("begin", "indefinite");
+      fadeOut.setAttribute("fill", "freeze");
+      
+      // Attach event handler to actually remove the character
+      // (TODO: Use a timeout as a fallback since some UAs don't support these
+      // animation events very well.)
+      fadeOut.addEventListener("endEvent", function(e) {
+        character.parentNode.removeChild(character);
+      }, true);
+
+      // Add and trigger the animation
+      character.appendChild(fadeOut);
+      fadeOut.beginElement();
     },
 
     changeDuration: function(duration) {

@@ -98,12 +98,16 @@ function ($, Wall) {
         console.log("Dropped connection?");
       };
 
+      // Map to wall callbacks
       wallStream.addEventListener("sync-progress", function(e) {
         wall.syncProgress(parseFloat(e.data));
       });
       wallStream.addEventListener("start-session", wall.startSession);
       wallStream.addEventListener("add-character", function(e) {
         wall.addCharacter(JSON.parse(e.data));
+      });
+      wallStream.addEventListener("remove-character", function(e) {
+        wall.removeCharacter(parseInt(e.data));
       });
       wallStream.addEventListener("change-duration", function(e) {
         wall.changeDuration(parseFloat(e.data));
