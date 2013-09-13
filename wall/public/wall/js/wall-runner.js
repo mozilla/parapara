@@ -105,6 +105,9 @@ function ($, Wall) {
       wallStream.addEventListener("add-character", function(e) {
         wall.addCharacter(JSON.parse(e.data));
       });
+      wallStream.addEventListener("change-duration", function(e) {
+        wall.changeDuration(parseFloat(e.data));
+      });
       // XXX Fill out the rest of the methods
     }
   };

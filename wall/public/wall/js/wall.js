@@ -35,7 +35,7 @@ function ($) {
       this.timeShift += progressDiff;
 
       // Apply adjustments
-      this.scaleAnimations();
+      this.scaleAnimations(this.getAnimations());
     },
 
     startSession: function() {
@@ -79,7 +79,8 @@ function ($) {
     },
 
     changeDuration: function(duration) {
-      // XXX ???
+      this.durationMs = duration;
+      this.scaleAnimations(this.getAnimations());
     },
 
     changeDesign: function() {
@@ -116,11 +117,9 @@ function ($) {
 
       // How much do we scale by?
       var scaleAmount = this.durationMs / this.wallData.defaultDuration;
-      console.log("scaleAmount: " + scaleAmount);
 
       // How much do we need to shift begin times by?
       var seekAmountMs = this.timeShift * this.durationMs;
-      console.log("seekAmountMs: " + seekAmountMs);
 
       // Scale each animation
       var wall = this;
@@ -131,27 +130,37 @@ function ($) {
     },
 
     scaleAnimation: function(anim, scaleAmount, seekAmountMs) {
-      console.log("Scaling: " + anim);
-
       // Get unscaled begin time
       var origBegin = anim.getAttribute("data-begin");
-      console.log("origBegin: " + origBegin);
       if (!origBegin) {
         origBegin = anim.getAttribute("begin") || "0s";
-        console.log("origBegin(2): " + origBegin);
         anim.setAttribute("data-begin", origBegin);
       }
-      console.log("origBegin(3): " + origBegin);
       var origBeginMs = this.parseTime(origBegin);
-      console.log("origBeginMs: " + origBeginMs);
 
       // Calculate scaled begin time that incorporates:
       //  - seek offsets to sync up with the wall time defined on the server
       //  - scaling due to changes in the duration
       if (origBeginMs !== null) {
         var newBeginMs = (origBeginMs + seekAmountMs) * scaleAmount;
-        console.log("newBeginMs: " + newBeginMs);
-        this.updateBeginTime(anim, newBeginMs);
+        anim = this.updateBeginTime(anim, newBeginMs);
+      }
+
+      // Get original duration
+      var origDur = anim.getAttribute("data-dur");
+      if (!origDur) {
+        origDur = anim.getAttribute("dur");
+        anim.setAttribute("data-dur", origDur);
+      }
+      var origDurMs = this.parseTime(origDur);
+
+      // Update duration
+      if (origDurMs !== null) {
+        var newDurMs = origDurMs * scaleAmount;
+        var newDurValue = newDurMs / 1000 + "s";
+        if (anim.getAttribute("dur") != newDurValue) {
+          anim.setAttribute("dur", newDurValue);
+        }
       }
     },
 
@@ -200,7 +209,7 @@ function ($) {
       if ((anim.hasAttribute("begin") &&
            this.parseTime(anim.getAttribute("begin")) == newBeginTimeMs) ||
           !anim.hasAttribute("begin") && newBeginTimeMs == 0) {
-        return;
+        return anim;
       }
 
       var beginValue = (newBeginTimeMs / 1000) + "s";
@@ -217,13 +226,17 @@ function ($) {
         // Put this animation in the same place
         anim.parentNode.insertBefore(clone, anim);
         anim.parentNode.removeChild(anim);
-      } else {
-        // We haven't put the animation in the document yet so we can just
-        // update the begin attribute directly.
-        // (We're assuming here that we haven't just been temporarily removed
-        // from the document.)
-        anim.setAttribute("begin", beginValue);
+
+        return clone;
       }
+
+      // We haven't put the animation in the document yet so we can just
+      // update the begin attribute directly.
+      // (We're assuming here that we haven't just been temporarily removed
+      // from the document.)
+      anim.setAttribute("begin", beginValue);
+
+      return anim;
     },
 
     animationClone: function(elem) {
@@ -276,7 +289,6 @@ function ($) {
 
       // Get fields to fill in
       var templateFields = this.getTemplateFields(character);
-      console.log(templateFields);
 
       // Walk through subtree and update fields
       var nodeIterator =
