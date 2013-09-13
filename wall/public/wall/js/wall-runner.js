@@ -82,6 +82,7 @@ function ($, Wall) {
       // walls can override this by defining an initialize method on the
       // document to which we pass the default implementation so that they can
       // selectively override the methods they care about
+      wallProto = Wall;
       if (iframe.contentDocument.initialize) {
         wallProto =
           iframe.contentDocument.initialize(Wall, wallData, designData, $) ||
