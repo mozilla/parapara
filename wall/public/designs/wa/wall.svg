@@ -4,7 +4,7 @@
 <svg viewBox="0 0 1280 800" preserveAspectRatio="none"
      xmlns="http://www.w3.org/2000/svg"
      xmlns:xlink="http://www.w3.org/1999/xlink">
-
+  <script xlink:href="js/wall.js"></script>
   <style type="text/css"><![CDATA[
     svg {background-color: white}
     .shadow {fill-opacity: 0.3; fill:black;}
@@ -14,6 +14,30 @@
     <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
       <feGaussianBlur in="SourceAlpha" result="blur" stdDeviation="8"/>
     </filter>
+    <foreignObject>
+      <template>
+        <svg>
+          <!-- The character template -->
+          <g class="character" data-tmpl-id="char-{{id}}"
+            data-target="main-layer" data-tmpl-transform="{{charTransform}}">
+            <image data-tmpl-id="{{id}}-image" data-tmpl-href="{{uri}}"
+                   data-tmpl-width="{{width}}" data-tmpl-height="{{height}}"
+                   overflow="visible" data-tmpl-x="-{{width}}"/>
+            <use data-tmpl-transform="{{useTransform}}" filter="url(#shadow)"
+                 data-tmpl-href="#{{id}}-image"/>
+            <animateMotion rotate="auto" repeatCount="indefinite"
+              calcMode="linear" dur="120s"
+              data-tmpl-begin="{{beginStr}}"
+              data-tmpl-values="-{{width}} 0; {{rightEdge}} 0; {{rightEdge}} 0"
+              keyTimes="0; 0.25; 1"/>
+            <animate attributeName="display" repeatCount="indefinite"
+              calcMode="discrete" dur="120s"
+              data-tmpl-begin="{{beginStr}}" values="block; none"
+              keyTimes="0; 0.25"/>
+          </g>
+        </svg>
+      </template>
+    </foreignObject>
   </defs>
 
   <image xlink:href="images/layer1.jpg" width="1524" height="279">

@@ -305,7 +305,7 @@ function ($) {
       };
     },
 
-    templateKeyRegex: new RegExp("{{(.+)}}", "g"),
+    templateKeyRegex: new RegExp("{{(.+?)}}", "g"),
 
     applyTemplateFields: function(elem, fields) {
       var substitute = function(match, key) {
