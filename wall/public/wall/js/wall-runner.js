@@ -102,7 +102,8 @@ function ($, Wall) {
       wallStream.addEventListener("sync-progress", function(e) {
         wall.syncProgress(parseFloat(e.data));
       });
-      wallStream.addEventListener("start-session", wall.startSession);
+      wallStream.addEventListener("start-session",
+        wall.startSession.bind(wall));
       wallStream.addEventListener("add-character", function(e) {
         wall.addCharacter(JSON.parse(e.data));
       });

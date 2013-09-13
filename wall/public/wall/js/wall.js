@@ -39,7 +39,17 @@ function ($) {
     },
 
     startSession: function() {
-      // XXX Remove all characters
+      // Get all characters in the document
+      var characters = this.doc.querySelectorAll(".character");
+
+      // Don't include characters that are actually templates
+      characters = Array.prototype.filter.call(characters, isNotTemplateChild);
+
+      // Remove each character
+      var wall = this;
+      characters.forEach(function(character) {
+        wall.removeCharacter(character);
+      });
     },
 
     addCharacter: function(character) {
@@ -74,11 +84,15 @@ function ($) {
       return elems;
     },
 
-    removeCharacter: function(charId) {
-      // Try to find character
-      var character = this.doc.getElementById("char-" + charId) ||
-                      this.doc.getElementById(charId);
-      if (!character)
+    removeCharacter: function(character) {
+      // If character is not an element, maybe it is an Id
+      if (character.tagName) {
+        var charElem = character;
+      } else {
+        var charElem = this.doc.getElementById("char-" + character) ||
+                       this.doc.getElementById(character);
+      }
+      if (!charElem)
         return;
 
       // Add a fade out animation
@@ -93,11 +107,11 @@ function ($) {
       // (TODO: Use a timeout as a fallback since some UAs don't support these
       // animation events very well.)
       fadeOut.addEventListener("endEvent", function(e) {
-        character.parentNode.removeChild(character);
+        charElem.parentNode.removeChild(charElem);
       }, true);
 
       // Add and trigger the animation
-      character.appendChild(fadeOut);
+      charElem.appendChild(fadeOut);
       fadeOut.beginElement();
     },
 
@@ -206,15 +220,6 @@ function ($) {
                   + 'animateMotion[repeatCount=indefinite],'
                   + 'animateMotion[repeatDur=indefinite]');
 
-      // Don't apply to animations that are templates
-      function isNotTemplateChild(candidate) {
-        while (candidate = candidate.parentNode) {
-          if (candidate.tagName == "template") {
-            return false;
-          }
-        }
-        return true;
-      }
       return Array.prototype.filter.call(candidates, isNotTemplateChild);
     },
 
@@ -368,4 +373,16 @@ function ($) {
       return elem;
     },
   });
+
+  // Helpers
+
+  // Don't apply to animations that are templates
+  function isNotTemplateChild(candidate) {
+    while (candidate = candidate.parentNode) {
+      if (candidate.tagName == "template") {
+        return false;
+      }
+    }
+    return true;
+  }
 });
