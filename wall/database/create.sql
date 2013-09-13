@@ -76,7 +76,7 @@ CREATE TABLE `characters` (
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 INSERT INTO designs (designId, name, duration) VALUES(1, 'space', 240000);
-INSERT INTO designs (designId, name, duration) VALUES(2, 'wa', 120000);
+INSERT INTO designs (designId, name, duration) VALUES(2, 'wa', 240000);
 
 /* Audit table */
 
