@@ -70,11 +70,6 @@ function initialize(Wall, wallData, design, $) {
       fields.planetDurStr = this.planetDurationMs / 1000 + "s";
       fields.charDurStr   = this.charDurationMs   / 1000 + "s";
 
-      // Define a transform for images
-      fields.imageTransform =
-        "translate(-" + (character.width / 2) +
-                 " -" + (character.height + 20) + ")";
-
       return fields;
     },
   });
