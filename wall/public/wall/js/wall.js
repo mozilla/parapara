@@ -32,7 +32,7 @@ function ($) {
       var progressDiff = this.getClockProgress() - progress;
 
       // Adjust the timeshift
-      this.timeShift += progressDiff;
+      this.timeShift = progressDiff;
 
       // Apply adjustments
       this.scaleAnimations(this.getAnimations());
@@ -179,7 +179,7 @@ function ($) {
       //  - seek offsets to sync up with the wall time defined on the server
       //  - scaling due to changes in the duration
       if (origBeginMs !== null) {
-        var newBeginMs = (origBeginMs + seekAmountMs) * scaleAmount;
+        var newBeginMs = origBeginMs * scaleAmount + seekAmountMs;
         anim = this.updateBeginTime(anim, newBeginMs);
       }
 
