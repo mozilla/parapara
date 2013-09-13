@@ -20,7 +20,8 @@
           <g class="character" data-tmpl-id="char-{{id}}"
             data-target="main-layer">
             <image data-tmpl-id="{{id}}-image" data-tmpl-href="{{uri}}"
-                   data-tmpl-width="{{width}}" data-tmpl-height="{{height}}"/>
+                   data-tmpl-width="{{width}}" data-tmpl-height="{{height}}"
+                   data-tmpl-transform="{{imageTransform}}"/>
             <use transform="matrix(1 0 0 -0.5 0 0)" filter="url(#shadow)"
                  data-tmpl-href="#{{id}}-image"/>
             <animateMotion rotate="auto" repeatCount="indefinite"

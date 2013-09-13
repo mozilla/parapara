@@ -20,22 +20,11 @@ function initialize(Wall, wallData, design, $) {
     debug: false,
 
     init: function(doc, wallData) {
+      // Add debugging output if necessary
       if (this.debug) {
         updateProgress(this, doc);
       }
       this._super(doc, wallData);
-    },
-
-    instantiateTemplate: function(template, character) {
-      var elem = this._super(template, character);
-
-      // Apply additional transform to image
-      var image = elem.querySelector("image");
-      image.setAttribute("transform",
-        "translate(-" + (character.width / 2) +
-                   " -" + (character.height + 20) +")");
-
-      return elem;
     },
 
     getTemplateFields: function(character) {
@@ -80,6 +69,11 @@ function initialize(Wall, wallData, design, $) {
       // Expose a few other constants to templates
       fields.planetDurStr = this.planetDurationMs / 1000 + "s";
       fields.charDurStr   = this.charDurationMs   / 1000 + "s";
+
+      // Define a transform for images
+      fields.imageTransform =
+        "translate(-" + (character.width / 2) +
+                 " -" + (character.height + 20) + ")";
 
       return fields;
     },
