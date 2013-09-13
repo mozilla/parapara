@@ -185,15 +185,29 @@ class Character {
           $type = 'boolean';
           break;
 
+        case 'x':
+          $type = 'integer';
+          break;
+
         default:
           $type = 'text';
           break;
       }
 
+      // Determine value to write to database
+      switch ($name) {
+        case 'x':
+          $value = floor($this->x * 1000);
+          break;
+
+        default:
+          $value = $this->$name;
+          break;
+      }
+
       // Build up query pieces
       array_push($assignments,
-        $conn->quoteIdentifier($name) . ' = '
-        . $conn->quote($this->$name, $type));
+        $conn->quoteIdentifier($name) . ' = ' . $conn->quote($value, $type));
 
       // Build up result
       $changedFields[$name] = $this->$name;
@@ -295,9 +309,9 @@ class Character {
     if (!is_numeric($x))
       throw new KeyedException('bad-request');
 
-    $x = intval($x);
+    $x = floatval($x);
 
-    if ($x < 0 || $x > 1000)
+    if ($x < 0 || $x > 1)
       throw new KeyedException('bad-request');
 
     return $x;
@@ -458,7 +472,7 @@ class Characters {
     $data['active']       = (bool)$data['active'];
     $data['wallId']       = intval($data['wallId']);
     $data['sessionId']    = intval($data['sessionId']);
-    $data['x']            = intval($data['x']);
+    $data['x']            = intval($data['x']) / 1000;
     $data['groundOffset'] = floatval($data['groundOffset']);
     $data['width']        = floatval($data['width']);
     $data['height']       = floatval($data['height']);

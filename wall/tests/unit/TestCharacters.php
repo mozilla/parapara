@@ -37,7 +37,7 @@ class TestCharacters extends ParaparaUnitTestCase {
     $this->assertPattern($this->dateRegEx, @$char->createDate);
     $this->assertIdentical(@$char->active, TRUE);
     $this->assertWithinMargin(@$char->x,
-      floor($this->testWall->getCurrentProgress() * 1000), 10);
+      $this->testWall->getCurrentProgress(), 0.1);
   }
 
   function testWallNotFound() {
@@ -764,22 +764,22 @@ class TestCharacters extends ParaparaUnitTestCase {
     $char = $this->createCharacter();
 
     // Update
-    $char->x = 432;
+    $char->x = 0.432;
     $rv = $char->save();
-    $this->assertIdentical(@$rv['x'], 432);
+    $this->assertIdentical(@$rv['x'], 0.432);
 
     // Check if has been saved
     $fetchedChar = Characters::getById($char->charId);
-    $this->assertIdentical($fetchedChar->x, 432);
+    $this->assertIdentical($fetchedChar->x, 0.432);
 
     // Check value coercion
-    $char->x = 567.89;
+    $char->x = "0.567";
     $rv = $char->save();
-    $this->assertIdentical(@$rv['x'], 567);
+    $this->assertIdentical(@$rv['x'], 0.567);
 
     // Check out of range
     try {
-      $char->x = 2000;
+      $char->x = 1.1;
       $this->fail("Failed to throw exception with bad x value");
     } catch (KeyedException $e) {
       $this->assertEqual($e->getKey(), "bad-request");
