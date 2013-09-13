@@ -227,6 +227,32 @@ class TestWallStream extends APITestCase {
     $this->assertIdentical(json_decode(@$events[1]['data'], true), $charB);
   }
 
+  function testHiddenCharacters() {
+    // Add some characters
+    $charA = $this->api->createCharacter($this->testWall['wallId'],
+      array('title' => 'Character A'));
+    $charB = $this->api->createCharacter($this->testWall['wallId'],
+      array('title' => 'Character B'));
+
+    // Hide character A
+    $this->api->login();
+    $this->api->updateCharacter($charA['charId'], array('active' => false));
+
+    // Read stream
+    list($stream, $headers) = $this->openStream($this->testWall['wallId']);
+
+    // Should get sync-progress, start-session event, 1 x add-character events
+    $events = $this->readEvents($stream, $lastEventId);
+    $this->assertIdentical(count($events), 3,
+                           "Unexpected number of events: %s");
+    $this->assertIdentical(@$events[0]['event'], "sync-progress");
+    $this->assertIdentical(@$events[1]['event'], "start-session");
+    $this->assertIdentical(@$events[2]['event'], "add-character");
+
+    // Check the character data
+    $this->assertIdentical(json_decode(@$events[2]['data'], true), $charB);
+  }
+
   function testShowHideCharacters() {
     // Add a character
     $char = $this->api->createCharacter($this->testWall['wallId'],

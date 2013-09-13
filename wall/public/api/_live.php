@@ -195,6 +195,10 @@ function dispatchAddCharacterEventsForLatestSession($wall) {
     if ($latestSessionId) {
       $characters = Characters::getBySession($wall->wallId, $latestSessionId);
       foreach($characters as $char) {
+        // Skip hidden characters
+        if (!$char->active)
+          continue;
+
         echo "event: add-character\n";
         echo "data: " . json_encode($char->asArray()) . "\n\n";
       }
