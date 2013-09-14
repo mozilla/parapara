@@ -12,7 +12,13 @@ function(_, Backbone, BaseView, template) {
       "change input[type=radio]": "radioChange"
     },
     render: function() {
-      this.renderTemplate(template, { designs: this.collection.toJSON() });
+      // Get list of designs
+      // (Hide any that don't have a thumbnail or video associated with them)
+      var designs = _.filter(this.collection.toJSON(), function(design) {
+        return (design.thumbnail ||
+                (design.video && design.video.length));
+      });
+      this.renderTemplate(template, { designs: designs });
 
       // Clear state on reset
       this.$el.closest("form").on("reset", function(evt) {
