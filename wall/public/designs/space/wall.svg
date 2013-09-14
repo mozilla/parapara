@@ -30,7 +30,7 @@
                (By the way, we don't put this comment in the group below because
                otherwise it gets cloned as well.)
             -->
-          <g class="character" data-tmpl-id="char-{{id}}"
+          <g class="character" data-tmpl-data-char-id="{{id}}"
             data-target="main-layer">
             <image data-tmpl-id="{{id}}-image" data-tmpl-href="{{uri}}"
                    width="300" height="300" transform="translate(-150 -280)"/>

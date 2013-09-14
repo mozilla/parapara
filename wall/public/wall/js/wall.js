@@ -85,34 +85,48 @@ function ($) {
     },
 
     removeCharacter: function(character) {
-      // If character is not an element, maybe it is an Id
+      // See if character is:
+      //  - an element
+      //  - an array of elements
+      //  - an ID
+      var characters;
       if (character.tagName) {
-        var charElem = character;
-      } else {
-        var charElem = this.doc.getElementById("char-" + character) ||
-                       this.doc.getElementById(character);
+        characters = new Array(character);
+      } else if (Object.prototype.toString.call(character) ===
+                 '[object Array]') {
+        characters = character;
+      } else if (typeof character === 'string' ||
+                 typeof character === 'number') {
+        var nodelist =
+          this.doc.querySelectorAll('[data-char-id="' + character + '"]');
+        characters = Array.prototype.slice.call(nodelist);
       }
-      if (!charElem)
+      console.log(characters);
+      if (!characters || !characters.length)
         return;
 
-      // Add a fade out animation
-      var fadeOut = document.createElementNS(this.SVG_NS, "animate");
-      fadeOut.setAttribute("attributeName", "opacity");
-      fadeOut.setAttribute("to", "0");
-      fadeOut.setAttribute("dur", "0.5s");
-      fadeOut.setAttribute("begin", "indefinite");
-      fadeOut.setAttribute("fill", "freeze");
-      
-      // Attach event handler to actually remove the character
-      // (TODO: Use a timeout as a fallback since some UAs don't support these
-      // animation events very well.)
-      fadeOut.addEventListener("endEvent", function(e) {
-        charElem.parentNode.removeChild(charElem);
-      }, true);
+      // Fade out and remove each character
+      var wall = this;
+      characters.forEach(function(charElem) {
+        // Add a fade out animation
+        var fadeOut = document.createElementNS(wall.SVG_NS, "animate");
+        fadeOut.setAttribute("attributeName", "opacity");
+        fadeOut.setAttribute("to", "0");
+        fadeOut.setAttribute("dur", "0.5s");
+        fadeOut.setAttribute("begin", "indefinite");
+        fadeOut.setAttribute("fill", "freeze");
 
-      // Add and trigger the animation
-      charElem.appendChild(fadeOut);
-      fadeOut.beginElement();
+        // Attach event handler to actually remove the character
+        // (TODO: Use a timeout as a fallback since some UAs don't support these
+        // animation events very well.)
+        fadeOut.addEventListener("endEvent", function(e) {
+          charElem.parentNode.removeChild(charElem);
+        }, true);
+
+        // Add and trigger the animation
+        charElem.appendChild(fadeOut);
+        fadeOut.beginElement();
+      });
     },
 
     changeDuration: function(duration) {

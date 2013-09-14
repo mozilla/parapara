@@ -18,7 +18,7 @@
       <template>
         <svg>
           <!-- The character template -->
-          <g class="character" data-tmpl-id="char-{{id}}"
+          <g class="character" data-tmpl-data-char-id="{{id}}"
             data-target="main-layer" data-tmpl-transform="{{charTransform}}">
             <image data-tmpl-id="{{id}}-image" data-tmpl-href="{{uri}}"
                    data-tmpl-width="{{width}}" data-tmpl-height="{{height}}"
