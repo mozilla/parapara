@@ -176,7 +176,7 @@
 </svg>
 
 <!-- Mat -->
-<g>
+<g display="none">
   <rect fill="#EFE6CE" width="1190.55" height="841.89"
     mask="url(#holes)" opacity="0.8"/>
   <mask id="holes">
