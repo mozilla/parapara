@@ -33,7 +33,7 @@ function(_, Backbone, webL10n, BaseView, template) {
         var key =
           _.find(candidateKeys,
             function(candidate) { return !!webL10n.getData()[candidate]; }
-          );
+          ) || this.messageKey;
 
         // Render
         this.renderTemplate(template,
