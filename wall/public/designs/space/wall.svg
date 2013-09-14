@@ -24,8 +24,8 @@
                rotation of the planet. This lets us show a different set of
                characters on each rotation of the faster character loop.
 
-               We achieve this by turning each character on only for its loop
-               which currently takes 1/6th of the time of the planet duration.
+               We achieve this by turning each character on only for the time
+               while it is on the stage (as calculated in js/wall.js).
 
                (By the way, we don't put this comment in the group below because
                otherwise it gets cloned as well.)
@@ -42,7 +42,8 @@
               <mpath xlink:href="#main-layer-path"/>
             </animateMotion>
             <animate attributeName="display" repeatCount="indefinite"
-              values="block; none" keyTimes="0; 0.167" calcMode="discrete"
+              values="none; block; none" calcMode="discrete"
+              data-tmpl-keyTimes="{{displayKeyTimes}}"
               data-tmpl-dur="{{planetDurStr}}" data-tmpl-begin="{{beginStr}}"/>
           </g>
         </svg>
