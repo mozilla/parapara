@@ -367,6 +367,9 @@ hr {
   border: 1px solid black;
   border-radius: 15px;
 }
+.designSelection .designPreview {
+  vertical-align: top;
+}
 
 /*
  * Management screen layout
