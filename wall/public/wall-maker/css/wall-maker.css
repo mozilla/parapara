@@ -389,9 +389,11 @@ hr {
   box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1)
 }
 #wall-summary > div {
-  display: inline-block;
   vertical-align: top;
   padding: 0 0.2em;
+}
+#wall-summary > div:not(.hide) {
+  display: inline-block;
 }
 #wall-thumbnail > img {
   border-radius: 15px;
