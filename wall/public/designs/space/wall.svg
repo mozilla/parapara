@@ -37,14 +37,14 @@
             <use transform="matrix(1 0 0 -0.5 0 0)" filter="url(#shadow)"
                  data-tmpl-href="#{{id}}-image"/>
             <animateMotion rotate="auto" repeatCount="indefinite"
-              calcMode="linear" keyPoints="1; 0"
-              data-tmpl-dur="{{charDurStr}}" data-tmpl-begin="{{beginStr}}">
+              calcMode="linear" keyPoints="1; 0" id="char-time-base"
+              dur="40s" data-tmpl-begin="{{beginStr}}">
               <mpath xlink:href="#main-layer-path"/>
             </animateMotion>
             <animate attributeName="display" repeatCount="indefinite"
               values="none; block; none" calcMode="discrete"
               data-tmpl-keyTimes="{{displayKeyTimes}}"
-              data-tmpl-dur="{{planetDurStr}}" data-tmpl-begin="{{beginStr}}"/>
+              dur="240s" data-tmpl-begin="{{beginStr}}"/>
           </g>
         </svg>
       </template>
@@ -78,8 +78,6 @@
     </image>
 
     <g id="main-layer" >
-      <!-- If changing the duration of this, be sure to update js/wall.js
-           (planetDurationMs) as well! -->
       <animateTransform id="time-base" attributeName="transform" type="rotate"
         from="0 1700 1700" to="360 1700 1700" repeatCount="indefinite"
         additive="sum" dur="240s"/>

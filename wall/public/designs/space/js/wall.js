@@ -5,15 +5,6 @@
 function initialize(Wall, wallData, design, $) {
 
   var SpaceWall = Wall.extend({
-    // The time taken for the planet to do a full rotation (before any duration
-    // scaling).
-    //
-    // This needs to be kept in sync with wall.svg
-    planetDurationMs: 240 * 1000,
-
-    // The time taken for a character do a full loop of its track.
-    charDurationMs: 40 * 1000,
-
     // Debug wall
     //
     // Shows wall progress for debugging positioning
@@ -24,6 +15,13 @@ function initialize(Wall, wallData, design, $) {
       if (this.debug) {
         updateProgress(this, doc);
       }
+
+      // Work out timing from template
+      this.planetDurationMs =
+        document.getElementById("time-base").getSimpleDuration() * 1000;
+      this.charDurationMs =
+        document.getElementById("char-time-base").getSimpleDuration() * 1000;
+
       this._super(doc, wallData);
     },
 
@@ -87,10 +85,6 @@ function initialize(Wall, wallData, design, $) {
                      this.planetDurationMs *
                      (1 - rate);
       fields.beginStr = fields.begin / 1000 + "s";
-
-      // Expose a few other constants to templates
-      fields.planetDurStr = this.planetDurationMs / 1000 + "s";
-      fields.charDurStr   = this.charDurationMs   / 1000 + "s";
 
       // Now to calculate the range where an individual animation should be
       // turned on.
