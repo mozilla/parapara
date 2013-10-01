@@ -44,14 +44,13 @@
         
         top: 50%;
         margin-top: -75px;
-        vertical-align: center;
+        vertical-align: middle;
         
         background: rgb(242, 222, 222);
         border: 1px solid rgb(185, 74, 72);
         color: rgb(185, 74, 72);
         border-radius: 15px;
         padding: 35px 14px;
-        margin-bottom: 1em 10%;
       }
       @media (max-width: 400px) {
         div.error {

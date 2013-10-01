@@ -24,12 +24,13 @@ function ($, Wall) {
       }
       var url = '/api/walls/byname/' + wallName;
       var wall, design;
-      $.get(url)
+      var deferred = $.get(url)
         .then(function(data) {
           if (data.error_key || !data.designId) {
             showError("Couldn't load wall");
+            console.log("Wall not found");
             console.log(data);
-            return;
+            return deferred.fail();
           }
           wall = data;
 
@@ -39,22 +40,25 @@ function ($, Wall) {
         .then(function(designs) {
           if (designs.error_key) {
             showError("Couldn't load wall");
+            console.log("Error in designs");
             console.log(designs);
-            return;
+            return deferred.fail();
           }
           // Find the design for this wall
           var result =
             $.grep(designs, function(d) { return d.designId == wall.designId;});
           if (result.length !== 1) {
             showError("Couldn't load wall");
+            console.log("Couldn't find matching design");
             console.log(designs);
-            return;
+            return deferred.fail();
           }
           design = result[0];
           if (!design.wall) {
             showError("Couldn't load wall");
+            console.log("Couldn't find wall source for design");
             console.log(design);
-            return;
+            return deferred.fail();
           }
 
           // Update window title
@@ -68,7 +72,8 @@ function ($, Wall) {
           });
         })
         .fail(function() {
-          showError("Couldn't find wall");
+          showError("Couldn't load wall");
+          console.log("Couldn't load designs");
         });
     }
 
