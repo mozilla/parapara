@@ -49,6 +49,9 @@
               repeatCount="indefinite" data-tmpl-begin="{{beginStr}}">
               <mpath xlink:href="#walk-path-skytree"/>
             </animateMotion>
+            <animate attributeName="display" dur="120s" calcMode="discrete"
+              keyTimes="0; 0.0833" values="inline; none"
+              repeatCount="indefinite" data-tmpl-begin="{{beginStr}}"/>
           </g>
         </svg>
       </template>
@@ -91,6 +94,9 @@
               keyTimes="0; 0.28833; 0.3333; 1"
               data-tmpl-begin="{{beginStr}}" dur="120s"
               repeatCount="indefinite"/>
+            <animate attributeName="display" dur="120s" calcMode="discrete"
+              keyTimes="0; 0.25; 0.3333" values="none; inline; none"
+              repeatCount="indefinite" data-tmpl-begin="{{beginStr}}"/>
           </g>
         </svg>
       </template>
@@ -150,6 +156,9 @@
               repeatCount="indefinite" calcMode="linear">
               <mpath xlink:href="#walk-path-shibuya-1"/>
             </animateMotion>
+            <animate attributeName="display" dur="120s" calcMode="discrete"
+              keyTimes="0; 0.5; 0.5833" values="none; inline; none"
+              repeatCount="indefinite" data-tmpl-begin="{{beginStr}}"/>
           </g>
           <g class="character" data-tmpl-data-char-id="{{id}}"
             data-target="shibuya-layer-back">
@@ -164,6 +173,9 @@
               keyPoints="0; 0; 1; 1" repeatCount="indefinite" calcMode="linear">
               <mpath xlink:href="#walk-path-shibuya-2"/>
             </animateMotion>
+            <animate attributeName="display" dur="120s" calcMode="discrete"
+              keyTimes="0; 0.70833; 0.8333" values="none; inline; none"
+              repeatCount="indefinite" data-tmpl-begin="{{beginStr}}"/>
           </g>
         </svg>
       </template>
