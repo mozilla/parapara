@@ -10,8 +10,8 @@ require_once("walls.inc");
 
   // We have to make everything absolute so that when the access resources from 
   // subdirectories mapped to this file we can still find all the resources
-  $wallRoot = dirname($_SERVER['SCRIPT_NAME']);
-  $thisUrl = getCurrentServer() . $_SERVER['REQUEST_URI'];
+  $wallsRoot = dirname($_SERVER['SCRIPT_NAME']);
+  $thisUrl   = getCurrentServer() . $_SERVER['REQUEST_URI'];
 
   // Get wall details
   $wallName = "Parapara Animation";
@@ -25,15 +25,16 @@ require_once("walls.inc");
 <html>
   <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=620, initial-scale=1.0">
     <title><?php echo $wallName ?></title>
+    <link rel="stylesheet" href="<?php echo $wallsRoot; ?>/css/walls.css">
     <script>
       var Parapara = Parapara || {};
       Parapara.wallName  = '<?php echo @$_REQUEST['wall'] ?>';
       Parapara.sessionId = '<?php echo @$_REQUEST['sessionId'] ?>';
     </script>
-    <script data-main="<?php echo $wallRoot ?>/js/main.js"
+    <script data-main="<?php echo $wallsRoot ?>/js/main.js"
       src="/js/lib/require.js"></script>
-    <meta name="viewport" content="width=620, initial-scale=1.0">
     <style type="text/css">
       body {
         font-family: helvetica;
@@ -69,34 +70,6 @@ require_once("walls.inc");
       .fb-like {
         position: relative;
         top: -4px;
-      }
-      div.error {
-        display: none;
-        position: fixed;
-        
-        left: 50%;
-        width: 400px;
-        max-width: 80%;
-        margin-left: -200px;
-        text-align: center;
-        
-        top: 50%;
-        margin-top: -75px;
-        vertical-align: middle;
-        
-        background: rgb(242, 222, 222);
-        border: 1px solid rgb(185, 74, 72);
-        color: rgb(185, 74, 72);
-        border-radius: 15px;
-        padding: 35px 14px;
-      }
-      @media (max-width: 400px) {
-        div.error {
-          left: inherit;
-          width: 96%;
-          margin-left: 2%;
-          margin-right: 2%;
-        }
       }
     </style>
   </head>

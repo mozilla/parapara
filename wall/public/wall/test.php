@@ -5,7 +5,7 @@
 <?php
   // We have to make everything absolute so that when the access resources from 
   // subdirectories mapped to this file we can still find all the resources
-  $wallRoot = dirname($_SERVER['SCRIPT_NAME']);
+  $wallsRoot = dirname($_SERVER['SCRIPT_NAME']);
 ?>
 <html>
   <head>
@@ -16,7 +16,7 @@
       Parapara.wallName  = '<?php echo @$_REQUEST['wall'] ?>';
       Parapara.sessionId = '<?php echo @$_REQUEST['sessionId'] ?>';
     </script>
-    <script data-main="<?php echo $wallRoot ?>/js/main.js"
+    <script data-main="<?php echo $wallsRoot ?>/js/main.js"
       src="/js/lib/require.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
@@ -31,34 +31,6 @@
         width: 100%;
         height: 100%;
         border: 0;
-      }
-      div.error {
-        display: none;
-        position: fixed;
-        
-        left: 50%;
-        width: 400px;
-        max-width: 80%;
-        margin-left: -200px;
-        text-align: center;
-        
-        top: 50%;
-        margin-top: -75px;
-        vertical-align: middle;
-        
-        background: rgb(242, 222, 222);
-        border: 1px solid rgb(185, 74, 72);
-        color: rgb(185, 74, 72);
-        border-radius: 15px;
-        padding: 35px 14px;
-      }
-      @media (max-width: 400px) {
-        div.error {
-          left: inherit;
-          width: 96%;
-          margin-left: 2%;
-          margin-right: 2%;
-        }
       }
     </style>
   </head>
