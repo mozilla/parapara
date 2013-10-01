@@ -24,6 +24,10 @@ function ($) {
       // This value is used to adjust the begin times of animations so that they
       // are in sync with the server.
       this.timeShift = 0;
+
+      // Do an initial scale to make sure the background is running at the right
+      // duration
+      this.scaleAnimations();
     },
 
     syncProgress: function(progress) {

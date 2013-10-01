@@ -65,6 +65,19 @@ class TestCharactersAPI extends APITestCase {
     $this->assertIdentical($charB, $result[1]);
   }
 
+  function testGetCharactersByBadSession() {
+    // Make wall
+    $this->api->login();
+    $wall = $this->api->createWall('Test wall', $this->testDesignId);
+    $this->api->logout();
+
+    // Fetch
+    $result = $this->api->getCharactersBySession($wall['wallId'], 2);
+
+    // Check result
+    $this->assertEqual(@$result['error_key'], 'session-not-found');
+  }
+
   function testGetCharactersByWall() {
     // Make wall
     $this->api->login();

@@ -20,6 +20,6 @@ require.config({
 });
 
 require(['wall/wall-runner'], function (WallRunner) {
-  var runner = new WallRunner(Parapara.wallName, Parapara.view);
+  var runner = new WallRunner(Parapara.wallName, Parapara.sessionId);
   runner.initialize();
 });

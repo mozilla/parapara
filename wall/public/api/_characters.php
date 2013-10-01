@@ -54,6 +54,9 @@ switch ($_SERVER['REQUEST_METHOD']) {
     $flatten = create_function('$char', 'return $char->asArray();');
     if ($sessionId) {
       $characters = Characters::getBySession($wall->wallId, $sessionId);
+      if ($characters === null) {
+        bailWithError('session-not-found');
+      }
       $result = array_map($flatten, $characters);
     } else {
       $result = $wall->getSessions("Include characters");

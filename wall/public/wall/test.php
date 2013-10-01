@@ -13,8 +13,8 @@
     <title>Parapara Animation loading...</title>
     <script>
       var Parapara = Parapara || {};
-      Parapara.wallName = '<?php echo @$_REQUEST['wall'] ?>';
-      Parapara.view = '<?php echo @$_REQUEST['view'] ?>';
+      Parapara.wallName  = '<?php echo @$_REQUEST['wall'] ?>';
+      Parapara.sessionId = '<?php echo @$_REQUEST['sessionId'] ?>';
     </script>
     <script data-main="<?php echo $wallRoot ?>/js/main.js"
       src="/js/lib/require.js"></script>

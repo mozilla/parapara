@@ -7,17 +7,21 @@ Public-facing content:
 /wall/<wall-name> - show live wall
                     (always shows most up-to-date session even when a new
                     session is started)
-/wall/<wall-name>/sessions - Gallery-like list of sessions for wall?
+/wall/<wall-name>/sessions - List of sessions for each wall
+                             (links to gallery view)
+                             If there is only one session, show it in gallery
+                             format? Or just redirect to
+                             /wall/<wall-name>/gallery?
 /wall/<wall-name>/sessions/<session-id> - show wall corresponding to a given
                                           session
 /wall/<wall-name>/sessions/<session-id>/gallery - show gallery view of session
-/wall/<wall-name>/gallery - show all (non-hidden) characters from all sessions
-                            in order of submission in gallery format
+/wall/<wall-name>/gallery - show latest session in gallery format
 
-/gallery - list all walls that are publicly listed as galleries
+/gallery - list all walls that are publicly listed
+           (links to <wall-name>/sessions)
 
 /characters/<character-id> - shows character with title (HTML embedding)
-/characters/raw/<character-id> - shows just SVG file
+/characters/<character-id>.svg - shows just SVG file
 
 /designs/<design-name>/editor-stylesheet.css
 /designs/<design-name>/thumbnail.{png|jpg|gif}

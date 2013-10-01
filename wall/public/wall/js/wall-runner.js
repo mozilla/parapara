@@ -4,7 +4,7 @@
 
 define([ 'jquery', 'wall/wall' ],
 function ($, Wall) {
-  return function (wallName, view)
+  return function (wallName, sessionId)
   {
     this.initialize = function() {
       // Check for support
@@ -96,7 +96,14 @@ function ($, Wall) {
       var wall = new wallProto(iframe.contentDocument, wallData);
 
       // Set up data
-      // XXX Test 'view' and call the appropriate API endpoint
+      if (!sessionId) {
+        initLiveStream(wall);
+      } else {
+        initSessionDisplay(wall, sessionId);
+      }
+    }
+
+    function initLiveStream(wall) {
       var wallStream =
         new EventSource('/api/walls/byname/' + wallName + '/live');
       wallStream.onerror = function(e) {
@@ -125,6 +132,28 @@ function ($, Wall) {
         showError("Wall removed");
         wallStream.close();
       });
+    }
+
+    function initSessionDisplay(wall, sessionId) {
+      var url =
+        '/api/walls/byname/' + wallName +
+        '/sessions/' + sessionId + '/characters';
+      var deferred = $.get(url)
+        .then(function(characters) {
+          if (characters.error_key) {
+            showError("Couldn't load wall");
+            console.log("Error in characters");
+            console.log(characters);
+            return deferred.fail();
+          }
+          characters.forEach(function(character) {
+            wall.addCharacter(character);
+          });
+        })
+        .fail(function() {
+          showError("Couldn't load wall");
+          console.log("Couldn't find session");
+        });
     }
   };
 });
