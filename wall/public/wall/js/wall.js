@@ -302,13 +302,11 @@ function ($) {
         elem.ownerDocument.createElementNS(elem.namespaceURI, elem.tagName);
       for (var i = 0; i < elem.attributes.length; i++) {
         var attrib = elem.attributes[i];
-        if (attrib.specified) {
-          if (attrib.namespaceURI) {
-            clone.setAttributeNS(attrib.namespaceURI, attrib.name,
-                                 attrib.value);
-          } else {
-            clone.setAttribute(attrib.name, attrib.value);
-          }
+        if (attrib.namespaceURI) {
+          clone.setAttributeNS(attrib.namespaceURI, attrib.name,
+                               attrib.value);
+        } else {
+          clone.setAttribute(attrib.name, attrib.value);
         }
       }
 
