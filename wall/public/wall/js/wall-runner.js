@@ -116,7 +116,10 @@ function ($, Wall) {
       wallStream.addEventListener("change-design", function(e) {
         window.location.reload(true);
       });
-      // XXX Fill out the rest of the methods
+      wallStream.addEventListener("remove-wall", function(e) {
+        showError("Wall removed");
+        wallStream.close();
+      });
     }
   };
 });
