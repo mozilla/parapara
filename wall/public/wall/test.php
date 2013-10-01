@@ -63,7 +63,7 @@
     </style>
   </head>
   <body>
-    <iframe id="wallFrame"></iframe>
+    <iframe class="wall"></iframe>
     <div class="error"></div>
   </body>
 </html>

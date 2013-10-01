@@ -65,7 +65,7 @@ function ($, Wall) {
           document.title = wall.name;
 
           // Start loading wall design
-          var iframe = $("iframe");
+          var iframe = $("iframe.wall");
           iframe.attr('src', design.wall);
           iframe[0].addEventListener("load", function() {
             initWall(wall, design, iframe[0]);
