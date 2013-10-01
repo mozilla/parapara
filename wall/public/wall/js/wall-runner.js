@@ -113,6 +113,9 @@ function ($, Wall) {
       wallStream.addEventListener("change-duration", function(e) {
         wall.changeDuration(parseFloat(e.data));
       });
+      wallStream.addEventListener("change-design", function(e) {
+        window.location.reload(true);
+      });
       // XXX Fill out the rest of the methods
     }
   };
