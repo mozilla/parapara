@@ -6,9 +6,8 @@ Options -Indexes
   RewriteCond %{REQUEST_URI} !index
   RewriteBase /
   RewriteRule ^([^/]+)$ /walls/index.php?wall=$1 [L]
-  RewriteRule ^([^/]+)/test$ /walls/test.php?wall=$1 [L]
   RewriteRule ^([^/]+)/gallery$ /walls/_gallery.php?wall=$1 [L]
-  RewriteRule ^([^/]+)/sessions/([0-9]+)$ /walls/test.php?wall=$1&sessionId=$2
+  RewriteRule ^([^/]+)/sessions/([0-9]+)$ /walls/index.php?wall=$1&sessionId=$2
   RewriteRule ^([^/]+)/sessions/([0-9]+)/gallery$ /walls/_gallery.php?wall=$1&sessionId=$2
 </ifModule>
 php_flag short_open_tag off
