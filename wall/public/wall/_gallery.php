@@ -16,11 +16,15 @@ require_once("walls.inc");
   // Get wall details
   $wallName     = "Parapara Animation";
   $sessionStart = null;
+  $thumbnailUrl = null;
   try {
     $wall = Walls::getByPath($_REQUEST['wall']);
     if ($wall) {
       $wallName = htmlspecialchars($wall->name);
       $sessionStart = getSessionStartTime($wall, @$_REQUEST['sessionId']);
+      if ($wall->design && $wall->design->thumbnail) {
+        $thumbnailUrl = getCurrentServer() . $wall->design->thumbnail;
+      }
     }
   } catch (Exception $e) { }
 
@@ -49,7 +53,10 @@ require_once("walls.inc");
     <meta charset="utf-8">
     <meta name="viewport" content="width=620, initial-scale=1.0">
     <title><?php echo $wallName ?></title>
-    <link rel="stylesheet" href="<?php echo $wallsRoot; ?>/css/walls.css">
+    <link rel="stylesheet" href="<?php echo $wallsRoot ?>/css/walls.css">
+<?php if ($thumbnailUrl): ?>
+    <link rel="image_src" href="<?php echo $thumbnailUrl ?>">
+<?php endif; ?>
     <script>
       var Parapara = Parapara || {};
       Parapara.wallName  = '<?php echo @$_REQUEST['wall'] ?>';
