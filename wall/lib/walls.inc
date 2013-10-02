@@ -698,7 +698,7 @@ class Wall {
   }
 
   public static function getUrlForPath($path) {
-    return getCurrentServer() . '/wall/' . rawurlencode($path);
+    return getCurrentServer() . '/walls/' . rawurlencode($path);
   }
 
   public static function getEditorUrlForPath($path) {
