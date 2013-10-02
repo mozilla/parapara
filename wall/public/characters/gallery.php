@@ -29,7 +29,7 @@ if ($id < 1 || !@file_exists($id . '.svg')) {
   $desc = $descNodes && $descNodes->item(0)
         ? $descNodes->item(0)->textContent : null;
 
-  // Try to get the event details
+  // Try to get the character details
   try {
     $char = Characters::getById($id);
     if ($char) {
@@ -37,20 +37,22 @@ if ($id < 1 || !@file_exists($id . '.svg')) {
         $createDate = strtotime($char->createDate);
       }
       $wall = $char->wall;
+      $previewUrl = $char->previewUrl;
     }
     if ($wall) {
       $eventName = $wall->name;
     }
-  } catch (KeyedException $e) {
-  }
+  } catch (KeyedException $e) { }
 }
 ?>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8">
   <title><?php if (!empty($title)) echo "$title @ " ?>Parapara Animation</title>
-  <link rel="icon" type="image/png" href="favicon.png">
+<?php if ($previewUrl): ?>
+  <link rel="image_src" type="image/svg" href="<?php echo $previewUrl ?>">
+<?php endif; ?>
   <style type="text/css">
   body {
     font-family: helvetica;
