@@ -279,10 +279,7 @@ class Wall {
       . implode(', ', $assignments)
       . ' WHERE wallId = ' . $conn->quote($this->wallId, 'integer');
     $res =& $conn->exec($query);
-    if (PEAR::isError($res)) {
-      error_log($res->getMessage() . ', ' . $res->getDebugInfo());
-      throw new KeyedException('db-error');
-    }
+    checkDbResult($res);
     $conn->disconnect();
 
     // Reset dirty fields
@@ -489,10 +486,7 @@ class Wall {
       'SELECT sessionId, beginDate as start, endDate as end FROM sessions'
       . ' WHERE wallId = ' . $conn->quote($this->wallId, 'integer')
       . ' ORDER BY sessionId');
-    if (PEAR::isError($res)) {
-      error_log($res->getMessage() . ', ' . $res->getDebugInfo());
-      throw new KeyedException('db-error');
-    }
+    checkDbResult($res);
 
     // Process results
     $result = array();
@@ -765,17 +759,11 @@ class Walls {
       . ',' . $conn->quote($date, 'timestamp')
       . ')';
     $res =& $conn->query($query);
-    if (PEAR::isError($res)) {
-      error_log($res->getMessage() . ', ' . $res->getDebugInfo());
-      throw new KeyedException('db-error');
-    }
+    checkDbResult($res);
 
     // Get ID of newly created wall
     $wallId = $conn->lastInsertID('walls', 'wallId');
-    if (PEAR::isError($wallId)) {
-      error_log($res->getMessage() . ', ' . $res->getDebugInfo());
-      throw new KeyedException('db-error');
-    }
+    checkDbResult($wallId);
 
     // Return newly created wall object
     // (We could just create the Wall object from the information we have on 

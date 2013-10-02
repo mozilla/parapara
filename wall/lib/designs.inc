@@ -131,10 +131,7 @@ class DesignGallery {
       null,
       MDB2_FETCHMODE_ASSOC
     );
-    if (PEAR::isError($row)) {
-      error_log($row->getMessage() . ', ' . $row->getDebugInfo());
-      throw new KeyedException('db-error');
-    }
+    checkDbResult($row);
 
     // Check if it was found
     if ($row === null)
@@ -155,10 +152,7 @@ class DesignGallery {
       . ' LIMIT 1',
       null,
       MDB2_FETCHMODE_ASSOC);
-    if (PEAR::isError($row)) {
-      error_log($row->getMessage() . ', ' . $row->getDebugInfo());
-      throw new KeyedException('db-error');
-    }
+    checkDbResult($row);
 
     // Check if it was found
     if ($row === null)
@@ -183,10 +177,7 @@ class DesignGallery {
     $conn =& getDbConnection();
     $res =& $conn->query(
       'SELECT designId, name, duration FROM designs ORDER BY designId');
-    if (PEAR::isError($res)) {
-      error_log($res->getMessage() . ', ' . $res->getDebugInfo());
-      throw new KeyedException('db-error');
-    }
+    checkDbResult($res);
 
     // Create Design objects
     $result = array();
