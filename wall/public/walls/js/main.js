@@ -6,7 +6,7 @@ require.config({
   baseUrl: '/js/lib',
   paths: {
     // Aliases
-    wall: '../../walls/js',
+    walls: '../../walls/js',
 
     // Shims
     jquery: 'jquery-2.0.2.min',
@@ -19,7 +19,7 @@ require.config({
   }
 });
 
-require(['wall/wall-runner'], function (WallRunner) {
+require(['walls/wall-runner'], function (WallRunner) {
   var runner = new WallRunner(Parapara.wallName, Parapara.sessionId);
   runner.initialize();
 });
