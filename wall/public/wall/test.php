@@ -11,6 +11,7 @@
   <head>
     <meta charset="utf-8">
     <title>Parapara Animation loading...</title>
+    <link rel="stylesheet" href="<?php echo $wallsRoot; ?>/css/walls.css">
     <script>
       var Parapara = Parapara || {};
       Parapara.wallName  = '<?php echo @$_REQUEST['wall'] ?>';

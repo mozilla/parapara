@@ -18,7 +18,7 @@ require_once("walls.inc");
   try {
     $wall = Walls::getByPath($_REQUEST['wall']);
     if ($wall) {
-      $wallName = htmlentities($wall->name);
+      $wallName = htmlspecialchars($wall->name);
     }
   } catch (Exception $e) { }
 ?>
@@ -71,13 +71,17 @@ require_once("walls.inc");
         position: relative;
         top: -4px;
       }
+
+      /* Hide all the above if the document is in error */
+      .error #content {
+        display: none;
+      }
     </style>
   </head>
   <body>
   <div id="content">
     <div id="title"><?php echo $wallName ?></div>
     <iframe class="wall"></iframe>
-    <div class="error"></div>
     <div id="description">
       <!-- XXX Fill this in -->
       <div id="date">2012/03/25</div>
@@ -100,5 +104,6 @@ require_once("walls.inc");
       fjs.parentNode.insertBefore(js, fjs);
     }(document, 'script', 'facebook-jssdk'));</script>
   </div>
+  <div class="error"></div>
 </body>
 </html>

@@ -80,6 +80,7 @@ function ($, Wall) {
     // XXX i10n
     function showError(msg) {
       $("div.error").text(msg).show();
+      $("body").addClass("error");
     }
 
     function initWall(wallData, designData, iframe) {
