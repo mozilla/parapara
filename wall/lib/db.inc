@@ -7,19 +7,6 @@ require_once("parapara.inc");
 require_once("MDB2.php");
 require_once("exceptions.inc");
 
-function getConnection() {
-  global $config;
-  $connection =
-    mysql_connect("127.0.0.1", $config['db']['user'], $config['db']['password'])
-    or die(mysql_error());
-  mysql_select_db($config['db']['database'], $connection) or die(mysql_error());
-  return $connection;
-}
-
-function throwException($message = null,$code = null) {
-  throw new Exception($message, $code);
-}
-
 $conn = null;
 function getDbConnection() {
   global $config, $conn;
