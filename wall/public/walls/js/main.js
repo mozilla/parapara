@@ -6,7 +6,7 @@ require.config({
   baseUrl: '/js/lib',
   paths: {
     // Aliases
-    wall: '../../wall/js',
+    wall: '../../walls/js',
 
     // Shims
     jquery: 'jquery-2.0.2.min',
