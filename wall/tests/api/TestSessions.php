@@ -266,16 +266,6 @@ class SessionsTestCase extends APITestCase {
     $this->assertEqual(@$response['error_key'], 'no-auth');
   }
 
-  function testListSomeoneElsesWall() {
-    // Create wall as test user
-    $wall = $this->api->createWall('Wall 1', $this->testDesignId);
-
-    // Switch user and try
-    $this->api->login('abc@abc.org');
-    $response = $this->api->getSessions($wall['wallId']);
-    $this->assertEqual(@$response['error_key'], 'no-auth');
-  }
-
   // Session IDs should be wall-specific
   function testSessionIds() {
     // Create first wall

@@ -14,13 +14,35 @@ require_once("walls.inc");
   $thisUrl   = getCurrentServer() . $_SERVER['REQUEST_URI'];
 
   // Get wall details
-  $wallName = "Parapara Animation";
+  $wallName     = "Parapara Animation";
+  $sessionStart = null;
   try {
     $wall = Walls::getByPath($_REQUEST['wall']);
     if ($wall) {
       $wallName = htmlspecialchars($wall->name);
+      $sessionStart = getSessionStartTime($wall, @$_REQUEST['sessionId']);
     }
   } catch (Exception $e) { }
+
+  function getSessionStartTime($wall, $sessionId = null) {
+    if (!$wall)
+      return null;
+
+    if (!$sessionId)
+      return $wall->latestSession ? $wall->latestSession['start'] : null;
+
+    $sessions = $wall->getSessions();
+    if (!$sessions)
+      return null;
+
+    for ($i = 0; $i < count($sessions); next($sessions), $i++) {
+      $session = current($sessions);
+      if (intval(@$session['sessionId']) == intval($sessionId))
+        return $session['start'];
+    }
+
+    return null;
+  }
 ?>
 <html>
   <head>
@@ -83,8 +105,7 @@ require_once("walls.inc");
     <div id="title"><?php echo $wallName ?></div>
     <iframe class="wall"></iframe>
     <div id="description">
-      <!-- XXX Fill this in -->
-      <div id="date">2012/03/25</div>
+      <time id="date"></time>
     </div>
     <div id="feedbacks">
       <div class="fb-like"
@@ -105,5 +126,19 @@ require_once("walls.inc");
     }(document, 'script', 'facebook-jssdk'));</script>
   </div>
   <div class="error"></div>
+  <script>
+    // Fill in date with start of session converted to local time
+    var sessionStart = "<?php echo $sessionStart ?>";
+    var dateElem = document.getElementById("date");
+    if (sessionStart) {
+      // Try to convert string to RFC 3339 and parse
+      var fixedDateStr = sessionStart.replace(" ", "T") + "+00:00";
+      var date = new Date(fixedDateStr);
+      if (!isNaN(date.getTime())) {
+        dateElem.textContent = date.toLocaleDateString();
+        dateElem.setAttribute("datetime", fixedDateStr);
+      }
+    }
+  </script>
 </body>
 </html>

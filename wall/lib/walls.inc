@@ -548,14 +548,6 @@ class Wall {
   }
 
   public function getSessions($includeCharacters = null) {
-    // Just as we currently disallow access to wall info via the API to 
-    // strangers we do the same for session information.
-    //
-    // In the future we will fine tune this and for walls that are set to 
-    // displayed in the public gallery we will allow getting this information.
-    if (!$this->canAdminister())
-      throw new KeyedException('no-auth');
-
     // Query sessions
     $conn =& getDbConnection();
     $res =& $conn->query(
