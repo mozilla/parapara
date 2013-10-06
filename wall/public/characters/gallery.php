@@ -38,6 +38,7 @@ if ($id < 1 || !@file_exists($id . '.svg')) {
       }
       $wall = $char->wall;
       $previewUrl = $char->previewUrl;
+      $rawUrl = $char->rawUrl;
     }
     if ($wall) {
       $eventName = $wall->name;
@@ -99,6 +100,13 @@ if ($id < 1 || !@file_exists($id . '.svg')) {
     height: 21px;
     display: inline;
   }
+  .code textarea {
+    width: 100%;
+    padding: 8px;
+    border-radius: 8px;
+    border-width: 1px;
+    background: #eef;
+  }
   @supports (display: flex) and (height: calc(100vh - 10px)) {
     #content {
       display: flex;
@@ -116,9 +124,17 @@ if ($id < 1 || !@file_exists($id . '.svg')) {
       max-height: auto;
     }
   }
+  @media (max-width: 380px) {
+    .code p {
+      font-size: 12px;
+    }
+  }
   @media (max-width: 280px) {
     #title {
       font-size: 18px;
+    }
+    .code p {
+      display: none;
     }
   }
   </style>
@@ -154,7 +170,13 @@ if ($title || $desc) {
             class="fb-like"></iframe>
       <!-- Twitter button -->
       <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
-    </div>    
+    </div>
+<?php if (!empty($rawUrl)): ?>
+    <div class="code">
+      <p>Use the following HTML to add this picture to your own web page:</p>
+      <textarea>&lt;img width="300" src="<?php echo $rawUrl; ?>"&gt;</textarea>
+    </div>
+<?php endif; ?>
   </div>
 <!-- Twitter script -->
 <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
