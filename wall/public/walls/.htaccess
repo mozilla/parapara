@@ -7,6 +7,7 @@ Options -Indexes
   RewriteBase /
   RewriteRule ^([^/]+)$ /walls/_wall.php?wall=$1 [L]
   RewriteRule ^([^/]+)/gallery$ /walls/_gallery.php?wall=$1 [L]
+  RewriteRule ^([^/]+)/sessions$ /walls/_sessions.php?wall=$1 [L]
   RewriteRule ^([^/]+)/sessions/([0-9]+)$ /walls/_wall.php?wall=$1&sessionId=$2
   RewriteRule ^([^/]+)/sessions/([0-9]+)/gallery$ /walls/_gallery.php?wall=$1&sessionId=$2
 </ifModule>
