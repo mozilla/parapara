@@ -11,6 +11,7 @@ Options -Indexes
   RewriteBase /api/
   # Wall list
   RewriteRule ^walls$ _walls.php [L]
+  RewriteRule ^walls/all$ _walls.php?showAll=1 [L]
   # Wall information
   RewriteRule ^walls/([0-9]+)$ _walls.php?wallId=$1 [L]
   RewriteRule ^walls/byname/([^.\/?]+)$ _walls.php?wallName=$1 [L]

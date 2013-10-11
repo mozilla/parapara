@@ -840,6 +840,37 @@ class Walls {
       . '   (SELECT MAX(sessionSerial) FROM sessions'
       . '    WHERE sessions.wallId = walls.wallId)'
       . ' ORDER BY walls.createDate DESC, walls.wallId DESC';
+      // XXX It's probably better to just sort this in ascending order by wallId
+      // and when we *display* it, reverse the order as needed
+
+    // Run query
+    $res =& $conn->query($query);
+    checkDbResult($res);
+
+    // Prepare result
+    $result = array();
+    $conn->setFetchMode(MDB2_FETCHMODE_ASSOC);
+    while ($row = $res->fetchRow()) {
+      array_push($result, self::dbRowToWall($row));
+    }
+    $conn->disconnect();
+
+    return $result;
+  }
+
+  public static function getAllPublic() {
+    // Prepare query
+    $conn =& getDbConnection();
+    $query =
+        'SELECT walls.wallId, walls.designId ,eventName, urlPath'
+      . ' ,sessionId, beginDate as sessionStart, endDate as sessionEnd'
+      . ' FROM walls'
+      . ' LEFT JOIN sessions ON'
+      . '   sessions.sessionSerial = '
+      . '   (SELECT MAX(sessionSerial) FROM sessions'
+      . '    WHERE sessions.wallId = walls.wallId)'
+      . ' WHERE galleryDisplay = TRUE'
+      . ' ORDER BY walls.wallId ASC';
 
     // Run query
     $res =& $conn->query($query);
@@ -857,36 +888,55 @@ class Walls {
   }
 
   private static function dbRowToWall($row) {
-    // Check auth
-    $hasAccess = getUserEmailSilently() == $row['owneremail'];
-
-    // Get wall ID
+    // Get wall ID -- this is the only required field
+    if (!isset($row['wallid'])) {
+      throw new KeyedException('server-error');
+    }
     $wallId = intval($row['wallid']);
 
     // Basic information
-    $fields["name"]           = $row['eventname'];
-    $fields["designId"]       = toIntOrNull($row['designid']);
-    $fields["urlPath"]        = $row['urlpath'];
-    $fields["editorUrlShort"] = $row['editorshorturl'];
-    $fields["ownerEmail"] = $row['owneremail'];
+    self::copyFieldIfSet($fields, $row, "name", "eventname");
+    self::copyFieldIfSet($fields, $row, "designId", null, 'toIntOrNull');
+    self::copyFieldIfSet($fields, $row, "editorUrlShort", "editorshorturl");
+    foreach(array("urlPath", "ownerEmail") as $key) {
+      self::copyFieldIfSet($fields, $row, $key);
+    }
 
     // Session information
-    if ($row['sessionid']) {
-      $session['sessionId'] = intval($row['sessionid']);
-      $session['start'] = $row['sessionstart'];
-      $session['end'] = $row['sessionend'];
+    if (@$row['sessionid']) {
+      // Got a session
+      self::copyFieldIfSet($session, $row, "sessionId", null, 'toIntOrNull');
+      self::copyFieldIfSet($session, $row, "start", "sessionstart");
+      self::copyFieldIfSet($session, $row, "end", "sessionend");
       $fields['latestSession'] = $session;
-      $fields['status'] = $row['sessionend'] ? 'finished' : 'running';
-    } else {
+      $fields['status'] = @$row['sessionend'] ? 'finished' : 'running';
+    } else if (array_key_exists('sessionid', $row)) {
+      // Got no sessions *but* we looked for one
       $fields['latestSession'] = null;
       $fields['status'] = 'finished';
     }
 
     // Duration information
-    $fields["duration"]        = toIntOrNull($row['duration']);
-    $fields["defaultDuration"] = toIntOrNull($row['defaultduration']);
+    foreach(array("duration", "defaultDuration") as $key) {
+      self::copyFieldIfSet($fields, $row, $key, null, 'toIntOrNull');
+    }
 
     return new Wall($wallId, $fields);
+  }
+
+  protected static function copyFieldIfSet(&$fields, &$row, $key,
+                                           $rowKey = null,
+                                           $sanitizeFunc = null) {
+    if ($rowKey === null) {
+      $rowKey = strtolower($key);
+    }
+    if (array_key_exists($rowKey, $row)) {
+      if ($sanitizeFunc === null) {
+        $fields[$key] = $row[$rowKey];
+      } else {
+        $fields[$key] = $sanitizeFunc($row[$rowKey]);
+      }
+    }
   }
 
   public static function isNameUnique($name) {

@@ -45,12 +45,15 @@ switch ($_SERVER['REQUEST_METHOD']) {
         bailWithError('wall-not-found');
 
       case "Not specified":
-        if (!$email)
-          bailWithError('logged-out');
-
         // Return all walls
+        if (@!!$_REQUEST['showAll']) {
+          $walls = Walls::getAllPublic();
+        } else {
+          if (!$email)
+            bailWithError('logged-out');
+          $walls = Walls::getAllForUser($email);
+        }
         $flatten = create_function('$wall', 'return $wall->asArray();');
-        $walls = Walls::getAllForUser($email);
         $result = array_map($flatten, $walls);
         break;
 
