@@ -6,7 +6,9 @@ define([ 'jquery', 'walls/wall' ],
 function ($, Wall) {
   return function (wallName, sessionId)
   {
-    this.initialize = function() {
+    var runner = this;
+
+    runner.initialize = function() {
       // Check for support
       if (!window.SVGAnimateElement) {
         showError("This browser does not support SVG animation.");
@@ -73,20 +75,13 @@ function ($, Wall) {
           var iframe = $("iframe.wall");
           iframe.attr('src', iframeSrc);
           iframe[0].addEventListener("load", function() {
-            initWall(wall, design, iframe[0]);
+            runner.initWall(wall, design, iframe[0]);
           });
         })
         .fail(function() {
           showError("Couldn't load wall");
           console.log("Couldn't load designs");
         });
-
-        // Register for changes to the hash so we can update the iframe hash
-        window.addEventListener("hashchange",
-          function() {
-            var iframe = $("iframe.wall");
-            iframe[0].contentDocument.location.hash = document.location.hash
-          });
     }
 
     // XXX i10n
@@ -95,7 +90,7 @@ function ($, Wall) {
       $("body").addClass("error");
     }
 
-    function initWall(wallData, designData, iframe) {
+    runner.initWall = function(wallData, designData, iframe) {
       // We have a default implementation of a Wall controller but specific
       // walls can override this by defining an initialize method on the
       // document to which we pass the default implementation so that they can
@@ -110,14 +105,19 @@ function ($, Wall) {
 
       // Set up data
       if (!sessionId) {
-        initLiveStream(wall);
+        runner.initLiveStream(wall);
       } else {
-        initSessionDisplay(wall, sessionId);
+        runner.initSessionDisplay(wall, sessionId);
       }
-    }
+    };
 
-    function initLiveStream(wall) {
-      var wallStream =
+    runner.initLiveStream = function(wall) {
+      // Close old stream
+      if (runner.wallStream) {
+        runner.wallStream.close();
+        runner.wallStream = null;
+      }
+      var wallStream = runner.wallStream =
         new EventSource('/api/walls/byname/' + wallName + '/live');
       wallStream.onerror = function(e) {
         console.log("Dropped connection?");
@@ -145,9 +145,9 @@ function ($, Wall) {
         showError("Wall removed");
         wallStream.close();
       });
-    }
+    };
 
-    function initSessionDisplay(wall, sessionId) {
+    runner.initSessionDisplay = function(wall, sessionId) {
       var url =
         '/api/walls/byname/' + wallName +
         '/sessions/' + sessionId + '/characters';
@@ -167,6 +167,6 @@ function ($, Wall) {
           showError("Couldn't load wall");
           console.log("Couldn't find session");
         });
-    }
+    };
   };
 });
