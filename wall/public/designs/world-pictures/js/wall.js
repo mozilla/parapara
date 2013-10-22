@@ -32,7 +32,6 @@ function initialize(Wall, wallData, design, $) {
           });
       } else {
         // Selection view -- remove all templates
-        console.log($('template', doc));
         $('template', doc).remove();
       }
 
