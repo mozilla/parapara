@@ -64,9 +64,14 @@ function ($, Wall) {
           // Update window title
           document.title = wall.name;
 
+          // Work out iframe src
+          // - If we have a fragment reference on the parent, set the same
+          //   fragment reference on the child.
+          var iframeSrc = design.wall + document.location.hash;
+
           // Start loading wall design
           var iframe = $("iframe.wall");
-          iframe.attr('src', design.wall);
+          iframe.attr('src', iframeSrc);
           iframe[0].addEventListener("load", function() {
             initWall(wall, design, iframe[0]);
           });
@@ -75,6 +80,14 @@ function ($, Wall) {
           showError("Couldn't load wall");
           console.log("Couldn't load designs");
         });
+
+        // Register for changes to the hash so we can update the iframe hash
+        window.addEventListener("hashchange",
+          function() {
+            var iframe = $("iframe.wall");
+            console.log("Parent frame hashchange: " + document.location.hash);
+            iframe[0].contentDocument.location.hash = document.location.hash
+          });
     }
 
     // XXX i10n
