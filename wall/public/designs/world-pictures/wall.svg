@@ -68,16 +68,90 @@
     <!-- Tower bridge -->
     <svg x="60" y="35" width="500" height="413" viewBox="0 0 1000 667">
       <image width="1000" height="667" xlink:href="images/tower-bridge.jpg"/>
+      <defs>
+        <foreignObject>
+          <template>
+            <svg>
+              <g class="character" data-tmpl-data-char-id="{{id}}"
+                data-target="tower-bridge-layer" style="display: none">
+                <image data-tmpl-href="{{uri}}"
+                  width="100" height="100" overflow="visible"/>
+                <animateMotion rotate="auto"
+                  dur="200s" repeatCount="indefinite"
+                  calcMode="linear"
+                  data-tmpl-begin="{{beginStr}}"
+                  values="-100 0; 1000 0; 1000 0"
+                  keyTimes="0; 0.05; 1"/>
+                <animate attributeName="display"
+                  dur="200s" repeatCount="indefinite"
+                  calcMode="discrete" keyTimes="0; 0.05" values="inline; none"
+                  data-tmpl-begin="{{beginStr}}"/>
+              </g>
+            </svg>
+          </template>
+        </foreignObject>
+      </defs>
+      <g id="tower-bridge-layer"/>
     </svg>
     <!-- Westminster bridge -->
     <svg x="70" y="430" width="480" height="340" viewBox="0 0 1000 563"
       preserveAspectRatio="xMidYMid slice">
       <image width="1000" height="563" xlink:href="images/big-ben.jpg"/>
+      <defs>
+        <foreignObject>
+          <template>
+            <svg>
+              <g class="character" data-tmpl-data-char-id="{{id}}"
+                data-target="westminster-bridge-layer" style="display: none">
+                <image data-tmpl-href="{{uri}}"
+                  width="100" height="100" overflow="visible"/>
+                <animateMotion rotate="auto"
+                  dur="200s" repeatCount="indefinite"
+                  calcMode="linear"
+                  data-tmpl-begin="{{beginStr}}"
+                  values="-100 0; -100 0; 1000 0; 1000 0"
+                  keyTimes="0; 0.1; 0.15; 1"/>
+                <animate attributeName="display"
+                  dur="200s" repeatCount="indefinite"
+                  calcMode="discrete" keyTimes="0; 0.1; 0.15"
+                  values="none; inline; none"
+                  data-tmpl-begin="{{beginStr}}"/>
+              </g>
+            </svg>
+          </template>
+        </foreignObject>
+      </defs>
+      <g id="westminster-bridge-layer"/>
     </svg>
     <!-- London eye -->
     <svg x="600" y="40" width="530" height="780" viewBox="0 0 1920 1280"
       preserveAspectRatio="xMidYMid slice">
       <image width="1920" height="1280" xlink:href="images/eye.jpg"/>
+      <defs>
+        <foreignObject>
+          <template>
+            <svg>
+              <g class="character" data-tmpl-data-char-id="{{id}}"
+                data-target="eye-layer" style="display: none">
+                <image data-tmpl-href="{{uri}}"
+                  width="100" height="100" overflow="visible"/>
+                <animateMotion rotate="auto"
+                  dur="200s" repeatCount="indefinite"
+                  calcMode="linear"
+                  data-tmpl-begin="{{beginStr}}"
+                  values="-100 0; -100 0; 1920 0; 1920 0"
+                  keyTimes="0; 0.2; 0.25; 1"/>
+                <animate attributeName="display"
+                  dur="200s" repeatCount="indefinite"
+                  calcMode="discrete" keyTimes="0; 0.2; 0.25"
+                  values="none; inline; none"
+                  data-tmpl-begin="{{beginStr}}"/>
+              </g>
+            </svg>
+          </template>
+        </foreignObject>
+      </defs>
+      <g id="eye-layer"/>
     </svg>
     <!-- Mat -->
     <g>
@@ -97,31 +171,181 @@
   <!-- Arc de Triomphe -->
   <svg id="arc" class="view" viewBox="0 0 1024 682">
     <image width="1024" height="682" xlink:href="images/arc.jpg"/>
+    <defs>
+      <foreignObject>
+        <template>
+          <svg>
+            <g class="character" data-tmpl-data-char-id="{{id}}"
+              data-target="arc-layer" style="display: none">
+              <image data-tmpl-href="{{uri}}"
+                width="100" height="100" overflow="visible"/>
+              <animateMotion rotate="auto"
+                dur="200s" repeatCount="indefinite"
+                calcMode="linear"
+                data-tmpl-begin="{{beginStr}}"
+                values="-100 0; -100 0; 1024 0; 1024 0"
+                keyTimes="0; 0.3; 0.35; 1"/>
+              <animate attributeName="display"
+                dur="200s" repeatCount="indefinite"
+                calcMode="discrete" keyTimes="0; 0.3; 0.35"
+                values="none; inline; none"
+                data-tmpl-begin="{{beginStr}}"/>
+            </g>
+          </svg>
+        </template>
+      </foreignObject>
+    </defs>
+    <g id="arc-layer"/>
   </svg>
 
   <!-- Pyramids -->
   <svg id="pyramids" class="view" viewBox="0 0 1000 516">
     <image width="1000" height="516" xlink:href="images/pyramids.jpg"/>
+    <defs>
+      <foreignObject>
+        <template>
+          <svg>
+            <g class="character" data-tmpl-data-char-id="{{id}}"
+              data-target="pyramids-layer" style="display: none">
+              <image data-tmpl-href="{{uri}}"
+                width="100" height="100" overflow="visible"/>
+              <animateMotion rotate="auto"
+                dur="200s" repeatCount="indefinite"
+                calcMode="linear"
+                data-tmpl-begin="{{beginStr}}"
+                values="-100 0; -100 0; 1000 0; 1000 0"
+                keyTimes="0; 0.4; 0.45; 1"/>
+              <animate attributeName="display"
+                dur="200s" repeatCount="indefinite"
+                calcMode="discrete" keyTimes="0; 0.4; 0.45"
+                values="none; inline; none"
+                data-tmpl-begin="{{beginStr}}"/>
+            </g>
+          </svg>
+        </template>
+      </foreignObject>
+    </defs>
+    <g id="pyramids-layer"/>
   </svg>
 
   <!-- Great wall -->
   <svg id="wall" class="view" viewBox="0 0 1000 750">
     <image width="1000" height="750" xlink:href="images/wall.jpg"/>
+    <defs>
+      <foreignObject>
+        <template>
+          <svg>
+            <g class="character" data-tmpl-data-char-id="{{id}}"
+              data-target="wall-layer" style="display: none">
+              <image data-tmpl-href="{{uri}}"
+                width="100" height="100" overflow="visible"/>
+              <animateMotion rotate="auto"
+                dur="200s" repeatCount="indefinite"
+                calcMode="linear"
+                data-tmpl-begin="{{beginStr}}"
+                values="-100 0; -100 0; 1000 0; 1000 0"
+                keyTimes="0; 0.5; 0.55; 1"/>
+              <animate attributeName="display"
+                dur="200s" repeatCount="indefinite"
+                calcMode="discrete" keyTimes="0; 0.5; 0.55"
+                values="none; inline; none"
+                data-tmpl-begin="{{beginStr}}"/>
+            </g>
+          </svg>
+        </template>
+      </foreignObject>
+    </defs>
+    <g id="wall-layer"/>
   </svg>
 
   <!-- Mount Fuji -->
   <svg id="fuji" class="view" viewBox="0 0 1188 799">
     <image width="1188" height="799" xlink:href="images/fuji.jpg"/>
+    <defs>
+      <foreignObject>
+        <template>
+          <svg>
+            <g class="character" data-tmpl-data-char-id="{{id}}"
+              data-target="fuji-layer" style="display: none">
+              <image data-tmpl-href="{{uri}}"
+                width="100" height="100" overflow="visible"/>
+              <animateMotion rotate="auto"
+                dur="200s" repeatCount="indefinite"
+                calcMode="linear"
+                data-tmpl-begin="{{beginStr}}"
+                values="-100 0; -100 0; 1188 0; 1188 0"
+                keyTimes="0; 0.6; 0.65; 1"/>
+              <animate attributeName="display"
+                dur="200s" repeatCount="indefinite"
+                calcMode="discrete" keyTimes="0; 0.6; 0.65"
+                values="none; inline; none"
+                data-tmpl-begin="{{beginStr}}"/>
+            </g>
+          </svg>
+        </template>
+      </foreignObject>
+    </defs>
+    <g id="fuji-layer"/>
   </svg>
 
   <!-- Mount Rushmore -->
   <svg id="rushmore" class="view" viewBox="0 0 1000 729">
     <image width="1000" height="729" xlink:href="images/rushmore.jpg"/>
+    <defs>
+      <foreignObject>
+        <template>
+          <svg>
+            <g class="character" data-tmpl-data-char-id="{{id}}"
+              data-target="rushmore-layer" style="display: none">
+              <image data-tmpl-href="{{uri}}"
+                width="100" height="100" overflow="visible"/>
+              <animateMotion rotate="auto"
+                dur="200s" repeatCount="indefinite"
+                calcMode="linear"
+                data-tmpl-begin="{{beginStr}}"
+                values="-100 0; -100 0; 1000 0; 1000 0"
+                keyTimes="0; 0.7; 0.75; 1"/>
+              <animate attributeName="display"
+                dur="200s" repeatCount="indefinite"
+                calcMode="discrete" keyTimes="0; 0.7; 0.75"
+                values="none; inline; none"
+                data-tmpl-begin="{{beginStr}}"/>
+            </g>
+          </svg>
+        </template>
+      </foreignObject>
+    </defs>
+    <g id="rushmore-layer"/>
   </svg>
 
   <!-- Uluru -->
   <svg id="uluru" class="view" viewBox="0 0 1000 750">
     <image width="1000" height="750" xlink:href="images/uluru.jpg"/>
+    <defs>
+      <foreignObject>
+        <template>
+          <svg>
+            <g class="character" data-tmpl-data-char-id="{{id}}"
+              data-target="uluru-layer" style="display: none">
+              <image data-tmpl-href="{{uri}}"
+                width="100" height="100" overflow="visible"/>
+              <animateMotion rotate="auto"
+                dur="200s" repeatCount="indefinite"
+                calcMode="linear"
+                data-tmpl-begin="{{beginStr}}"
+                values="-100 0; -100 0; 1000 0; 1000 0"
+                keyTimes="0; 0.8; 0.85; 1"/>
+              <animate attributeName="display"
+                dur="200s" repeatCount="indefinite"
+                calcMode="discrete" keyTimes="0; 0.8; 0.85"
+                values="none; inline; none"
+                data-tmpl-begin="{{beginStr}}"/>
+            </g>
+          </svg>
+        </template>
+      </foreignObject>
+    </defs>
+    <g id="uluru-layer"/>
   </svg>
 </defs>
 
