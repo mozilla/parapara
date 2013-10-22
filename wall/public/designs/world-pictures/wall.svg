@@ -8,55 +8,55 @@
   <script xlink:href="js/wall.js"></script>
   <style type="text/css"><![CDATA[
     svg { background-color: black }
-    .select { fill: #aaa }
-    a:hover .select, a:active .select { fill: orange }
+    .select { color: #aaa }
+    a:hover .select, a:active .select { color: orange }
     .selection-label { fill: white; stroke: none; font-size: 50px }
   ]]></style>
 
 <!-- Selection page -->
 <g id="selection-page" class="view">
   <defs>
-    <rect id="selection-rect" width="600" height="120" class="select"/>
+    <rect id="selection-rect" width="600" height="120" fill="currentColor"/>
   </defs>
   <!-- London -->
   <a xlink:href="#london" target="_parent" transform="translate(10 10)">
-    <use xlink:href="#selection-rect"/>
+    <use xlink:href="#selection-rect" class="select"/>
     <use xlink:href="#london" x="30" y="20" width="80" height="80"/>
     <text class="selection-label" x="140" y="80">London</text>
   </a>
   <!-- Arc -->
   <a xlink:href="#arc" target="_parent" transform="translate(10 140)">
-    <use xlink:href="#selection-rect"/>
+    <use xlink:href="#selection-rect" class="select"/>
     <use xlink:href="#arc" x="30" y="20" width="80" height="80"/>
     <text class="selection-label" x="140" y="80">Arc de Triomphe</text>
   </a>
   <!-- Pyramids -->
   <a xlink:href="#pyramids" target="_parent" transform="translate(10 270)">
-    <use xlink:href="#selection-rect"/>
+    <use xlink:href="#selection-rect" class="select"/>
     <use xlink:href="#pyramids" x="30" y="20" width="80" height="80"/>
     <text class="selection-label" x="140" y="80">Pyramids</text>
   </a>
   <!-- Great wall -->
   <a xlink:href="#wall" target="_parent" transform="translate(10 400)">
-    <use xlink:href="#selection-rect"/>
+    <use xlink:href="#selection-rect" class="select"/>
     <use xlink:href="#wall" x="30" y="20" width="80" height="80"/>
     <text class="selection-label" x="140" y="80">Great Wall</text>
   </a>
   <!-- Fuji -->
   <a xlink:href="#fuji" target="_parent" transform="translate(10 530)">
-    <use xlink:href="#selection-rect"/>
+    <use xlink:href="#selection-rect" class="select"/>
     <use xlink:href="#fuji" x="30" y="20" width="80" height="80"/>
     <text class="selection-label" x="140" y="80">Mount Fuji</text>
   </a>
   <!-- Rushmore -->
   <a xlink:href="#rushmore" target="_parent" transform="translate(10 660)">
-    <use xlink:href="#selection-rect"/>
+    <use xlink:href="#selection-rect" class="select"/>
     <use xlink:href="#rushmore" x="30" y="20" width="80" height="80"/>
     <text class="selection-label" x="140" y="80">Mount Rushmore</text>
   </a>
   <!-- Uluru -->
   <a xlink:href="#uluru" target="_parent" transform="translate(10 790)">
-    <use xlink:href="#selection-rect"/>
+    <use xlink:href="#selection-rect" class="select"/>
     <use xlink:href="#uluru" x="30" y="20" width="80" height="80"/>
     <text class="selection-label" x="140" y="80">Uluru</text>
   </a>
