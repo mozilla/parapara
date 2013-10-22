@@ -215,19 +215,22 @@
   <svg id="pyramids" class="view" viewBox="0 0 1000 516">
     <image width="1000" height="516" xlink:href="images/pyramids.jpg"/>
     <defs>
+      <path id="walk-path-pyramids" display="none" pathLength="1" d="m-172.6 450.1s165.8 16.48 196.8-7.523 169.8-167.6 169.8-167.6 23-42 63-42 52.84 27.13 64.74 39.67c11.9 12.55 61.68 68.94 101.7 69.11s94.31-69.11 94.31-69.11 69.8-77.1 90.3-106.7 42.85-63.2 71-62 75 55 75 55l143 144 167 153 97 60"/>
       <foreignObject>
         <template>
           <svg>
             <g class="character" data-tmpl-data-char-id="{{id}}"
               data-target="pyramids-layer" style="display: none">
               <image data-tmpl-href="{{uri}}"
-                width="100" height="100" overflow="visible"/>
+                width="100" height="100" overflow="visible"
+                transform="translate(-50 -90)"/>
               <animateMotion rotate="auto"
                 dur="200s" repeatCount="indefinite"
                 calcMode="linear"
                 data-tmpl-begin="{{beginStr}}"
-                values="-100 0; -100 0; 1000 0; 1000 0"
-                keyTimes="0; 0.4; 0.45; 1"/>
+                keyTimes="0; 0.4; 0.4; 0.45; 1" keyPoints="1; 1; 0; 1; 1">
+                <mpath xlink:href="#walk-path-pyramids"/>
+              </animateMotion>
               <animate attributeName="display"
                 dur="200s" repeatCount="indefinite"
                 calcMode="discrete" keyTimes="0; 0.4; 0.45"
