@@ -351,6 +351,8 @@ function ($) {
     },
 
     getTemplateFields: function(character) {
+      var beginTime = (character.x ? (character.x - 1) : 0) *
+                      this.wallData.defaultDuration;
       return {
         id: character.charId,
         width: character.width,
@@ -361,8 +363,8 @@ function ($) {
         uri: character.rawUrl,
         dur: this.wallData.defaultDuration,
         durStr: (this.wallData.defaultDuration / 1000) + "s",
-        begin: character.x * this.wallData.defaultDuration,
-        beginStr: (character.x * this.wallData.defaultDuration / 1000) + "s"
+        begin: beginTime,
+        beginStr: (beginTime / 1000) + "s"
       };
     },
 
