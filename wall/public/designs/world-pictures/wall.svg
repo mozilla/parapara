@@ -172,27 +172,30 @@
   <svg id="arc" class="view" viewBox="0 0 1024 682">
     <image width="1024" height="682" xlink:href="images/arc.jpg"/>
     <defs>
+      <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+        <feGaussianBlur in="SourceAlpha" result="blur" stdDeviation="10"/>
+      </filter>
       <foreignObject>
         <template>
           <svg>
             <g class="character" data-tmpl-data-char-id="{{id}}"
               data-target="arc-layer" style="display: none">
               <image data-tmpl-href="{{uri}}"
+                data-tmpl-id="arc-image-{{id}}"
                 width="100" height="100" overflow="visible"/>
-              <!-- The equivalent animateMotion doesn't seem to work in Safari
-                   when dynamically added to the document.
-              <animateMotion
-                dur="200s" repeatCount="indefinite"
-                calcMode="linear"
-                data-tmpl-begin="{{beginStr}}"
-                values="-100 0; -100 0; 1024 0; 1024 0"
-                keyTimes="0; 0.3; 0.35; 1"/>
-                -->
+              <use transform="matrix(1 0 0 -0.5 0 130)"
+                filter="url(#shadow)" data-tmpl-href="#arc-image-{{id}}"/>
               <animateTransform attributeName="transform"
                 dur="200s" repeatCount="indefinite"
                 type="translate"
-                values="-100 0; -100 0; 1024 0; 1024 0"
-                keyTimes="0; 0.3; 0.35; 1"
+                values="-100 310; -100 310; 500 390; 1024 390; 1024 390"
+                keyTimes="0; 0.3; 0.325; 0.35; 1"
+                data-tmpl-begin="{{beginStr}}"/>
+              <animateTransform attributeName="transform"
+                dur="200s" repeatCount="indefinite"
+                type="scale" additive="sum"
+                values="0.7; 0.7; 1; 1"
+                keyTimes="0; 0.3; 0.325; 1"
                 data-tmpl-begin="{{beginStr}}"/>
               <animate attributeName="display"
                 dur="200s" repeatCount="indefinite"
@@ -205,6 +208,7 @@
       </foreignObject>
     </defs>
     <g id="arc-layer"/>
+    <image width="1024" height="682" xlink:href="images/arc-fg.png"/>
   </svg>
 
   <!-- Pyramids -->
