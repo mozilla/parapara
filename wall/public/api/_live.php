@@ -27,6 +27,7 @@ $lastSendTime = time();
 // (This is useful even on resuming since various factors such as the computer 
 // going to sleep may have caused it to drift from the server.)
 dispatchSyncProgressEvent($wall);
+$lastSyncTime = time();
 
 // Check for a last event ID
 if (!array_key_exists('HTTP_LAST_EVENT_ID', $_SERVER) ||
@@ -92,6 +93,12 @@ while (!connection_aborted()) {
     // Otherwise just send a ping comment
     echo ":ping\n\n";
     $lastSendTime = time();
+  }
+
+  // Send sync event every 60 seconds
+  if (time() - $lastSyncTime >= 60) {
+    dispatchSyncProgressEvent($wall);
+    $lastSyncTime = time();
   }
 
   // Flush buffers
@@ -163,6 +170,7 @@ function dispatchEventFromChange($change) {
       // Follow up with a sync-progress event since the position of the wall 
       // will have changed
       dispatchSyncProgressEvent($wall);
+      $lastSyncTime = time();
       break;
 
     case 'change-design':
