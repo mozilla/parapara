@@ -248,22 +248,63 @@
   <svg id="wall" class="view" viewBox="0 0 1000 750">
     <image width="1000" height="750" xlink:href="images/wall.jpg"/>
     <defs>
+      <path id="walk-path-wall-1" display="none" pathLength="1" d="m246.3 123.7s-28.23-6.512-49.86-4.319c-22.18 2.249-46.53 6.086-55.36 14.92-7.264 7.264-5.269 19.76 1.263 36.75 6.7 17.3 21.8 32.2 44.7 45s75.67 38.67 125 56 182.1 55.06 182.1 55.06l70.2 18.9"/>
+      <path id="walk-path-wall-2" display="none" pathLength="1" d="m480 310s6.5 19 0 25-85 43.5-95.5 48.5"/>
+      <path id="walk-path-wall-3" display="none" pathLength="1" d="m387.5 380s50 8 64 13 68 32.5 78 42 70.5 47.5 89.5 59.5 75 43 94 50.5 47 25 65 23 63-37 64.5-39 81-89.5 116.5-88 101.5 61 112 70 46 35.5 46 35.5"/>
       <foreignObject>
         <template>
           <svg>
             <g class="character" data-tmpl-data-char-id="{{id}}"
-              data-target="wall-layer" style="display: none">
+              data-target="wall-layer-1" style="display: none">
               <image data-tmpl-href="{{uri}}"
-                width="100" height="100" overflow="visible"/>
+                width="100" height="100" overflow="visible"
+                transform="translate(-10 -20) scale(0.25, 0.25)"/>
+              <animateMotion
+                dur="200s" repeatCount="indefinite"
+                calcMode="linear"
+                data-tmpl-begin="{{beginStr}}"
+                keyTimes="0; 0.5; 0.5; 0.525; 1" keyPoints="1; 1; 0; 1; 1">
+                <mpath xlink:href="#walk-path-wall-1"/>
+              </animateMotion>
+              <animate attributeName="display"
+                dur="200s" repeatCount="indefinite"
+                calcMode="discrete" keyTimes="0; 0.5; 0.525"
+                values="none; inline; none"
+                data-tmpl-begin="{{beginStr}}"/>
+            </g>
+            <g class="character" data-tmpl-data-char-id="{{id}}"
+              data-target="wall-layer-2" style="display: none">
+              <image data-tmpl-href="{{uri}}"
+                width="100" height="100" overflow="visible"
+                transform="translate(30 -50) scale(-0.8, 0.8)"/>
+              <animateMotion
+                dur="200s" repeatCount="indefinite"
+                calcMode="linear"
+                data-tmpl-begin="{{beginStr}}"
+                keyTimes="0; 0.525; 0.525; 0.5325; 1" keyPoints="1; 1; 0; 1; 1">
+                <mpath xlink:href="#walk-path-wall-2"/>
+              </animateMotion>
+              <animate attributeName="display"
+                dur="200s" repeatCount="indefinite"
+                calcMode="discrete" keyTimes="0; 0.525; 0.5325"
+                values="none; inline; none"
+                data-tmpl-begin="{{beginStr}}"/>
+            </g>
+            <g class="character" data-tmpl-data-char-id="{{id}}"
+              data-target="wall-layer-3" style="display: none">
+              <image data-tmpl-href="{{uri}}"
+                width="100" height="100" overflow="visible"
+                transform="translate(-30 -90)"/>
               <animateMotion rotate="auto"
                 dur="200s" repeatCount="indefinite"
                 calcMode="linear"
                 data-tmpl-begin="{{beginStr}}"
-                values="-100 0; -100 0; 1000 0; 1000 0"
-                keyTimes="0; 0.5; 0.55; 1"/>
+                keyTimes="0; 0.5325; 0.5325; 0.55; 1" keyPoints="1; 1; 0; 1; 1">
+                <mpath xlink:href="#walk-path-wall-3"/>
+              </animateMotion>
               <animate attributeName="display"
                 dur="200s" repeatCount="indefinite"
-                calcMode="discrete" keyTimes="0; 0.5; 0.55"
+                calcMode="discrete" keyTimes="0; 0.5325; 0.55"
                 values="none; inline; none"
                 data-tmpl-begin="{{beginStr}}"/>
             </g>
@@ -271,7 +312,12 @@
         </template>
       </foreignObject>
     </defs>
-    <g id="wall-layer"/>
+    <g id="wall-layer-1"/>
+    <image width="1000" height="750" xlink:href="images/wall-layer-1.png"/>
+    <g id="wall-layer-2"/>
+    <image width="1000" height="750" xlink:href="images/wall-layer-2.png"/>
+    <g id="wall-layer-3"/>
+    <image width="1000" height="750" xlink:href="images/wall-layer-3.png"/>
   </svg>
 
   <!-- Mount Fuji -->
