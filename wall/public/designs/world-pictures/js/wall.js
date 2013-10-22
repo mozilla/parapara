@@ -30,6 +30,10 @@ function initialize(Wall, wallData, design, $) {
                                    currentView.getAttribute(attrName));
             }
           });
+      } else {
+        // Selection view -- remove all templates
+        console.log($('template', doc));
+        $('template', doc).remove();
       }
 
       // Update links to append to parent URL
