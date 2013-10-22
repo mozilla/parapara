@@ -35,23 +35,29 @@ function initialize(Wall, wallData, design, $) {
         $('template', doc).remove();
       }
 
-      // Update links to append to parent URL
-      // (This allows us to reload the page and have the selection stick)
-      if (parent) {
-        var links = doc.querySelectorAll("a");
-        var parentPath = parent.document.location.pathname;
-        Array.prototype.forEach.call(links,
-          function(link) {
-            if (link.href.baseVal && link.href.baseVal[0] == '#') {
-              link.href.baseVal = parentPath + link.href.baseVal;
-            }
-          });
-      }
-
-      // If there are changes to the hash, reload since we will probably have
-      // discarded the bit of the document we're supposed to be showing
       window.addEventListener("hashchange",
-        function() { window.location.reload(); });
+        function() {
+          // Sync local hash ref with that of the parent
+          // (This allows us to reload the parent page and have the hash
+          //  reference stick which is really useful for debugging but also if
+          //  there are any problems)
+          if (parent)
+            parent.document.location.hash = document.location.hash;
+
+          // If there are changes to the hash, reload since we will probably
+          // have discarded the bit of the document we're supposed to be showing
+          document.location.reload();
+        });
+
+      // Blink doesn't seem to update the document hash for local links in an
+      // SVG file so we set a timeout to do it manually if it hasn't happened
+      // already
+      $("a", doc).on("click", function(evt) {
+        var hash = evt.currentTarget.href.baseVal;
+        window.setTimeout(function() {
+          document.location.hash = hash;
+        }, 500);
+      });
 
       this._super(doc, wallData);
     }
