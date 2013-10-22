@@ -78,7 +78,7 @@ function ($) {
                 characterElem.getAttribute("data-target"));
             if (container) {
               container.appendChild(characterElem);
-              // wall.kickStartSafari(characterElem);
+              wall.kickStartCharacter(characterElem);
             }
           }
 
@@ -193,7 +193,7 @@ function ($) {
         origBegin = anim.getAttribute("begin") || "0s";
         anim.setAttribute("data-begin", origBegin);
       }
-      var origBeginMs = this.parseTime(origBegin);
+      var origBeginMs = parseTime(origBegin);
 
       // Calculate scaled begin time that incorporates:
       //  - seek offsets to sync up with the wall time defined on the server
@@ -209,7 +209,7 @@ function ($) {
         origDur = anim.getAttribute("dur");
         anim.setAttribute("data-dur", origDur);
       }
-      var origDurMs = this.parseTime(origDur);
+      var origDurMs = parseTime(origDur);
 
       // Update duration
       if (origDurMs !== null) {
@@ -243,21 +243,10 @@ function ($) {
       return Array.prototype.filter.call(candidates, isNotTemplateChild);
     },
 
-    // Very simple time parsing: Only supports 's' and 'ms' times.
-    // Returns a value in milliseconds
-    parseTime: function(str) {
-      if (!str)
-        return null;
-      var matches = str.match(/^\s*(-?[0-9.]+)(m?s)\s*$/);
-      return matches
-        ? parseFloat(matches[1]) * (matches[2] == "s" ? 1000 : 1)
-        : null;
-    },
-
     updateBeginTime: function(anim, newBeginTimeMs) {
       // This operation is quite expensive so make sure its necessary
       if ((anim.hasAttribute("begin") &&
-           this.parseTime(anim.getAttribute("begin")) == newBeginTimeMs) ||
+           parseTime(anim.getAttribute("begin")) == newBeginTimeMs) ||
           !anim.hasAttribute("begin") && newBeginTimeMs == 0) {
         return anim;
       }
@@ -276,7 +265,7 @@ function ($) {
         // Put this animation in the same place
         anim.parentNode.insertBefore(clone, anim);
         anim.parentNode.removeChild(anim);
-        // XXX Need to kick-start Safari
+        kickStartAnimation(clone);
 
         return clone;
       }
@@ -398,27 +387,13 @@ function ($) {
 
     // Safari has a bug where animations added dynamically don't get started so
     // we have to kick-start them
-    kickStartSafari: function(instance) {
+    kickStartCharacter: function(instance) {
       console.assert(instance.ownerDocument,
         "Instance should be attached before this is called");
       var animations =
         instance.querySelectorAll("animate, animateMotion, animateTransform"
                                   + ", set");
-      var wall = this;
-      Array.prototype.forEach.call(animations,
-        function(animation) {
-          try {
-            if (animation.getStartTime() === Infinity) {
-              var startTime =
-                wall.parseTime(animation.getAttribute("begin")) / 1000;
-              if (startTime === null)
-                startTime = 0;
-              // XXX We might only need a call to beginElement here
-              animation.beginElementAt(
-                startTime - animation.ownerSVGElement.getCurrentTime());
-            }
-          } catch (e) { }
-        });
+      Array.prototype.forEach.call(animations, kickStartAnimation);
     }
   });
 
@@ -432,5 +407,28 @@ function ($) {
       }
     }
     return true;
+  }
+
+  function kickStartAnimation(animation) {
+    try {
+      if (animation.getStartTime() === Infinity) {
+        var startTime = parseTime(animation.getAttribute("begin")) / 1000;
+        if (startTime === null)
+          startTime = 0;
+        animation.beginElementAt(
+          startTime - animation.ownerSVGElement.getCurrentTime());
+      }
+    } catch (e) { }
+  }
+
+  // Very simple time parsing: Only supports 's' and 'ms' times.
+  // Returns a value in milliseconds
+  function parseTime(str) {
+    if (!str)
+      return null;
+    var matches = str.match(/^\s*(-?[0-9.]+)(m?s)\s*$/);
+    return matches
+      ? parseFloat(matches[1]) * (matches[2] == "s" ? 1000 : 1)
+      : null;
   }
 });

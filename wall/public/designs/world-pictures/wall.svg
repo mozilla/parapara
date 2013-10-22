@@ -179,12 +179,21 @@
               data-target="arc-layer" style="display: none">
               <image data-tmpl-href="{{uri}}"
                 width="100" height="100" overflow="visible"/>
-              <animateMotion rotate="auto"
+              <!-- The equivalent animateMotion doesn't seem to work in Safari
+                   when dynamically added to the document.
+              <animateMotion
                 dur="200s" repeatCount="indefinite"
                 calcMode="linear"
                 data-tmpl-begin="{{beginStr}}"
                 values="-100 0; -100 0; 1024 0; 1024 0"
                 keyTimes="0; 0.3; 0.35; 1"/>
+                -->
+              <animateTransform attributeName="transform"
+                dur="200s" repeatCount="indefinite"
+                type="translate"
+                values="-100 0; -100 0; 1024 0; 1024 0"
+                keyTimes="0; 0.3; 0.35; 1"
+                data-tmpl-begin="{{beginStr}}"/>
               <animate attributeName="display"
                 dur="200s" repeatCount="indefinite"
                 calcMode="discrete" keyTimes="0; 0.3; 0.35"
