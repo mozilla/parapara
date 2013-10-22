@@ -85,7 +85,6 @@ function ($, Wall) {
         window.addEventListener("hashchange",
           function() {
             var iframe = $("iframe.wall");
-            console.log("Parent frame hashchange: " + document.location.hash);
             iframe[0].contentDocument.location.hash = document.location.hash
           });
     }
