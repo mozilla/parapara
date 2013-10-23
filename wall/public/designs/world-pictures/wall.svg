@@ -159,7 +159,8 @@
     <svg x="600" y="40" width="530" height="780" viewBox="0 0 1074 1280"
       preserveAspectRatio="xMidYMid slice" overflow="visible">
       <g transform="translate(0 -90)">
-        <image width="1074" height="1280" xlink:href="images/eye-bg.jpg"/>
+        <image x="100" width="974" height="1280"
+          xlink:href="images/eye-bg.jpg"/>
         <image x="207" y="553" width="684" height="684"
           xlink:href="images/eye-wheel.png">
           <animateTransform attributeName="transform" type="rotate"
