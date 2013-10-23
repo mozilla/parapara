@@ -66,8 +66,8 @@
   <!-- London -->
   <svg id="london" class="view" viewBox="0 0 1190.55 841.89">
     <!-- Tower bridge -->
-    <svg x="60" y="35" width="500" height="413" viewBox="0 0 1000 667">
-      <image width="1000" height="667" xlink:href="images/tower-bridge.jpg"/>
+    <svg x="60" y="35" width="500" height="413" viewBox="0 0 800 534">
+      <image width="800" height="534" xlink:href="images/tower-bridge.jpg"/>
       <defs>
         <foreignObject>
           <template>
@@ -75,12 +75,17 @@
               <g class="character" data-tmpl-data-char-id="{{id}}"
                 data-target="tower-bridge-layer" style="display: none">
                 <image data-tmpl-href="{{uri}}"
-                  width="100" height="100" overflow="visible"/>
-                <animateMotion rotate="auto"
+                  width="70" height="70" x="-70" y="-65" overflow="visible"/>
+                <animateMotion
                   dur="200s" repeatCount="indefinite"
                   calcMode="linear"
                   data-tmpl-begin="{{beginStr}}"
-                  values="-100 0; 1000 0; 1000 0"
+                  values="-83 388.35; 739.52 401.39; 739.52 401.39"
+                  keyTimes="0; 0.05; 1"/>
+                <animateTransform attributeName="transform" type="scale"
+                  dur="200s" repeatCount="indefinite"
+                  data-tmpl-begin="{{beginStr}}"
+                  values="1; 0.7; 0.7"
                   keyTimes="0; 0.05; 1"/>
                 <animate attributeName="display"
                   dur="200s" repeatCount="indefinite"
@@ -92,6 +97,7 @@
         </foreignObject>
       </defs>
       <g id="tower-bridge-layer"/>
+      <image width="800" height="534" xlink:href="images/tower-bridge-fg.png"/>
     </svg>
     <!-- Westminster bridge -->
     <svg x="70" y="430" width="480" height="340" viewBox="0 0 1000 563"
