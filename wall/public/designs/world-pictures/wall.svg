@@ -156,23 +156,33 @@
         xlink:href="images/westminster-cars.png"/>
     </svg>
     <!-- London eye -->
-    <svg x="600" y="40" width="530" height="780" viewBox="0 0 1920 1280"
+    <svg x="600" y="40" width="530" height="780" viewBox="0 0 1074 1280"
       preserveAspectRatio="xMidYMid slice">
-      <image width="1920" height="1280" xlink:href="images/eye.jpg"/>
+      <g transform="translate(0 -90)">
+        <image width="1074" height="1280" xlink:href="images/eye-bg.jpg"/>
+        <image x="207" y="553" width="684" height="684"
+          xlink:href="images/eye-wheel.png">
+          <animateTransform attributeName="transform" type="rotate"
+            values="0 549 895; -360 549 895" dur="120s"
+            repeatCount="indefinite"/>
+        </image>
+      </g>
       <defs>
+        <path id="walk-path-eye" display="none" pathLength="1" d="m-202.5 1163h827.7c150.7 0 289.4-166 289.4-351.1s-133.8-352.9-366.1-352.9-359.5 155.2-359.5 352.1 183 352.1 307 352.1h803.6"/>
         <foreignObject>
           <template>
             <svg>
               <g class="character" data-tmpl-data-char-id="{{id}}"
                 data-target="eye-layer" style="display: none">
                 <image data-tmpl-href="{{uri}}"
-                  width="100" height="100" overflow="visible"/>
+                  x="-50" y="-60" width="100" height="100" overflow="visible"/>
                 <animateMotion rotate="auto"
                   dur="200s" repeatCount="indefinite"
                   calcMode="linear"
                   data-tmpl-begin="{{beginStr}}"
-                  values="-100 0; -100 0; 1920 0; 1920 0"
-                  keyTimes="0; 0.2; 0.25; 1"/>
+                  keyTimes="0; 0.2; 0.2; 0.25; 1" keyPoints="1; 1; 0; 1; 1">
+                  <mpath xlink:href="#walk-path-eye"/>
+                </animateMotion>
                 <animate attributeName="display"
                   dur="200s" repeatCount="indefinite"
                   calcMode="discrete" keyTimes="0; 0.2; 0.25"
