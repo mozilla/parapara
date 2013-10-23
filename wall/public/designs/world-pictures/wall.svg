@@ -198,7 +198,11 @@
     <!-- Mat -->
     <g>
       <rect fill="#EFE6CE" width="1190.55" height="841.89"
-        mask="url(#holes)" opacity="0.8"/>
+        mask="url(#holes)">
+        <animate attributeName="opacity" to="0" begin="click" dur="1s"
+          id="fadeMat"/>
+        <set attributeName="display" to="none" begin="fadeMat.end"/>
+      </rect>
       <mask id="holes">
         <rect width="100%" height="100%" fill="white"/>
         <path fill="black" stroke="#000000" d="M1105.512,732.836c0,23.439-17.917,42.44-40.019,42.44H663.641
