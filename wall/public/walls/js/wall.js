@@ -410,6 +410,10 @@ function ($) {
   }
 
   function kickStartAnimation(animation) {
+    // This is only really needed for Safari
+    if (navigator.userAgent.indexOf("WebKit") === -1)
+      return;
+
     try {
       if (animation.getStartTime() === Infinity) {
         var startTime = parseTime(animation.getAttribute("begin")) / 1000;
