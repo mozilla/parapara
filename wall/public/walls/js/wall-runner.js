@@ -67,9 +67,9 @@ function ($, Wall) {
           document.title = wall.name;
 
           // Work out iframe src
-          // - If we have a fragment reference on the parent, set the same
-          //   fragment reference on the child.
-          var iframeSrc = design.wall + document.location.hash;
+          // - If we have a query string on the parent, set the same
+          //   query string on the child.
+          var iframeSrc = design.wall + document.location.search;
 
           // Start loading wall design
           var iframe = $("iframe.wall");

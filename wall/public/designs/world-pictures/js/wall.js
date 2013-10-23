@@ -2,16 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-function initialize(Wall, wallData, design, $) {
+(function () {
+  function init() {
+      // Look for a current view
+      var viewParam = getParam('view');
+      if (viewParam)
+        var currentView = document.querySelector('#' + viewParam);
 
-  var WorldPictureWall = Wall.extend({
-    init: function(doc, wallData) {
-      // If a current view is selected, only show that part
-      if (document.location.hash) {
-        var currentView = document.querySelector(document.location.hash);
-      }
+      // If a current view is found, remove all other views
       if (currentView) {
-        // Remove all other views
         var views = document.querySelectorAll(".view");
         Array.prototype.forEach.call(views,
           function (view) {
@@ -20,7 +19,7 @@ function initialize(Wall, wallData, design, $) {
             }
           });
 
-        // Promote current view
+        // Promote current view's viewBox / pAR to root
         var rootSVG = currentView.ownerSVGElement;
         rootSVG.appendChild(currentView);
         [ "viewBox", "preserveAspectRatio" ].forEach(
@@ -32,38 +31,36 @@ function initialize(Wall, wallData, design, $) {
           });
       } else {
         // Selection view -- remove all templates
-        $('template', doc).remove();
+        removeAllMatchingSelector("template");
       }
 
-      window.addEventListener("hashchange",
-        function() {
-          // Sync local hash ref with that of the parent
-          // (This allows us to reload the parent page and have the hash
-          //  reference stick which is really useful for debugging but also if
-          //  there are any problems)
-          if (parent)
-            parent.document.location.hash = document.location.hash;
+      // Update links so that they append to the parent
+      if (parent) {
+        var links = document.querySelectorAll("a");
+        Array.prototype.forEach.call(links,
+          function (link) {
+            link.href.baseVal =
+              parent.document.location.pathname + link.href.baseVal;
+          });
+      }
+  }
 
-          // If there are changes to the hash, reload since we will probably
-          // have discarded the bit of the document we're supposed to be showing
-          document.location.reload();
+  function getParam(name) {
+      name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+      var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+          results = regex.exec(location.search);
+      return results == null
+             ? null
+             : decodeURIComponent(results[1].replace(/\+/g, " "));
+  }
+
+  function removeAllMatchingSelector(selector) {
+    var matches = document.querySelectorAll(selector);
+    Array.prototype.forEach.call(matches,
+      function (match) {
+          match.parentNode.removeChild(match);
         });
+  }
 
-      // Blink doesn't seem to update the document hash for local links in an
-      // SVG file so we set a timeout to do it manually if it hasn't happened
-      // already
-      $("a", doc).on("click", function(evt) {
-        var hash = evt.currentTarget.href.baseVal;
-        window.setTimeout(function() {
-          document.location.hash = hash;
-        }, 500);
-      });
-
-      this._super(doc, wallData);
-    }
-  });
-
-  return WorldPictureWall;
-}
-
-document.initialize = initialize;
+  window.addEventListener("load", init);
+})();
