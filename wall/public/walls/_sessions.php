@@ -1,4 +1,3 @@
-<!doctype html>
 <?php
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
@@ -18,6 +17,7 @@ try {
     $wallName = htmlspecialchars($wall->name);
     $thumbnail = $wall->thumbnail;
     $sessions = $wall->getSessions();
+    $thisWallPath = $wallsRoot . '/' . rawurlencode($wall->urlPath);
     if (!$sessions || empty($sessions)) {
       // No sessions
       $error = "no-sessions";
@@ -37,9 +37,8 @@ try {
   }
 } catch (Exception $e) { $error = "server-error"; }
 
-$thisWallPath = $wallsRoot . '/' . rawurlencode($wall->urlPath);
-
 ?>
+<!doctype html>
 <html>
 <head>
   <meta charset="utf-8">
