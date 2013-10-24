@@ -176,3 +176,14 @@ ul.thumbnails {
   margin-top: 5px;
   font-size: 90%;
 }
+.label time {
+  white-space: nowrap;
+}
+
+/*
+ * Session style
+ */
+li.session {
+  display: block;
+  width: 220px;
+}
