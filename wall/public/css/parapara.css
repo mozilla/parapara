@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 /*
  * Common styles for Parapara wall site including the wall maker, gallery
  * listing, and other supporting materials.
@@ -45,15 +49,14 @@ a.mozilla-tab img {
  * Heading
  */
 header .heading {
-  margin: 0.4em 0 0;
   padding: 0 0.3em 0em;
-  height: 100px;
 }
 header h1 {
+  margin: 0.4em 0 0;
   display: inline-block;
   vertical-align: text-bottom;
-  line-height: 100px;
-  margin-bottom: -40px;
+  line-height: 50px;
+  margin-top: 50px;
 }
 h1, h2, h3, h4, h5, h6 {
   color: #362d10;
