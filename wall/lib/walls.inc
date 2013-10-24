@@ -751,7 +751,7 @@ class Walls {
       . '(' . $conn->quote($ownerId, 'integer')
       . ',' . $conn->quote($designId, 'integer')
       . ',' . $conn->quote($name, 'text')
-      . ',TRUE' // galleryDisplay
+      . ',FALSE' // galleryDisplay
       . ',' . $conn->quote($path, 'text')
       . ',' . (($editorShortUrl) ? $conn->quote($editorShortUrl, 'text')
                                  : 'NULL')
