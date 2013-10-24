@@ -53,6 +53,8 @@ require_once("walls.inc");
     <meta charset="utf-8">
     <meta name="viewport" content="width=620, initial-scale=1.0">
     <title><?php echo $wallName ?></title>
+    <link rel="stylesheet" href="/css/bootstrap.min.css" media="screen">
+    <link rel="stylesheet" href="/css/parapara.css">
     <link rel="stylesheet" href="<?php echo $wallsRoot ?>/css/walls.css">
 <?php if ($thumbnailUrl): ?>
     <link rel="image_src" href="<?php echo $thumbnailUrl ?>">
@@ -65,6 +67,9 @@ require_once("walls.inc");
     <script data-main="<?php echo $wallsRoot ?>/js/main.js"
       src="/js/lib/require.js"></script>
     <style type="text/css">
+      header {
+        border-bottom: none;
+      }
       body {
         font-family: helvetica;
         color: #333;
@@ -77,7 +82,7 @@ require_once("walls.inc");
       }
       #title {
         font-size: 24px;
-        margin: 18px 0px 12px 0px;
+        margin: 60px 0px 12px 0px;
       }
       #description {
         margin-top: 3px;
@@ -108,6 +113,15 @@ require_once("walls.inc");
     </style>
   </head>
   <body>
+  <div class="top-runner"></div>
+  <header>
+    <div class="header-contents">
+      <nav>
+        <a href="http://www.mozilla.org" class="mozilla-tab"><img 
+          src="/img/tab.png"></a>
+      </nav>
+    </div>
+  </header>
   <div id="content">
     <div id="title"><?php echo $wallName ?></div>
     <iframe class="wall"></iframe>
