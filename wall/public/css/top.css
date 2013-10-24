@@ -21,38 +21,12 @@ header h1 {
 /*
  * Icons
  */
-.iconRow {
-  margin-top: 2em;
-  margin-bottom: 2em;
-  text-align: center;
-}
-.iconRow li {
-  list-style: none;
-  display: inline-block;
-  margin: 0.5em;
-}
-.iconRow li a {
-  /* Positioning */
-  display: inline-block;
+.iconList li a {
+  border-radius: 17px;
+  font-weight: bold;
   width: 200px;
   padding-top: 150px;
   padding-bottom: 0.3em;
-  
-  /* Background */
-  border-radius: 17px;
-  background-color: white;
-  border: 1px solid lightgrey;
-  box-shadow: 1px 1px 2px rgba(0,0,0,0.2);
-  
-  /* Text styling */
-  color: black;
-  font-weight: bold;
-  text-decoration: none;
-}
-.iconRow li a:hover,
-.iconRow li a:active {
-  background-color: #F7FFCF;
-  border-color: #B7C280;
 }
 a.gallery {
   background: url('../img/top_gallery.png') 13px 10px no-repeat;

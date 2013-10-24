@@ -29,8 +29,26 @@ $walls = Walls::getAllPublic();
 usort($walls, "activeFirst");
 ?>
 <html>
-  <body>
-    <ul>
+<head>
+  <meta charset="utf-8">
+  <title data-l10n-id="parapara-animation-galleries">Parapara Animation
+    galleries</title>
+  <link rel="stylesheet" href="/css/bootstrap.min.css" media="screen">
+  <link rel="stylesheet" href="/css/parapara.css">
+</head>
+<body>
+  <div class="top-runner"></div>
+  <header>
+    <div class="header-contents">
+      <nav>
+        <a href="http://www.mozilla.org" class="mozilla-tab"><img 
+          src="/img/tab.png"></a>
+      </nav>
+      <div class="heading"><h1 data-l10n-id="gallery">Gallery</h1></div>
+    </div>
+  </header>
+  <div class="container">
+    <ul class="thumbnails">
 <?php
   foreach ($walls as $wall):
     $name = htmlspecialchars($wall->name);
@@ -38,11 +56,14 @@ usort($walls, "activeFirst");
     $thumbnail = $wall->thumbnail;
     $date = @$wall->latestSession['start'];
 ?>
-     <li><a href="<?php echo $href ?>"><img src="<?php echo $thumbnail
-       ?>"><?php echo $name ?><?php if ($date) echo " - $date" ?></a></li>
+     <li class="span4"><div class="thumbnail"><a href="<?php echo $href ?>"><img src="<?php echo $thumbnail
+       ?>"><div class="label"><?php echo $name ?><?php
+         if ($date) echo '<time class="subtitle">' . $date . '</time>'
+       ?></div></a></div></li>
 <?php
   endforeach;
 ?>
-    </ul>
+      </ul>
+    </div>
   </body>
 </html>

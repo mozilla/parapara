@@ -10,7 +10,7 @@ $editorUrl = @$config['editor']['url'] . 'sandbox';
 ?>
 <html>
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
   <title data-l10n-id="parapara-animation">Parapara Animation</title>
   <link rel="stylesheet" href="/css/bootstrap.min.css" media="screen">
   <link rel="stylesheet" href="/css/parapara.css">
@@ -32,7 +32,7 @@ $editorUrl = @$config['editor']['url'] . 'sandbox';
     </div>
   </header>
   <!-- List of links -->
-  <ul class="iconRow">
+  <ul class="iconList">
     <li><a href="walls/" class="gallery" data-l10n-id="gallery">Gallery</a>
 <?php if ($editorUrl): ?>
     <li><a href="<?php echo $editorUrl ?>" class="editor"

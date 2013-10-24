@@ -298,26 +298,6 @@ hr {
 /*
  * Wall list
  */
-#wallSummary ul {
-  text-align: center;
-}
-#wallSummary .thumbnail {
-  display: inline-block;
-  padding: 10px;
-  border-radius: 10px;
-  vertical-align: middle;
-  background: white;
-}
-#wallSummary .thumbnail img {
-  border-radius: 6px;
-}
-.wall-label {
-  display: block;
-  margin-top: 5px;
-  text-align: center;
-  font-weight: bold;
-  color: black;
-}
 #firstTimeHome {
   text-align: center;
   background: #cfc;

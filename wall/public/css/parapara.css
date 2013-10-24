@@ -105,3 +105,74 @@ input[type="text"].input-xlarge {
   padding: 10px;
   height: auto;
 }
+
+/*
+ * Icon lists and thumbnails
+ *
+ * (Icon lists are our lightweight containers used for the top page etc. whilst
+ *  thumbnails are the bootstrap things)
+ */
+.iconList {
+  margin-top: 2em;
+  margin-bottom: 2em;
+}
+.iconList, .thumbnails {
+  text-align: center;
+}
+ul.thumbnails {
+  /* Reset bootstrap styling for ul's */
+  margin-top: 1em; 
+}
+.iconList li {
+  list-style: none;
+  display: inline-block;
+  margin: 0.5em;
+}
+.iconList li a, .thumbnail {
+  /* Positioning */
+  display: inline-block;
+  text-align: center;
+  vertical-align: middle;
+
+  /* Background */
+  border-radius: 10px;
+  background-color: white;
+  border: 1px solid lightgrey;
+  box-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+}
+.iconList li a:hover, .thumbnail:hover,
+.iconList li a:active, .thumbnail:active {
+  /* Hover/active style of background */
+  background-color: #F7FFCF;
+  border-color: #B7C280;
+}
+.thumbnail {
+  padding: 10px;
+}
+.iconList a, .thumbnail a {
+  /* Text styling of links */
+  color: black;
+  text-decoration: none;
+}
+.iconList li img, .thumbnail img {
+  /* Styling of embedded images */
+  border-radius: 6px;
+}
+.iconList .label, .thumbnail .label, .thumbnail .wall-label {
+  display: block;
+  margin-top: 5px;
+  text-align: center;
+  font-weight: bold;
+
+  /* Clear bootstrap styles */
+  color: black;
+  background: none;
+  text-shadow: none;
+  white-space: normal;
+}
+.label .subtitle {
+  display: block;
+  font-weight: normal;
+  margin-top: 5px;
+  font-size: 90%;
+}

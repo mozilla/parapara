@@ -9,7 +9,7 @@
 ?>
 <html>
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
   <title data-l10n-id="page-title">Parapara Animation Wall Maker</title>
   <link rel="stylesheet" href="/css/bootstrap.min.css" media="screen">
   <link rel="stylesheet" href="/css/parapara.css">
