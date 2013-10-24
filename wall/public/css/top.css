@@ -5,6 +5,18 @@
 /*
  * Styles for top page
  */
+
+/*
+ * Centre header
+ */
+header {
+  border-bottom: none;
+  text-align: center;
+}
+header h1 {
+  margin-top: 0.5em;
+  width: 100%;
+}
  
 /*
  * Icons
