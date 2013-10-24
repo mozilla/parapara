@@ -29,48 +29,55 @@
   <!-- London -->
   <a xlink:href="?view=london" transform="translate(10 10)" target="_parent">
     <use xlink:href="#selection-rect" class="select"/>
-    <use xlink:href="#london" x="30" y="20" width="80" height="80"/>
+    <image xlink:href="images/london-thumb.jpg"
+      x="25" y="15" width="90" height="90"/>
     <text class="selection-label" x="140" y="80">London</text>
   </a>
   <!-- Arc -->
   <a xlink:href="?view=arc" transform="translate(10 140)" target="_parent">
     <use xlink:href="#selection-rect" class="select"/>
-    <use xlink:href="#arc" x="30" y="20" width="80" height="80"/>
+    <image xlink:href="images/arc-thumb.jpg"
+      x="25" y="15" width="90" height="90"/>
     <text class="selection-label" x="140" y="80">Arc de Triomphe</text>
   </a>
   <!-- Pyramids -->
   <a xlink:href="?view=pyramids" transform="translate(10 270)" target="_parent">
     <use xlink:href="#selection-rect" class="select"/>
-    <use xlink:href="#pyramids" x="30" y="20" width="80" height="80"/>
+    <image xlink:href="images/pyramids-thumb.jpg"
+      x="25" y="15" width="90" height="90"/>
     <text class="selection-label" x="140" y="80">Pyramids</text>
   </a>
   <!-- Great wall -->
   <a xlink:href="?view=wall" transform="translate(10 400)" target="_parent">
     <use xlink:href="#selection-rect" class="select"/>
-    <use xlink:href="#wall" x="30" y="20" width="80" height="80"/>
+    <image xlink:href="images/wall-thumb.jpg"
+      x="25" y="15" width="90" height="90"/>
     <text class="selection-label" x="140" y="80">Great Wall</text>
   </a>
   <!-- Fuji -->
   <a xlink:href="?view=fuji" transform="translate(10 530)" target="_parent">
     <use xlink:href="#selection-rect" class="select"/>
-    <use xlink:href="#fuji" x="30" y="20" width="80" height="80"/>
+    <image xlink:href="images/fuji-thumb.jpg"
+      x="25" y="15" width="90" height="90"/>
     <text class="selection-label" x="140" y="80">Mount Fuji</text>
   </a>
   <!-- Rushmore -->
   <a xlink:href="?view=rushmore" transform="translate(10 660)" target="_parent">
     <use xlink:href="#selection-rect" class="select"/>
-    <use xlink:href="#rushmore" x="30" y="20" width="80" height="80"/>
+    <image xlink:href="images/rushmore-thumb.jpg"
+      x="25" y="15" width="90" height="90"/>
     <text class="selection-label" x="140" y="80">Mount Rushmore</text>
   </a>
   <!-- Uluru -->
   <a xlink:href="?view=uluru" transform="translate(10 790)" target="_parent">
     <use xlink:href="#selection-rect" class="select"/>
-    <use xlink:href="#uluru" x="30" y="20" width="80" height="80"/>
+    <image xlink:href="images/uluru-thumb.jpg"
+      x="25" y="15" width="90" height="90"/>
     <text class="selection-label" x="140" y="80">Uluru</text>
   </a>
 </g>
 
-<defs>
+<g display="none">
   <!-- London -->
   <svg id="london" class="view" viewBox="0 0 1190.55 841.89">
     <!-- Tower bridge -->
@@ -479,6 +486,6 @@
     </defs>
     <g id="uluru-layer"/>
   </svg>
-</defs>
+</g>
 
 </svg>
