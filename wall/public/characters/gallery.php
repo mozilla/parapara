@@ -54,92 +54,106 @@ if ($id < 1 || !@file_exists($id . '.svg')) {
 <?php if ($previewUrl): ?>
   <link rel="image_src" type="image/svg" href="<?php echo $previewUrl ?>">
 <?php endif; ?>
+  <link rel="stylesheet" href="/css/bootstrap.min.css" media="screen">
+  <link rel="stylesheet" href="/css/parapara.css">
   <style type="text/css">
-  body {
-    font-family: helvetica;
-    color: #333;
-  }
-  #content {
-    max-width: 85%;
-    width: 400px;
-    margin: 0 auto;
-    text-align: center;
-  }
-  #title {
-    font-size: 24px;
-    margin: 10px 0px 12px 0px;
-  }
-  #description {
-    margin-top: 3px;
-    font-size: 12px;
-  }
-  #event, #date {
-    display: inline-block;
-  }
-  #characterFrame {
-    width: 400px;
-    max-width: 100%;
-  }
-  #character {
-    background-color: #ddd;
-    -moz-border-radius: 20px;
-    -webkit-border-radius: 20px;
-    -o-border-radius: 20px;
-    -ms-border-radius: 20px;
-    border-radius: 20px;
-    width: 100%;
-    height: 100%;
-  }
-  #social {
-    margin-top: 10px;
-  }
-  iframe.fb-like {
-    border: none;
-    overflow: hidden;
-    width: 100px;
-    height: 21px;
-    display: inline;
-  }
-  .code textarea {
-    width: 100%;
-    padding: 8px;
-    border-radius: 8px;
-    border-width: 1px;
-    background: #eef;
-  }
-  @supports (display: flex) and (height: calc(100vh - 10px)) {
+    header {
+      border-bottom: none;
+    }
+    body {
+      font-family: helvetica;
+      color: #333;
+    }
     #content {
-      display: flex;
-      flex-direction: column;
-      height: calc(100vh - 10px);
+      max-width: 85%;
+      margin: 60px auto;
+      text-align: center;
     }
-    #content > * {
-      flex: none;
+    #title {
+      font-size: 24px;
+      margin: 10px 0px 12px 0px;
     }
-    #characterFrame {
-      flex: 0 1 auto;
-    }
-    #character {
-      max-width: 100%;
-      max-height: auto;
-    }
-  }
-  @media (max-width: 380px) {
-    .code p {
+    #description {
+      margin-top: 3px;
       font-size: 12px;
     }
-  }
-  @media (max-width: 280px) {
-    #title {
-      font-size: 18px;
+    #event, #date {
+      display: inline-block;
     }
-    .code p {
-      display: none;
+    #characterFrame {
+      width: 400px;
+      max-width: 100%;
+      margin-left: auto;
+      margin-right: auto;
     }
-  }
+    #character {
+      background-color: #ddd;
+      -moz-border-radius: 20px;
+      -webkit-border-radius: 20px;
+      -o-border-radius: 20px;
+      -ms-border-radius: 20px;
+      border-radius: 20px;
+      border: 1px solid black;
+      width: 100%;
+      height: 100%;
+    }
+    #social {
+      margin-top: 10px;
+    }
+    iframe.fb-like {
+      border: none;
+      overflow: hidden;
+      width: 100px;
+      height: 21px;
+      display: inline;
+    }
+    .code textarea {
+      width: 80%;
+      padding: 8px;
+      border-radius: 8px;
+      border-width: 1px;
+      background: #eef;
+    }
+    @supports (display: flex) and (height: calc(100vh - 10px)) {
+      #content {
+        display: flex;
+        flex-direction: column;
+        height: calc(100vh - 10px);
+      }
+      #content > * {
+        flex: none;
+      }
+      #characterFrame {
+        flex: 0 1 auto;
+      }
+      #character {
+        max-width: 100%;
+        max-height: auto;
+      }
+    }
+    @media (max-width: 380px) {
+      .code p {
+        font-size: 12px;
+      }
+    }
+    @media (max-width: 280px) {
+      #title {
+        font-size: 18px;
+      }
+      .code p {
+        display: none;
+      }
+    }
   </style>
 </head>
 <body>
+  <div class="top-runner"></div>
+  <header>
+    <div class="header-contents">
+      <nav><a href="http://www.mozilla.org" class="mozilla-tab"><img 
+          src="/img/tab.png"></a></nav>
+    </div>
+  </header>
   <div id="content"><?php
 if ($title || $desc) {
   echo "\n<div id=\"title\">\n";
@@ -174,7 +188,7 @@ if ($title || $desc) {
 <?php if (!empty($rawUrl)): ?>
     <div class="code">
       <p>Use the following HTML to add this picture to your own web page:</p>
-      <textarea>&lt;img width="300" src="<?php echo $rawUrl; ?>"&gt;</textarea>
+      <textarea cols="100" rows="1">&lt;img width="300" src="<?php echo $rawUrl; ?>"&gt;</textarea>
     </div>
 <?php endif; ?>
   </div>
