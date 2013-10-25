@@ -472,6 +472,7 @@ div.overlay-contents {
 div.overlay-contents input {
   font-size: 1em;
   padding: 0 0.25em;
+  max-width: 90%;
 }
 div.overlay-contents div.field-row {
   margin: 0.5em 0;
