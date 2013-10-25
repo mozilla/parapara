@@ -176,7 +176,7 @@
         </image>
       </g>
       <defs>
-        <path id="walk-path-eye" display="none" pathLength="1" d="m-202.5 1163h827.7c150.7 0 289.4-166 289.4-351.1s-133.8-352.9-366.1-352.9-359.5 155.2-359.5 352.1 183 352.1 307 352.1h803.6"/>
+        <path id="walk-path-eye" display="none" pathLength="1" d="m-52.5 1163h677.7c150.7 0 289.4-166 289.4-351.1s-133.8-352.9-366.1-352.9-359.5 155.2-359.5 352.1 183 352.1 307 352.1h803.6"/>
         <foreignObject>
           <template>
             <svg>
@@ -260,6 +260,9 @@
     </defs>
     <g id="arc-layer"/>
     <image width="1024" height="682" xlink:href="images/arc-fg.png"/>
+    <!-- Some UAs don't clip the outside area properly -->
+    <rect x="-500" width="500" height="682" fill="black"/>
+    <rect x="1024" width="500" height="682" fill="black"/>
   </svg>
 
   <!-- Pyramids -->
@@ -292,6 +295,8 @@
       </foreignObject>
     </defs>
     <g id="pyramids-layer"/>
+    <rect x="-500" width="500" height="516" fill="black"/>
+    <rect x="1000" width="500" height="516" fill="black"/>
   </svg>
 
   <!-- Great wall -->
@@ -366,6 +371,7 @@
     <image width="1000" height="750" xlink:href="images/wall-layer-2.png"/>
     <g id="wall-layer-3"/>
     <image width="1000" height="750" xlink:href="images/wall-layer-3.png"/>
+    <rect x="1000" width="500" height="750" fill="black"/>
   </svg>
 
   <!-- Mount Fuji -->
@@ -420,6 +426,8 @@
       </foreignObject>
     </defs>
     <g id="fuji-layer"/>
+    <rect x="-500" width="500" height="673" fill="black"/>
+    <rect x="1000" width="500" height="673" fill="black"/>
   </svg>
 
   <!-- Mount Rushmore -->
@@ -452,6 +460,8 @@
       </foreignObject>
     </defs>
     <g id="rushmore-layer"/>
+    <rect x="-500" width="500" height="729" fill="black"/>
+    <rect x="1000" width="500" height="729" fill="black"/>
   </svg>
 
   <!-- Uluru -->
@@ -485,6 +495,8 @@
       </foreignObject>
     </defs>
     <g id="uluru-layer"/>
+    <rect x="-500" width="500" height="750" fill="black"/>
+    <rect x="1000" width="500" height="750" fill="black"/>
   </svg>
 </g>
 
