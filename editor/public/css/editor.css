@@ -406,7 +406,11 @@ button.text:hover {
 /* Error/notice overlay */
 div.overlay {
   display: table;
-  position: fixed;
+  /* This should be position: fixed but due to fennec bug 923969 we're making it
+   * absolute.
+   * TODO: Make this position: fixed once Firefox 26 ships (mid December 2013)
+   */
+  position: absolute;
   left: 0; top: 0; width: 100%; height: 100%;
   background-color:rgba(0,0,0,0.7);
   z-index: 100;
