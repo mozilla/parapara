@@ -21,6 +21,7 @@ require_once("walls.inc");
     $wall = Walls::getByPath($_REQUEST['wall']);
     if ($wall) {
       $wallName = htmlspecialchars($wall->name);
+      $fullScreenLink = $wall->wallUrl;
       $sessionStart = getSessionStartTime($wall, @$_REQUEST['sessionId']);
       if ($wall->design && $wall->design->thumbnail) {
         $thumbnailUrl = getCurrentServer() . $wall->design->thumbnail;
@@ -85,12 +86,19 @@ require_once("walls.inc");
         margin: 60px 0px 12px 0px;
       }
       #description {
-        margin-top: 3px;
-        text-align: right;
+        margin-top: 0px;
+        margin-bottom: 3px;
         font-size: 12px;
       }
+      #full-screen {
+        float: left;
+      }
       #date {
-        display: inline-block;
+        float: right;
+      }
+      #feedbacks {
+        padding-top: 3px;
+        clear: both;
       }
       iframe.wall {
         width: 100%;
@@ -126,8 +134,16 @@ require_once("walls.inc");
     <div id="title"><?php echo $wallName ?></div>
     <iframe class="wall"></iframe>
     <div id="description">
+      <a href="#" id="full-screen">Full-screen</a>
       <time id="date"></time>
     </div>
+    <script>
+      var loc = document.location;
+      var fullScreenLink =
+        loc.protocol + '//' + loc.host +
+        loc.pathname.replace(/\/gallery$/, "") + loc.search + loc.hash;
+      document.getElementById("full-screen").href = fullScreenLink;
+    </script>
     <div id="feedbacks">
       <div class="fb-like"
         data-href="<?php echo $thisUrl ?>"
