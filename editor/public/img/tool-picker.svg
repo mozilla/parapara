@@ -7,28 +7,11 @@
    opacity: 0;
    pointer-events: all;
   }
-  #medium {
+  .palette {
    display: none;
   }
-  #full {
-   display: none;
-  }
-  #small-landscape {
-   display: none;
-  }
-  #medium-landscape {
-   display: none;
-  }
-  #full-landscape {
-   display: none;
-  }
-  #sizeChange {
-   stroke-width: 0;
-   -moz-transition: stroke-width 0.001ms;
-   -webkit-transition: stroke-width 0.001ms;
-   -ms-transition: stroke-width 0.001ms;
-   -o-transition: stroke-width 0.001ms;
-   transition: stroke-width 0.001ms;
+  #small {
+   display: block;
   }
   @media screen and (orientation: portrait) and (min-width: 120px)
                                             and (max-width: 239px) {
@@ -54,9 +37,6 @@
    #small-landscape {
     display: block;
    }
-   #sizeChange {
-    stroke-width:1;
-   }
   }
   @media screen and (orientation: landscape) and (min-width: 200px)
                                              and (max-width: 399px) {
@@ -66,9 +46,6 @@
    #medium-landscape {
     display: block;
    }
-   #sizeChange {
-    stroke-width:2;
-   }
   }
   @media screen and (orientation: landscape) and (min-width: 400px) {
    #small {
@@ -77,14 +54,9 @@
    #full-landscape {
     display: block;
    }
-   #sizeChange {
-    stroke-width:3;
-   }
   }
  </style>
  <defs>
-  <!-- MediaQueryList listener shim -->
-  <g id="sizeChange"/>
   <!-- Pencil -->
   <symbol id="pencil">
    <path d="m48.52.12c10.14,0 20.3.28 30.43-.09 7.23-.27 13.81,1.22 20.16,4.55 3.97,2.08 8.26,3.55 12.24,5.63 4.06,2.12 4.14,5.96.04,7.95-6.88,3.34-13.76,6.96-21.05,9.05-5.08,1.47-10.86.99-16.29.7-17.4-.93-34.8.99-52.19-.24-3.15-.22-6.3-.39-9.46-.48-8.55-.25-14.58-9.55-11.65-17.69 2.05-5.71 5.62-8.29 11.88-8.52 11.96-.45 23.92-.88 35.89-.86z" fill="#3b2c0f"/>
