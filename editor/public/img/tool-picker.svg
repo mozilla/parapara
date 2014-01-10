@@ -1,4 +1,4 @@
-<svg width="100%" height="100%" viewBox="0 0 243 355"
+<svg width="100%" height="100%"
   xmlns="http://www.w3.org/2000/svg"
   xmlns:xlink="http://www.w3.org/1999/xlink">
  <style type="text/css">
@@ -121,7 +121,7 @@
   </symbol>
  </defs>
  <!-- Full palette -->
- <g id="full" class="palette">
+ <svg id="full" class="palette" viewBox="0 0 243 354">
   <!-- Pencils -->
   <g>
    <use color="#d6011f" xlink:href="#pencil-small"/>
@@ -174,15 +174,15 @@
   <!-- Eraser -->
   <use x="35" y="283" width="60" height="64" xlink:href="#eraser"/>
   <path d="m0 275h108l30 25v55h-138Z" class="hitRegion eraser"/>
- </g>
+ </svg>
  <!-- Medium palette -->
- <g id="medium" class="palette">
+ <svg id="medium" class="palette" viewBox="0 0 243 354">
   <!-- Pencils -->
   <g>
    <use color="#d6011f" xlink:href="#pencil-medium"/>
    <path d="m0 0h106l32 27l-32 28h-106Z" class="hitRegion pencil"/>
   </g>
-  <g transform="matrix(-1 0 0 1 243 30)">>
+  <g transform="matrix(-1 0 0 1 243 30)">
    <use color="#e47a00" xlink:href="#pencil-medium"/>
    <path d="m0 0h106l32 27l-32 28h-106Z" class="hitRegion pencil"/>
   </g>
@@ -190,7 +190,7 @@
    <use color="#f4db26" xlink:href="#pencil-medium"/>
    <path d="m0 0h106l32 27l-32 28h-106Z" class="hitRegion pencil"/>
   </g>
-  <g transform="matrix(-1 0 0 1 243 90)">>
+  <g transform="matrix(-1 0 0 1 243 90)">
    <use color="#9bbb5a" xlink:href="#pencil-medium"/>
    <path d="m0 0h106l32 27l-32 28h-106Z" class="hitRegion pencil"/>
   </g>
@@ -198,7 +198,7 @@
    <use color="#6cb6e5" xlink:href="#pencil-medium"/>
    <path d="m0 0h106l32 27l-32 28h-106Z" class="hitRegion pencil"/>
   </g>
-  <g transform="matrix(-1 0 0 1 243 150)">>
+  <g transform="matrix(-1 0 0 1 243 150)">
    <use color="#944296" xlink:href="#pencil-medium"/>
    <path d="m0 0h106l32 27l-32 28h-106Z" class="hitRegion pencil"/>
   </g>
@@ -206,16 +206,16 @@
    <use color="#3f403b" xlink:href="#pencil-medium"/>
    <path d="m0 0h106l32 27l-32 28h-106Z" class="hitRegion pencil"/>
   </g>
-  <g transform="matrix(-1 0 0 1 243 210)">>
+  <g transform="matrix(-1 0 0 1 243 210)">
    <use color="white" xlink:href="#pencil-medium"/>
    <path d="m0 0h106l32 27l-32 28h-106Z" class="hitRegion pencil"/>
   </g>
   <!-- Eraser -->
   <use x="20" y="243" width="100" height="100" xlink:href="#eraser"/>
   <path d="m0 235h100l30 25v95h-130Z" class="hitRegion eraser"/>
- </g>
+ </svg>
  <!-- Small palette -->
- <g id="small" class="palette">
+ <svg id="small" class="palette" viewBox="0 0 243 354">
   <!-- Pencils -->
   <g>
    <use color="#d6011f" xlink:href="#pencil-large"/>
@@ -236,9 +236,9 @@
   <!-- Eraser -->
   <use x="20" y="243" width="100" height="100" xlink:href="#eraser"/>
   <path d="m0 220h105l45 70v65h-150Z" class="hitRegion eraser"/>
- </g>
+ </svg>
  <!-- Landscape full palette -->
- <g id="full-landscape" class="palette" data-viewBox="0 0 710 145">
+ <svg id="full-landscape" class="palette" viewBox="0 0 710 145">
   <!-- Pencils -->
   <g>
    <use color="#d6011f" xlink:href="#pencil-upright"/>
@@ -291,9 +291,9 @@
   <!-- Eraser -->
   <use x="610" y="20" width="90" height="96" xlink:href="#eraser"/>
   <rect x="600" width="110" height="145" class="hitRegion eraser"/>
- </g>
+ </svg>
  <!-- Landscape medium palette -->
- <g id="medium-landscape" class="palette" data-viewBox="0 0 510 145">
+ <svg id="medium-landscape" class="palette" viewBox="0 0 510 145">
   <!-- Pencils -->
   <g>
    <use color="#d6011f" xlink:href="#pencil-upright"/>
@@ -330,9 +330,9 @@
   <!-- Eraser -->
   <use x="410" y="20" width="90" height="96" xlink:href="#eraser"/>
   <rect x="400" width="110" height="145" class="hitRegion eraser"/>
- </g>
+ </svg>
  <!-- Landscape small palette -->
- <g id="small-landscape" class="palette" data-viewBox="0 0 310 145">
+ <svg id="small-landscape" class="palette" viewBox="0 0 310 145">
   <!-- Pencils -->
   <g>
    <use color="#d6011f" xlink:href="#pencil-upright"/>
@@ -353,12 +353,10 @@
   <!-- Eraser -->
   <use x="210" y="20" width="90" height="96" xlink:href="#eraser"/>
   <rect x="200" width="110" height="145" class="hitRegion eraser"/>
- </g>
+ </svg>
  <script xlink:href="../js/rgbcolor.js" type="text/javascript"/>
  <script type="text/javascript">
  <![CDATA[
-  var initialViewBox;
-
   // Returns a random color _from_one_that_is_currently_visible_ AND which is
   // not too dark, too light, or too grey (so we can see it against the
   // background which is probably either black or white).
@@ -436,60 +434,12 @@
     }
   }
 
-  document.updateViewbox = function() {
-    var palette = getActivePalette();
-    if (!palette)
-      return;
-
-    var svg = document.documentElement;
-    if (palette.hasAttribute('data-viewBox')) {
-      svg.setAttribute('viewBox', palette.getAttribute('data-viewBox'));
-    } else {
-      svg.setAttribute('viewBox', initialViewBox);
-    }
-  };
-
   function init() {
     // Register click listeners
     var hitRegions = document.getElementsByClassName('hitRegion');
     for (var i = 0; i < hitRegions.length; i++) {
       hitRegions[i].addEventListener('click', hit, false);
     }
-
-    // Register listeners for changes to landscape size
-    // This is to work around:
-    // - The fact that you can't yet update the viewBox using CSS
-    // - Lack of support for MediaQueryList listeners in most browsers
-    // We use the approach outlined in:
-    // http://www.paulrhayes.com/2011-11/use-css-transitions-to-link-media-queries-and-javascript/
-    var transElem = document.getElementById('sizeChange');
-    transElem.addEventListener('transitionend', document.updateViewbox, false);
-    transElem.addEventListener('webkitTransitionend', document.updateViewbox,
-      false);
-    transElem.addEventListener('oTransitionend', document.updateViewbox, false);
-    transElem.addEventListener('MSTransitionend', document.updateViewbox,
-      false);
-
-    // There seems to be a bug with Gecko's where, when this file is embedded in
-    // another changes to the parent window that affect our viewport update us
-    // for the purpose of layout but MediaQueryList listener events don't fire
-    // and nor do transitions run (or at least, we never get the transitionend
-    // event).
-    //
-    // So we register a MediaQueryList listener on the parent window if there is
-    // one.
-    if (window.parent) {
-      window.parent.matchMedia("screen and (orientation:landscape)").
-        addListener(document.updateViewbox);
-    }
-
-    initialViewBox = document.documentElement.getAttribute("viewBox");
-    document.updateViewbox();
-
-    // Safari desktop seems to apply the media query after page load and so
-    // running updateViewbox above will detect that the wrong palette is
-    // showing. Hence we run it again in a moment.
-    window.setTimeout(document.updateViewbox, 1);
   }
   init();
  ]]>
