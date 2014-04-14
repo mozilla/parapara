@@ -9,7 +9,6 @@ require_once("exceptions.inc");
 require_once("UriUtils.inc");
 require_once("walls.inc");
 require_once("characters.email.inc");
-require_once("characters.makeapi.inc");
 
 class Character {
   private $_charId          = null;
@@ -417,7 +416,6 @@ class Characters {
       $char->save();
     }
 
-    CharacterMakeAPI::create($char->galleryUrl, $char->rawUrl, $char->title, $char->author, $char->wallId, $char->sessionId);
     // Return char
     return $char;
   }
@@ -579,6 +577,7 @@ class Characters {
       return null;
     if (!$char->canAdminister())
       throw new KeyedException('no-auth');
+    $char = null;
 
     // Start transaction
     $conn =& getDbConnection();
@@ -622,7 +621,6 @@ class Characters {
     // Commit transaction
     $conn->commit();
 
-    CharacterMakeAPI::remove($char->galleryUrl);
     return true;
   }
 
