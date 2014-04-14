@@ -4,14 +4,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-function MakeAPIClassLoader($className) {
-  $path = str_replace('\\', DIRECTORY_SEPARATOR, $className);
-  require_once 'MakeAPI' .DIRECTORY_SEPARATOR. $path . '.php';
-};
-
 class CharacterMakeAPI {
   private static function setupClassLoader() {
-    spl_autoload_register('MakeAPIClassLoader');
+    spl_autoload_register(function($className) {
+      $path = str_replace('\\', DIRECTORY_SEPARATOR, $className);
+      require_once 'MakeAPI' .DIRECTORY_SEPARATOR. $path . '.php';
+    });
   }
 
   private static function makeapi($method, $path, $json, $needAuth) {
@@ -49,9 +47,6 @@ class CharacterMakeAPI {
     curl_setopt($curl, CURLOPT_HTTPHEADER, $httpHeader);
     $result = curl_exec($curl);
     curl_close($curl);
-
-    error_log($result);
-
     return json_decode($result);
   }
 
