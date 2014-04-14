@@ -14,17 +14,18 @@ class CharacterMakeAPI {
 
   private static function makeapi($method, $path, $json, $needAuth) {
     CharacterMakeAPI::setupClassLoader();
-    global $config;
-
-    $url = @$config['makeapi']['service'].$path;
-    $secretkey = @$config['makeapi']['secretkey'];
-    $publickey = @$config['makeapi']['publickey'];
+//    global $config;
+//    return strlen(@$config['mail']['transport']) > 0;
+    //Make API url
+    $url = 'https://makeapi.mofostaging.net/api/20130724/make'.$path;
+    $secret = 'xxxxxxxx';
+    $key = 'xxxxxx';
 
     $httpHeader = array('Content-Type: application/json; charset=utf-8');
 
     if ($needAuth == true) {
       $client = Dflydev\Hawk\Client\ClientBuilder::create()->build();
-      $credentials = new Dflydev\Hawk\Credentials\Credentials($secretkey, 'sha256', $publickey);
+      $credentials = new Dflydev\Hawk\Credentials\Credentials($secret, 'sha256', $key);
       $body4hawk = array();
       if ($json != NULL) {
         $body4hawk['payload'] = $json;
@@ -47,6 +48,9 @@ class CharacterMakeAPI {
     curl_setopt($curl, CURLOPT_HTTPHEADER, $httpHeader);
     $result = curl_exec($curl);
     curl_close($curl);
+
+    error_log($result);
+
     return json_decode($result);
   }
 
