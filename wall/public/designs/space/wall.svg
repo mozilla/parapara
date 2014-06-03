@@ -37,8 +37,8 @@
             <use transform="matrix(1 0 0 -0.5 0 0)" filter="url(#shadow)"
                  data-tmpl-href="#{{id}}-image"/>
             <animateMotion rotate="auto" repeatCount="indefinite"
-              calcMode="linear" keyPoints="1; 0" id="char-time-base"
-              dur="40s" data-tmpl-begin="{{beginStr}}">
+              calcMode="linear" keyTimes="0; 1" keyPoints="1; 0"
+              id="char-time-base" dur="40s" data-tmpl-begin="{{beginStr}}">
               <mpath xlink:href="#main-layer-path"/>
             </animateMotion>
             <animate attributeName="display" repeatCount="indefinite"
