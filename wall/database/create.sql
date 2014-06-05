@@ -79,6 +79,7 @@ INSERT INTO designs (designId, name, duration) VALUES(1, 'space', 240000);
 INSERT INTO designs (designId, name, duration) VALUES(2, 'wa', 240000);
 INSERT INTO designs (name, duration) VALUES('picture-frame', 120000);
 INSERT INTO designs (name, duration) VALUES('world-pictures', 200000);
+INSERT INTO designs (name, duration) VALUES('aquarium', 240000);
 
 /* Audit table */
 
