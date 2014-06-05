@@ -1,0 +1,94 @@
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this file,
+   - You can obtain one at http://mozilla.org/MPL/2.0/.  -->
+<svg viewBox="0 0 1200 800" preserveAspectRatio="none"
+     xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink">
+  <script xlink:href="js/wall.js"></script>
+  <style type="text/css"><![CDATA[
+    svg {background-color: white}
+  ]]></style>
+
+  <defs>
+    <filter id="back">
+      <feGaussianBlur result="blur" stdDeviation="5"/>
+    </filter>
+    <foreignObject>
+      <template>
+        <svg>
+          <!-- The character template -->
+          <g class="character" data-tmpl-data-char-id="{{id}}"
+            data-target="main-layer" data-tmpl-transform="{{frontCharTransform}}">
+            <image data-tmpl-id="{{id}}-image" data-tmpl-href="{{uri}}"
+                   data-tmpl-width="{{width}}" data-tmpl-height="{{height}}"
+                   overflow="visible" data-tmpl-x="-{{width}}"/>
+            <animateMotion rotate="auto" repeatCount="indefinite"
+              calcMode="linear" dur="240s"
+              data-tmpl-begin="{{beginStr}}"
+              data-tmpl-values="-{{width}} 0; {{rightEdge}} 0; {{rightEdge}} 0;"
+              data-tmpl-keyTimes="0; {{frontDurKey}}; 1"/>
+            <animate attributeName="display" repeatCount="indefinite"
+              calcMode="discrete" dur="240s"
+              data-tmpl-begin="{{beginStr}}" values="block; none" data-tmpl-keyTimes="0; {{frontDurKey}};"/>/>
+          </g>
+			  
+        
+        
+          <g class="character" data-tmpl-data-char-id="{{id}}"
+            data-target="main-layer"
+            data-tmpl-transform="{{backCharTransform}}">
+            <image data-tmpl-id="{{id}}-image" data-tmpl-href="{{uri}}"
+                   data-tmpl-width="{{width}}" data-tmpl-height="{{height}}"
+                    filter="url(#back)"
+                   overflow="visible" data-tmpl-x="-{{width}}"/>
+            <animateMotion repeatCount="indefinite"
+              calcMode="linear" dur="240s"
+              data-tmpl-begin="{{beginStr}}"
+              data-tmpl-values="{{rightEdge}} 0; {{rightEdge}} 0; -{{width}} 0; -{{width}} 0"
+              data-tmpl-keyTimes="0; 0.5; {{backDurKey}}; 1"/>
+            <animate attributeName="display" repeatCount="indefinite"
+              calcMode="discrete" dur="240s"
+              data-tmpl-begin="{{beginStr}}" values="none; block; none"
+              data-tmpl-keyTimes="0; 0.5; {{backDurKey}}"/>
+          </g>
+        </svg>
+      </template>
+    </foreignObject>
+    
+  <animate id="fadein" attributeName="opacity" from="0" to="1" dur="1s" fill="freeze"/>
+  </defs>
+  
+  
+  <!-- background -->
+	<image xlink:href="images/back1.jpg" id="back1" opacity="0" width="100%" height="100%"></image>
+  <image xlink:href="images/back2.jpg" id="back2" opacity="0" width="100%" height="100%"></image>
+  <image xlink:href="images/back3.jpg" id="back3" opacity="0" width="100%" height="100%"></image>
+  <image xlink:href="images/back4.jpg" id="back4" opacity="0" width="100%" height="100%"></image>
+  <image xlink:href="images/back5.jpg" id="back5" opacity="0" width="100%" height="100%"></image>
+  <image xlink:href="images/back6.jpg" id="back6" opacity="0" width="100%" height="100%"></image>
+  
+  <animate id="back1_fadein" xlink:href="#back1" attributeName="opacity" begin="0; back6_fadeout.begin" from="0" to="1" dur="2s" fill="freeze"/>
+  <animate id="back2_fadein" xlink:href="#back2" attributeName="opacity" begin="back1_fadeout.begin" from="0" to="1" dur="2s" fill="freeze"/>
+  <animate id="back3_fadein" xlink:href="#back3" attributeName="opacity" begin="back2_fadeout.begin" from="0" to="1" dur="2s" fill="freeze"/>
+  <animate id="back4_fadein" xlink:href="#back4" attributeName="opacity" begin="back3_fadeout.begin" from="0" to="1" dur="2s" fill="freeze"/>
+  <animate id="back5_fadein" xlink:href="#back5" attributeName="opacity" begin="back4_fadeout.begin" from="0" to="1" dur="2s" fill="freeze"/>
+  <animate id="back6_fadein" xlink:href="#back6" attributeName="opacity" begin="back5_fadeout.begin" from="0" to="1" dur="2s" fill="freeze"/>
+  <animate id="back1_fadeout" xlink:href="#back1" attributeName="opacity" begin="back1_fadein.end + 20s" from="1" to="0" dur="2s" fill="freeze"/>
+  <animate id="back2_fadeout" xlink:href="#back2" attributeName="opacity" begin="back2_fadein.end + 20s" from="1" to="0" dur="2s" fill="freeze"/>
+  <animate id="back3_fadeout" xlink:href="#back3" attributeName="opacity" begin="back3_fadein.end + 20s" from="1" to="0" dur="2s" fill="freeze"/>
+  <animate id="back4_fadeout" xlink:href="#back4" attributeName="opacity" begin="back4_fadein.end + 20s" from="1" to="0" dur="2s" fill="freeze"/>
+  <animate id="back5_fadeout" xlink:href="#back5" attributeName="opacity" begin="back5_fadein.end + 20s" from="1" to="0" dur="2s" fill="freeze"/>
+  <animate id="back6_fadeout" xlink:href="#back6" attributeName="opacity" begin="back6_fadein.end + 20s" from="1" to="0" dur="2s" fill="freeze"/>
+
+
+  <g id="main-layer">
+  </g>
+  
+  
+  <rect width="5" height="5" fill="red">
+    <animateTransform id="time-base" attributeName="transform" type="translate"
+      from="0 0" to="1200 0" repeatCount="indefinite"
+      dur="240s"/>
+  </rect>
+
+</svg>

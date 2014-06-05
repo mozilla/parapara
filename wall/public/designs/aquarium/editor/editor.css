@@ -1,0 +1,8 @@
+div.canvas-background {
+  background-image: none;
+  /* Fallback for older browsers */
+  background-color: blue;
+  /* Full effect */
+  background: url('back.jpg') no-repeat left top;
+  background-size: 100% 100%;
+}
