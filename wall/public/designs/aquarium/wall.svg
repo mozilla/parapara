@@ -6,7 +6,7 @@
      xmlns:xlink="http://www.w3.org/1999/xlink">
   <script xlink:href="js/wall.js"></script>
   <style type="text/css"><![CDATA[
-    svg {background-color: white}
+    svg {background-color: black}
   ]]></style>
 
   <defs>
@@ -103,16 +103,45 @@
   <g id="back-layer">
   </g>
 
-  <image xlink:href="images/back1-fg.png" opacity="0"
+  <image xlink:href="images/back1-front.png" opacity="0"
     width="100%" height="100%">
     <animate attributeName="opacity"
       begin="back1_fadein.begin" from="0" to="1" dur="2s" fill="freeze"/>
     <animate attributeName="opacity"
       begin="back1_fadeout.begin" from="1" to="0" dur="2s" fill="freeze"/>
   </image>
+  <image xlink:href="images/back2-middle.png" opacity="0"
+    width="100%" height="100%">
+    <animate attributeName="opacity"
+      begin="back2_fadein.begin" from="0" to="1" dur="2s" fill="freeze"/>
+    <animate attributeName="opacity"
+      begin="back2_fadeout.begin" from="1" to="0" dur="2s" fill="freeze"/>
+  </image>
+  <image xlink:href="images/back5-front.png" opacity="0"
+    width="100%" height="100%">
+    <animate attributeName="opacity"
+      begin="back5_fadein.begin" from="0" to="1" dur="2s" fill="freeze"/>
+    <animate attributeName="opacity"
+      begin="back5_fadeout.begin" from="1" to="0" dur="2s" fill="freeze"/>
+  </image>
+  <image xlink:href="images/back6-front.png" opacity="0"
+    width="100%" height="100%">
+    <animate attributeName="opacity"
+      begin="back6_fadein.begin" from="0" to="1" dur="2s" fill="freeze"/>
+    <animate attributeName="opacity"
+      begin="back6_fadeout.begin" from="1" to="0" dur="2s" fill="freeze"/>
+  </image>
 
   <g id="main-layer">
   </g>
+
+  <image xlink:href="images/back2-front.png" opacity="0"
+    width="100%" height="100%">
+    <animate attributeName="opacity"
+      begin="back2_fadein.begin" from="0" to="1" dur="2s" fill="freeze"/>
+    <animate attributeName="opacity"
+      begin="back2_fadeout.begin" from="1" to="0" dur="2s" fill="freeze"/>
+  </image>
   
   <rect width="5" height="5" fill="red">
     <animateTransform id="time-base" attributeName="transform" type="translate"
