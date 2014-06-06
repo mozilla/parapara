@@ -62,42 +62,42 @@
     <animate id="back1_fadein" attributeName="opacity"
       begin="0; back6_fadeout.begin" from="0" to="1" dur="2s" fill="freeze"/>
     <animate id="back1_fadeout" attributeName="opacity"
-      begin="back1_fadein.end + 20s" from="1" to="0" dur="2s" fill="freeze"/>
+      begin="back1_fadein.end + 60s" from="1" to="0" dur="2s" fill="freeze"/>
   </image>
   <image xlink:href="images/back2.jpg" id="back2" opacity="0"
     width="100%" height="100%">
     <animate id="back2_fadein" attributeName="opacity"
       begin="back1_fadeout.begin" from="0" to="1" dur="2s" fill="freeze"/>
     <animate id="back2_fadeout" attributeName="opacity"
-      begin="back2_fadein.end + 20s" from="1" to="0" dur="2s" fill="freeze"/>
+      begin="back2_fadein.end + 60s" from="1" to="0" dur="2s" fill="freeze"/>
   </image>
   <image xlink:href="images/back3.jpg" id="back3" opacity="0"
     width="100%" height="100%">
     <animate id="back3_fadein" attributeName="opacity"
       begin="back2_fadeout.begin" from="0" to="1" dur="2s" fill="freeze"/>
     <animate id="back3_fadeout" attributeName="opacity"
-      begin="back3_fadein.end + 20s" from="1" to="0" dur="2s" fill="freeze"/>
+      begin="back3_fadein.end + 60s" from="1" to="0" dur="2s" fill="freeze"/>
   </image>
   <image xlink:href="images/back4.jpg" id="back4" opacity="0"
     width="100%" height="100%">
     <animate id="back4_fadein" attributeName="opacity"
       begin="back3_fadeout.begin" from="0" to="1" dur="2s" fill="freeze"/>
     <animate id="back4_fadeout" attributeName="opacity"
-      begin="back4_fadein.end + 20s" from="1" to="0" dur="2s" fill="freeze"/>
+      begin="back4_fadein.end + 60s" from="1" to="0" dur="2s" fill="freeze"/>
   </image>
   <image xlink:href="images/back5.jpg" id="back5" opacity="0"
     width="100%" height="100%">
     <animate id="back5_fadein" attributeName="opacity"
       begin="back4_fadeout.begin" from="0" to="1" dur="2s" fill="freeze"/>
     <animate id="back5_fadeout" attributeName="opacity"
-      begin="back5_fadein.end + 20s" from="1" to="0" dur="2s" fill="freeze"/>
+      begin="back5_fadein.end + 60s" from="1" to="0" dur="2s" fill="freeze"/>
   </image>
   <image xlink:href="images/back6.jpg" id="back6" opacity="0"
     width="100%" height="100%">
     <animate id="back6_fadein" attributeName="opacity"
       begin="back5_fadeout.begin" from="0" to="1" dur="2s" fill="freeze"/>
     <animate id="back6_fadeout" attributeName="opacity"
-      begin="back6_fadein.end + 20s" from="1" to="0" dur="2s" fill="freeze"/>
+      begin="back6_fadein.end + 60s" from="1" to="0" dur="2s" fill="freeze"/>
   </image>
   
   <g id="back-layer">
