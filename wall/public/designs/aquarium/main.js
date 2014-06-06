@@ -45,7 +45,7 @@ var Main = {
       text += " : ";
       text += character.title ? character.title : "untitled";
       authorText.textContent = text;
-      
+
       authorText.setAttribute("font-family", "helvetica");
       authorText.setAttribute("font-size", "40");
       authorText.setAttribute("text-anchor", "middle");
