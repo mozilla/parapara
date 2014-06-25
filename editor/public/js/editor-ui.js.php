@@ -18,7 +18,8 @@ EditorUI.INITIAL_SPEED_FPS = 3.3;
 EditorUI.SPEED_STEP_FPS    = 0.3;
 
 // UI key repeat control
-EditorUI.LONG_PRESS_DELAY_MS = 800;
+EditorUI.LONG_PRESS_DELAY_MS = 350;
+EditorUI.BACKGROUND_SELECT_DELAY_MS = 1500;
 EditorUI.LONG_PRESS_RATE_MS  = 120;
 
 // API paths
@@ -31,7 +32,6 @@ EditorUI.init = function() {
   ParaPara.init(paraparaRoot);
   EditorUI.editMode = 'draw'; // 'draw' | 'animate'
   EditorUI.stillPressing = false;
-  EditorUI.isTouch = 'ontouchstart' in window;
   EditorUI.initControls();
   EditorUI.updateLayout();
 
@@ -449,13 +449,12 @@ EditorUI.onColorChange = function(evt) {
   EditorUI.changeTool("pencil");
 }
 
-EditorUI.onBackColorChange = function(evt) {
+EditorUI.onBackgroundColorChange = function(evt) {
   if (EditorUI.editMode != 'draw') {
     EditorUI.returnToEditing();
   }
   var color = evt.detail.color;
-  EditorUI.setBackColor(color);
-  EditorUI.backChanged = true;
+  EditorUI.setBackgroundColor(color);
 }
 
 EditorUI.setColor = function(color) {
@@ -463,9 +462,9 @@ EditorUI.setColor = function(color) {
   EditorUI.updateBrushPreviewColor(color);
 }
 
-EditorUI.setBackColor = function(color) {
-	var back = document.getElementById("canvas-background");
-	back.style.backgroundColor = color;
+EditorUI.setBackgroundColor = function(color) {
+  var background = document.getElementById("canvas-background");
+	background.style.backgroundColor = color;
 }
 
 EditorUI.updateBrushPreviewColor = function(color) {
@@ -516,44 +515,37 @@ EditorUI.initTools = function() {
 }
 
 EditorUI.selectPencil = function(evt) {
-  var styleExists = (EditorUI.getWallName() != "sandbox");
-  if (styleExists) {
+  var hasThemeBackground = (EditorUI.getWallName() != "sandbox");
+  if (hasThemeBackground) {
     EditorUI.onColorChange(evt);
   } else {
-    var shortPress = function() { EditorUI.onColorChange(evt) };
-    var longPress = function() { EditorUI.onBackColorChange(evt) };
-    EditorUI.beginPencilPress(evt, shortPress, longPress);
+    var shortPressCallback = function() { EditorUI.onColorChange(evt) };
+    var longPressCallback = function() { EditorUI.onBackgroundColorChange(evt) };
+    EditorUI.beginPencilPress(evt, shortPressCallback, longPressCallback);
   }
 }
 
-EditorUI.beginPencilPress = function(evt, shortPress, longPress) {
+EditorUI.beginPencilPress = function(evt, shortPressCallback, longPressCallback) {
   EditorUI.isLongPress = false;
-  EditorUI.listener = function() {
-    EditorUI.finishPencilPress(evt, shortPress);
+  EditorUI.pencilPressListener = function(evt) {
+    EditorUI.finishPencilPress(evt, shortPressCallback);
   }
   EditorUI.longPressTimer = setTimeout(
     function() {
       EditorUI.isLongPress = true;
-      longPress();
+      longPressCallback();
     },
-    EditorUI.LONG_PRESS_DELAY_MS);
-  if (EditorUI.isTouch) {
-    evt.target.addEventListener("touchend", EditorUI.listener, false);
-  } else {
-    evt.target.addEventListener("mouseup", EditorUI.listener, false);
-  }
+    EditorUI.BACKGROUND_SELECT_DELAY_MS);
+  var endEvent = evt.detail.eventType == "touchstart" ? "touchend" : "mouseup";
+  evt.explicitOriginalTarget.addEventListener(endEvent, EditorUI.pencilPressListener, false);
 }
 
-EditorUI.finishPencilPress = function(evt, shortPress) {
+EditorUI.finishPencilPress = function(evt, shortPressCallback) {
   clearTimeout(EditorUI.longPressTimer);
   if (!EditorUI.isLongPress) {
-    shortPress();
+    shortPressCallback();
   }
-  if (EditorUI.isTouch) {
-    evt.target.removeEventListener("touchend", EditorUI.listener, false);
-  } else {
-    evt.target.removeEventListener("mouseup", EditorUI.listener, false);
-  }
+  evt.target.removeEventListener(evt.type, EditorUI.pencilPressListener, false);
 }
 
 EditorUI.selectEraser = function() {
@@ -665,7 +657,7 @@ EditorUI.toggleEditMode = function() {
 EditorUI.initAnimControls = function() {
   var slower = document.getElementById("slower");
   var faster = document.getElementById("faster");
-  if (EditorUI.istouch) {
+  if ('ontouchstart' in window) {
     slower.addEventListener("touchstart", EditorUI.onGoSlowTouch, false);
     faster.addEventListener("touchstart", EditorUI.onGoFastTouch, false);
   } else {
@@ -707,7 +699,7 @@ EditorUI.finishAnimControlsFade = function() {
 }
 
 EditorUI.onGoSlowPress = function(evt) {
-  EditorUI.beginLongPress(evt, EditorUI.goSlower);
+  EditorUI.beginLongPress(evt, EditorUI.goSlower, EditorUI.LONG_PRESS_DELAY_MS);
 }
 
 
@@ -721,7 +713,7 @@ EditorUI.goSlower = function() {
 }
 
 EditorUI.onGoFastPress = function(evt) {
-  EditorUI.beginLongPress(evt, EditorUI.goFaster);
+  EditorUI.beginLongPress(evt, EditorUI.goFaster, EditorUI.LONG_PRESS_DELAY_MS);
 }
 
 EditorUI.goFaster = function() {
@@ -733,18 +725,15 @@ EditorUI.goFaster = function() {
   EditorUI.setSpeed(newSpeed);
 }
 
-EditorUI.beginLongPress = function(evt, callback) {
+EditorUI.beginLongPress = function(evt, callback, delay) {
   evt.preventDefault();
   callback();
   EditorUI.stillPressing = true;
-  if (EditorUI.isTouch) {
-    document.addEventListener("touchend", EditorUI.finishLongTouch, false);
-  } else {
-    document.addEventListener("mouseup", EditorUI.finishLongPress, false);
-  }
+  var endEvent = evt.type == "touchstart" ? "touchend" : "mouseup";
+  document.addEventListener(endEvent, EditorUI.finishLongPress, false);
   window.setTimeout(
     function() { EditorUI.continueLongPress(callback); },
-    EditorUI.LONG_PRESS_DELAY_MS);
+    delay);
 }
 
 EditorUI.continueLongPress = function(callback) {
@@ -756,14 +745,9 @@ EditorUI.continueLongPress = function(callback) {
     EditorUI.LONG_PRESS_RATE_MS);
 }
 
-EditorUI.finishLongPress = function() {
+EditorUI.finishLongPress = function(evt) {
   EditorUI.stillPressing = false;
-  document.removeEventListener("mouseup", EditorUI.finishLongPress, false);
-}
-
-EditorUI.finishLongTouch = function() {
-  EditorUI.stillPressing = false;
-  document.removeEventListener("touchend", EditorUI.finishLongTouch, false);
+  document.removeEventListener(evt.type, EditorUI.finishLongPress, false);
 }
 
 EditorUI.setSpeed = function(newSpeed) {

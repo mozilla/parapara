@@ -396,7 +396,7 @@
       var color = target.previousElementSibling.getAttribute("color");
       changeEvent = document.createEvent("CustomEvent");
       changeEvent.initCustomEvent("pencilselect", true, true,
-        { color: color });
+        { color: color, eventType: evt.type});
     } else if (classList.indexOf("eraser") !== -1) {
       changeEvent = document.createEvent("CustomEvent");
       changeEvent.initCustomEvent("eraserselect", true, true, null);
@@ -409,14 +409,9 @@
   function init() {
     // Register click listeners
     var hitRegions = document.getElementsByClassName('hitRegion');
-    if ('ontouchstart' in window) {
-      for (var i = 0; i < hitRegions.length; i++) {
-        hitRegions[i].addEventListener('touchstart', hit, false);
-      }
-    } else {
-      for (var i = 0; i < hitRegions.length; i++) {
-        hitRegions[i].addEventListener('mousedown', hit, false);
-      }
+    for (var i = 0; i < hitRegions.length; i++) {
+      hitRegions[i].addEventListener("touchstart", hit, false);
+      hitRegions[i].addEventListener("mousedown", hit, false);
     }
   }
   init();
