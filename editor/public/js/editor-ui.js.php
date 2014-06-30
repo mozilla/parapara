@@ -537,7 +537,7 @@ EditorUI.beginPencilPress = function(evt, shortPressCallback, longPressCallback)
     },
     EditorUI.BACKGROUND_SELECT_DELAY_MS);
   var endEvent = evt.detail.eventType == "touchstart" ? "touchend" : "mouseup";
-  evt.explicitOriginalTarget.addEventListener(endEvent, EditorUI.pencilPressListener, false);
+  evt.target.addEventListener(endEvent, EditorUI.pencilPressListener, false);
 }
 
 EditorUI.finishPencilPress = function(evt, shortPressCallback) {
@@ -545,7 +545,7 @@ EditorUI.finishPencilPress = function(evt, shortPressCallback) {
   if (!EditorUI.isLongPress) {
     shortPressCallback();
   }
-  evt.target.removeEventListener(evt.type, EditorUI.pencilPressListener, false);
+  evt.target.ownerDocument.removeEventListener(evt.type, EditorUI.pencilPressListener, false);
 }
 
 EditorUI.selectEraser = function() {

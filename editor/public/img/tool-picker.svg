@@ -385,6 +385,7 @@
   }
 
   function hit(evt) {
+    evt.preventDefault();
     var target = evt.target;
     // Some browsers don't support classList in SVG :(
     // (i.e. it is defined in HTMLElement, not Element)
