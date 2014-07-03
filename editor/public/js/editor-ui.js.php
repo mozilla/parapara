@@ -463,7 +463,7 @@ EditorUI.setColor = function(color) {
 }
 
 EditorUI.setBackgroundColor = function(color) {
-  var background = document.getElementById("canvas-background");
+  var background = document.querySelector(".canvas-background");
 	background.style.backgroundColor = color;
 }
 
