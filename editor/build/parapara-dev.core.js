@@ -2124,14 +2124,22 @@ ParaPara.postRequest = function(url, payload, successCallback,
   // Add timeout
   window.setTimeout(
     function() {
-      if (req.readyState != 4) {
+      if (req.readyState != 0 && req.readyState != 4) {
         req.abort();
         failureCallback('timeout');
       }
     },
     ParaPara.XHR_TIMEOUT
   );
+
+  ParaPara.abortRequest = function() {
+    if (req.readyState != 0 && req.readyState != 4) {
+      req.abort();
+    }
+  }
 }
+
+ParaPara.abortRequest = function() {}
 // ------------- Javascript bind support for older browsers ------------------
 //
 // Code courtesy of:

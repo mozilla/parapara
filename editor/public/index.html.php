@@ -116,9 +116,11 @@
             onclick="EditorUI.returnToAnimation()">Cancel</button>
         </div>
         <div class="overlay-contents" id="noteSending">
-          <span data-l10n-id="sending">Sending</span><br><br>
+          <span data-l10n-id="sending">Sending</span><br>
           <img src="img/loader.gif" width="43" height="11"
-            alt="Sending" data-l10n-id="sending-graphic">
+            alt="Sending" data-l10n-id="sending-graphic"><br><br>
+          <button type="button" class="text" data-l10n-id="cancel"
+            onclick="EditorUI.cancelSending()">Cancel</button>
         </div>
         <div class="overlay-contents" id="noteSendingComplete"
           data-l10n-id="send-success">Animation sent!
