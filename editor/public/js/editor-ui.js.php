@@ -201,6 +201,11 @@ EditorUI.send = function() {
   ParaPara.send(uploadPath, EditorUI.sendSuccess, EditorUI.sendFail, metadata);
 }
 
+EditorUI.cancelSending = function() {
+  ParaPara.abortRequest();
+  EditorUI.returnToAnimation();
+}
+
 EditorUI.getRadioValue = function(radio) {
   for (var i = 0; i < radio.length; ++i) {
     if (radio[i].checked)
