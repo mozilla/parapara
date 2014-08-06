@@ -29,7 +29,7 @@
               data-tmpl-keyTimes="0; {{frontDurKey}}; 1"/>
             <animate attributeName="display" repeatCount="indefinite"
               calcMode="discrete" dur="240s"
-              data-tmpl-begin="{{beginStr}}" values="block; none" data-tmpl-keyTimes="0; {{frontDurKey}};"/>/>
+              data-tmpl-begin="{{beginStr}}" values="block; none" data-tmpl-keyTimes="0; {{frontDurKey}};"/>
           </g>
           <g class="character" data-tmpl-data-char-id="{{id}}"
             data-target="back-layer"
@@ -53,11 +53,13 @@
     </foreignObject>
     
   <animate id="fadein" attributeName="opacity" from="0" to="1" dur="1s" fill="freeze"/>
+  <image id="fork" data-target="main-layer" xlink:href="images/fork.svg" width="241" height="81" overflow="visible"/>  
+  <image id="spoon" data-target="main-layer" xlink:href="images/spoon.svg" width="241" height="81" overflow="visible"/>
   </defs>
   
   
   <!-- background -->
-  <image xlink:href="images/back1.jpg" id="back1" opacity="0"
+ <image xlink:href="images/back1.jpg" id="back1" opacity="0"
     width="100%" height="100%">
     <animate id="back1_fadein" attributeName="opacity"
       begin="0; back6_fadeout.begin" from="0" to="1" dur="2s" fill="freeze"/>
@@ -103,6 +105,120 @@
   <g id="back-layer">
   </g>
 
+  <image xlink:href="images/back2-middle.png" opacity="0"
+    width="100%" height="100%">
+    <animate attributeName="opacity"
+      begin="back2_fadein.begin" from="0" to="1" dur="2s" fill="freeze"/>
+    <animate attributeName="opacity"
+      begin="back2_fadeout.begin" from="1" to="0" dur="2s" fill="freeze"/>
+  </image>
+  
+  
+  <g id="main-layer"></g>
+  
+  <!-- Sustainable Seafood Character -->
+  <use xlink:href="#spoon" x="-250" y="550">
+  <animate id="first_fish" attributeName="x" from="-250" to="2200" fill="freeze" dur="31s" begin="3s; last_fish.begin + 3s"/>
+  </use><use xlink:href="#spoon" x="-250" y="603">
+  <animate attributeName="x" from="-250" to="2200" fill="freeze" dur="27s" begin="first_fish.begin + 13s"/>
+  </use><use xlink:href="#spoon" x="-250" y="52">
+  <animate attributeName="x" from="-250" to="2200" fill="freeze" dur="27s" begin="first_fish.begin + 20s"/>
+  </use><use xlink:href="#fork" x="-250" y="131">
+  <animate attributeName="x" from="-250" to="2200" fill="freeze" dur="37s" begin="first_fish.begin + 31s"/>
+  </use><use xlink:href="#fork" x="-250" y="187">
+  <animate attributeName="x" from="-250" to="2200" fill="freeze" dur="32s" begin="first_fish.begin + 44s"/>
+  </use><use xlink:href="#spoon" x="-250" y="229">
+  <animate attributeName="x" from="-250" to="2200" fill="freeze" dur="35s" begin="first_fish.begin + 61s"/>
+  </use><use xlink:href="#spoon" x="-250" y="427">
+  <animate attributeName="x" from="-250" to="2200" fill="freeze" dur="20s" begin="first_fish.begin + 75s"/>
+  </use><use xlink:href="#fork" x="-250" y="485">
+  <animate attributeName="x" from="-250" to="2200" fill="freeze" dur="26s" begin="first_fish.begin + 87s"/>
+  </use><use xlink:href="#spoon" x="-250" y="316">
+  <animate attributeName="x" from="-250" to="2200" fill="freeze" dur="28s" begin="first_fish.begin + 97s"/>
+  </use><use xlink:href="#fork" x="-250" y="427">
+  <animate attributeName="x" from="-250" to="2200" fill="freeze" dur="37s" begin="first_fish.begin + 110s"/>
+  </use><use xlink:href="#fork" x="-250" y="232">
+  <animate attributeName="x" from="-250" to="2200" fill="freeze" dur="34s" begin="first_fish.begin + 118s"/>
+  </use><use xlink:href="#spoon" x="-250" y="593">
+  <animate attributeName="x" from="-250" to="2200" fill="freeze" dur="30s" begin="first_fish.begin + 130s"/>
+  </use><use xlink:href="#fork" x="-250" y="330">
+  <animate attributeName="x" from="-250" to="2200" fill="freeze" dur="25s" begin="first_fish.begin + 142s"/>
+  </use><use xlink:href="#spoon" x="-250" y="502">
+  <animate attributeName="x" from="-250" to="2200" fill="freeze" dur="35s" begin="first_fish.begin + 157s"/>
+  </use><use xlink:href="#spoon" x="-250" y="660">
+  <animate attributeName="x" from="-250" to="2200" fill="freeze" dur="25s" begin="first_fish.begin + 167s"/>
+  </use><use xlink:href="#fork" x="-250" y="564">
+  <animate attributeName="x" from="-250" to="2200" fill="freeze" dur="23s" begin="first_fish.begin + 183s"/>
+  </use><use xlink:href="#spoon" x="-250" y="554">
+  <animate attributeName="x" from="-250" to="2200" fill="freeze" dur="39s" begin="first_fish.begin + 190s"/>
+  </use><use xlink:href="#spoon" x="-250" y="449">
+  <animate attributeName="x" from="-250" to="2200" fill="freeze" dur="24s" begin="first_fish.begin + 204s"/>
+  </use><use xlink:href="#spoon" x="-250" y="447">
+  <animate attributeName="x" from="-250" to="2200" fill="freeze" dur="37s" begin="first_fish.begin + 220s"/>
+  </use><use xlink:href="#fork" x="-250" y="31">
+  <animate attributeName="x" from="-250" to="2200" fill="freeze" dur="20s" begin="first_fish.begin + 223s"/>
+  </use><use xlink:href="#spoon" x="-250" y="120">
+  <animate attributeName="x" from="-250" to="2200" fill="freeze" dur="26s" begin="first_fish.begin + 242s"/>
+  </use><use xlink:href="#spoon" x="-250" y="154">
+  <animate attributeName="x" from="-250" to="2200" fill="freeze" dur="27s" begin="first_fish.begin + 255s"/>
+  </use><use xlink:href="#fork" x="-250" y="452">
+  <animate attributeName="x" from="-250" to="2200" fill="freeze" dur="25s" begin="first_fish.begin + 260s"/>
+  </use><use xlink:href="#spoon" x="-250" y="447">
+  <animate attributeName="x" from="-250" to="2200" fill="freeze" dur="34s" begin="first_fish.begin + 281s"/>
+  </use><use xlink:href="#spoon" x="-250" y="520">
+  <animate id="last_fish" attributeName="x" from="-250" to="2200" fill="freeze" dur="30s" begin="first_fish.begin + 288s"/>
+  </use><use xlink:href="#fork" x="-2200" y="661" transform="scale(-1,1)" filter="url(#back)">
+  <animate attributeName="x" from="-2200" to="250" fill="freeze" dur="48s" begin="first_fish.begin + -5s"/>
+  </use><use xlink:href="#fork" x="-2200" y="624" transform="scale(-1,1)" filter="url(#back)">
+  <animate attributeName="x" from="-2200" to="250" fill="freeze" dur="58s" begin="first_fish.begin + 14s"/>
+  </use><use xlink:href="#spoon" x="-2200" y="336" transform="scale(-1,1)" filter="url(#back)">
+  <animate attributeName="x" from="-2200" to="250" fill="freeze" dur="58s" begin="first_fish.begin + 33s"/>
+  </use><use xlink:href="#spoon" x="-2200" y="546" transform="scale(-1,1)" filter="url(#back)">
+  <animate attributeName="x" from="-2200" to="250" fill="freeze" dur="36s" begin="first_fish.begin + 44s"/>
+  </use><use xlink:href="#spoon" x="-2200" y="437" transform="scale(-1,1)" filter="url(#back)">
+  <animate attributeName="x" from="-2200" to="250" fill="freeze" dur="58s" begin="first_fish.begin + 39s"/>
+  </use><use xlink:href="#fork" x="-2200" y="664" transform="scale(-1,1)" filter="url(#back)">
+  <animate attributeName="x" from="-2200" to="250" fill="freeze" dur="42s" begin="first_fish.begin + 66s"/>
+  </use><use xlink:href="#fork" x="-2200" y="89" transform="scale(-1,1)" filter="url(#back)">
+  <animate attributeName="x" from="-2200" to="250" fill="freeze" dur="53s" begin="first_fish.begin + 68s"/>
+  </use><use xlink:href="#fork" x="-2200" y="630" transform="scale(-1,1)" filter="url(#back)">
+  <animate attributeName="x" from="-2200" to="250" fill="freeze" dur="33s" begin="first_fish.begin + 92s"/>
+  </use><use xlink:href="#spoon" x="-2200" y="583" transform="scale(-1,1)" filter="url(#back)">
+  <animate attributeName="x" from="-2200" to="250" fill="freeze" dur="46s" begin="first_fish.begin + 88s"/>
+  </use><use xlink:href="#fork" x="-2200" y="534" transform="scale(-1,1)" filter="url(#back)">
+  <animate attributeName="x" from="-2200" to="250" fill="freeze" dur="43s" begin="first_fish.begin + 103s"/>
+  </use><use xlink:href="#spoon" x="-2200" y="608" transform="scale(-1,1)" filter="url(#back)">
+  <animate attributeName="x" from="-2200" to="250" fill="freeze" dur="44s" begin="first_fish.begin + 113s"/>
+  </use><use xlink:href="#spoon" x="-2200" y="171" transform="scale(-1,1)" filter="url(#back)">
+  <animate attributeName="x" from="-2200" to="250" fill="freeze" dur="33s" begin="first_fish.begin + 126s"/>
+  </use><use xlink:href="#spoon" x="-2200" y="596" transform="scale(-1,1)" filter="url(#back)">
+  <animate attributeName="x" from="-2200" to="250" fill="freeze" dur="42s" begin="first_fish.begin + 147s"/>
+  </use><use xlink:href="#fork" x="-2200" y="115" transform="scale(-1,1)" filter="url(#back)">
+  <animate attributeName="x" from="-2200" to="250" fill="freeze" dur="56s" begin="first_fish.begin + 162s"/>
+  </use><use xlink:href="#spoon" x="-2200" y="475" transform="scale(-1,1)" filter="url(#back)">
+  <animate attributeName="x" from="-2200" to="250" fill="freeze" dur="35s" begin="first_fish.begin + 160s"/>
+  </use><use xlink:href="#spoon" x="-2200" y="462" transform="scale(-1,1)" filter="url(#back)">
+  <animate attributeName="x" from="-2200" to="250" fill="freeze" dur="38s" begin="first_fish.begin + 177s"/>
+  </use><use xlink:href="#fork" x="-2200" y="484" transform="scale(-1,1)" filter="url(#back)">
+  <animate attributeName="x" from="-2200" to="250" fill="freeze" dur="52s" begin="first_fish.begin + 187s"/>
+  </use><use xlink:href="#spoon" x="-2200" y="583" transform="scale(-1,1)" filter="url(#back)">
+  <animate attributeName="x" from="-2200" to="250" fill="freeze" dur="47s" begin="first_fish.begin + 209s"/>
+  </use><use xlink:href="#spoon" x="-2200" y="310" transform="scale(-1,1)" filter="url(#back)">
+  <animate attributeName="x" from="-2200" to="250" fill="freeze" dur="31s" begin="first_fish.begin + 221s"/>
+  </use><use xlink:href="#fork" x="-2200" y="687" transform="scale(-1,1)" filter="url(#back)">
+  <animate attributeName="x" from="-2200" to="250" fill="freeze" dur="34s" begin="first_fish.begin + 229s"/>
+  </use><use xlink:href="#fork" x="-2200" y="296" transform="scale(-1,1)" filter="url(#back)">
+  <animate attributeName="x" from="-2200" to="250" fill="freeze" dur="57s" begin="first_fish.begin + 239s"/>
+  </use><use xlink:href="#spoon" x="-2200" y="153" transform="scale(-1,1)" filter="url(#back)">
+  <animate attributeName="x" from="-2200" to="250" fill="freeze" dur="43s" begin="first_fish.begin + 246s"/>
+  </use><use xlink:href="#spoon" x="-2200" y="541" transform="scale(-1,1)" filter="url(#back)">
+  <animate attributeName="x" from="-2200" to="250" fill="freeze" dur="42s" begin="first_fish.begin + 267s"/>
+  </use><use xlink:href="#spoon" x="-2200" y="239" transform="scale(-1,1)" filter="url(#back)">
+  <animate attributeName="x" from="-2200" to="250" fill="freeze" dur="47s" begin="first_fish.begin + 283s"/>
+  </use><use xlink:href="#fork" x="-2200" y="440" transform="scale(-1,1)" filter="url(#back)">
+  <animate attributeName="x" from="-2200" to="250" fill="freeze" dur="35s" begin="first_fish.begin + 280s"/>
+  </use>
+  
   <image xlink:href="images/back1-front.png" opacity="0"
     width="100%" height="100%">
     <animate attributeName="opacity"
@@ -110,7 +226,7 @@
     <animate attributeName="opacity"
       begin="back1_fadeout.begin" from="1" to="0" dur="2s" fill="freeze"/>
   </image>
-  <image xlink:href="images/back2-middle.png" opacity="0"
+  <image xlink:href="images/back2-front.png" opacity="0">
     width="100%" height="100%">
     <animate attributeName="opacity"
       begin="back2_fadein.begin" from="0" to="1" dur="2s" fill="freeze"/>
@@ -130,18 +246,8 @@
       begin="back6_fadein.begin" from="0" to="1" dur="2s" fill="freeze"/>
     <animate attributeName="opacity"
       begin="back6_fadeout.begin" from="1" to="0" dur="2s" fill="freeze"/>
-  </image>
-
-  <g id="main-layer">
-  </g>
-
-  <image xlink:href="images/back2-front.png" opacity="0"
-    width="100%" height="100%">
-    <animate attributeName="opacity"
-      begin="back2_fadein.begin" from="0" to="1" dur="2s" fill="freeze"/>
-    <animate attributeName="opacity"
-      begin="back2_fadeout.begin" from="1" to="0" dur="2s" fill="freeze"/>
-  </image>
+  </image> 
+  
   
   <rect width="5" height="5" fill="red">
     <animateTransform id="time-base" attributeName="transform" type="translate"
