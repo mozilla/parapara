@@ -53,10 +53,10 @@
     </foreignObject>
     
   <animate id="fadein" attributeName="opacity" from="0" to="1" dur="1s" fill="freeze"/>
-  <image id="fork" xlink:href="images/fork.svg" width="180" height="80" overflow="visible"/>
-  <image id="spoon" xlink:href="images/spoon.svg" width="180" height="80" overflow="visible"/>
-  <image id="fork_small" xlink:href="images/fork.svg" width="120" height="54" overflow="visible"/>
-  <image id="spoon_small" xlink:href="images/spoon.svg" width="120" height="54" overflow="visible"/>
+  <image id="fork" xlink:href="images/fork.svg" width="180" height="60" overflow="visible"/>
+  <image id="spoon" xlink:href="images/spoon.svg" width="180" height="60" overflow="visible"/>
+  <image id="fork_small" xlink:href="images/fork.svg" width="120" height="40" overflow="visible"/>
+  <image id="spoon_small" xlink:href="images/spoon.svg" width="120" height="40" overflow="visible"/>
   </defs>
   
   
