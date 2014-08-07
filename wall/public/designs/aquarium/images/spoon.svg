@@ -715,7 +715,7 @@
 	l-0.206,0.635l0.252,0.555l0.268,0.584l0.004,0.611l-0.032,0.627l-0.196,0.637l0.713,0.473l0.113,0.644l0.013,0.649L159.809,43.984z
 	"/>
 	
-<set attributeName="visibility" to="visible" dur="0.4s" id="anim1" begin="0; anim3.end"/>
+<set attributeName="visibility" to="visible" dur="0.4s" id="anim1" begin="0; anim4.end"/>
 </g>
 
 
@@ -1447,6 +1447,7 @@
 	20.098,53.164 19.392,53.496 18.582,53.404 17.81,53.322 17.069,53.445 "/>
 
 <set attributeName="visibility" to="visible" dur="0.4s" id="anim2" begin="anim1.end"/>
+<set attributeName="visibility" to="visible" dur="0.4s" id="anim4" begin="anim3.end"/>
 </g>
 
 
