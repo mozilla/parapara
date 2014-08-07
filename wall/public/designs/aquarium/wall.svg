@@ -11,7 +11,7 @@
 
   <defs>
     <filter id="back">
-      <feGaussianBlur result="blur" stdDeviation="5"/>
+      <feGaussianBlur result="blur" stdDeviation="3"/>
     </filter>
     <foreignObject>
       <template>
@@ -53,10 +53,10 @@
     </foreignObject>
     
   <animate id="fadein" attributeName="opacity" from="0" to="1" dur="1s" fill="freeze"/>
-  <image id="fork" xlink:href="images/fork.svg" width="241" height="81" overflow="visible"/>  
-  <image id="spoon" xlink:href="images/spoon.svg" width="241" height="81" overflow="visible"/>
-  <image id="fork_small" xlink:href="images/fork.svg" width="180" height="60" overflow="visible"/>  
-  <image id="spoon_small" xlink:href="images/spoon.svg" width="180" height="60" overflow="visible"/>
+  <image id="fork" xlink:href="images/fork.svg" width="180" height="80" overflow="visible"/>
+  <image id="spoon" xlink:href="images/spoon.svg" width="180" height="80" overflow="visible"/>
+  <image id="fork_small" xlink:href="images/fork.svg" width="120" height="54" overflow="visible"/>
+  <image id="spoon_small" xlink:href="images/spoon.svg" width="120" height="54" overflow="visible"/>
   </defs>
   
   
@@ -106,7 +106,7 @@
   
   <!-- Sustainable Seafood Character -->
   <use xlink:href="#fork_small" x="-2200" y="61" transform="scale(-1,1)" filter="url(#back)">
-  <animate attributeName="x" from="-2200" to="250" fill="freeze" dur="48s" begin="first_fish.begin + -5s"/>
+  <animate attributeName="x" from="-2200" to="250" fill="freeze" dur="48s" begin="first_fish.begin + 5s"/>
   </use><use xlink:href="#fork_small" x="-2200" y="624" transform="scale(-1,1)" filter="url(#back)">
   <animate attributeName="x" from="-2200" to="250" fill="freeze" dur="58s" begin="first_fish.begin + 14s"/>
   </use><use xlink:href="#spoon_small" x="-2200" y="336" transform="scale(-1,1)" filter="url(#back)">

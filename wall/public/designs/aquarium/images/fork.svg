@@ -802,7 +802,7 @@
 	l-0.562,0.366l-0.646-0.068l-0.572,0.346l-0.668-0.447l-0.583,0.446l-0.614,0.092l-0.606,0.101l-0.639,0.047l-0.586,0.08
 	l-0.679-0.038l-0.548,0.342l-0.629-0.049l-0.583,0.326l-0.592,0.013l-0.651-0.009l-0.513,0.616l-0.676-0.194l-0.593,0.167
 	l-0.635-0.003l-0.633-0.026l-0.562,0.428l-0.621,0.067l-0.628,0.079L198.703,37.784z"/>
-<set attributeName="visibility" to="visible" dur="0.4s" id="anim1" begin="0; anim3.end"/>
+<set attributeName="visibility" to="visible" dur="0.4s" id="anim1" begin="0; anim4.end"/>
 </g>
 
 
@@ -2297,6 +2297,7 @@
 	c-0.176,0.027-0.406,0.056-0.708,0.064c-0.072,0.011-0.172,0.004-0.259,0.006C78.335,51.005,78.199,51.009,78.063,51.009z"/>
 
 	<set attributeName="visibility" to="visible" dur="0.4s" id="anim2" begin="anim1.end"/>
+	<set attributeName="visibility" to="visible" dur="0.4s" id="anim4" begin="anim3.end"/>
 </g>
 
 
