@@ -1,9 +1,0 @@
-div.canvas-background {
-  background-color: black;
-  background: url('jimen.png') left bottom repeat-x,
-              url('space-bg.jpg') black;
-  background-size: auto 9%, cover;
-}
-#anim-controls .overlay-shading {
-  fill: white;
-}

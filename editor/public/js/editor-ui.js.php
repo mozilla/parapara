@@ -1,6 +1,6 @@
 <?php
 /* vim: set syn=javascript: */
-require_once("../../../wall/lib/parapara.inc");
+require_once("../../lib/php/parapara.inc");
 header("Content-Type: application/javascript; charset=UTF-8");
 ?>
 /* This Source Code Form is subject to the terms of the Mozilla Public
@@ -38,9 +38,9 @@ EditorUI.init = function() {
   // Check we have a wall to post to
   // (In future we'll just turn the "Send" button into a "Save" button in this
   // case)
-  if (!EditorUI.getWallName()) {
-    EditorUI.displayNote("noteNoWall");
-  }
+  //if (!EditorUI.getWallName()) {
+  //  EditorUI.displayNote("noteNoWall");
+  //}
 }
 window.addEventListener("load", EditorUI.init, false);
 
@@ -189,14 +189,8 @@ EditorUI.send = function() {
 
   // Build path
   var server   = EditorUI.UPLOAD_SERVER.replace(/\/$/, '');
-  var wallName = EditorUI.getWallName();
-  if (!wallName) {
-    console.log("Bad wall name");
-    EditorUI.sendFail('no-access');
-    return;
-  }
   var uploadPath =
-    [server,'api','walls','byname',wallName,'characters'].join('/');
+    [server,'api','characters'].join('/');
 
   ParaPara.send(uploadPath, EditorUI.sendSuccess, EditorUI.sendFail, metadata);
 }
@@ -520,7 +514,7 @@ EditorUI.initTools = function() {
 }
 
 EditorUI.selectPencil = function(evt) {
-  var hasThemeBackground = (EditorUI.getWallName() != "sandbox");
+  var hasThemeBackground = false;
   if (hasThemeBackground) {
     EditorUI.onColorChange(evt);
   } else {

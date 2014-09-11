@@ -2,8 +2,6 @@
 
 # Source directories
 srcdir = lib/js
-shareddir = ../shared
-sharedjsdir = $(shareddir)/js
 
 # Output directory
 builddir = build
@@ -17,14 +15,14 @@ deps = $(patsubst %,$(srcdir)/%,$(_deps))
 # 'export' step is run)
 # Removing webL10n for now since we've made local modifications to it that are
 # yet to be merged upstream
-# extdeps =	$(shareddir)/webL10n/l10n.js
+# extdeps =	$(srcdir)/webL10n/l10n.js
 extdeps =	
 
 # Modules (these are combined into the library)
 modules =	$(srcdir)/parapara.js \
 					$(srcdir)/eraser.js \
 					$(srcdir)/svgClassList.js \
-					$(sharedjsdir)/xhr.js
+					$(srcdir)/xhr.js
 
 # File list
 files = $(modules) $(deps)

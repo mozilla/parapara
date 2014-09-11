@@ -1,7 +1,0 @@
-Options -Indexes +MultiViews
-DirectoryIndex index.html index.htm index.svg index.php
-<ifModule mod_rewrite.c>
-  RewriteEngine On
-  # Redirect any old references to 'wall'
-  RewriteRule ^wall/(.*)$ /walls/$1 [L,R=301]
-</ifModule>
