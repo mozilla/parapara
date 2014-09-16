@@ -8,14 +8,6 @@
     <title data-l10n-id="title">Parapara Animation</title>
     <link rel="stylesheet" href="css/parapara.css" type="text/css">
     <link rel="stylesheet" href="css/editor.css" type="text/css">
-<?php
-  require_once("../lib/php/editor-util.inc");
-  $stylesheet = getStylesheet();
-  if ($stylesheet) {
-    echo '    <link rel="stylesheet" href="' .  $stylesheet .
-         '" type="text/css">' . PHP_EOL;
-  }
-?>
     <link rel="resource" type="application/l10n" href="locales.ini">
     <script type="text/javascript" src="js/l10n.js"></script>
     <script type="text/javascript" src="js/parapara.core.js" defer></script>

@@ -1,0 +1,13 @@
+Options       +ExecCGI +FollowSymLinks +Includes -MultiViews
+DirectorySlash Off
+RewriteEngine on
+RewriteRule ^(\d+)$ gallery.php?id=$1 [L]
+
+# If we have a request for xx/preview.svg and xx.preview.svg exists, return it
+RewriteCond %{DOCUMENT_ROOT}%{REQUEST_FILENAME} !-f
+RewriteCond %{DOCUMENT_ROOT}/characters/$1.preview.svg -f
+RewriteRule ^(\d+)/preview.svg$ $1.preview.svg [L]
+
+# Otherwise if we have xx/preview.svg, call preview.php with the id
+RewriteCond %{DOCUMENT_ROOT}%{REQUEST_FILENAME} !-f
+RewriteRule ^(\d+)/preview.svg$ preview.php?id=$1 [L]

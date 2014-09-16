@@ -1,0 +1,17 @@
+Options -Indexes
+<Files ~ "\.(inc)$">
+  order allow,deny
+  deny from all
+</Files>
+
+<ifModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteBase /api/
+  # Character upload/management
+  RewriteRule ^characters$ _characters.php [L]
+  RewriteRule ^characters/([0-9]+)$ _characters.php?charId=$1 [L]
+  # Character email
+  RewriteRule ^characters/([0-9]+)/email$ _character_email.php?charId=$1 [L]
+</ifModule>
