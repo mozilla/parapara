@@ -480,15 +480,20 @@ EditorUI.updateBrushPreviewColor = function(color) {
 // -------------- Widths -----------
 
 // Width values
-EditorUI.widthTable = new Array();
-EditorUI.widthTable[0] = 4;
-EditorUI.widthTable[1] = 8;
-EditorUI.widthTable[2] = 12;
+EditorUI.strokeWidthTable = new Array();
+EditorUI.strokeWidthTable[0] = 4;
+EditorUI.strokeWidthTable[1] = 8;
+EditorUI.strokeWidthTable[2] = 12;
+
+EditorUI.eraseWidthTable = new Array();
+EditorUI.eraseWidthTable[0] = 4;
+EditorUI.eraseWidthTable[1] = 8;
+EditorUI.eraseWidthTable[2] = 90;
 
 EditorUI.initWidths = function() {
   var widths = document.getElementById("widths");
-  ParaPara.currentStyle.strokeWidth = EditorUI.widthTable[1];
-  ParaPara.currentStyle.eraseWidth = EditorUI.widthTable[1];
+  ParaPara.currentStyle.strokeWidth = EditorUI.strokeWidthTable[1];
+  ParaPara.currentStyle.eraseWidth = EditorUI.eraseWidthTable[1];
   widths.contentDocument.setWidth(1);
   widths.contentDocument.addEventListener("widthchange", EditorUI.onWidthChange,
                                           false);
@@ -498,16 +503,29 @@ EditorUI.onWidthChange = function(evt) {
   if (EditorUI.editMode != 'draw') {
     EditorUI.returnToEditing();
   }
-  var width = evt.detail.width;
-  console.assert(width >= 0 && width < EditorUI.widthTable.length,
+  EditorUI.setWidth(evt.detail.width);
+}
+
+EditorUI.matchWidthToTool = function() {
+  var widths = document.getElementById("widths");
+  var currentWidth = widths.contentDocument.getWidth();
+  EditorUI.setWidth(currentWidth);
+}
+
+EditorUI.setWidth = function(index) {
+  var table = ParaPara.getMode() === "draw"
+            ? EditorUI.strokeWidthTable
+            : EditorUI.eraseWidthTable;
+  console.assert(index >= 0 && index < table.length,
                  "Out of range width value");
-  var widthValue = EditorUI.widthTable[width];
+  var widthValue = table[index];
 
   // Apply change
-  if (ParaPara.getMode() === "draw")
+  if (ParaPara.getMode() === "draw") {
     ParaPara.currentStyle.strokeWidth = widthValue;
-  else
+  } else {
     ParaPara.currentStyle.eraseWidth = widthValue;
+  }
 }
 
 // -------------- Tools -----------
@@ -583,9 +601,11 @@ EditorUI.changeTool = function(tool) {
   switch (tool) {
     case "pencil":
       EditorUI.updateBrushPreviewColor(ParaPara.currentStyle.currentColor);
+      EditorUI.matchWidthToTool();
       break;
     case "eraser":
       EditorUI.showEraser();
+      EditorUI.matchWidthToTool();
       break;
   }
 }
