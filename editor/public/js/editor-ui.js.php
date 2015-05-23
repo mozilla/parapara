@@ -41,6 +41,10 @@ EditorUI.init = function() {
   if (!EditorUI.getWallName()) {
     EditorUI.displayNote("noteNoWall");
   }
+
+  //shundroid:fullscreen
+  var style = '<link rel="stylesheet" href="css/fullscreen.css">';
+  $('head link:last').after(style);
 }
 window.addEventListener("load", EditorUI.init, false);
 
@@ -480,20 +484,19 @@ EditorUI.updateBrushPreviewColor = function(color) {
 // -------------- Widths -----------
 
 // Width values
-EditorUI.strokeWidthTable = new Array();
-EditorUI.strokeWidthTable[0] = 4;
-EditorUI.strokeWidthTable[1] = 8;
-EditorUI.strokeWidthTable[2] = 12;
+EditorUI.widthTable = new Array();
+EditorUI.widthTable[0] = 4;
+EditorUI.widthTable[1] = 8;
+EditorUI.widthTable[2] = 12;
 
-EditorUI.eraseWidthTable = new Array();
-EditorUI.eraseWidthTable[0] = 4;
-EditorUI.eraseWidthTable[1] = 8;
-EditorUI.eraseWidthTable[2] = 90;
-
+//EditorUI.widthTable2 = new Array();
+//EditorUI.widthTable2[0] = 4;
+//EditorUI.widthTable2[1] = 8;
+//EditorUI.widthTable2[2] = 100;
 EditorUI.initWidths = function() {
   var widths = document.getElementById("widths");
-  ParaPara.currentStyle.strokeWidth = EditorUI.strokeWidthTable[1];
-  ParaPara.currentStyle.eraseWidth = EditorUI.eraseWidthTable[1];
+  ParaPara.currentStyle.strokeWidth = EditorUI.widthTable[1];
+  ParaPara.currentStyle.eraseWidth = EditorUI.widthTable[1];
   widths.contentDocument.setWidth(1);
   widths.contentDocument.addEventListener("widthchange", EditorUI.onWidthChange,
                                           false);
@@ -503,28 +506,16 @@ EditorUI.onWidthChange = function(evt) {
   if (EditorUI.editMode != 'draw') {
     EditorUI.returnToEditing();
   }
-  EditorUI.setWidth(evt.detail.width);
-}
-
-EditorUI.matchWidthToTool = function() {
-  var widths = document.getElementById("widths");
-  var currentWidth = widths.contentDocument.getWidth();
-  EditorUI.setWidth(currentWidth);
-}
-
-EditorUI.setWidth = function(index) {
-  var table = ParaPara.getMode() === "draw"
-            ? EditorUI.strokeWidthTable
-            : EditorUI.eraseWidthTable;
-  console.assert(index >= 0 && index < table.length,
+  var width = evt.detail.width;
+  console.assert(width >= 0 && width < EditorUI.widthTable.length,
                  "Out of range width value");
-  var widthValue = table[index];
-
+  var widthValue = EditorUI.widthTable[width];
+    console.log(widthValue);
   // Apply change
-  if (ParaPara.getMode() === "draw") {
+  if (ParaPara.getMode() === "draw")
     ParaPara.currentStyle.strokeWidth = widthValue;
-  } else {
-    ParaPara.currentStyle.eraseWidth = widthValue;
+  else {
+    ParaPara.currentStyle.eraseWidth = widthvalue;
   }
 }
 
@@ -601,11 +592,9 @@ EditorUI.changeTool = function(tool) {
   switch (tool) {
     case "pencil":
       EditorUI.updateBrushPreviewColor(ParaPara.currentStyle.currentColor);
-      EditorUI.matchWidthToTool();
       break;
     case "eraser":
       EditorUI.showEraser();
-      EditorUI.matchWidthToTool();
       break;
   }
 }
@@ -955,6 +944,8 @@ EditorUI.updateSVGCanvasSize = function() {
   // a strip along the top of the canvas to not be rendered. We work around this
   // by shifting the canvas up and adjusting the viewbox accordingly.
   var overlap = 50;
+
+  overlap = 0;// shundroid:fullscreen
 
   // Set the SVG canvas size explicitly.
   var canvas = document.getElementById("canvas");
