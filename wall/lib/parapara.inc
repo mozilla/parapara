@@ -10,10 +10,12 @@ set_include_path(implode(PATH_SEPARATOR, array(
     get_include_path()
 )));
 
-require_once("config.inc");
 
 $additional_config = getenv('PARAPARA_ADDITIONAL_CONFIG');
 if ($additional_config) {
   require_once($additional_config);
 }
+
+require_once("config.inc");
+
 ?>
