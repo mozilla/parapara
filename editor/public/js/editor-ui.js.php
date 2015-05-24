@@ -496,8 +496,8 @@ EditorUI.eraseWidthTable[2] = 90;
 
 EditorUI.initWidths = function() {
   var widths = document.getElementById("widths");
-  ParaPara.currentStyle.strokeWidth = EditorUI.widthTable[1];
-  ParaPara.currentStyle.eraseWidth = EditorUI.widthTable[1];
+  ParaPara.currentStyle.strokeWidth = EditorUI.strokeWidthTable[1];
+  ParaPara.currentStyle.eraseWidth = EditorUI.eraseWidthTable[1];
   widths.contentDocument.setWidth(1);
   widths.contentDocument.addEventListener("widthchange", EditorUI.onWidthChange,
                                           false);
