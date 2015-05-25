@@ -8,7 +8,6 @@
     <title data-l10n-id="title">Parapara Animation</title>
     <link rel="stylesheet" href="css/parapara.css" type="text/css">
     <link rel="stylesheet" href="css/editor.css" type="text/css">
-
     <script type="text/javascript" src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
 <?php
   require_once("../lib/php/editor-util.inc");
@@ -20,7 +19,7 @@
 ?>
     <link rel="resource" type="application/l10n" href="locales.ini">
     <script type="text/javascript" src="js/l10n.js"></script>
-    <script type="text/javascript" src="js/parapara-dev.core.js" defer></script>
+    <script type="text/javascript" src="js/parapara.core.js" defer></script>
     <script type="text/javascript" src="js/editor-ui.js"></script>
     <script type="text/javascript" src="js/qrcode.js" async></script>
     <script type="text/javascript" src="js/fullscreen.js"></script>
