@@ -1,83 +1,77 @@
 div.tool-box {
-	display: none;
-	height: 85%;
-	bottom: 0;
-	background-color: rgba(253,248,219,0.5);
+  display: none;
+  height: 85%;
+  bottom: 0;
+  background-color: rgba(253,248,219,0.5);
 }
 div.film-strip {
-	display: none;
-
-	background-color: rgba(62,54,47,0.5);
+  display: none;
+  background-color: rgba(62,54,47,0.5);
 }
 
 div.canvas-background {
-	top: 0;
-	height: 100%;
+  top: 0;
+  height: 100%;
 }
 
 div.canvas-container {
-	left: 0;
-	width: 100%;
+  left: 0;
+  width: 100%;
 }
 
 svg#canvas {
-	width: 100%;
-	height: 100%;
+  width: 100%;
+  height: 100%;
 }
 
 #burgerbutton {
-	position: fixed !important;
-	right: 10px;
-	bottom: 10px;
-	width: 50px;
-	height: 50px;
-
-	background-color: rgba(255,255,0,0.5);
-	z-index: 99;
-	text-align: center;
-	line-height: 50px;
-
-	cursor: pointer;
-
-	border-radius: 10px; 
-	
-	background-image: url("../img/setting.png");
-	background-size: 80% 80%;
-	background-position: center center;
-	background-repeat: no-repeat;
+  position: fixed !important;
+  right: 10px;
+  bottom: 10px;
+  width: 50px;
+  height: 50px;
+  background-color: rgba(255,255,0,0.5);
+  z-index: 99;
+  text-align: center;
+  line-height: 50px;
+  cursor: pointer;
+  border-radius: 10px; 
+  background-image: url("../img/setting.png");
+  background-size: 80% 80%;
+  background-position: center center;
+  background-repeat: no-repeat;
 }
 
-
 #burgerbutton:hover {
-	background-color: rgba(255,165,0,0.5);
+  background-color: rgba(255,165,0,0.5);
 }
 
 .settingsMenu details {
-	background-color: rgba(0,0,0,0.5);
+  background-color: rgba(0,0,0,0.5);
 }
 
 .settingsMenu details:hover {
-	background-color: rgba(50,50,50,0.5);
+  background-color: rgba(50,50,50,0.5);
 }
 
 .settingsMenu menu {
-	background-color: rgba(28,25,22,0.5);
+  background-color: rgba(28,25,22,0.5);
 }
 
 .settingsMenu li:hover {
-	border: none;
-	background-color: rgba(199,176,153,0.5);
+  border: none;
+  background-color: rgba(199,176,153,0.5);
 }
 
 .settingsMenu li {
-	border: none;
+  border: none;
 }
 
 .settingsMenu li[aria-checked="true"] {
-	border: none;
-	background-color: rgba(199,176,153,0.7);
+  border: none;
+  background-color: rgba(199,176,153,0.7);
 }
 
 .settingsMenu:hover details, .settingsMenu details[open="open"] {
-	background-color: rgba(138,122,106,0.5);
+  background-color: rgba(138,122,106,0.5);
 }
