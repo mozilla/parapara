@@ -42,9 +42,11 @@ EditorUI.init = function() {
     EditorUI.displayNote("noteNoWall");
   }
 
-  //shundroid:fullscreen
-  var style = '<link rel="stylesheet" href="css/fullscreen.css">';
-  $('head link:last').after(style);
+  var fullscreenStyle =  document.createElement('link');
+  fullscreenStyle.rel = "stylesheet";
+  fullscreenStyle.type = "text/css";
+  fullscreenStyle.href = "css/fullscreen.css";
+  document.head.appendChild(fullscreenStyle);
 }
 window.addEventListener("load", EditorUI.init, false);
 
@@ -960,7 +962,7 @@ EditorUI.updateSVGCanvasSize = function() {
   // by shifting the canvas up and adjusting the viewbox accordingly.
   var overlap = 50;
 
-  overlap = 0;// shundroid:fullscreen
+  overlap = 0;
 
   // Set the SVG canvas size explicitly.
   var canvas = document.getElementById("canvas");

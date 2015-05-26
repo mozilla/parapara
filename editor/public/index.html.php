@@ -8,7 +8,6 @@
     <title data-l10n-id="title">Parapara Animation</title>
     <link rel="stylesheet" href="css/parapara.css" type="text/css">
     <link rel="stylesheet" href="css/editor.css" type="text/css">
-    <script type="text/javascript" src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
 <?php
   require_once("../lib/php/editor-util.inc");
   $stylesheet = getStylesheet();
