@@ -820,7 +820,7 @@ EditorUI.initSettingsMenu = function() {
   //   set of pencils
   // * Overlays don't display while in full-screen mode (works on desktop)
   // * Check box glyphs are rendered as solid boxes
-  if (false && (document.fullScreenEnabled ||
+  if ((document.fullScreenEnabled ||
       document.mozFullScreenEnabled ||
       document.webkitFullScreenEnabled)) {
     fullscreen.addEventListener("click", EditorUI.toggleFullScreen, false);
