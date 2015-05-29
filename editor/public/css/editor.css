@@ -153,6 +153,10 @@ summary::-webkit-details-marker {
 .langSummary:lang(ca) {
   background: url("../img/flags/catalonia.png") no-repeat;
 }
+.langSummary:lang(zh-TW) {
+  background: url("../img/flags/tw.png") no-repeat;
+}
+
 
 /* Pop-out menu */
 .settingsMenu menu {
