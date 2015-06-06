@@ -75,3 +75,10 @@ svg#canvas {
 .settingsMenu:hover details, .settingsMenu details[open="open"] {
   background-color: rgba(138,122,106,0.5);
 }
+
+@media screen and (orientation: portrait) {
+  div.canvas-container {
+    height: 100%;
+  }
+
+}

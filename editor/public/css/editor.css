@@ -49,7 +49,7 @@ div.tool-box {
   height: 100%;
   border-radius: 15px;
   text-align: center;
-  z-index: 2;
+  z-index: 1;
 }
 div.inner-border {
   position: relative;

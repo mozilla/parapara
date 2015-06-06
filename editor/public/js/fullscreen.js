@@ -1,3 +1,5 @@
+var EditorUI = EditorUI || {};
+EditorUI.FullScreen = EditorUI.FullScreen || {};
 var toolbox;
 var filmstrip;
 var burgerbutton;
@@ -7,9 +9,9 @@ document.addEventListener("DOMContentLoaded", function() {
   burgerbutton = document.getElementById("burgerbutton");
   burgerbutton.addEventListener("click", function() {
     if (toolbox.style.display === "none" || toolbox.style.display === "") {
-      showTool();
+      EditorUI.FullScreen.showTool();
     } else {
-      hideTool();
+      EditorUI.FullScreen.hideTool();
     }
   });
   burgerbutton.addEventListener("mousemove", function(e) {
@@ -20,12 +22,16 @@ document.addEventListener("DOMContentLoaded", function() {
   });
 });
 
-function hideTool() {
+EditorUI.FullScreen.hideTool = function() {
   toolbox.style.display = "none";
   filmstrip.style.display = "none";
+
+  burgerbutton.style.display = "block";
 }
 
-function showTool() {
+EditorUI.FullScreen.showTool = function() {
   toolbox.style.display = "block";
   filmstrip.style.display = "block";
+
+  burgerbutton.style.display = "none";
 }

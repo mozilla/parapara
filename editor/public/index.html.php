@@ -50,6 +50,8 @@
               <menu>
                 <li aria-checked=false aria-role=menuitemcheckbox
                   data-l10n-id="fullscreen" id="full-screen-menu">Fullscreen
+                <li aria-checked=false aria-role=menuitemcheckbox
+                  data-l10n-id="hidetools" id="hide-tools-menu">ツールを隠す
                 <li class=lang aria-checked=true aria-role=menuitemradio 
                   lang=en>English
                 <li class=lang aria-checked=false aria-role=menuitemradio 

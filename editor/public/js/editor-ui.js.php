@@ -834,6 +834,8 @@ EditorUI.initSettingsMenu = function() {
     fullscreen.style.display = "none";
   }
 
+  var hidetool = document.getElementById("hide-tools-menu");
+  hidetool.addEventListener("click", EditorUI.FullScreen.hideTool);
   // Init language menu
   EditorUI.initLangMenu();
 }
