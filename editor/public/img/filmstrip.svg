@@ -208,7 +208,7 @@
     document.getElementById('plus-frame').removeAttribute('transform');
 
     // Add a frame back
-    addFrame(false);
+    document.addFrame(false);
   };
 
   // rAF polyfill from https://gist.github.com/1579671
@@ -239,7 +239,7 @@
           window.cancelAnimationFrame = function(id) { clearTimeout(id); };
   }());
 
-  function addFrame(fireEvent) {
+  document.addFrame = function(fireEvent, index) {
     if (typeof fireEvent === "undefined")
       fireEvent = true;
 
@@ -255,7 +255,7 @@
     var plusFrame = document.getElementById('plus-frame');
     var plusFrameTransform = plusFrame.transform.baseVal.consolidate();
     if (plusFrameTransform) {
-      var xPos = plusFrameTransform.matrix.e;
+      var xPos = typeof index === "undefined" ? plusFrameTransform.matrix.e : index * 140;
       var yPos = plusFrameTransform.matrix.f;
       frame_g.setAttribute('transform', 'translate(' + xPos + ',' + yPos + ')');
     }
@@ -294,9 +294,18 @@
       document.getElementById('close-selection-region').cloneNode(true);
     closeSelection.addEventListener('click', onClose, true);
     frame_g.appendChild(closeSelection);
-
+    
     // Add the lot
-    container.appendChild(frame_g);
+    if (typeof index === "undefined" || index >= container.childNodes.length) {
+      container.appendChild(frame_g);
+    } else {
+      container.insertBefore(frame_g, container.childNodes[index]);
+      
+      // Shift frames after added frame
+      for (var i = index + 1; i < container.childNodes.length; i++) {
+        animTranslate(container.childNodes[i], 140, 0);
+      }
+    }
 
     // Animate the frame so it appears to grow
     var anim = createAnimBase(frame_g, "transform", "animateTransform");
@@ -327,7 +336,7 @@
     //  we just do things the less classy way on WebKit.
     //  Also, 'children' would be more accurate here, but WebKit doesn't seem to
     //  offer than on SVG elements at least.)
-    var selectFn = function() { selectFrame(container.childNodes.length - 1); };
+    var selectFn = function() { document.selectFrame(container.childNodes.length - 1); };
     if (typeof TimeEvent === "object") {
       anim.addEventListener("end", selectFn);
     } else {
@@ -468,7 +477,7 @@
     var frameIndex = getChildIndex(evt.target.parentNode);
     dispatchEvent('requestdelete',
       { index: frameIndex,
-        callback: function() { removeFrame(frameIndex); } }
+        callback: function() { document.removeFrame(frameIndex); } }
     );
 
     // XXX In the future we should move this frame to the end, dim it, add
@@ -476,7 +485,7 @@
     // would be restored. On creating a new frame, it would be lost forever.
   }
 
-  function removeFrame(index) {
+  document.removeFrame = function(index) {
     var container = document.getElementById('frame-container');
     var frame = container.childNodes[index];
 
@@ -523,23 +532,23 @@
 
     // If there are no frames left, add one back
     if (container.childNodes.length === 0) {
-      addFrame(false);
+      document.addFrame(false);
     }
 
     // If it was selected, choose the appropriate frame
     if (wasSelected) {
       var newIndex = Math.min(index, container.childNodes.length-1);
-      selectFrame(newIndex);
+      document.selectFrame(newIndex);
     }
   }
 
   function onSelect(evt) {
     var frameIndex = getChildIndex(evt.target.parentNode);
-    selectFrame(frameIndex);
+    document.selectFrame(frameIndex);
     dispatchEvent("selectframe", { index: frameIndex });
   }
 
-  function selectFrame(index) {
+  document.selectFrame = function(index) {
     var container = document.getElementById('frame-container');
 
     // Clear any previous selection
@@ -601,8 +610,8 @@
 
   function init() {
     var plusFrame = document.getElementById('plus-frame');
-    plusFrame.addEventListener('click', addFrame, true);
-    addFrame(false);
+    plusFrame.addEventListener('click', document.addFrame, true);
+    document.addFrame(false);
 
     if ('ontouchstart' in window) {
       window.addEventListener('touchstart', scrollStart, true);

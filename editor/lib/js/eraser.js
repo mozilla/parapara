@@ -75,7 +75,7 @@ ParaPara.EraseControls.prototype.mouseDown = function(evt) {
   evt.preventDefault();
   if (this.eraser)
     return;
-
+  ParaPara.history.add('update', ParaPara.frames.getCurrentIndex());
   this.eraser = new ParaPara.Eraser(this.frame, this.brushWidth);
   this.eraseFromEvent(evt);
 }
@@ -100,6 +100,7 @@ ParaPara.EraseControls.prototype.touchStart = function(evt) {
   evt.preventDefault();
   if (this.eraser)
     return;
+  ParaPara.history.add('update', ParaPara.frames.getCurrentIndex());
   this.currentTouch = evt.changedTouches[0].identifier;
   this.eraser = new ParaPara.Eraser(this.frame, this.brushWidth);
   this.eraseFromEvent(evt);
