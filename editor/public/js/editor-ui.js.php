@@ -58,6 +58,7 @@ EditorUI.initControls = function() {
   EditorUI.initNavControls();
   EditorUI.initAnimControls();
   EditorUI.initSettingsMenu();
+  EditorUI.initKeyControls();
 
   EditorUI.currentSpeed = EditorUI.INITIAL_SPEED_FPS;
 
@@ -623,6 +624,8 @@ EditorUI.initFrameControls = function() {
     EditorUI.requestDeleteFrame, false);
   ParaPara.svgRoot.addEventListener("changegraphic",
     EditorUI.updateThumbnails, false);
+  ParaPara.svgRoot.addEventListener("changehistory",
+    EditorUI.updateFrame, false);
 }
 
 EditorUI.appendFrame = function() {
@@ -659,6 +662,21 @@ EditorUI.updateThumbnails = function() {
   var currentFrame = ParaPara.getCurrentFrame();
   var filmstrip = document.getElementById("filmstrip");
   filmstrip.contentDocument.updateFrame(currentFrame.index, currentFrame.svg);
+}
+
+EditorUI.updateFrame = function(evt) {
+  var filmstrip = document.getElementById("filmstrip").contentDocument;
+  switch (evt.detail.cmd) {
+    case 'insert':
+      filmstrip.addFrame(false, evt.detail.index);
+    case 'update':
+      filmstrip.updateFrame(evt.detail.index, evt.detail.svg);
+      break;
+    case 'delete':
+      filmstrip.removeFrame(evt.detail.index);
+      break;
+  }
+  filmstrip.selectFrame(evt.detail.index);
 }
 
 // -------------- Nav controls -----------
@@ -1128,3 +1146,19 @@ EditorUI.isCalcSupported = function() {
   EditorUI._calcSupported = !!el.style.length;
   return EditorUI._calcSupported;
 };
+
+// -------------- Key controls -----------
+EditorUI.initKeyControls = function() {
+  document.addEventListener("keydown", EditorUI.onKeyDown, false);
+}
+
+EditorUI.onKeyDown = function(evt) {
+  if (evt.ctrlKey && (evt.key === 'z' || evt.keyIdentifier === 'U+005A' || evt.keyCode === 90)) {
+    // Ctrl + Z
+    ParaPara.history.undo();
+  }
+  if (evt.ctrlKey && (evt.key === 'y' || evt.keyIdentifier === 'U+0059' || evt.keyCode === 89)) {
+    // Ctrl + Y
+    ParaPara.history.redo();
+  }
+}
