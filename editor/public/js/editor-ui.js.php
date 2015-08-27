@@ -41,6 +41,12 @@ EditorUI.init = function() {
   if (!EditorUI.getWallName()) {
     EditorUI.displayNote("noteNoWall");
   }
+
+  var fullscreenStyle =  document.createElement('link');
+  fullscreenStyle.rel = "stylesheet";
+  fullscreenStyle.type = "text/css";
+  fullscreenStyle.href = "css/fullscreen.css";
+  document.head.appendChild(fullscreenStyle);
 }
 window.addEventListener("load", EditorUI.init, false);
 
@@ -814,7 +820,7 @@ EditorUI.initSettingsMenu = function() {
   //   set of pencils
   // * Overlays don't display while in full-screen mode (works on desktop)
   // * Check box glyphs are rendered as solid boxes
-  if (false && (document.fullScreenEnabled ||
+  if ((document.fullScreenEnabled ||
       document.mozFullScreenEnabled ||
       document.webkitFullScreenEnabled)) {
     fullscreen.addEventListener("click", EditorUI.toggleFullScreen, false);
@@ -828,6 +834,8 @@ EditorUI.initSettingsMenu = function() {
     fullscreen.style.display = "none";
   }
 
+  var hidetool = document.getElementById("hide-tools-menu");
+  hidetool.addEventListener("click", EditorUI.FullScreen.hideTool);
   // Init language menu
   EditorUI.initLangMenu();
 }
@@ -955,6 +963,8 @@ EditorUI.updateSVGCanvasSize = function() {
   // a strip along the top of the canvas to not be rendered. We work around this
   // by shifting the canvas up and adjusting the viewbox accordingly.
   var overlap = 50;
+
+  overlap = 0;
 
   // Set the SVG canvas size explicitly.
   var canvas = document.getElementById("canvas");

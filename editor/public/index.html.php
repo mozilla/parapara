@@ -21,12 +21,15 @@
     <script type="text/javascript" src="js/parapara.core.js" defer></script>
     <script type="text/javascript" src="js/editor-ui.js"></script>
     <script type="text/javascript" src="js/qrcode.js" async></script>
+    <script type="text/javascript" src="js/fullscreen.js"></script>
     <meta name="viewport" content="width=device-width, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style"
       content="black-translucent">
   </head>
   <body>
+    <div id="burgerbutton">
+    </div>
     <div class="container" id="container">
       <div class="controlPanel tool-box">
         <div class="inner-border"><iframe src="img/tool-picker.svg" 
@@ -47,6 +50,8 @@
               <menu>
                 <li aria-checked=false aria-role=menuitemcheckbox
                   data-l10n-id="fullscreen" id="full-screen-menu">Fullscreen
+                <li aria-checked=false aria-role=menuitemcheckbox
+                  data-l10n-id="hidetools" id="hide-tools-menu">ツールを隠す
                 <li class=lang aria-checked=true aria-role=menuitemradio 
                   lang=en>English
                 <li class=lang aria-checked=false aria-role=menuitemradio 
