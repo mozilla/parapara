@@ -34,7 +34,7 @@ ParaPara.reset = function() {
 ParaPara.appendFrame = function() {
   var result = ParaPara.frames.appendFrame();
   ParaPara.currentTool.targetFrame(ParaPara.frames.getCurrentFrame());
-  ParaPara.history.add('insert', ParaPara.frames.getCurrentIndex());
+  ParaPara.history.add("insert", ParaPara.frames.getCurrentIndex());
   return result;
 }
 
@@ -45,7 +45,7 @@ ParaPara.selectFrame = function(index) {
 }
 
 ParaPara.deleteFrame = function(index) {
-  ParaPara.history.add('delete', index);
+  ParaPara.history.add("delete", index);
   var result = ParaPara.frames.deleteFrame(index);
   ParaPara.currentTool.targetFrame(ParaPara.frames.getCurrentFrame());
   return result;
@@ -219,7 +219,7 @@ ParaPara.DrawControls.prototype.mouseDown = function(evt) {
   evt.preventDefault();
   if (evt.button || this.linesInProgress.mouseLine)
     return;
-  ParaPara.history.add('update', ParaPara.frames.getCurrentIndex());
+  ParaPara.history.add("update", ParaPara.frames.getCurrentIndex());
   var pt = this.getLocalCoords(evt.clientX, evt.clientY, this.frame);
   this.linesInProgress.mouseLine =
     new ParaPara.FreehandLine(pt.x, pt.y, this.frame);
@@ -244,7 +244,7 @@ ParaPara.DrawControls.prototype.mouseUp = function(evt) {
 
 ParaPara.DrawControls.prototype.touchStart = function(evt) {
   evt.preventDefault();
-  ParaPara.history.add('update', ParaPara.frames.getCurrentIndex());
+  ParaPara.history.add("update", ParaPara.frames.getCurrentIndex());
   for (var i = 0; i < evt.changedTouches.length; ++i) {
     var touch = evt.changedTouches[i];
     var pt = this.getLocalCoords(touch.clientX, touch.clientY, this.frame);
@@ -990,15 +990,15 @@ ParaPara.HistoryManager.prototype.do = function(history) {
   history.svg = history.svg.cloneNode(true);
   var selectIndex = history.index;
   switch (history.cmd) {
-    case 'update':
+    case "update":
       ParaPara.frames.selectFrame(history.index);
       ParaPara.editContent.replaceChild(history.svg, ParaPara.frames.getCurrentFrame());
       ParaPara.frames.currentFrame = history.svg;
       break;
-    case 'insert':
+    case "insert":
       ParaPara.frames.insertFrame(history.index, history.svg);
       break;
-    case 'delete':
+    case "delete":
       ParaPara.frames.deleteFrame(history.index);
       selectIndex = ParaPara.frames.getCurrentIndex();
       break;
@@ -1014,18 +1014,18 @@ ParaPara.HistoryManager.prototype.undo = function() {
   var undo = this.undoStack.pop();
   var cmd = undo.cmd;
   switch (cmd) {
-    case 'update':
+    case "update":
       // Store current frame
-      this.add('update', undo.index, false);
+      this.add("update", undo.index, false);
       // Move stored frame from undoStack to redoStack
       this.redoStack.push(this.undoStack.pop());
       break;
-    case 'insert':
-      cmd = 'delete';
+    case "insert":
+      cmd = "delete";
       this.redoStack.push(undo);
       break;
-    case 'delete':
-      cmd = 'insert';
+    case "delete":
+      cmd = "insert";
       this.redoStack.push(undo);
       break;
   }
@@ -1038,11 +1038,11 @@ ParaPara.HistoryManager.prototype.redo = function() {
   
   var redo = this.redoStack.pop();
   switch (redo.cmd) {
-    case 'update':
-      this.add('update', redo.index, false);
+    case "update":
+      this.add("update", redo.index, false);
       break;
-    case 'insert':
-    case 'delete':
+    case "insert":
+    case "delete":
       this.undoStack.push(redo);
       break;
   }

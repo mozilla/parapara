@@ -609,19 +609,19 @@
   }
 
   function init() {
-    var plusFrame = document.getElementById('plus-frame');
-    plusFrame.addEventListener('click', document.addFrame, true);
+    var plusFrame = document.getElementById("plus-frame");
+    plusFrame.addEventListener("click", document.addFrame, true);
     document.addFrame(false);
 
-    if ('ontouchstart' in window) {
-      window.addEventListener('touchstart', scrollStart, true);
-      window.addEventListener('touchmove', scrollMove, true);
-      window.addEventListener('touchend', scrollEnd, true);
-      window.addEventListener('touchcancel', scrollEnd, true);
+    if ("ontouchstart" in window) {
+      window.addEventListener("touchstart", scrollStart, true);
+      window.addEventListener("touchmove", scrollMove, true);
+      window.addEventListener("touchend", scrollEnd, true);
+      window.addEventListener("touchcancel", scrollEnd, true);
     } else {
-      window.addEventListener('mousedown', scrollStart, true);
-      window.addEventListener('mousemove', scrollMove, true);
-      window.addEventListener('mouseup', scrollEnd, true);
+      window.addEventListener("mousedown", scrollStart, true);
+      window.addEventListener("mousemove", scrollMove, true);
+      window.addEventListener("mouseup", scrollEnd, true);
     }
   }
   init();

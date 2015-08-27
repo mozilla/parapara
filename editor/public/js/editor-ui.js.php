@@ -667,12 +667,12 @@ EditorUI.updateThumbnails = function() {
 EditorUI.updateFrame = function(evt) {
   var filmstrip = document.getElementById("filmstrip").contentDocument;
   switch (evt.detail.cmd) {
-    case 'insert':
+    case "insert":
       filmstrip.addFrame(false, evt.detail.index);
-    case 'update':
+    case "update":
       filmstrip.updateFrame(evt.detail.index, evt.detail.svg);
       break;
-    case 'delete':
+    case "delete":
       filmstrip.removeFrame(evt.detail.index);
       break;
   }
@@ -1153,11 +1153,11 @@ EditorUI.initKeyControls = function() {
 }
 
 EditorUI.onKeyDown = function(evt) {
-  if (evt.ctrlKey && (evt.key === 'z' || evt.keyIdentifier === 'U+005A' || evt.keyCode === 90)) {
+  if (evt.ctrlKey && (evt.key === "z" || evt.keyIdentifier === "U+005A" || evt.keyCode === 90)) {
     // Ctrl + Z
     ParaPara.history.undo();
   }
-  if (evt.ctrlKey && (evt.key === 'y' || evt.keyIdentifier === 'U+0059' || evt.keyCode === 89)) {
+  if (evt.ctrlKey && (evt.key === "y" || evt.keyIdentifier === "U+0059" || evt.keyCode === 89)) {
     // Ctrl + Y
     ParaPara.history.redo();
   }
