@@ -20,6 +20,7 @@ ParaPara.init = function(contentGroup) {
   ParaPara.eraseControls = new ParaPara.EraseControls();
   ParaPara.frames        = new ParaPara.FrameList();
   ParaPara.currentStyle  = new ParaPara.Style();
+  ParaPara.history       = new ParaPara.HistoryManager();
   ParaPara.currentTool   = null;
 }
 
@@ -33,6 +34,7 @@ ParaPara.reset = function() {
 ParaPara.appendFrame = function() {
   var result = ParaPara.frames.appendFrame();
   ParaPara.currentTool.targetFrame(ParaPara.frames.getCurrentFrame());
+  ParaPara.history.add("insert", ParaPara.frames.getCurrentIndex());
   return result;
 }
 
@@ -43,6 +45,7 @@ ParaPara.selectFrame = function(index) {
 }
 
 ParaPara.deleteFrame = function(index) {
+  ParaPara.history.add("delete", index);
   var result = ParaPara.frames.deleteFrame(index);
   ParaPara.currentTool.targetFrame(ParaPara.frames.getCurrentFrame());
   return result;
@@ -159,6 +162,12 @@ ParaPara.notifyGraphicChanged = function() {
   ParaPara.svgRoot.dispatchEvent(changeEvent);
 }
 
+ParaPara.notifyHistoryChanged = function(history) {
+  var changeEvent = document.createEvent("CustomEvent");
+  changeEvent.initCustomEvent("changehistory", true, true, history);
+  ParaPara.svgRoot.dispatchEvent(changeEvent);
+}
+
 // -------------------- Canvas event handling --------------------
 
 ParaPara.DrawControls = function() {
@@ -210,6 +219,7 @@ ParaPara.DrawControls.prototype.mouseDown = function(evt) {
   evt.preventDefault();
   if (evt.button || this.linesInProgress.mouseLine)
     return;
+  ParaPara.history.add("update", ParaPara.frames.getCurrentIndex());
   var pt = this.getLocalCoords(evt.clientX, evt.clientY, this.frame);
   this.linesInProgress.mouseLine =
     new ParaPara.FreehandLine(pt.x, pt.y, this.frame);
@@ -234,6 +244,7 @@ ParaPara.DrawControls.prototype.mouseUp = function(evt) {
 
 ParaPara.DrawControls.prototype.touchStart = function(evt) {
   evt.preventDefault();
+  ParaPara.history.add("update", ParaPara.frames.getCurrentIndex());
   for (var i = 0; i < evt.changedTouches.length; ++i) {
     var touch = evt.changedTouches[i];
     var pt = this.getLocalCoords(touch.clientX, touch.clientY, this.frame);
@@ -516,6 +527,34 @@ ParaPara.FrameList.prototype.appendFrame = function() {
   this.currentFrame = g;
 }
 
+ParaPara.FrameList.prototype.insertFrame = function(index, frame) {
+  if (index < 0 || index >= this.getFrameCount() + 1 ||
+      !this.currentFrame)
+    return;
+
+  var prevIndex = this.getCurrentIndex();
+  this.selectFrame(0);
+  
+  var nextFrames = this.getOrMakeNextFrames();
+
+  if (index === 0) {
+    this.currentFrame.parentNode.replaceChild(frame, this.currentFrame);
+    nextFrames.insertBefore(this.currentFrame, nextFrames.firstChild);
+    this.currentFrame = frame;
+  } else {
+    if (!nextFrames.hasChildNodes()) {
+      nextFrames.appendChild(frame);
+    } else {
+      nextFrames.insertBefore(frame, nextFrames.childNodes[index - 1]);
+    }
+  }
+
+  // Now seek back to position
+  if (index <= prevIndex)
+    prevIndex++;
+  this.selectFrame(prevIndex);
+}
+
 ParaPara.FrameList.prototype.selectFrame = function(index) {
   if (index < 0 || index >= this.getFrameCount() ||
       !this.currentFrame)
@@ -655,6 +694,13 @@ ParaPara.FrameList.prototype.deleteFrame = function(index) {
 
 ParaPara.FrameList.prototype.getFrames = function() {
   return this.scene.getElementsByClassName("frame");
+}
+
+ParaPara.FrameList.prototype.getFrame = function(index) {
+  if (index < 0 || index >= this.getFrameCount())
+    return;
+  
+  return this.getFrames()[index];
 }
 
 // --------------- FrameList, internal helpers -------------
@@ -931,4 +977,84 @@ ParaPara.Utils.uuid = function() {
   // Strip -'s since they just make the id longer and also need to be escaped if
   // we put them in syncbase timing specs like "abc\-def.end"
   return UUID.generate().replace(/-/g,'');
+}
+
+// -------------------- History --------------------
+ParaPara.HistoryManager = function() {
+  this.MAX_STACK_SIZE = 50;
+  this.undoStack = [];
+  this.redoStack = [];
+}
+
+ParaPara.HistoryManager.prototype.do = function(history) {
+  history.svg = history.svg.cloneNode(true);
+  var selectIndex = history.index;
+  switch (history.cmd) {
+    case "update":
+      ParaPara.frames.selectFrame(history.index);
+      ParaPara.editContent.replaceChild(history.svg, ParaPara.frames.getCurrentFrame());
+      ParaPara.frames.currentFrame = history.svg;
+      break;
+    case "insert":
+      ParaPara.frames.insertFrame(history.index, history.svg);
+      break;
+    case "delete":
+      ParaPara.frames.deleteFrame(history.index);
+      selectIndex = ParaPara.frames.getCurrentIndex();
+      break;
+  }
+  ParaPara.selectFrame(selectIndex);
+  ParaPara.notifyHistoryChanged(history);
+}
+
+ParaPara.HistoryManager.prototype.undo = function() {
+  if (this.undoStack.length === 0)
+    return;
+  
+  var undo = this.undoStack.pop();
+  var cmd = undo.cmd;
+  switch (cmd) {
+    case "update":
+      // Store current frame
+      this.add("update", undo.index, false);
+      // Move stored frame from undoStack to redoStack
+      this.redoStack.push(this.undoStack.pop());
+      break;
+    case "insert":
+      cmd = "delete";
+      this.redoStack.push(undo);
+      break;
+    case "delete":
+      cmd = "insert";
+      this.redoStack.push(undo);
+      break;
+  }
+  this.do({ cmd: cmd, index: undo.index,  svg: undo.svg });
+}
+
+ParaPara.HistoryManager.prototype.redo = function() {
+  if (this.redoStack.length === 0)
+    return;
+  
+  var redo = this.redoStack.pop();
+  switch (redo.cmd) {
+    case "update":
+      this.add("update", redo.index, false);
+      break;
+    case "insert":
+    case "delete":
+      this.undoStack.push(redo);
+      break;
+  }
+  this.do(redo);
+}
+
+ParaPara.HistoryManager.prototype.add = function(cmd, index, resetRedoStack) {
+  if (this.undoStack.length >= this.MAX_STACK_SIZE) {
+    this.undoStack.shift();
+  }
+  this.undoStack.push({ cmd: cmd, index: index, svg: ParaPara.frames.getFrame(index).cloneNode(true) });
+  if (resetRedoStack !== false) {
+    this.redoStack = [];
+  }
 }
