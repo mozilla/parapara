@@ -12,6 +12,7 @@ class CharacterFile {
   // the first frame.
   public static function getStaticCharacter($svg) {
     // Parse file
+    libxml_disable_entity_loader(true);
     $doc = new DOMDocument();
     if ($doc->loadXML($svg) === FALSE)
       throw new KeyedException('bad-file', 'Invalid SVG');
