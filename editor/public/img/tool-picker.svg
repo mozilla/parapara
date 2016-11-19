@@ -136,7 +136,7 @@
    <path d="m0 0h106l32 21l-32 22h-106Z" class="hitRegion pencil"/>
   </g>
   <g transform="translate(0 230)">
-   <use color="#3f403b" xlink:href="#pencil-small"/>
+   <use color="black" xlink:href="#pencil-small"/>
    <path d="m0 0h106l32 21l-32 22h-106Z" class="hitRegion pencil"/>
   </g>
   <g transform="matrix(-1 0 0 1 243 253)">
