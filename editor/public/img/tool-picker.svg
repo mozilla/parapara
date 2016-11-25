@@ -175,7 +175,7 @@
    <path d="m0 0h106l32 27l-32 28h-106Z" class="hitRegion pencil"/>
   </g>
   <g transform="translate(0 180)">
-   <use color="#3f403b" xlink:href="#pencil-medium"/>
+   <use color="black" xlink:href="#pencil-medium"/>
    <path d="m0 0h106l32 27l-32 28h-106Z" class="hitRegion pencil"/>
   </g>
   <g transform="matrix(-1 0 0 1 243 210)">
@@ -253,7 +253,7 @@
    <rect width="50" height="145" class="hitRegion pencil"/>
   </g>
   <g transform="translate(500 0)">
-   <use color="#3f403b" xlink:href="#pencil-upright"/>
+   <use color="black" xlink:href="#pencil-upright"/>
    <rect width="50" height="145" class="hitRegion pencil"/>
   </g>
   <g transform="translate(550 0)">
@@ -292,7 +292,7 @@
    <rect width="50" height="145" class="hitRegion pencil"/>
   </g>
   <g transform="translate(300 0)">
-   <use color="#3f403b" xlink:href="#pencil-upright"/>
+   <use color="black" xlink:href="#pencil-upright"/>
    <rect width="50" height="145" class="hitRegion pencil"/>
   </g>
   <g transform="translate(350 0)">
