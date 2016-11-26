@@ -8,10 +8,10 @@ require_once("parapara.inc");
 require_once("exceptions.inc");
 
 class CharacterFile {
-  public static $WHITE_TAGS = array(
+  private static $WHITE_TAGS = array(
     'svg', 'g', 'path', 'set', 'circle', 'polygon'
   );
-  public static $WHITE_ATTRIBUTES = array(
+  private static $WHITE_ATTRIBUTES = array(
     'xmlns', 'width', 'height', 'viewBox', 'data-ground-offset', 'visibility',
     'stroke', 'stroke-width', 'stroke-linecap', 'fill', 'pointer-events', 'd',
     'attributeName', 'to', 'dur', 'id', 'begin', 'cx', 'cy'
@@ -58,7 +58,7 @@ class CharacterFile {
     return $doc->saveXML($doc->documentElement, LIBXML_NOXMLDECL);
   }
 
-  public static function getBlackNodes($element) {
+  private static function getBlackNodes($element) {
     $delete_nodes = array();
     $delete_attributes = array();
     if ($element->nodeType !== XML_DOCUMENT_NODE && !in_array($element->nodeName, (array)CharacterFile::$WHITE_TAGS)) {
@@ -83,7 +83,7 @@ class CharacterFile {
     );
   }
 
-  public static function extractWhiteTagAndAttribute($element) {
+  private static function extractWhiteTagAndAttribute($element) {
     $nodes_and_attributes = CharacterFile::getBlackNodes($element);
     $nodes = $nodes_and_attributes["nodes"];
     foreach ($nodes as $node) {
