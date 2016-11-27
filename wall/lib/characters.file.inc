@@ -8,14 +8,12 @@ require_once("parapara.inc");
 require_once("exceptions.inc");
 
 class CharacterFile {
-  private static $WHITE_TAGS = array(
-    'svg', 'g', 'path', 'set', 'circle', 'polygon'
-  );
-  private static $WHITE_ATTRIBUTES = array(
+  private static $WHITE_TAGS = ['svg', 'g', 'path', 'set', 'circle', 'polygon'];
+  private static $WHITE_ATTRIBUTES = [
     'xmlns', 'width', 'height', 'viewBox', 'data-ground-offset', 'visibility',
     'stroke', 'stroke-width', 'stroke-linecap', 'fill', 'pointer-events', 'd',
     'attributeName', 'to', 'dur', 'id', 'begin', 'cx', 'cy'
-  );
+  ];
   // Given an animated character SVG file, strips animation elements and all but
   // the first frame.
   public static function getStaticCharacter($svg) {
