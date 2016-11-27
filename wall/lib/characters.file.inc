@@ -8,6 +8,12 @@ require_once("parapara.inc");
 require_once("exceptions.inc");
 
 class CharacterFile {
+  private static $WHITE_TAGS = ['svg', 'g', 'path', 'set', 'circle', 'polygon'];
+  private static $WHITE_ATTRIBUTES = [
+    'xmlns', 'width', 'height', 'viewBox', 'data-ground-offset', 'visibility',
+    'stroke', 'stroke-width', 'stroke-linecap', 'fill', 'pointer-events', 'd',
+    'attributeName', 'to', 'dur', 'id', 'begin', 'cx', 'cy'
+  ];
   // Given an animated character SVG file, strips animation elements and all but
   // the first frame.
   public static function getStaticCharacter($svg) {
@@ -44,8 +50,28 @@ class CharacterFile {
       $firstFrame->removeAttribute("visibility");
     }
 
+    CharacterFile::extractWhiteTagAndAttribute($doc);
+
     // Serialize
     return $doc->saveXML($doc->documentElement, LIBXML_NOXMLDECL);
+  }
+
+  private static function extractWhiteTagAndAttribute($element) {
+    if ($element->nodeType !== XML_DOCUMENT_NODE && !in_array($element->nodeName, (array)CharacterFile::$WHITE_TAGS)) {
+      $element->parentNode->removeChild($element);
+      return;
+    }
+    for ($i = $element->attributes->length; $i--;) {
+      $attribute = $element->attributes[$i];
+      if (!in_array($attribute->name, CharacterFile::$WHITE_ATTRIBUTES)) {
+        $element->removeAttribute($attribute->name);
+      }
+    }
+    if ($element->hasChildNodes()) {
+      for ($i = $element->childNodes->length; $i--;) {
+        CharacterFile::extractWhiteTagAndAttribute($element->childNodes->item($i));
+      }
+    }
   }
 }
 
