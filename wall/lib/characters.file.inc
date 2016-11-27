@@ -56,40 +56,21 @@ class CharacterFile {
     return $doc->saveXML($doc->documentElement, LIBXML_NOXMLDECL);
   }
 
-  private static function getBlackNodes($element) {
-    $delete_nodes = array();
-    $delete_attributes = array();
-    if ($element->nodeType !== XML_DOCUMENT_NODE && !in_array($element->nodeName, (array)CharacterFile::$WHITE_TAGS)) {
-      array_push($delete_nodes, $element);
-    } else {
-      if (isset($element->childNodes)) {
-        foreach ($element->childNodes as $child) {
-          $nodes_and_attributes = CharacterFile::getBlackNodes($child);
-          $delete_nodes = array_merge($delete_nodes, $nodes_and_attributes["nodes"]);
-          $delete_attributes = array_merge($delete_attributes, $nodes_and_attributes["attributes"]);
-        }
-      }
-      for ($i = 0; $i < $element->attributes->length; $i++) {
-        if (!in_array($element->attributes[$i]->name, (array)CharacterFile::$WHITE_ATTRIBUTES)) {
-          array_push($delete_attributes, $element->attributes[$i]);
-        }
-      }
-    }
-    return array(
-      "nodes" => $delete_nodes,
-      "attributes" => $delete_attributes
-    );
-  }
-
   private static function extractWhiteTagAndAttribute($element) {
-    $nodes_and_attributes = CharacterFile::getBlackNodes($element);
-    $nodes = $nodes_and_attributes["nodes"];
-    foreach ($nodes as $node) {
-      $node->parentNode->removeChild($node);
+    if ($element->nodeType !== XML_DOCUMENT_NODE && !in_array($element->nodeName, (array)CharacterFile::$WHITE_TAGS)) {
+      $element->parentNode->removeChild($element);
+      return;
     }
-    $attributes = $nodes_and_attributes["attributes"];
-    foreach ($attributes as $attr) {
-      $attr->parentNode->removeAttribute($attr->name);
+    for ($i = $element->attributes->length; $i--;) {
+      $attribute = $element->attributes[$i];
+      if (!in_array($attribute->name, CharacterFile::$WHITE_ATTRIBUTES)) {
+        $element->removeAttribute($attribute->name);
+      }
+    }
+    if ($element->hasChildNodes()) {
+      for ($i = $element->childNodes->length; $i--;) {
+        CharacterFile::extractWhiteTagAndAttribute($element->childNodes->item($i));
+      }
     }
   }
 }
