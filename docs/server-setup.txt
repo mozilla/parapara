@@ -36,7 +36,7 @@ For a test machine running Apache 2, the following example setup should work.
   <VirtualHost *:8081>
       DocumentRoot "<path to parapara>/parapara/wall/public"
       SetEnv PARAPARA_ADDITIONAL_CONFIG config.test.inc
-      Alias /tests "C:/Users/Brian/parapara/wall/tests"
+      Alias /tests "<path to parapara>/parapara/wall/tests"
   </VirtualHost>
 
   <Directory "<path to parapara>/parapara/wall/tests">
