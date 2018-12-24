@@ -1,0 +1,107 @@
+/*
+ * Common styles for Parapara wall site including the wall maker, gallery
+ * listing, and other supporting materials.
+ */
+
+/*
+ * Page style
+ */
+body {
+  background-color: #F5F1E8;
+  background-image: url(/img/bg-sand.png);
+  background-repeat: repeat-x;
+}
+#page, header, footer {
+  max-width: 1170px;
+  margin: 0 auto;
+}
+#page {
+  padding-bottom: 0.5em;
+}
+
+/*
+ * Tab bar
+ */
+.top-runner {
+  border-top: 2px solid #fff;
+}
+header {
+  border-bottom: 1px solid #523326;
+  width: 100%;
+}
+header nav {
+  display: block;
+  text-align: right;
+  width: 100%;
+}
+header nav > * {
+  vertical-align: middle;
+}
+a.mozilla-tab {
+  display: inline-block;
+}
+a.mozilla-tab img {
+  border-width: 0;
+}
+
+/*
+ * Heading
+ */
+header .heading {
+  margin: 0.4em 0 0;
+  padding: 0 0.3em 0em;
+  height: 100px;
+  position: relative;
+}
+header h1 {
+  display: inline-block;
+  position: absolute;
+  bottom: 0;
+}
+h1, h2, h3, h4, h5, h6 {
+  color: #362d10;
+}
+
+/*
+ * Footer
+ */
+footer {
+  background: #e5e2dd;
+  padding-top: 0.5em;
+  padding-bottom: 0.5em;
+  border-radius: 0.5em;
+  text-align: right;
+  color: #666;
+}
+footer form {
+  margin-bottom: 0;
+}
+footer label {
+  vertical-align: bottom;
+}
+footer select {
+  margin-right: 0.75em;
+  opacity: 0.7;
+}
+footer select option {
+  padding: 0.1em;
+}
+
+/*
+ * Form controls
+ */
+.btn-primary {
+  background: rgb(61, 51, 20);
+}
+.btn {
+  border-radius: 12px;
+}
+.btn:not(.btn-mini):not(.btn-small) {
+  font-size: 20px;
+  padding-top: 0.5em;
+  padding-bottom: 0.5em;
+}
+input[type="text"].input-xlarge {
+  padding: 10px;
+  height: auto;
+}

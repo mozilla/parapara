@@ -1,0 +1,25 @@
+<h2 data-l10n-id="new-wall-heading"></h2>
+<div class="alert" id="create-message" hidden></div>
+<form name="createWall">
+  <div class="row">
+    <span class="span2 fieldDescr" data-l10n-id="new-wall-name-descr"></span>
+    <span class="span10">
+      <input type="text" name="name" required autocomplete="off"
+        maxlength="255" id="create-name" data-l10n-id="new-wall-name"
+        placeholder="" class="input-xlarge">
+    </span>
+  </div>
+  <div class="row">
+    <span class="span2 fieldDescr" data-l10n-id="new-wall-design-descr"></span>
+    <span class="span10">
+      <div class="designSelection"></div>
+    </span>
+  </div>
+  <div class="form-actions">
+    <button type="submit" class="btn btn-primary input-medium"
+      data-l10n-id="create"></button>
+    <button type="button" class="btn input-medium cancel"
+      data-l10n-id="cancel"></button>
+    <div class="inline-spinner" hidden></div>
+  </div>
+</form>

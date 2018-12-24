@@ -7,17 +7,6 @@ var ParaPara = ParaPara || {};
 ParaPara.SVG_NS   = "http://www.w3.org/2000/svg";
 ParaPara.XLINK_NS = "http://www.w3.org/1999/xlink";
 
-ParaPara.XHR_TIMEOUT = 8000;
-
-// Return codes for sending animation
-ParaPara.SEND_OK                    = 0;
-ParaPara.SEND_ERROR_NO_ANIMATION    = 1;
-ParaPara.SEND_ERROR_TIMEOUT         = 2;
-ParaPara.SEND_ERROR_FAILED_SEND     = 3;
-ParaPara.SEND_ERROR_NO_ACCESS       = 4; // 404, cross-domain etc.
-ParaPara.SEND_ERROR_SERVER_ERROR    = 5; // Server rejects request
-ParaPara.SEND_ERROR_SERVER_NOT_LIVE = 6; // Server not accepting submissions
-
 // contentGroup is an empty <g> where ParaPara can add its content
 ParaPara.init = function(contentGroup) {
   console.assert(!contentGroup.hasChildNodes(),
@@ -41,22 +30,28 @@ ParaPara.reset = function() {
   ParaPara.init(ParaPara.contentGroup);
 }
 
-ParaPara.prevFrame = function() {
-  var result = ParaPara.frames.prevFrame();
+ParaPara.appendFrame = function() {
+  var result = ParaPara.frames.appendFrame();
   ParaPara.currentTool.targetFrame(ParaPara.frames.getCurrentFrame());
   return result;
 }
 
-ParaPara.nextFrame = function() {
-  var result = ParaPara.frames.nextFrame();
+ParaPara.selectFrame = function(index) {
+  var result = ParaPara.frames.selectFrame(index);
   ParaPara.currentTool.targetFrame(ParaPara.frames.getCurrentFrame());
   return result;
 }
 
-ParaPara.deleteFrame = function() {
-  var result = ParaPara.frames.deleteFrame();
+ParaPara.deleteFrame = function(index) {
+  var result = ParaPara.frames.deleteFrame(index);
   ParaPara.currentTool.targetFrame(ParaPara.frames.getCurrentFrame());
   return result;
+}
+
+ParaPara.getCurrentFrame = function(index) {
+  var frame = ParaPara.frames.getCurrentFrame();
+  var index = ParaPara.frames.getCurrentIndex();
+  return { index: index, svg: frame };
 }
 
 ParaPara.setDrawMode = function() {
@@ -88,12 +83,26 @@ ParaPara.animate = function(fps) {
   ParaPara.editContent.setAttribute("display", "none");
   ParaPara.animator = new ParaPara.Animator(fps, ParaPara.contentGroup);
   ParaPara.animator.makeAnimation();
+  ParaPara.svgRoot.unpauseAnimations();
 }
 
-ParaPara.removeAnimation = function(fps) {
+ParaPara.pauseAnimation = function() {
+  if (ParaPara.animator) {
+    ParaPara.svgRoot.pauseAnimations();
+  }
+}
+
+ParaPara.resumeAnimation = function() {
+  if (ParaPara.animator) {
+    ParaPara.svgRoot.unpauseAnimations();
+  }
+}
+
+ParaPara.removeAnimation = function() {
   if (ParaPara.animator) {
     ParaPara.animator.removeAnimation();
     ParaPara.animator = null;
+    ParaPara.svgRoot.unpauseAnimations();
   }
   ParaPara.editContent.removeAttribute("display");
   if (ParaPara.currentTool) {
@@ -102,7 +111,7 @@ ParaPara.removeAnimation = function(fps) {
 }
 
 // Returns "draw" | "erase" | "animate"
-ParaPara.getMode = function(fps) {
+ParaPara.getMode = function() {
   if (ParaPara.currentTool === ParaPara.drawControls)
     return "draw";
   if (ParaPara.currentTool === ParaPara.eraseControls)
@@ -119,122 +128,36 @@ ParaPara.send = function(uploadPath, successCallback, failureCallback, metadata)
   console.assert(ParaPara.animator, "No animator found");
   var anim = ParaPara.animator.exportAnimation(metadata.title, metadata.author);
   if (!anim) {
-    failureCallback(ParaPara.SEND_ERROR_NO_ANIMATION);
+    failureCallback('no-animation');
     return;
   }
 
   // Prepare payload
-  var payloadObject = metadata;
+  var payload = { metadata: metadata };
   var serializer = new XMLSerializer();
-  var serializedAnim = serializer.serializeToString(anim);
-  payloadObject.svg = serializedAnim;
-  payloadObject.y   = 0;
-  var payload = JSON.stringify(payloadObject);
-
-  // Prepare custom failure handler to translate "not_live" codes
-  var paraparaFailureCallback = function(code, detail) {
-    if (code == ParaPara.SEND_ERROR_SERVER_ERROR &&
-        typeof(detail) != "undefined" &&
-        detail.error_key == "not_live") {
-      failureCallback(ParaPara.SEND_ERROR_SERVER_NOT_LIVE);
-    } else {
-      failureCallback(code);
-    }
-  }
+  var serializedAnim = serializer.serializeToString(anim.doc);
+  payload.svg = serializedAnim;
+  payload.metadata.groundOffset = anim.groundOffset;
+  payload.metadata.width        = anim.width;
+  payload.metadata.height       = anim.height;
 
   // Send
-  ParaPara.sendAsyncRequest(uploadPath, payload, successCallback,
-                            paraparaFailureCallback);
-
+  ParaPara.postRequest(uploadPath, payload, successCallback, failureCallback);
 }
 
-ParaPara.sendEmail = function(email, animationId, uploadPath, successCallback,
-                              failureCallback) {
-  // Prepare payload
-  var payloadObject = { address: email, id: animationId };
-  var payload = JSON.stringify(payloadObject);
-
-  // Send
-  ParaPara.sendAsyncRequest(uploadPath, payload, successCallback,
-                            failureCallback);
-}
-
-ParaPara.sendAsyncRequest = function(url, json, successCallback,
-                                     failureCallback) {
-  // Create request
-  var req = new XMLHttpRequest();
-  req.open("POST", url, true);
-
-  // Set headers
-  req.setRequestHeader("Content-Length", json.length);
-  req.setRequestHeader("Content-Type", "application/json");
-
-  // Event listeners
-  req.addEventListener("load",
-    function(evt) {
-      var xhr = evt.target;
-      // 200 is for HTTP request, 0 is for local files (this allows us to test
-      // without running a local webserver)
-      if (xhr.status == 200 || xhr.status == 0) {
-        try {
-          var response = JSON.parse(xhr.responseText);
-          if (response.error_key) {
-            switch (response.error_key) {
-              case "not_live":
-                failureCallback(ParaPara.SEND_ERROR_SERVER_NOT_LIVE);
-                break;
-
-              default:
-                console.log("Error sending to server, key: "
-                  + response.error_key
-                  + ", detail: \"" + response.error_detail + "\"");
-                failureCallback(ParaPara.SEND_ERROR_SERVER_ERROR);
-                break;
-            }
-          } else {
-            successCallback(response);
-          }
-        } catch (e) {
-          if (e instanceof SyntaxError) {
-            console.log("Error sending to server, could not parse response: "
-              + xhr.responseText);
-            failureCallback(ParaPara.SEND_ERROR_SERVER_ERROR);
-          } else {
-            throw e;
-          }
-        }
-      } else {
-        console.debug(xhr);
-        failureCallback(ParaPara.SEND_ERROR_NO_ACCESS);
-      }
-    }, false);
-  req.addEventListener("error",
-    function(evt) {
-      failureCallback(ParaPara.SEND_ERROR_NO_ACCESS);
-    }, false);
-
-  // Send away
-  try {
-    req.send(json);
-  } catch (e) {
-    console.debug(e);
-    failureCallback(ParaPara.SEND_ERROR_FAILED_SEND);
-    return;
-  }
-
-  // Add timeout
-  window.setTimeout(
-    function() {
-      if (req.readyState != 4) {
-        req.abort();
-        failureCallback(ParaPara.SEND_ERROR_TIMEOUT);
-      }
-    },
-    ParaPara.XHR_TIMEOUT
-  );
+ParaPara.sendEmail = function(address, url, locale,
+                              successCallback, failureCallback) {
+  var payload = { address: address, locale: locale };
+  ParaPara.postRequest(url, payload, successCallback, failureCallback);
 }
 
 ParaPara.fixPrecision = function(x) { return x.toFixed(2); }
+
+ParaPara.notifyGraphicChanged = function() {
+  var changeEvent = document.createEvent("CustomEvent");
+  changeEvent.initCustomEvent("changegraphic", true, true, {});
+  ParaPara.svgRoot.dispatchEvent(changeEvent);
+}
 
 // -------------------- Canvas event handling --------------------
 
@@ -306,6 +229,7 @@ ParaPara.DrawControls.prototype.mouseUp = function(evt) {
     return;
   this.linesInProgress.mouseLine.finishLine();
   delete this.linesInProgress.mouseLine;
+  ParaPara.notifyGraphicChanged();
 }
 
 ParaPara.DrawControls.prototype.touchStart = function(evt) {
@@ -338,6 +262,7 @@ ParaPara.DrawControls.prototype.touchEnd = function(evt) {
     this.linesInProgress[touch.identifier].finishLine();
     delete this.linesInProgress[touch.identifier];
   }
+  ParaPara.notifyGraphicChanged();
 }
 
 ParaPara.DrawControls.prototype.touchCancel = function(evt) {
@@ -363,25 +288,29 @@ ParaPara.DrawControls.prototype.getLocalCoords = function(x, y, elem) {
 // -------------------- Freehand line --------------------
 
 ParaPara.FreehandLine = function(x, y, frame) {
+  // Create polyline element
   this.polyline = document.createElementNS(ParaPara.SVG_NS, "polyline");
+  ParaPara.currentStyle.styleStroke(this.polyline);
   frame.appendChild(this.polyline);
 
-  // Once Bug 629200 lands we should use the PointList API instead
-  this.pts = [x,y].map(ParaPara.fixPrecision).join(",") + " ";
-  this.polyline.setAttribute("points", this.pts);
-  ParaPara.currentStyle.styleStroke(this.polyline);
+  // Add an initial point
+  var pt = ParaPara.svgRoot.createSVGPoint();
+  pt.x = x;
+  pt.y = y;
+  this.polyline.points.appendItem(pt);
 }
 
 ParaPara.FreehandLine.prototype.addPoint = function(x, y) {
   console.assert(this.polyline, "Adding point to finished/cancelled line?")
-  this.pts += [x,y].map(ParaPara.fixPrecision).join(",") + " ";
-  this.polyline.setAttribute("points", this.pts);
+  var pt = ParaPara.svgRoot.createSVGPoint();
+  pt.x = x;
+  pt.y = y;
+  this.polyline.points.appendItem(pt);
 }
 
 ParaPara.FreehandLine.prototype.finishLine = function() {
   console.assert(this.polyline, "Line already finished/cancelled?")
-  var points = this.polyline.points;
-  var path = this.createPathFromPoints(points);
+  var path = this.createPathFromPoints(this.polyline.points);
   this.polyline.parentNode.appendChild(path);
   this.polyline.parentNode.removeChild(this.polyline);
   this.polyline = null;
@@ -394,7 +323,7 @@ ParaPara.FreehandLine.prototype.cancelLine = function() {
 }
 
 ParaPara.FreehandLine.prototype.createPathFromPoints = function(points) {
-  if (points.length == 1) {
+  if (points.numberOfItems == 1) {
     return this.createPoint(points);
   }
 
@@ -425,7 +354,7 @@ ParaPara.FreehandLine.prototype.createPathFromPoints = function(points) {
 }
 
 ParaPara.FreehandLine.prototype.createPoint = function(points) {
-  console.assert(points.length == 1, "Expected only one point");
+  console.assert(points.numberOfItems === 1, "Expected only one point");
   var path = document.createElementNS(ParaPara.SVG_NS, "circle");
   path.setAttribute("r", ParaPara.currentStyle.strokeWidth / 2);
   path.setAttribute("cx", points.getItem(0).x);
@@ -558,14 +487,17 @@ ParaPara.Style.prototype.__defineGetter__("eraseWidth", function() {
 ParaPara.FrameList = function() {
   this.currentFrame = null;
   this.scene = ParaPara.editContent;
-  this.addFrame();
+  this.appendFrame();
 }
 
 ParaPara.FrameList.prototype.getCurrentFrame = function() {
   return this.currentFrame;
 }
 
-ParaPara.FrameList.prototype.nextFrame = function() {
+ParaPara.FrameList.prototype.appendFrame = function() {
+  // Select last frame
+  this.selectFrame(this.getFrameCount()-1);
+
   // Move previous frame to oldFrames group
   var prevFrame = this.getPrevFrame();
   if (prevFrame) {
@@ -576,64 +508,149 @@ ParaPara.FrameList.prototype.nextFrame = function() {
   if (this.currentFrame) {
     this.getOrMakePrevFrames().appendChild(this.currentFrame);
   }
-  this.currentFrame = null;
 
-  // Get next frame
-  var addedFrame = false;
-  if (this.getNextFrames()) {
-    this.makeNextFrameCurrent();
-  } else {
-    this.addFrame();
-    addedFrame = true;
-  }
-
-  var result = this.getFrameIndexAndCount();
-  result.added = addedFrame;
-  return result;
-}
-
-ParaPara.FrameList.prototype.addFrame = function() {
+  // Append new frame
   var g = document.createElementNS(ParaPara.SVG_NS, "g");
   g.setAttribute("class", "frame");
-  this.scene.insertBefore(g, this.getNextFrames());
+  this.scene.appendChild(g);
   this.currentFrame = g;
 }
 
-ParaPara.FrameList.prototype.deleteCurrentFrame = function() {
-  if (!this.currentFrame)
-    return { index: 0, count: this.getFramesCount() };
+ParaPara.FrameList.prototype.selectFrame = function(index) {
+  if (index < 0 || index >= this.getFrameCount() ||
+      !this.currentFrame)
+    return;
 
+  var currIndex = this.getCurrentIndex();
+  if (index === currIndex)
+    return;
+
+  if (index < currIndex) {
+    // Going backwards
+    var amountToMove = currIndex - index;
+
+    // Move current frame to next frames group
+    var nextFrames = this.getOrMakeNextFrames();
+    nextFrames.insertBefore(this.currentFrame, nextFrames.firstChild);
+    this.currentFrame = null;
+
+    // Move prev frame
+    if (amountToMove > 1) {
+      nextFrames.insertBefore(this.getPrevFrame(), nextFrames.firstChild);
+    } else {
+      var prevFrame = this.getPrevFrame();
+      this.scene.insertBefore(prevFrame, this.getNextFrames());
+      this.currentFrame = prevFrame;
+    }
+
+    // Shift old frames forwards
+    var oldFrames = this.getOldFrames();
+    var prevFrames = this.getPrevFrames();
+    while (amountToMove > 0) {
+      if (!oldFrames || oldFrames.childNodes.length === 0)
+        break;
+      var frame = this.getOldFrames().lastChild;
+      switch (amountToMove) {
+        case 1:
+          prevFrames.appendChild(frame);
+          break;
+        case 2:
+          this.scene.insertBefore(frame, nextFrames);
+          this.currentFrame = frame;
+          break;
+        default:
+          nextFrames.insertBefore(frame, nextFrames.firstChild);
+          break;
+      }
+      amountToMove--;
+    }
+
+    // Tidy up
+    if (oldFrames && !oldFrames.hasChildNodes())
+      oldFrames.parentNode.removeChild(oldFrames);
+    if (prevFrames && !prevFrames.hasChildNodes())
+      prevFrames.parentNode.removeChild(prevFrames);
+  } else {
+    // Going forwards
+    var amountToMove = index - currIndex;
+
+    // Move prev frame back to old frames
+    var prevFrame = this.getPrevFrame();
+    if (prevFrame) {
+      this.getOrMakeOldFrames().appendChild(prevFrame);
+    }
+
+    // Move current frame back
+    if (amountToMove > 1) {
+      this.getOrMakeOldFrames().appendChild(this.currentFrame);
+    } else {
+      this.getOrMakePrevFrames().appendChild(this.currentFrame);
+    }
+
+    // Move next frames back
+    var nextFrames = this.getNextFrames();
+    while (amountToMove > 0) {
+      if (!nextFrames || nextFrames.childNodes.length === 0)
+        break;
+      var frame = this.getNextFrames().firstChild;
+      switch (amountToMove) {
+        case 1:
+          this.scene.insertBefore(frame, nextFrames);
+          this.currentFrame = frame;
+          break;
+        case 2:
+          this.getOrMakePrevFrames().appendChild(frame);
+          break;
+        default:
+          this.getOrMakeOldFrames().appendChild(frame);
+          break;
+      }
+      amountToMove--;
+    }
+
+    // Tidy up
+    if (nextFrames && !nextFrames.hasChildNodes())
+      nextFrames.parentNode.removeChild(nextFrames);
+  }
 }
 
 ParaPara.FrameList.prototype.deleteFrame = function(index) {
   if (index < 0 || index >= this.getFrameCount() ||
       !this.currentFrame)
-    return { index: 0, count: this.getFramesCount() };
+    return;
 
-  // Remove current frame
-  this.currentFrame.parentNode.removeChild(this.currentFrame);
-  this.currentFrame = null;
+  // To make this easy, first, select the first frame, but store old selection
+  // first so we can restore it
+  var prevIndex = this.getCurrentIndex();
+  this.selectFrame(0);
 
-  // Try to use the next frame as the current frame,
-  // otherwise revert to the previous frame,
-  // or, failing that, just add a new frame.
-  this.makeNextFrameCurrent() || this.makePrevFrameCurrent() || this.addFrame();
-  return this.getFrameIndexAndCount();
-}
+  // Now, the frame to delete is either in the nextFrames group or it's the
+  // current frame
+  if (index === 0) {
+    this.currentFrame.parentNode.removeChild(this.currentFrame);
+    this.currentFrame = null;
+    var nextFrames = this.getNextFrames();
+    if (!nextFrames) {
+      // We're out of frames. Create a new one.
+      this.appendFrame();
+    } else {
+      // Move the first frame into position
+      var firstFrame = nextFrames.firstChild;
+      this.scene.insertBefore(firstFrame, nextFrames);
+      this.currentFrame = firstFrame;
+    }
+  } else {
+    var nextFrames = this.getNextFrames();
+    nextFrames.removeChild(nextFrames.childNodes[index - 1]);
+  }
 
-ParaPara.FrameList.prototype.prevFrame = function() {
-  var prevFrame = this.getPrevFrame();
-  if (!prevFrame)
-    return { index: 0, count: this.getFramesCount() };
+  // Tidy up
+  var nextFrames = this.getNextFrames();
+  if (nextFrames && !nextFrames.hasChildNodes())
+    nextFrames.parentNode.removeChild(nextFrames);
 
-  // Move current frame to next frames group
-  var nextFrames = this.getOrMakeNextFrames();
-  nextFrames.insertBefore(this.currentFrame, nextFrames.firstChild);
-  this.currentFrame = null;
-
-  // Make prev frame current
-  this.makePrevFrameCurrent();
-  return this.getFrameIndexAndCount();
+  // Now seek back to position
+  this.selectFrame(Math.min(prevIndex, this.getFrameCount()-1));
 }
 
 ParaPara.FrameList.prototype.getFrames = function() {
@@ -641,12 +658,6 @@ ParaPara.FrameList.prototype.getFrames = function() {
 }
 
 // --------------- FrameList, internal helpers -------------
-
-ParaPara.FrameList.prototype.getFrameIndexAndCount = function() {
-  var index = this.getCurrentIndex();
-  var numFrames = this.getFrameCount();
-  return { index: index, count: numFrames };
-}
 
 ParaPara.FrameList.prototype.getCurrentIndex = function() {
   return this.getOldFrames()
@@ -723,55 +734,6 @@ ParaPara.FrameList.prototype._getOrMakeGroup =
   return parent.insertBefore(g, first ? parent.firstChild : null);
 }
 
-// Reused frame shuffling
-
-ParaPara.FrameList.prototype.makeNextFrameCurrent = function() {
-  console.assert(this.currentFrame === null,
-    "The current frame should be removed before calling makeNextFrameCurrent");
-  var nextFrames = this.getNextFrames();
-  if (!nextFrames)
-    return false;
-
-  // Update current frame
-  this.currentFrame = nextFrames.firstChild;
-
-  // Move to before nextFrames group
-  this.scene.insertBefore(this.currentFrame, nextFrames);
-  if (!nextFrames.hasChildNodes()) {
-    nextFrames.parentNode.removeChild(nextFrames);
-  }
-
-  return true;
-}
-
-ParaPara.FrameList.prototype.makePrevFrameCurrent = function() {
-  console.assert(this.currentFrame === null,
-    "The current frame should be removed before calling makePrevFrameCurrent");
-
-  var prevFrame = this.getPrevFrame();
-  if (!prevFrame)
-    return false;
-
-  // Make prevFrame the currentFrame
-  this.scene.insertBefore(prevFrame, this.getNextFrames());
-  this.currentFrame = prevFrame;
-
-  // Move last oldFrames to prevFrame pos
-  var oldFrames = this.getOldFrames();
-  if (oldFrames) {
-    var prevFrames = this.getPrevFrames();
-    prevFrames.appendChild(oldFrames.lastChild);
-    if (!oldFrames.hasChildNodes())
-      oldFrames.parentNode.removeChild(oldFrames);
-  } else {
-    console.assert(!this.getPrevFrames().hasChildNodes(),
-      "Previous frames group has child nodes somehow");
-    this.scene.removeChild(this.getPrevFrames());
-  }
-
-  return true;
-}
-
 // -------------------- Animator --------------------
 
 ParaPara.Animator = function(fps, parent) {
@@ -831,7 +793,9 @@ ParaPara.Animator.prototype.makeAnimation = function() {
 }
 
 ParaPara.Animator.prototype.removeAnimation = function() {
-  this.animation.parentNode.removeChild(this.animation);
+  if (this.animation && this.animation.parentNode) {
+    this.animation.parentNode.removeChild(this.animation);
+  }
   this.animation = null;
 }
 
@@ -842,6 +806,11 @@ ParaPara.Animator.prototype.exportAnimation = function(title, author) {
   var svg = doc.documentElement;
   svg.setAttribute("width", "100%");
   svg.setAttribute("height", "100%");
+
+  // Pause the doc since if we don't, removing the style attribute later on (to
+  // work around another Safari bug) will have no effect since the animation
+  // will cause it to be added again.
+  svg.pauseAnimations();
 
   // Add metadata
   if (title) {
@@ -870,32 +839,79 @@ ParaPara.Animator.prototype.exportAnimation = function(title, author) {
     console.assert(frame.childNodes.length,
       "Empty frames should have already been dropped");
 
-    // We really should extend this by the stroke width... but that's kind of
-    // complicated. Or we could just wait for SVG 2 ;)
-    var bbox = frame.getBBox();
+    var bbox = this.getDecoratedBbox(frame);
     minX = Math.floor(Math.min(minX, bbox.x));
     maxX = Math.ceil(Math.max(maxX, bbox.x + bbox.width));
     minY = Math.floor(Math.min(minY, bbox.y));
     maxY = Math.ceil(Math.max(maxY, bbox.y + bbox.height));
 
-    svg.appendChild(doc.importNode(frame, true));
+    // Import and tweak
+    //
+    // Safari seems to serialise the animation state using the style attribute
+    // (despite the fact that we are serializing the animation too meaning that
+    // the serialized result doesn't match what you see on screen).
+    //
+    // Pretty soon half of the code in this project will be workarounds for
+    // Safari bugs.
+    var importedFrame = doc.importNode(frame, true);
+    importedFrame.removeAttribute("style");
+
+    svg.appendChild(importedFrame);
   }
 
   // Bound viewBox of animation by parent viewBox
   var parentViewBox = ParaPara.svgRoot.getAttribute("viewBox");
   console.assert(parentViewBox, "No parent viewBox");
-  var parentViewBox = parentViewBox.split(" ");
-  var minX = Math.max(minX, parentViewBox[0]);
-  var maxX = Math.min(maxX, parentViewBox[0] + parentViewBox[2]);
-  // Currently we set the y coordinates of the viewBox to those of the editor
-  // workspace. This way, if for example, we have some ground in the background
-  // of the editor, the author can line up their animation vertically with the
-  // ground.
-  var minY = parentViewBox[1];
-  var maxY = parentViewBox[1] + parentViewBox[3];
+  parentViewBox = parentViewBox.trim().split(" ").map(parseFloat);
+  minX = Math.max(minX, parentViewBox[0]);
+  maxX = Math.min(maxX, parentViewBox[0] + parentViewBox[2]);
+  minY = Math.max(minY, parentViewBox[1]);
+  maxY = Math.min(maxY, parentViewBox[1] + parentViewBox[3]);
   svg.setAttribute("viewBox", [minX, minY, maxX-minX, maxY-minY].join(" "));
 
-  return doc;
+  // Store the offset from the ground so we can line up the character with the
+  // ground later even if the coordinate space of the combined animation is
+  // quite different.
+  var groundOffset =
+    (parentViewBox[3] - maxY) / (parentViewBox[3] - parentViewBox[1]);
+
+  // We store this in the metadata but we also return it and the bbox
+  // width/height separately. This is because we go to display the animation
+  // using an <image> element as part of a combined graphic, the DOM interface
+  // in SVG 1.1 doesn't make it easy for us to query this metadata so we just
+  // store it in the database as well and get it from there.
+  // In SVG 2 hopefully we will have an <iframe> element with a contentDocument
+  // we can use for this.
+  svg.setAttribute("data-ground-offset", groundOffset.toFixed(3));
+
+  return { doc: doc, groundOffset: groundOffset,
+           width: maxX-minX, height: maxY-minY };
+}
+
+// A *very* rudimentary attempt to factor stroke width into the bounding box.
+// Hopefully SVG 2 will provide this for us in the future.
+ParaPara.Animator.prototype.getDecoratedBbox = function(frame) {
+  // Get geometric bounding box
+  var bbox = frame.getBBox();
+
+  // Calculate max stroke width
+  var maxStrokeWidth = 0;
+  var geometryNodes = frame.querySelectorAll("path");
+  for (var i = 0; i < geometryNodes.length; i++) {
+    var strokeWidth =
+      parseInt(window.getComputedStyle(geometryNodes[i]).strokeWidth);
+    maxStrokeWidth = Math.max(maxStrokeWidth, strokeWidth);
+  }
+
+  // Enlarge geometric bounding box by half the max stroke-width on each side
+  // (This doesn't take into account miters and so on but we're using round line
+  //  joins so we should be ok)
+  bbox.x -= maxStrokeWidth / 2;
+  bbox.y -= maxStrokeWidth / 2;
+  bbox.width  += maxStrokeWidth;
+  bbox.height += maxStrokeWidth;
+
+  return bbox;
 }
 
 ParaPara.Animator.prototype.setSpeed = function(fps) {

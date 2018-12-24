@@ -1,0 +1,80 @@
+<nav aria-role="navigation">
+  <a data-href="{{appRoot}}/" class="btn btn-primary input-medium left arrow"
+    data-l10n-id="return"></a>
+  <div class="alert"></div>
+</nav>
+<hr>
+<div id="wall-info">
+  <form name="manageWall">
+    <section id="wall-summary">
+      <div id="wall-thumbnail">
+        <img data-src="{{wall.thumbnail}}" src="">
+      </div>
+      <div>
+        <input type="text" id="manage-name" name="name" value="{{wall.name}}"
+          size="{{wallNameFieldSize}}">
+        <ul class="urlList">
+          <li>
+            <label data-l10n-id="wall-url"></label>
+            <span class="urlDetails" id="manage-wallUrl"></span>
+          </li>
+          <li>
+            <label data-l10n-id="editor-url"></label>
+            <span class="urlDetails">
+              <span class="highlighted-url">
+                <a id="editorUrl" data-href="{{wall.editorUrl}}"
+                  >{{decodeURIComponent(wall.editorUrl)}}</a>
+              </span>
+              <span id="shortEditorUrlBlock"
+                data-show="{{wall.editorUrlShort}}">
+                or&nbsp;
+                <span class="highlighted-url">
+                  <a data-href="{{wall.editorUrlShort}}"
+                    >{{decodeURIComponent(wall.editorUrlShort)}}</a>
+                </span>
+                <a class="btn icon qrCode" href="#"
+                  id="showEditorUrlQrCode" data-target="#qr-modal"
+                  data-l10n-id="editor-url-qr-code"></a>
+              </span>
+            </span>
+          </li>
+        </ul>
+      </div>
+      <!-- QR Code modal -->
+      <div class="modal hide fade" id="qr-modal">
+        <div class="modal-body">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <img class="qr-code">
+          <a data-href="{{wall.editorUrlShort}}" target="_blank"
+            >{{decodeURIComponent(wall.editorUrlShort)}}</a>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-dismiss="modal"
+            data-l10n-id="ok"></a>
+        </div>
+      </div>
+    </section>
+    <hr>
+    <div id="wall-details" aria-multiselectable="false">
+      <menu type="toolbar" aria-role="tablist">
+        <a href="{{appRoot}}/walls/{{wall.wallId}}/sessions"
+          aria-role="tab"
+          aria-controls="manage-sessions"
+          aria-selected="true">セッション</a><a
+          href="{{appRoot}}/walls/{{wall.wallId}}/design"
+          aria-role="tab"
+          aria-controls="manage-design">デザイン</a>
+      </menu>
+      <div class="tab-pages">
+        <section id="manage-sessions" aria-role="tabpanel"></section>
+        <section id="manage-design" aria-role="tabpanel" aria-hidden="true">
+          <div class="designSelection withIcon"></div>
+          <div class="durationControls">
+            <label data-l10n-id="wall-duration-label"></label>
+            <div class="duration-slider withIcon"></div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </form>
+</div>

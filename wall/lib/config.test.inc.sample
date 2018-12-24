@@ -1,0 +1,25 @@
+<?php
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+// Test-specific settings
+
+// Privileged user for doing database manipulations
+$config['db']['test_dsn'] =
+  'mysql://test_user:password@127.0.0.1/parapara_test';
+
+// Wall server to connect to
+$config['test']['wall_server'] = 'http://127.0.0.1:8081/';
+
+// config.inc overriddes
+
+// Override database connection to be used by the server
+// (This is the regular user with only read/write access to the database)
+$config['db']['dsn'] =
+  'mysql://user:password@127.0.0.1/parapara_test';
+
+// Override character path
+$config['characters']['path'] = 'characters-test';
+
+?>

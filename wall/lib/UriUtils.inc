@@ -8,7 +8,7 @@ require_once("parapara.inc");
 function getFilenameForId($id)
 {
   global $config;
-  return $config['characters']['path'] . $id . ".svg";
+  return '../' . $config['characters']['path'] . '/' . $id . ".svg";
 }
 
 function getGalleryUrlForId($id)
@@ -34,20 +34,52 @@ function shortenUrl($url)
   $apiKey = $config['bitly']['apiKey'];
   $shorten_url = "http://api.bit.ly/v3/shorten?login=$login&apiKey=$apiKey" .
     "&uri=" . urlencode($url) . "&format=txt";
-  $shortened = fetchUrl($shorten_url);
+  $shortened = getUrl($shorten_url);
   // If there is an error, return the original url
   return $shortened ? trim($shortened) : $url;
 }
 
-function fetchUrl($url) {
+function getUrl($url, $data = null) {
+  return fetchUrl($url, $data, 'get');
+}
+
+function postUrl($url, $data = null) {
+  return fetchUrl($url, $data, 'post');
+}
+
+function fetchUrl($url, $data, $type) {
+  global $config;
+
   $ch = curl_init();
   curl_setopt($ch, CURLOPT_URL, $url);
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
   curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
-  $data = curl_exec($ch);
+
+  if (strtolower($type) == 'post') {
+    curl_setopt($ch, CURLOPT_POST, TRUE);
+  }
+
+  if ($data) {
+    $data_string = http_build_query($data);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $data_string);
+  }
+
+  if (substr($url, 0, 5) == 'https') {
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, TRUE);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+    curl_setopt($ch, CURLOPT_CAINFO, $config['net']['certfile']);
+  }
+
+  $result = curl_exec($ch);
+  if ($result === FALSE && curl_errno($ch) == 60) {
+    error_log("Failed to verify SSL certificate when loading $url. " .
+              "Add the CA certificate to the CACerts folder");
+  }
+  error_log($result);
   $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
   curl_close($ch);
-  return $httpCode == 200 ? $data : null;
+  return $result !== FALSE && $httpCode == 200 ? $result : null;
 }
 
 // Take a path (relative or absolute) and generate a corresponding absolute URL
@@ -105,12 +137,14 @@ function fileToUrl($file)
   $path = $basePath . $filePath;
 
   // Make up url append the scheme, hostname, port, etc.
+  return getCurrentServer() . $path;
+}
+
+function getCurrentServer() {
   $scheme      = @$_SERVER['HTTPS'] ? 'https://' : 'http://';
   $defaultPort = @$_SERVER['HTTPS'] ? '443' : '80';
   $port        = $_SERVER['SERVER_PORT'] != $defaultPort
-               ? ':' + $_SERVER['SERVER_PORT']
+               ? ':' . $_SERVER['SERVER_PORT']
                : '';
-  $url         = $scheme . $_SERVER['SERVER_NAME'] . $port . $path;
-
-  return $url;
+  return $scheme . $_SERVER['SERVER_NAME'] . $port;
 }

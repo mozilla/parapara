@@ -1,0 +1,47 @@
+<div class="sessionButtons">
+  <button type="button" class="btn btn-small btn-success start-session"
+    id="new-session"><span class="icon">+</span>
+     <span data-l10n-id="new-session"></span></button>
+</div>
+<div data-hide="{{sessionsLoaded}}">
+  <img data-src="{{appRoot}}/img/spinner.gif" class="spinner">
+</div>
+<div class="accordion" id="session-accordion" data-show="{{haveSessions}}">
+  <div class="accordion-group" data-repeat="session in sessions()">
+    <div class="accordion-heading">
+      <a class="accordion-toggle" data-toggle="collapse"
+        data-parent="#session-accordion"
+        data-target="#session-{{session.sessionId}}"
+        data-href="{{appRoot}}/walls/{{wall.wallId}}/sessions/{{session.sessionId}}">
+        <span data-l10n-id="session-title" class="session-title"
+          data-l10n-args='{ "sessionId": "{{session.sessionId}}" }'></span>
+        <span class="label label-success"
+          data-show="{{session.running}}"
+          data-l10n-id="session-running"></span>
+        <span class="session-time" data-l10n-id="{{session.timeRangeL10nId}}"
+          data-l10n-args='{ "startTimestamp": "{{session.start}}",
+                            "startTime": "{{session.startTime}}",
+                            "startDate": "{{session.startDate}}",
+                            "startDatetime": "{{session.startDatetime}}",
+                            "endTimestamp": "{{session.end}}",
+                            "endTime": "{{session.endTime}}",
+                            "endDate": "{{session.endDate}}",
+                            "endDatetime": "{{session.endDatetime}}" }'></span>
+        </span>
+      </a>
+    </div>
+    <div id="session-{{session.sessionId}}" class="accordion-body collapse"
+      data-parent="#session-accordion">
+      <div class="accordion-inner">
+        <button type="button" class="btn btn-small restart-session"
+          data-show="{{session.canrestart}}"><span class="icon">▶</span>
+           <span data-l10n-id="restart-session"></span></button>
+        <button type="button" class="btn btn-small end-session"
+          data-show="{{session.running}}"><span class="icon">◼</span>
+           <span data-l10n-id="end-session"></span></button>
+      </div>
+    </div>
+  </div>
+</div>
+<div data-show="{{noSessions}}" class="no-sessions" data-l10n-id="no-sessions">
+</div>

@@ -1,1 +1,3 @@
 config.inc
+config.test.inc
+simpletest

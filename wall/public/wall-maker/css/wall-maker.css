@@ -1,0 +1,639 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/*
+ * Base styles
+ */
+.center {
+  text-align: center;
+}
+*[hidden] {
+  display: none !important;
+}
+
+/*
+ * Navigation
+ */
+.screen {
+  /* Prevent margin collapsing */
+  padding-top: 1px;
+  padding-bottom: 1px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.screen nav {
+  margin: 1em;
+}
+
+/*
+ * Common styles
+ */
+.callout {
+  width: 80%;
+  max-width: 800px;
+  margin: 1em;
+  padding: 0.8em;
+  border-radius: 10px;
+  line-height: 1.8em;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/*
+ * Text boxes
+ */
+input[type=text], input[type=password], textarea {
+  font-size: 1.5em;
+  font-family: sans-serif;
+  padding: 6px;
+}
+
+/*
+ * Buttons
+ */
+a.button, button {
+  display: inline-block;
+  border-radius: 12px;
+  vertical-align: middle;
+  background-color: rgb(61, 51, 20);
+  text-align: center;
+  padding: 0.5em 0;
+  color: white;
+  font-size: 18px;
+}
+a.button {
+  text-decoration: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+button {
+  border-width: 0;
+  -moz-box-sizing: content-box;
+  -webkit-box-sizing: content-box;
+  box-sizing: content-box;
+}
+button[disabled], a.button.disabled {
+  background-color: lightgrey;
+}
+a.button.center, button.center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+button.small, a.button.small {
+  padding: 4px 0.4em;
+  margin: 0 0.1em;
+  width: auto;
+  min-width: 3em;
+  font-size: smaller;
+}
+
+/*
+ * Arrow buttons
+ */
+.btn.arrow {
+  background-size: 100% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: transparent;
+  border-style: none;
+  box-shadow: none;
+}
+.btn.arrow.left {
+  background-image: url("data:image/svg+xml,<svg viewBox='0 0 200 36' height='100%' width='100%' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none'><path fill='rgb(61, 51, 20)' d='M200,5c0,-2,-2,-5,-5,-5h-168c-6,0,-26,14,-26,18c0,4,20,18,26,18h168c3,0,5,-2,5,-5z'/></svg>");
+}
+.btn.arrow.right {
+  background-image: url("data:image/svg+xml,<svg viewBox='0 0 200 36' height='100%' width='100%' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none'><path fill='rgb(61, 51, 20)' d='M0,5c0,-2,2,-5,5,-5h168c6,0,26,14,26,18c0,4,-20,18,-26,18h-168c-3,0,-5,-2,-5,-5z'/></svg>");
+}
+.btn.arrow.left:hover {
+  background-image: url("data:image/svg+xml,<svg viewBox='0 0 200 36' height='100%' width='100%' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none'><path fill='black' d='M200,5c0,-2,-2,-5,-5,-5h-168c-6,0,-26,14,-26,18c0,4,20,18,26,18h168c3,0,5,-2,5,-5z'/></svg>");
+}
+.btn.arrow.right:hover {
+  background-image: url("data:image/svg+xml,<svg viewBox='0 0 200 36' height='100%' width='100%' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none'><path fill='black' d='M0,5c0,-2,2,-5,5,-5h168c6,0,26,14,26,18c0,4,-20,18,-26,18h-168c-3,0,-5,-2,-5,-5z'/></svg>");
+}
+
+/*
+ * Header bar
+ */
+header .heading {
+  background-image: url('../img/header-wall-maker.png');
+  background-repeat: no-repeat;
+  background-position: top right;
+}
+#loginStatus {
+  display: inline-block;
+  font-size: 13px;
+}
+
+/*
+ * Loading spinner
+ */
+img.spinner {
+  margin: 2em auto;
+  display: block;
+}
+div.inline-spinner {
+  display: inline-block;
+  background: url('../img/sync.gif');
+  background-repeat: no-repeat;
+  width: 16px;
+  height: 16px;
+  vertical-align: middle;
+}
+
+/*
+ * Message sections
+ */
+div.alert {
+  width: 80%;
+  text-shadow: none;
+  text-align: center;
+  margin: 1em auto;
+  border-radius: 15px;
+  /* Make message divs expand in-place */
+  transition-property: height, margin, padding;
+  transition-duration: 0.3s;
+}
+/* Make hidden message divs simply have no size (and not be display: none)
+ * so they can transition in */
+div.alert[hidden] {
+  display: block !important;
+  padding: 0;
+  margin: 0;
+  font-size: 0;
+  border-width: 0;
+  background-color: rgba(255, 221, 221, 0);
+  height: 0;
+  line-height: 0;
+  overflow: hidden;
+}
+div.alert .btn {
+  display: inline-block;
+  margin-top: 0.5em;
+}
+
+/*
+ * Login screen
+ */
+.loginExplain {
+  background: #cfc;
+  border: 1px solid #0d0;
+  text-align: center;
+}
+.loginButtonLarge {
+  text-align: center;
+}
+
+/*
+ * Home screen
+ */
+#screen-home a {
+  text-decoration: none;
+}
+a.newWallLink {
+  width: 200px;
+}
+hr {
+  border: none;
+  border-top: 2px dashed black;
+  width: 95%;
+  height: 1px:
+  display: block;
+  margin: 1em auto;
+}
+
+/*
+ * Wall list
+ */
+#wallSummary ul {
+  text-align: center;
+}
+#wallSummary .thumbnail {
+  display: inline-block;
+  padding: 10px;
+  border-radius: 10px;
+  vertical-align: middle;
+  background: white;
+}
+#wallSummary .thumbnail img {
+  border-radius: 6px;
+}
+.wall-label {
+  display: block;
+  margin-top: 5px;
+  text-align: center;
+  font-weight: bold;
+  color: black;
+}
+#firstTimeHome {
+  text-align: center;
+  background: #cfc;
+  border: 1px solid #0d0;
+}
+
+/*
+ * New wall screen
+ */
+.fieldDescr {
+  color: #362d10;
+  padding-top: 2px;
+}
+
+/*
+ * Design selection graphical radio buttons
+ */
+.designSelection label {
+  display: inline-block;
+}
+.designSelection label {
+  display: inline-block;
+  margin: 0.2em;
+  padding: 10px;
+  border-radius: 25px;
+  transition-property: all;
+  transition-duration: 0.2s;
+}
+.designSelection label:hover,
+.designSelection label.selected {
+  background: rgba(61, 51, 20, 0.15);
+}
+.designSelection label.selected {
+  background: rgba(61, 51, 20, 0.4);
+}
+.designSelection label.selected.disabled {
+  background: lightgrey;
+}
+.designSelection label input[type=radio] {
+  /* Hide the radio but don't change its position as otherwise if the radio is
+   * a required field, when the browser goes to adds its UI to say, "Hey this
+   * field is required!" it won't know where to put it. */
+  position: absolute; /* Move out of flow */
+  z-index: -1; /* Stick it behind the background */
+}
+.designSelection .designPreview {
+  border: 1px solid black;
+  border-radius: 15px;
+}
+
+/*
+ * Management screen layout
+ */
+#wall-details, #wall-summary {
+  margin: 0.3em 1.5em;
+}
+#wall-details .callout {
+  background: lemonchiffon;
+  border: 1px dashed orange;
+  box-shadow: 2px 2px 3px rgba(0,0,0,0.4);
+  width: 90%;
+}
+#screen-manage .alert {
+  position: fixed;
+  top: 10px;
+  box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1)
+}
+#wall-summary > div {
+  display: inline-block;
+  vertical-align: top;
+  padding: 0 0.2em;
+}
+#wall-thumbnail > img {
+  border-radius: 15px;
+  border: 1px solid black;
+}
+
+/*
+ * Management screen wall summmary
+ */
+#manage-name {
+  height: auto; /* Bootstrap's fixed height obscures the IME underline */
+  width: auto; /* Allow manual sizing of field */
+  font-weight: bold;
+  color: #362D10;
+  background: none;
+  border: 1px inset transparent;
+  box-shadow: none;
+}
+#manage-name:hover, #manage-name:focus, .sending #manage-name {
+  background: white;
+  border-color: lightgrey;
+}
+.error #manage-name {
+  background: rgb(255,200,200);
+  border-color: lightgrey;
+}
+
+.urlList {
+  margin: 0.25em 0;
+  padding: 0 0.5em;
+}
+.urlList li {
+  list-style-type: none;
+  min-height: 1.2em;
+}
+.urlList label {
+  min-width: 4.5em;
+  display: inline-block;
+  text-align: right;
+  margin-right: 0.5em;
+}
+.urlList .highlighted-url {
+  display: inline-block;
+  background: lemonchiffon;
+  padding: 8px 11px;
+  border-radius: 5px;
+  border: 1px solid #dd6;
+  margin-bottom: 4px;
+}
+.urlList .highlighted-url input {
+  font-size: 1em;
+  padding: 3px 5px;
+  border-width: 1px;
+  margin-bottom: 4px;
+}
+.urlList .controls {
+  display: inline-block;
+  margin-bottom: 4px;
+}
+.urlList .icon {
+  margin: 0 0.3em;
+  padding: 0;
+  background: none no-repeat;
+  width: 24px;
+  min-width: initial;
+  height: 24px;
+  text-indent: -9999em;
+  cursor: pointer;
+  border: none;
+  border-radius: 0;
+  transition-property: none;
+}
+.urlList .icon:hover {
+  background-position: 0 -24px;
+}
+.urlList .icon.copyUrl {
+  background-image: url('../img/copy-24.png');
+}
+.urlList .icon.editUrl {
+  background-image: url('../img/edit-24.png');
+}
+.urlList .icon.qrCode {
+  background-image: url('../img/qrcode-24.png');
+}
+#shortEditorUrlBlock {
+  display: inline-block;
+}
+@supports (display: flex) {
+  #wall-summary {
+    display: flex;
+    align-items: flex-start;
+  }
+  #wall-summary > * {
+    flex: auto;
+  }
+  #wall-thumbnail {
+    flex: none;
+  }
+  .urlList li {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .urlList li label {
+    padding-top: 0.7em;
+    min-width: auto;
+    flex: 0 0 4.5em;
+  }
+  .urlList li .urlDetails {
+    flex: auto;
+  }
+  @media (max-width: 550px) {
+    #wall-summary {
+      flex-direction: column;
+    }
+    .urlList li {
+      flex-direction: column;
+    }
+    .urlList li label {
+      text-align: left;
+      flex-basis: 1.5em;
+      margin-top: 0.5em;
+    }
+  }
+}
+
+/*
+ * QR Code modal
+ */
+#qr-modal, #qr-modal .modal-footer {
+  text-align: center;
+}
+#qr-modal .qr-code {
+  display: block;
+  margin: auto;
+}
+#qr-modal .modal-body a {
+  font-size: 1.9em;
+}
+
+/*
+ * Tabs
+ */
+/* Tab menu */
+menu[aria-role=tablist] {
+  float: left;
+  width: 151px;
+  display: block;
+  padding-left: 0; /* Override UA stylesheet for menus */
+  margin: 0;
+  margin-top: 0.5em; /* Sit below tab page's border rounding */
+}
+/* All tabs */
+menu[aria-role=tablist] a {
+  background: #dec881;
+  color: white;
+  text-decoration: none; /* Remove link underline */
+  display: block;
+  padding: 0.6em 0 0.6em 0.8em;
+  margin: 0.3em 0; /* Add vertical space between tabs */
+  margin-left: 1.5em; /* Push non-selected tabs in from left */
+  border-radius: 0.5em 0 0 0.5em; /* Round only the left side */
+}
+/* Active tab and tag page */
+menu[aria-role=tablist] a[aria-selected=true],
+section[aria-role=tabpanel] {
+  background: lemonchiffon;
+  border: 1px solid rgb(221, 221, 102);
+  box-shadow: 0 1px 0 0 rgba(0, 0, 0, 0.055);
+}
+/* Active tab */
+menu[aria-role=tablist] a[aria-selected=true] {
+  color: black;
+  font-weight: bold;
+  margin-left: 0; /* Selected tab sticks out further */
+  outline: none; /* Remove focus rect from tab */
+  border-right: none;
+  position: relative; /* This is just to get z-index to work */
+  z-index: 1;
+}
+/* Tab pages */
+section[aria-role=tabpanel] {
+  padding: 1em; /* Bring controls in from sides */
+  border-radius: 0.6em;
+  margin-left: 150px; /* Match width of vertical tabs */
+  min-height: 16em; /* Match height of vertical tab stack */
+}
+section[aria-role=tabpanel][aria-hidden=true] {
+  display: none;
+}
+/* Horizontal mode */
+@media (max-width: 850px) {
+  /* Tab menu */
+  menu[aria-role=tablist] {
+    float: none;
+    width: auto;
+    margin-top: 0;
+    margin-left: 0.5em; /* Sit inside border rounding of tab panel */
+  }
+  /* All tabs */
+  menu[aria-role=tablist] a {
+    display: inline-block;
+    padding: 0.6em 0.8em;
+    margin: 0 0.3em; /* Horizontal space between tabs */
+    border-radius: 0.5em 0.5em 0 0; /* Round only top side */
+  }
+  /* Active tab and tag page */
+  menu[aria-role=tablist] a[aria-selected=true],
+  section[aria-role=tabpanel] {
+    box-shadow: 1px 0 0 0 rgba(0, 0, 0, 0.055);
+  }
+  /* Active tab */
+  menu[aria-role=tablist] a[aria-selected=true] {
+    border-bottom: none;
+  }
+  /* Tab pages */
+  section[aria-role=tabpanel] {
+    margin-top: -1px; /* Overlap with tabs */
+    margin-left: 0;
+    min-height: inherit;
+  }
+}
+
+/*
+ * Annotated input
+ */
+#screen-manage .withIcon:after {
+  content: " ";
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin: 5px;
+  vertical-align: middle;
+  background-repeat: no-repeat;
+}
+#screen-manage .withIcon.editing:after {
+  background-image: url('../img/pencil.png');
+}
+#screen-manage .withIcon.sending:after {
+  background-image: url('../img/sync.gif');
+}
+#screen-manage .withIcon.saved:after {
+  background-image: url('../img/tick.png');
+  /* Hide tick */
+  animation-duration: 0.5s;
+  animation-delay: 1.8s;
+  animation-fill-mode: forwards;
+  animation-name: hideBackground;
+}
+#screen-manage .withIcon.error:after {
+  background-image: url('../img/cross.png');
+}
+@keyframes hideBackground {
+  100% {
+    background-position: 0 16px;
+  }
+}
+
+/*
+ * Common form formatting
+ */
+#screen-manage label.inline {
+  margin-right: 0.5em;
+  font-weight: bold;
+}
+#screen-manage .error input {
+  background: rgb(255,200,200);
+}
+
+/*
+ * Session management screen
+ */
+#manage-sessions .sessionButtons {
+  text-align: right;
+}
+button span.icon {
+  font-weight: bold;
+  font-size: 18px;
+  vertical-align: bottom;
+  margin-right: 3px;
+}
+#manage-sessions .accordion {
+  margin: 0.5em 0;
+}
+#manage-sessions .accordion-group,
+#manage-sessions .accordion-heading,
+#manage-sessions .accordion-inner {
+  border-radius: 10px;
+  background: #fff;
+  background: -moz-linear-gradient(top,  #ffffff 0%, #f7f7f7 100%);
+  background: -webkit-linear-gradient(top,  #ffffff 0%, #f7f7f7 100%);
+  background: -o-linear-gradient(top,  #ffffff 0%, #f7f7f7 100%);
+  background: -ms-linear-gradient(top,  #ffffff 0%, #f7f7f7 100%);
+  background: linear-gradient(top,  #ffffff 0%, #f7f7f7 100%);
+}
+#manage-sessions .accordion-group {
+  box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.1);
+}
+#manage-sessions .accordion-heading a {
+  color: black;
+  outline: none;
+  text-decoration: none;
+  display: block;
+}
+#manage-sessions .accordion-heading a:hover {
+  text-decoration: none;
+}
+#manage-sessions .accordion-heading a .session-title {
+  font-weight: bold;
+}
+#manage-sessions .session-time {
+  color: grey;
+  font-size: 0.75em;
+  margin-left: 0.5em;
+}
+#manage-sessions .no-sessions {
+  text-align: center;
+  margin-top: 4em;
+  margin-bottom: 4em;
+}
+
+/*
+ * Design screen
+ */
+#manage-design {
+  text-align: center;
+}
+#manage-design .durationControls {
+  margin-top: 1.2em;
+}
+#manage-design .durationControls input[type=range],
+#manage-design .durationControls .duration-label {
+  margin-right: 1.2em;
+}
+.duration-label {
+  display: inline-block;
+  min-width: 7em;
+  text-align: left;
+}

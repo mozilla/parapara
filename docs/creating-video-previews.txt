@@ -1,0 +1,31 @@
+﻿Making a video screen cast:
+
+Required software:
+
+* Firefox
+* Camtasia Recorder
+* VLC video player
+* Miro Video converter
+
+1. Load the web page
+2. Open up responsive design mode
+3. Resize the window to 200x132 (this is pretty arbitrary)
+4. Load Camtasia Recorder
+5. Size the record window to exactly fit the size of the page
+6. Set the record frame rate to 1 frame per second
+7. Record for about 2 minutes or more
+8. Choose Save & Edit to open the clip in Camtasia Editor
+9. Speed up the clip to about 2005%
+10. Make a selection on the video so that it loops nicely and doesn't include the start and end points
+    (If you include the start and end points you sometimes end up with a black frame)
+11. Choose File-> Produce special -> Produce selection as...
+12. Create a production profile for MP4, with no audio, 30fps video, 50% quality
+13. Produce with the MP4 profile
+14. Run the video in a loop using VLC player to check it loops smoothly.
+15. Produce the video again using File-> Produce special -> Produce selection as...
+16. Create a production profile for AVI, with no audio, 30fps video, no frame compression (under compression settings)
+17. Produce with the AVI profile
+18. Drag the AVI file into Miro video converter and create WebM
+19. Back in Camtasia editor find the first frame of the video
+20. Choose File -> Produce special -> Export frame as...
+21. Save the first frame as a PNG file

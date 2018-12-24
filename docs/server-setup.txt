@@ -1,0 +1,103 @@
+Parapara server setup
+=====================
+
+Requirements:
+* Apache 2.*
+* PHP 5
+* MySQL
+
+Virtual hosts
+=============
+
+The wall server and editor server should run on different (sub)domains.
+Furthermore, for unit testing, we use a separate (sub)domain.
+
+For a test machine running Apache 2, the following example setup should work.
+
+  # Wall server
+
+  Listen 8080
+
+  <VirtualHost *:8080>
+      DocumentRoot "<path to parapara>/parapara/wall/public"
+  </VirtualHost>
+
+  <Directory "<path to parapara>/parapara/wall/public">
+      Options Indexes FollowSymLinks
+      AllowOverride All
+      Order allow,deny
+      Allow from all
+  </Directory>
+
+  # Unit tests on separate host
+
+  Listen 8081
+
+  <VirtualHost *:8081>
+      DocumentRoot "<path to parapara>/parapara/wall/public"
+      SetEnv PARAPARA_ADDITIONAL_CONFIG config.test.inc
+      Alias /tests "C:/Users/Brian/parapara/wall/tests"
+  </VirtualHost>
+
+  <Directory "<path to parapara>/parapara/wall/tests">
+      Options Indexes FollowSymLinks
+      AllowOverride All
+      Order allow,deny
+      Allow from all
+  </Directory>
+
+  # Simulate editor on separate subdomain
+
+  Listen 8082
+
+  <VirtualHost *:8082>
+      DocumentRoot "<path to parapara>/parapara/editor/public"
+  </VirtualHost>
+
+  <Directory "<path to parapara>/parapara/editor/public">
+      Options Indexes FollowSymLinks
+      AllowOverride All
+      Order allow,deny
+      Allow from all
+  </Directory>
+
+MySQL setup
+===========
+
+create.sql
+
+Set up user to access DB
+
+For testing, add another database and a user with full access
+
+  e.g. parapara user -> read/write access to both parapara and parapara_test
+       parapara_test user -> full access to parapara_test
+
+Other dependencies
+==================
+
+Stuff for secure mail (PHP license):
+
+  PEAR/Net/SMTP.php
+  PEAR/Net/Socket.php
+
+Testing framework:
+
+  SimpleTest (LGPL)
+  See: http://www.simpletest.org/en/download.html
+
+Configuration
+=============
+
+Need to copy 'config.inc.sample' in wall/lib to 'config.inc' and adjust the
+parameters.
+
+For running tests, you need to do the same with config.test.inc.sample.
+
+Running tests
+=============
+
+If you are using the same Apache setup as above, you should be able to browse
+and run the tests by opening:
+
+  http://localhost:8081/tests/

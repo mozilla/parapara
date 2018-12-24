@@ -1,0 +1,12 @@
+Options -Indexes
+<ifModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{REQUEST_URI} !index
+  RewriteBase /
+  RewriteRule ^([^/]+)$ /wall/index.php?wall=$1 [L]
+  RewriteRule ^([^/]+)/parade$ /wall/index.php?wall=$1&view=parade [L]
+  RewriteRule ^[^/]+/upload$ /api/upload_anim.php [L]
+</ifModule>
+php_flag short_open_tag off

@@ -1,0 +1,9 @@
+<ifModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{REQUEST_URI} !index
+  RewriteBase /wall-maker/
+  # Match anything that doesn't have a . in it or that begins with 'walls/'
+  RewriteRule ^(walls/)?[^.]*$ index.html.php [L]
+</ifModule>

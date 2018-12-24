@@ -1,0 +1,692 @@
+<svg xmlns="http://www.w3.org/2000/svg" height="100%" width="100%" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 140 132"
+ preserveAspectRatio="xMinYMid meet">
+ <defs>
+   <style type="text/css">
+    .plus-button-back, .close-button-back {
+      fill: url(#button-grad);
+      stroke: #483112;
+      filter: url(#button-shadow);
+    }
+    /* 
+     * Turn off the shadow at small screen sizes since you're not going to see
+     * it.
+     */
+    @media screen and (max-height: 120px) {
+      .plus-button-back, .close-button-back {
+        filter: none;
+      }
+    }
+    .plus-button-back {
+      stroke-width: 2;
+    }
+    .close-button-back {
+      stroke-width: 1;
+    }
+    .film-line {
+      stroke: #FFFEFE;
+      stroke-linecap: round;
+      stroke-width: 12;
+      stroke-dasharray: 4,24;
+      stroke-dashoffset: 15;
+    }
+    .selection-border {
+      fill: none;
+    }
+    .selected .selection-border {
+      stroke-width: 5;
+      stroke: url(#selection-grad);
+    }
+    .hit-region {
+      opacity: 0;
+      pointer-events: all;
+    }
+   </style>
+   <!-- Gradients -->
+   <linearGradient id="button-grad" x1="0" x2="0" y1="0" y2="1">
+    <stop stop-color="#483112" offset="0"/>
+    <stop stop-color="#0E0701" offset="1"/>
+   </linearGradient>
+   <linearGradient id="selection-grad" x1="0" x2="0" y1="0" y2="1">
+    <stop stop-color="#8AACFF" offset="0"/>
+    <stop stop-color="#0047E9" offset="1"/>
+   </linearGradient>
+   <!-- Filters -->
+   <filter id="button-shadow" x="-20%" width="140%">
+    <feGaussianBlur in="SourceAlpha" stdDeviation="1" result="blur"/>
+    <feOffset in="blur" dx="1.5" dy="1.5" result="offsetBlur"/>
+    <feFlood flood-color="#A6956E" result="colour"/>
+    <feComposite in="colour" in2="offsetBlur" operator="in"/>
+    <feBlend in="SourceGraphic" mode="normal"/>
+   </filter>
+   <!-- Frame bg -->
+   <rect x="5" y="20" width="130" height="92" rx="26" fill="white"
+    id="frame-bg"/>
+   <!-- Frame mask -->
+   <clipPath id="frame-mask">
+    <rect width="130" height="92" rx="26"/>
+   </clipPath>
+   <!-- Close button -->
+   <g id="close-button">
+    <rect x="93" y="28" width="31" height="31" rx="8"
+      class="close-button-back"/>
+    <g fill="white">
+      <rect x="106" y="34.5" width="5" height="18" rx="3"
+       transform="rotate(45 108.5 43.5)"/>
+      <rect x="106" y="34.5" width="5" height="18" rx="3"
+       transform="rotate(-45 108.5 43.5)"/>
+    </g>
+   </g>
+   <!-- Selection border -->
+   <rect x="5" y="20" width="130" height="92" rx="26" class="selection-border"
+    id="selection-border"/>
+   <!-- Frame selection region -->
+   <rect x="0" y="0" width="140" height="132" class="hit-region"
+    id="frame-selection-region"/>
+   <!-- Close button selection region -->
+   <rect x="84" y="0" width="55" height="67" class="hit-region"
+    id="close-selection-region"/>
+ </defs>
+ <!-- Backing -->
+ <rect width="140" height="132" fill="#2E220E" id="backing"/>
+ <!-- Dotted lines -->
+ <g class="film-line">
+  <line x1="140" y1="10" x2="0" y2="10" id="top-line"/>
+  <line x1="140" y1="122" x2="0" y2="122" id="bottom-line"/>
+ </g>
+ <!-- The frames will be added here, in order from earlier to later -->
+ <g id="frame-container"/>
+ <!-- Plus frame -->
+ <g id="plus-frame">
+   <use xlink:href="#frame-bg"/>
+   <rect x="40" y="36" width="60" height="60" rx="15" class="plus-button-back"/>
+   <g fill="white">
+    <rect x="66" y="50" width="8" height="32" rx="5"/>
+    <rect x="54" y="62" width="32" height="8" rx="5"/>
+   </g>
+ </g>
+ <script type="text/javascript">
+ <![CDATA[
+  const SVG_NS   = 'http://www.w3.org/2000/svg';
+  const XLINK_NS = 'http://www.w3.org/1999/xlink';
+  const FRAME_ANIM_DUR_MS = 300;
+
+  // Public API
+
+  document.updateFrame = function(index, svg, copy /*= true*/) {
+    if (typeof copy === "undefined")
+      copy = true;
+
+    // Copy / adopt the code
+    var content = copy
+                ? svg.cloneNode(true)
+                : document.adoptNode(svg);
+
+    // Get the frame at index
+    var container = document.getElementById('frame-container');
+    var frame = container.childNodes[index];
+
+    // Get the target group
+    var g = frame.getElementsByTagName("g")[0];
+
+    // Clear the previous image
+    // (There should only be one child but just to be safe iterate over them)
+    while (g.hasChildNodes()) {
+      g.removeChild(g.lastChild);
+    }
+
+    // Plug in the new content
+    // There are two approaches here, either:
+    // i)  Scale all thumbnails by the same amount
+    //     (means some thumbnails may not fit inside the preview window
+    //      depending on the size of the users's screen, unless we analyse all
+    //      frames--and update all frames--to find the appropriate size)
+    // ii) Use a viewBox to scale the image
+    //     (means the relative position and size of images may differ between
+    //      thumbnails)
+    // We do (i) unless we detect that the image will overflow the bounds.
+
+    // Calculate scale factor as height of preview window over the height of the
+    // canvas
+    // (The height of the canvas is fixed at 300, but the width varies with the
+    //  screen size.)
+    var scaleFactor = 92 / 300;
+    
+    // Get bounds
+    var scaledWidth = null;
+    var bbox = null;
+    try {
+      // getBBox can throw in Gecko when svg is not attached to a tree
+      bbox = svg.getBBox();
+      scaledWidth = bbox.width * scaleFactor;
+    } catch (e) {
+      // Do nothing, leave scaledWidth as null
+    }
+
+    // Choose appropriate scaling method
+    if (scaledWidth === null || scaledWidth <= 130) {
+      // (i) Fixed scale
+      content.setAttribute("transform", "scale(" + scaleFactor + ")");
+      g.appendChild(content);
+    } else {
+      // (ii) Wrap in SVG
+      var svgWrapper = document.createElementNS(SVG_NS, "svg");
+      svgWrapper.setAttribute("width", "130");
+      svgWrapper.setAttribute("height", "92");
+      svgWrapper.setAttribute("viewBox",
+        [bbox.x,bbox.y,bbox.width,bbox.height].join(" "));
+      svgWrapper.appendChild(content);
+      g.appendChild(svgWrapper);
+    }
+  };
+
+  document.resetFrames = function() {
+    // Reset view position
+    document.documentElement.currentTranslate.x = 0;
+
+    // Check if we only have one empty frame, in which case we don't need to do
+    // anything
+    var container = document.getElementById('frame-container');
+    if (container.childNodes.length == 1) {
+      var g = container.childNodes[0].getElementsByTagName("g")[0];
+      if (!g.hasChildNodes()) {
+        return;
+      }
+    }
+
+    // Delete frames
+    var container = document.getElementById('frame-container');
+    while (container.hasChildNodes()) {
+      container.removeChild(container.lastChild);
+    }
+
+    // Reset background
+    document.getElementById('backing').width.baseVal.value = 140;
+    document.getElementById('top-line').x1.baseVal.value = 140;
+    document.getElementById('bottom-line').x1.baseVal.value = 140;
+
+    // Move plus button back
+    document.getElementById('plus-frame').removeAttribute('transform');
+
+    // Add a frame back
+    addFrame(false);
+  };
+
+  // rAF polyfill from https://gist.github.com/1579671
+  (function() {
+      var lastTime = 0;
+      var vendors = ['ms', 'moz', 'webkit', 'o'];
+      for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+          window.requestAnimationFrame =
+            window[vendors[x]+'RequestAnimationFrame'];
+          window.cancelAnimationFrame =
+            window[vendors[x]+'CancelAnimationFrame'] ||
+            window[vendors[x]+'CancelRequestAnimationFrame'];
+      }
+   
+      if (!window.requestAnimationFrame)
+          window.requestAnimationFrame = function(callback, element) {
+            var currTime = new Date().getTime();
+            var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+            var id =
+              window.setTimeout(
+                function() { callback(currTime + timeToCall); },
+                timeToCall);
+            lastTime = currTime + timeToCall;
+            return id;
+          };
+   
+      if (!window.cancelAnimationFrame)
+          window.cancelAnimationFrame = function(id) { clearTimeout(id); };
+  }());
+
+  function addFrame(fireEvent) {
+    if (typeof fireEvent === "undefined")
+      fireEvent = true;
+
+    // XXX Stop any scrolling
+
+    // Add content
+    var container = document.getElementById('frame-container');
+
+    // Add frame group
+    var frame_g = document.createElementNS(SVG_NS, 'g');
+
+    // Get position of plus frame and use that
+    var plusFrame = document.getElementById('plus-frame');
+    var plusFrameTransform = plusFrame.transform.baseVal.consolidate();
+    if (plusFrameTransform) {
+      var xPos = plusFrameTransform.matrix.e;
+      var yPos = plusFrameTransform.matrix.f;
+      frame_g.setAttribute('transform', 'translate(' + xPos + ',' + yPos + ')');
+    }
+
+    // Add background
+    var bg = document.createElementNS(SVG_NS, 'use');
+    bg.setAttributeNS(XLINK_NS, 'xlink:href', '#frame-bg');
+    frame_g.appendChild(bg);
+
+    // Add group for content
+    var content_g = document.createElementNS(SVG_NS, 'g');
+    content_g.setAttribute('clip-path', 'url(#frame-mask)');
+    content_g.setAttribute('transform', 'translate(5 20)');
+    frame_g.appendChild(content_g);
+
+    // Add close button
+    var close = document.createElementNS(SVG_NS, 'use');
+    close.setAttributeNS(XLINK_NS, 'xlink:href', '#close-button');
+    frame_g.appendChild(close);
+
+    // Add selection border
+    var border = document.createElementNS(SVG_NS, 'use');
+    border.setAttributeNS(XLINK_NS, 'xlink:href', '#selection-border');
+    // WebKit seems to need this
+    border.setAttribute('class', 'selection-border');
+    frame_g.appendChild(border);
+
+    // Add some selection regions on top
+    // We'd like to just use <use> elements for these as well but iOS Safari
+    // won't pick up click events if you do that.
+    var frameSelection =
+      document.getElementById('frame-selection-region').cloneNode(true);
+    frameSelection.addEventListener('click', onSelect, true);
+    frame_g.appendChild(frameSelection);
+    var closeSelection =
+      document.getElementById('close-selection-region').cloneNode(true);
+    closeSelection.addEventListener('click', onClose, true);
+    frame_g.appendChild(closeSelection);
+
+    // Add the lot
+    container.appendChild(frame_g);
+
+    // Animate the frame so it appears to grow
+    var anim = createAnimBase(frame_g, "transform", "animateTransform");
+    anim.setAttribute("type", "scale");
+    anim.setAttribute("from", "0 1");
+    anim.setAttribute("to", "1 1");
+    anim.setAttribute("additive", "sum");
+
+    // Extend backing rect and lines
+    var backingRect = document.getElementById('backing');
+    animLength(backingRect, backingRect.width, "width", 140);
+    var topLine = document.getElementById('top-line');
+    animLength(topLine, topLine.x1, "x1", 140);
+    var bottomLine = document.getElementById('bottom-line');
+    animLength(bottomLine, bottomLine.x1, "x1", 140);
+
+    // Move the plus button along, but first, kick off an animation to adjust
+    // the currentTranslate to ensure the button stays on the screen.
+    // We do this first to minimise differences in implementations with regards
+    // whether the bbox of the button will be updated immediately after starting
+    // the translate animation or not.
+    makeSurePlusFrameWillBeInView(140, 0);
+    animTranslate(plusFrame, 140, 0);
+
+    // Select the new frame--but do after the animation has finished because
+    // that's more classy.
+    // (Once again, WebKit lets us down here with no support for TimeEvents so
+    //  we just do things the less classy way on WebKit.
+    //  Also, 'children' would be more accurate here, but WebKit doesn't seem to
+    //  offer than on SVG elements at least.)
+    var selectFn = function() { selectFrame(container.childNodes.length - 1); };
+    if (typeof TimeEvent === "object") {
+      anim.addEventListener("end", selectFn);
+    } else {
+      selectFn();
+    }
+
+    if (fireEvent)
+      dispatchEvent("appendframe");
+  }
+
+  function animTranslate(elem, x, y) {
+    var list = elem.transform.baseVal;
+    console.assert(list.numberOfItems <= 1, "Unexpected transform list");
+
+    // Work out from value and update transform too
+    var from = [0,0];
+    if (list.numberOfItems) {
+      var transform = list.getItem(0);
+      from[0] = transform.matrix.e;
+      from[1] = transform.matrix.f;
+      transform.setTranslate(transform.matrix.e + x, transform.matrix.f + y);
+      // This shouldn't be necessary but Transform objects in WebKit don't
+      // appear to be live.
+      list.clear();
+      list.appendItem(transform);
+    } else {
+      var transform = document.documentElement.createSVGTransform();
+      transform.setTranslate(x, y);
+      list.appendItem(transform);
+    }
+    var to = [from[0]+x,from[1]+y];
+
+    // Create anim
+    var anim = createAnimBase(elem, "transform", "animateTransform");
+    anim.setAttribute("type", "translate");
+    anim.setAttribute("from", from.join(" "));
+    anim.setAttribute("to", to.join(" "));
+  }
+
+  function animLength(elem, length, attrName, by) {
+    var from = length.baseVal.value;
+    var to = from + by;
+    length.baseVal.value = to;
+    var anim = createAnimBase(elem, attrName);
+    anim.setAttribute("from", from);
+    anim.setAttribute("to", to);
+  }
+
+  function createAnimBase(elem, attr, tag, endAnimCallback) {
+    if (typeof tag === "undefined")
+      tag = "animate";
+
+    var anim = document.createElementNS(SVG_NS, tag);
+    anim.setAttribute("dur", FRAME_ANIM_DUR_MS + "ms");
+    anim.setAttribute("attributeName", attr);
+    anim.setAttribute("begin", "indefinite");
+    anim.setAttribute("fill", "freeze");
+
+    // Set up callback for when animation ends
+    if (endAnimCallback !== null) {
+      var callback = typeof endAnimCallback === "undefined"
+                   ? function() { elem.removeChild(anim); }
+                   : function() { endAnimCallback(elem, anim); };
+      if (typeof TimeEvent === "object") {
+        anim.addEventListener("end", callback);
+      } else {
+        // Fallback for browsers that don't do TimeEvents
+        window.setTimeout(callback, FRAME_ANIM_DUR_MS);
+      }
+    }
+
+    elem.appendChild(anim);
+    anim.beginElement();
+
+    return anim;
+  }
+
+  // Function to be called when an animation ends so it can be destroyed
+  function selfDestruct(evt) {
+    var parent = evt.target.parentNode;
+    if (!parent)
+      return;
+    parent.removeChild(evt.target);
+  }
+
+  function makeSurePlusFrameWillBeInView(xTrans, yTrans) {
+    // Where out where the right edge of the plus frame *will* be when the
+    // animation finishes.
+    var plusFrame = document.getElementById('plus-frame');
+    var ctm       = plusFrame.getScreenCTM();
+    var bbox      = plusFrame.getBBox();
+    var rightEdge = bbox.x + bbox.width + xTrans;
+    var transformedRightEdge = rightEdge * ctm.a + ctm.e;
+
+    // If it is out of bounds, kick off an animation
+    if (transformedRightEdge > window.innerWidth) {
+      animCurrTranslate(window.innerWidth - transformedRightEdge, 0);
+    }
+  }
+
+  function animCurrTranslate(diffX, diffY) {
+    var from = [document.documentElement.currentTranslate.x,
+                document.documentElement.currentTranslate.y];
+    var to   = [from[0] + diffX, from[1] + diffY];
+    doAnimCurrTranslate(+new Date, FRAME_ANIM_DUR_MS, from, to);
+  }
+
+  function doAnimCurrTranslate(startTime, duration, from, to) {
+    // Once Web Animations is available, we'll be able to get all this
+    // functionality for free.
+    var currTime = +new Date;
+    var dist = (currTime - startTime) / duration;
+    
+    // Check if we have reached the end
+    if (dist >= 1) {
+      document.documentElement.currentTranslate.x = to[0];
+      document.documentElement.currentTranslate.y = to[1];
+      return;
+    }
+
+    // Otherwise interpolate
+    var x = from[0] + (to[0] - from[0]) * dist;
+    var y = from[1] + (to[1] - from[1]) * dist;
+    
+    document.documentElement.currentTranslate.x = x;
+    document.documentElement.currentTranslate.y = y;
+    
+    window.requestAnimationFrame(function() {
+      doAnimCurrTranslate(startTime, duration, from, to);
+    });
+  }
+
+  function onClose(evt) {
+    // XXX Stop any scrolling
+
+    // Send event to application so it can put up a prompt for deleting the
+    // frame
+    var frameIndex = getChildIndex(evt.target.parentNode);
+    dispatchEvent('requestdelete',
+      { index: frameIndex,
+        callback: function() { removeFrame(frameIndex); } }
+    );
+
+    // XXX In the future we should move this frame to the end, dim it, add
+    // a return icon (i.e. undo), append the frame with its index. On click it
+    // would be restored. On creating a new frame, it would be lost forever.
+  }
+
+  function removeFrame(index) {
+    var container = document.getElementById('frame-container');
+    var frame = container.childNodes[index];
+
+    // Remove hit test item so we don't get double-selection
+    var hitRegions = frame.getElementsByClassName('hit-region');
+    for (var i = hitRegions.length - 1; i >= 0; i--) {
+      frame.removeChild(hitRegions[i]);
+    }
+
+    // Animate disappearance
+    var anim =
+      createAnimBase(frame, "transform", "animateTransform", finishDelete);
+    anim.setAttribute("type", "scale");
+    anim.setAttribute("from", "1 1");
+    anim.setAttribute("to", "0 1");
+    anim.setAttribute("additive", "sum");
+
+    // Retract backing rect and lines too
+    var backingRect = document.getElementById('backing');
+    animLength(backingRect, backingRect.width, "width", -140);
+    var topLine = document.getElementById('top-line');
+    animLength(topLine, topLine.x1, "x1", -140);
+    var bottomLine = document.getElementById('bottom-line');
+    animLength(bottomLine, bottomLine.x1, "x1", -140);
+
+    // Move plus frame
+    var plusFrame = document.getElementById('plus-frame');
+    animTranslate(plusFrame, -140, 0);
+
+    // Move other frames
+    for (var i = index + 1; i < container.childNodes.length; i++) {
+      animTranslate(container.childNodes[i], -140, 0);
+    }
+  }
+
+  function finishDelete(elem) {
+    var container = document.getElementById('frame-container');
+
+    // Store info about the elem before removing it
+    var index = getChildIndex(elem);
+    var wasSelected = hasClass(elem, 'selected');
+
+    container.removeChild(elem);
+
+    // If there are no frames left, add one back
+    if (container.childNodes.length === 0) {
+      addFrame(false);
+    }
+
+    // If it was selected, choose the appropriate frame
+    if (wasSelected) {
+      var newIndex = Math.min(index, container.childNodes.length-1);
+      selectFrame(newIndex);
+    }
+  }
+
+  function onSelect(evt) {
+    var frameIndex = getChildIndex(evt.target.parentNode);
+    selectFrame(frameIndex);
+    dispatchEvent("selectframe", { index: frameIndex });
+  }
+
+  function selectFrame(index) {
+    var container = document.getElementById('frame-container');
+
+    // Clear any previous selection
+    var selected = container.getElementsByClassName('selected');
+    for (var i = 0; i < selected.length; i++) {
+      removeClass(selected[i], 'selected');
+    }
+
+    // Again, 'children' would be better, but WebKit says no
+    addClass(container.childNodes[index], 'selected');
+  }
+
+  function getChildIndex(elem) {
+    var index = 0;
+    var prev = elem;
+    while((prev = prev.previousSibling) !== null) 
+      index++;
+    return index;
+  }
+
+  function removeClass(elem, classStr) {
+    if (elem.classList) {
+      elem.classList.remove(classStr);
+    } else {
+      var classes = elem.className.baseVal.trim().split(/\s+/);
+      var idx = classes.indexOf(classStr);
+      if (idx !== -1)
+        classes.splice(idx, 1);
+      elem.className.baseVal = classes.join(" ");
+    }
+  }
+
+  function addClass(elem, classStr) {
+    if (elem.classList) {
+      elem.classList.add(classStr);
+    } else {
+      var classes = elem.className.baseVal.trim().split(/\s+/);
+      var idx = classes.indexOf(classStr);
+      if (idx === -1)
+        classes.push(classStr);
+      elem.className.baseVal = classes.join(" ");
+    }
+  }
+
+  function hasClass(elem, classStr) {
+    if (elem.classList) {
+      return elem.classList.contains(classStr);
+    } else {
+      var classes = elem.className.baseVal.trim().split(/\s+/);
+      return classes.indexOf(classStr) !== -1;
+    }
+  }
+
+  function dispatchEvent(eventName, detail) {
+    var changeEvent = document.createEvent("CustomEvent");
+    changeEvent.initCustomEvent(eventName, true, true, detail);
+    document.dispatchEvent(changeEvent);
+  }
+
+  function init() {
+    var plusFrame = document.getElementById('plus-frame');
+    plusFrame.addEventListener('click', addFrame, true);
+    addFrame(false);
+
+    if ('ontouchstart' in window) {
+      window.addEventListener('touchstart', scrollStart, true);
+      window.addEventListener('touchmove', scrollMove, true);
+      window.addEventListener('touchend', scrollEnd, true);
+      window.addEventListener('touchcancel', scrollEnd, true);
+    } else {
+      window.addEventListener('mousedown', scrollStart, true);
+      window.addEventListener('mousemove', scrollMove, true);
+      window.addEventListener('mouseup', scrollEnd, true);
+    }
+  }
+  init();
+
+  // This will be set to true during a mouse drag, or the touch identifier
+  // during a touch drag
+  var drag = null;
+  var dragStartX = null;
+  var dragStartTransX = null;
+  var realDrag = false;
+
+  function scrollStart(evt) {
+    if (drag !== null || evt.button)
+      return;
+
+    if (evt.changedTouches) {
+      var touch = evt.changedTouches[0];
+      drag = touch.identifier;
+      dragStartX = touch.clientX;
+    } else {
+      drag = true;
+      dragStartX = evt.clientX;
+      evt.preventDefault();
+    }
+    dragStartTransX = document.documentElement.currentTranslate.x;
+    realDrag = false;
+  }
+
+  function scrollMove(evt) {
+    if (drag === null)
+      return;
+
+    var x = null;
+    if (evt.changedTouches) {
+      for (var i = 0; i < evt.changedTouches.length; ++i) {
+        if (evt.changedTouches[i].identifier === drag) {
+          x = evt.changedTouches[i].clientX;
+          break;
+        }
+      }
+    } else {
+      x = evt.clientX;
+    }
+    var xDiff = dragStartX - x;
+
+    // Wait until we get a significant difference before starting a drag
+    if (!realDrag && Math.abs(xDiff) < 20)
+      return;
+    realDrag = true;
+    var newTrans = Math.min(0, dragStartTransX - xDiff);
+    document.documentElement.currentTranslate.x = newTrans;
+  }
+
+  function scrollEnd(evt) {
+    if (drag === null)
+      return;
+
+    if (evt.changedTouches) {
+      for (var i = 0; i < evt.changedTouches.length; ++i) {
+        if (evt.changedTouches[i].identifier === drag) {
+          drag = null;
+          break;
+        }
+      }
+    } else {
+      drag = null;
+      evt.stopPropagation();
+      evt.preventDefault();
+    }
+
+    if (drag === null) {
+      realDrag = false;
+    }
+  }
+ ]]>
+ </script>
+</svg>
